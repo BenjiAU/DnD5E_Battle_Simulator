@@ -975,9 +975,18 @@ def abilitycheck(combatant,checktype,modifier,adv,DC):
 #combat initialisation
 
 def initialise_combatants(init_combatants):
-    initpercy(init_combatants)
-    #initgrog(init_combatants)
+    #initpercy(init_combatants)
+    initgrog(init_combatants)
     initumbrasyl(init_combatants)
+
+def initialise_position(combatants):
+    for combatant in combatants:
+        if combatant.name == "Grog":
+            combatant.position = 1450
+        if combatant.name == "Percy":
+            combatant.position = 1000
+        if combatant.name == "Umbrasyl":
+            combatant.position = 1400
 
 def initialise_combat_round(init_combatants):
     #Initialise Battle
@@ -1113,15 +1122,6 @@ def initialise_combat_round(init_combatants):
                 combatant.breath_attack = True
                 combatant.breath_damage_die = 8
                 combatant.breath_range = 90
-
-def initialise_position(combatants):
-    for combatant in combatants:
-        if combatant.name == "Grog":
-            combatant.position = 1200
-        if combatant.name == "Percy":
-            combatant.position = 1000
-        if combatant.name == "Umbrasyl":
-            combatant.position = 1400
 
 def initialise_targets(combatants):
     i = 0
@@ -1570,6 +1570,12 @@ with open(filename + st + ".txt", 'a') as f:
                         if combatant.target:
                             print('Distance to target: ' + repr(getdistance(combatant.position,combatant.target.position)) + ' feet', file=f)
 
+                        #check for breath weapon recharge
+                        if combatant.creature_class == creature_class.Monster:
+                            if combatant.creature_subclass == creature_subclass.Ancient_Black_Dragon:
+                                if not combatant.breath_attack:
+                                    breath_recharge(combatant)
+
                         # use movement first #
                         movement(combatant)
 
@@ -1597,12 +1603,7 @@ with open(filename + st + ".txt", 'a') as f:
                             combatant.hemo_damage_type = combatant.target.current_weapon.weapon_damage_type
                             deal_damage(combatant,combatant.hemo_damage,combatant.hemo_damage_type,combatant.target.current_weapon.magic)
                             combatant.hemo_damage = 0
-                            combatant.hemo_damage_type = 0
-
-                        if combatant.creature_class == creature_class.Monster:
-                            if combatant.creature_subclass == creature_subclass.Ancient_Black_Dragon:
-                                if not breath_attack:
-                                    breath_recharge(combatant)
+                            combatant.hemo_damage_type = 0                        
 
                         print('That finishes ' + combatant.name + '\'s turn.', file=f)
                         print('', file=f)
