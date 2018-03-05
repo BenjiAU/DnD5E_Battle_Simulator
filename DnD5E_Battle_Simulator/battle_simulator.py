@@ -9,7 +9,7 @@ import glob
 from os import path    
 from enum import Enum, auto
 
-#classes#
+#blocks for containing useful stats/saves
 class checkblock():
     str_adv = bool()
     dex_adv = bool()
@@ -40,6 +40,7 @@ class statblock():
     wis  = int()
     cha = int()
 
+#enumerable creature attributes
 class race(Enum):
     def __str__(self):
         return str(self.value)    
@@ -77,6 +78,7 @@ class feat(Enum):
     Sharpshooter = auto()
     Great_Weapon_Master = auto()
 
+#enumerable weapon attributes
 class weapon_type(Enum):
     def __str__(self):
         return str(self.value)
@@ -95,6 +97,15 @@ class fighting_style(Enum):
     Protection = auto()
     Two_Weapon_Fighting = auto()
 
+#enumerable spells (undecided if this is the best way to handle spells)
+class spells(Enum):
+    def __str__(self):
+        return str(self.value)
+    CabalsRuin = auto()
+    Enlarge = auto()
+    Leap = auto()
+
+#various damage types
 class damage_type(Enum):
     def __str__(self):
         return str(self.value)
@@ -109,14 +120,8 @@ class damage_type(Enum):
     Poison = auto()
     Psychic = auto()
     Acid = auto()
-    
-class spells(Enum):
-    def __str__(self):
-        return str(self.value)
-    CabalsRuin = auto()
-    Enlarge = auto()
-    Leap = auto()
 
+# Generic equipment class - used to track item-granted spells and feats
 class equipment():
     name = ""
     grants_spell = int()
@@ -125,14 +130,14 @@ class equipment():
     damage_die= int()
     damage_type = int()
 
+#Weapon class - used to track weapon damage stats and other properties
 class weapon():
-    #Weapon information#
+    #Core attributes
     name = ""
-    weapon_type = int()
+    weapon_type = int()  
+    magic = bool() # Determines if weapon is magic for purposes of damage resistance
 
-    magic = bool()
-
-    # Properties
+    # Properties from handbook 
     martial = bool()
     finesse = bool()
     ammunition = bool()
@@ -146,7 +151,7 @@ class weapon():
     versatile = bool()
     silvered = bool()
 
-    # Main damage 
+    # Main weapon damage 
     damage_die = int()
     damage_die_count = int()
     weapon_damage_type = int()
@@ -155,104 +160,93 @@ class weapon():
     bonus_damage_die = int()
     bonus_damage_die_count = int()
     bonus_damage_type = int()
-    # Special targetted effects (i.e.dblongsword)
+    # Special targetted effects (i.e. Dragonslayer Longsword gets 3d6 only against Dragon type)
     bonus_damage_target = int()
 
-    # Magic mod (i.e. 2 for +2 weapon)
-    magic_to_hit_modifier = int()
+    # Magic modifiers (i.e. 2 for +2 weapon)
+    magic_to_hit_modifier = int() #also use this on monster attacks (i.e. dragon gets +15 on claw, +8 of which comes from str mod - the rest has no source)
     magic_damage_modifier = int()
 
-    # Firearm-specific
+    # Firearm-specific properties
     reload = int()
     currentammo = int()
     misfire = int()
     broken = bool()
     ruined = bool()
 
+# Generic class for players and monster entities (called creature to be consistent with rulebook)
 class creature():
-    
-    no_of_wins = int()
-
-    # combatant stats #
-
+    # Core properties, common across creatures
     fullname = ""
     name = ""
     race = int()
     creature_class = int()
     creature_subclass = int()
-
-    barbarian_level = int()
-    fighter_level = int()
-
-    #Fighting style that maps to weapon_type enum, for use in determining things like Firearmslinger
-    fighting_style = int()
-    rogue_level = int()
-    ranger_level = int()
-    generic_level = int()
-
-    #Up to 10 feats
-    def creature_feats(self):
-        if not hasattr(self, "_creature_feats"):
-            self._creature_feats = []
-        return self._creature_feats    
+    
+    max_health = int()
+    current_health = int()    
+    armor_class = int()
+        
+    speed = int()   
 
     stats = statblock()
     saves = saveblock()
     checks = checkblock()
     
     current_weapon = weapon()
-    
-    #Up to 10 other weapon slots
+
+    #Extensible properties (1 to many)
+    def creature_feats(self):
+        if not hasattr(self, "_creature_feats"):
+            self._creature_feats = []
+        return self._creature_feats    
+       
     def weapon_inventory(self):
         if not hasattr(self, "_weapon_inventory"):
             self._weapon_inventory = [] 
         return self._weapon_inventory
 
-    #Weapon proficiency
-
-    #Up to 10 weapon proficiency
     def weapon_proficiency(self):
         if not hasattr(self, "_weapon_proficiency"):
             self._weapon_proficiency = []
         return self._weapon_proficiency    
 
-    #Up to 10 other equipment slots
     def equipment_inventory(self):
         if not hasattr(self, "_equipment_inventory"):
             self._equipment_inventory = []
         return self._equipment_inventory
 
-    max_health = int()
-    current_health = int()
-    initiative_roll = int()    
-    armor_class = int()
-    proficiency = int()
-        
-    speed = int()
-
-    # status #
+    # PC specific - levels in various classes, used to determine which abilities are available
+    barbarian_level = int()
+    fighter_level = int()    
+    fighting_style = int()
+    rogue_level = int()
+    ranger_level = int()    
+    proficiency = int() # Determined by taking the PC's 'primary' class, based on the level - see initgrog for example
     
-    position = int()
-    
-    movement_used = bool()
-    action_used = bool()
-    bonus_action_used = bool()
-    reaction_used = bool()
-
-    prone = bool()
-    alive = bool()    
-
-    # combat related # 
-
+    #Combat/class/race/feat properties - variety of fields used to track whether abilities can be used, the count remaining for abilities, and other combat info
+    # Class
+    ## Generic
     extra_attack = int()
-    min_crit = int()    
+    
+    ## Fighter
     action_surge = int()
     second_wind = bool()
+    
+    ## Gunslinger 
+    max_grit = int()
+    current_grit = int()
+    sharpshooter = bool()    
+    use_sharpshooter = bool()    
 
-    # grog specific #    
-    stones_endurance = bool()
-    stones_endurance_used = bool()
-
+    quickdraw = bool()
+    lighting_reload = bool()
+    vicious_intent = bool()
+    hemorrhaging_critical = bool()
+    hemo_damage = int()
+    hemo_damage_type = int()
+    
+    ## Barbarian
     canrage = bool()
     ragedamage = int()
     raging = bool()
@@ -261,44 +255,40 @@ class creature():
     great_weapon_master = bool()
     use_great_weapon_master = bool()
 
-
-    # one additional weapon die when determining damage on crit (2 at 13th, 3 at 17th)
     brutal_critical = bool()
     brutal_critical_dice = int()
-    # dc10 con save to drop to 1 hit point instead of 0 while raging, increaes by 5 each use
     relentless_rage = bool()
     relentless_rage_DC = int()
-    # use reaction to attack creature within 5 feet that damages you
     retaliation = bool()
-    # advantage on initiative
     feral_instinct = bool()
 
-    # percy specific #
-    max_grit = int()
-    current_grit = int()
-    sharpshooter = bool()    
-    use_sharpshooter = bool()    
+    # Race
+    ## Goliath #    
+    stones_endurance = bool()
+    stones_endurance_used = bool()
 
-    # add prof to initiative
-    quickdraw = bool()
-    # use bonus action to reload
-    lighting_reload = bool()
-    # crit on 19-20
-    vicious_intent = bool()
-    # target suffers half of crit damage at end of next turn
-    hemorrhaging_critical = bool()
-    # fields to track hemorrhaging critical damage
-    hemo_damage = int()
-    hemo_damage_type = int()
-
-
-    #monster stuff
+    # NPC properties - specific abilities that are NPC only and require different logic (i.e. multiattack as opposed to Extra Attack)
     multiattack = []
     breath_attack = bool()
     breath_range = int()
     breath_damage_die = int()
 
-# combat functions # 
+    # In-combat properties, reflect status of creature within battle attempt #
+    
+    position = int() # This flat int is all that's used for tracking distance/position at the moment - needs to be converted to x,y co-ordinate system
+    initiative_roll = int() # Used to sort combatants in initiative order
+    movement_used = bool() # Tracks if Movement step of turn has been used
+    action_used = bool() # Tracks if Action step of turn has been used
+    bonus_action_used = bool() # Tracks if Bonus Action step of turn has been used
+    reaction_used = bool() # Tracks if Reaction step of turn has been used
+
+    prone = bool() # Tracks if creature is prone (requires half movement to stand)
+    alive = bool() # Tracks if creature is still alive
+
+    # Extra-combat properties, reflect status of creature across battle attempts
+    no_of_wins = int()
+
+### Core Round functions ###
 
 def movement(combatant):
     # Only move if a target exists
@@ -306,9 +296,9 @@ def movement(combatant):
         # movement #
         movement = combatant.speed
         if combatant.prone:
-            # spend half your movement to get up #
+            # Spend half movement to get up #
             movement = math.floor(movement/2)
-            print(combatant.name + ' spends half their movement to stand up from prone ', file=f)            
+            print(combatant.name + ' spends ' + repr(movement) + ' feet of movement to stand up from prone ', file=f)            
             combatant.prone = False
 
         if combatant.current_weapon.range == 0:        
@@ -343,9 +333,9 @@ def movement(combatant):
     combatant.movement_used = True
 
 def action(combatant):
-    # Only do something if a target exists
+    # Only perform an action if target exists
     if combatant.target:
-
+        # Iterate through equipment and use any available spells (if possible)
         for eq in combatant.equipment_inventory():
             if eq.grants_spell == spells.Enlarge:
                 if not combatant.enlarged:
@@ -1235,30 +1225,30 @@ def initpercy(init_combatants):
 
     percy.weapon_inventory().append(animus)    
 
-    #Dragonblade longsword
-    dragonblade_longsword = weapon()
+    #dragonslayer longsword
+    dragonslayer_longsword = weapon()
 
-    dragonblade_longsword.name = "Dragonblade Longsword"
-    dragonblade_longsword.weapon_type = weapon_type.Sword
+    dragonslayer_longsword.name = "Dragonslayer Longsword"
+    dragonslayer_longsword.weapon_type = weapon_type.Sword
     
-    dragonblade_longsword.range = 0
-    dragonblade_longsword.damage_die = 8
-    dragonblade_longsword.damage_die_count = 1
-    dragonblade_longsword.weapon_damage_type = damage_type.Slashing
+    dragonslayer_longsword.range = 0
+    dragonslayer_longsword.damage_die = 8
+    dragonslayer_longsword.damage_die_count = 1
+    dragonslayer_longsword.weapon_damage_type = damage_type.Slashing
 
-    dragonblade_longsword.bonus_damage_die = 6
-    dragonblade_longsword.bonus_damage_die_count = 3
-    dragonblade_longsword.bonus_damage_type = damage_type.Slashing
-    dragonblade_longsword.bonus_damage_target = race.Dragon
+    dragonslayer_longsword.bonus_damage_die = 6
+    dragonslayer_longsword.bonus_damage_die_count = 3
+    dragonslayer_longsword.bonus_damage_type = damage_type.Slashing
+    dragonslayer_longsword.bonus_damage_target = race.Dragon
 
-    dragonblade_longsword.magic_to_hit_modifier = 1
-    dragonblade_longsword.magic_damage_modifier = 1
+    dragonslayer_longsword.magic_to_hit_modifier = 1
+    dragonslayer_longsword.magic_damage_modifier = 1
 
-    dragonblade_longsword.light = True
-    dragonblade_longsword.finesse = True
-    dragonblade_longsword.magic = True
+    dragonslayer_longsword.light = True
+    dragonslayer_longsword.finesse = True
+    dragonslayer_longsword.magic = True
 
-    percy.weapon_inventory().append(dragonblade_longsword)
+    percy.weapon_inventory().append(dragonslayer_longsword)
 
     #Percy's gear
     cabalsruin = equipment()
