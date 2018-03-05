@@ -48,6 +48,7 @@ class race(Enum):
     Half_Elf = auto()
     Gnome = auto()
     Goliath = auto()
+    Dragonborn = auto()
     Dragon = auto()
 
 class creature_class(Enum):
@@ -57,6 +58,7 @@ class creature_class(Enum):
     Barbarian = auto()
     Rogue = auto()
     Ranger = auto()
+    Paladin = auto()
     Monster = auto()
     
 class creature_subclass(Enum):
@@ -70,6 +72,8 @@ class creature_subclass(Enum):
     Thief = auto()
     #Ranger subclasses
     Beastmaster = auto()
+    #Paladin subclasses
+    Oathbreaker = auto()
     Ancient_Black_Dragon = auto()
 
 class feat(Enum):
@@ -101,9 +105,25 @@ class fighting_style(Enum):
 class spells(Enum):
     def __str__(self):
         return str(self.value)
+    DivineSmite = auto()
+    ImprovedDivineSmite = auto()
     CabalsRuin = auto()
     Enlarge = auto()
     Leap = auto()
+
+#Spell slots
+class spellslots(Enum):
+    def __str__(self):
+        return str(self.value)
+    FirstLevel = auto()
+    SecondLevel = auto()
+    ThirdLevel = auto()
+    FourthLevel = auto()
+    FifthLevel = auto()
+    SixthLevel = auto()
+    SeventhLevel = auto()
+    EigthLevel = auto()
+    NinthLevel = auto()
 
 #various damage types
 class damage_type(Enum):
@@ -162,6 +182,11 @@ class weapon():
     bonus_damage_type = int()
     # Special targetted effects (i.e. Dragonslayer Longsword gets 3d6 only against Dragon type)
     bonus_damage_target = int()
+    
+    # Crit bonus damage (i.e. 2d8 Necrotic on Fane Eater)
+    crit_bonus_damage_die = int()
+    crit_bonus_damage_die_count = int()
+    crit_bonus_damage_type = int()
 
     # Magic modifiers (i.e. 2 for +2 weapon)
     magic_to_hit_modifier = int() #also use this on monster attacks (i.e. dragon gets +15 on claw, +8 of which comes from str mod - the rest has no source)
@@ -195,7 +220,14 @@ class creature():
     
     current_weapon = weapon()
 
+    creature_spellslots = spellslots():        
+
     #Extensible properties (1 to many)
+    def creature_spells(self):
+        if not hasattr(self, "_creature_spells"):
+            self._creature_spells = []
+        return self._creature_spells           
+
     def creature_feats(self):
         if not hasattr(self, "_creature_feats"):
             self._creature_feats = []
@@ -660,6 +692,8 @@ def attack(combatant):
                 weapon_damage_type = damage_type.Bludgeoning
                 bonus_dice_damage = 0
                 bonus_damage_type = damage_type.Bludgeoning
+                crit_bonus_dice_damage = 0
+                crit_bonus_damage_type = damage_type.Bludgeoning
                 equipment_damage = 0
                 equipment_damage_type = 0
 
@@ -686,7 +720,7 @@ def attack(combatant):
 
                     #Great Weapon Fighting (reroll 1s and 2s)
                     greatweaponfighting = False
-                    if combatant.fighting_style == fighting_style.Great_Weapon_Fighting and combatant.current_weapon.heavy:
+                    if combatant.fighting_style == fighting_style.Great_Weapon_Fighting and (combatant.current_weapon.two_handed or combatant.current_weapon.versatile):
                         greatweaponfighting = True
 
                     weapon_damage_type = damage_type(combatant.current_weapon.weapon_damage_type)
@@ -701,6 +735,7 @@ def attack(combatant):
                      
                     if crit:
                         dice_damage = dice_damage * 2
+                                                
                         # restore grit on critical # 
                         if combatant.current_grit < combatant.max_grit:
                             print(combatant.name + ' regained 1 grit point for scoring a critical hit!', file=f)
@@ -750,6 +785,7 @@ def attack(combatant):
                         # Apply bonus damage selectively 
                         if (combatant.current_weapon.bonus_damage_target == 0) or (combatant.current_weapon.bonus_damage_target == combatant.target.race):
                             bonus_damage_type = damage_type(combatant.current_weapon.bonus_damage_type)
+                            print(combatant.name + ' dealt bonus damage with ' + combatant.current_weapon.name, file=f)
                             for x in range(0,combatant.current_weapon.bonus_damage_die_count):
                                 die_damage = roll_weapon_die(combatant.current_weapon.bonus_damage_die)
                                 print(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.bonus_damage_die) + ' (Bonus Damage)', file=f)
@@ -763,6 +799,26 @@ def attack(combatant):
                         
                         print(combatant.name + ' dealt an additional ' + repr(bonus_dice_damage) + ' points of ' + bonus_damage_type.name + ' damage with ' + combatant.current_weapon.name, file=f)
                         deal_damage(combatant.target,bonus_dice_damage,bonus_damage_type,combatant.current_weapon.magic)
+
+                    if crit and combatant.current_weapon.crit_bonus_damage_die > 0:
+                        # Apply bonus critical damage selectively (potentially different damage type)                        
+                        print(combatant.name + ' dealt bonus critical damage with ' + combatant.current_weapon.name, file=f)
+                        bonus_damage_type = damage_type(combatant.current_weapon.crit_bonus_damage_type)
+                        for x in range(0,combatant.current_weapon.crit_bonus_damage_die_count):
+                            die_damage = roll_weapon_die(combatant.current_weapon.crit_bonus_damage_die)
+                            print(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.bonus_damage_die) + ' (Bonus Damage)', file=f)
+                            if greatweaponfighting and die_damage <= 2:
+                                print(combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!', file=f)
+                                die_damage = roll_weapon_die(combatant.current_weapon.bonus_damage_die)
+                                print(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.bonus_damage_die) + ' (Bonus Damage)', file=f)
+                            crit_bonus_dice_damage += die_damage
+                            # Do we double the damage on the dice, since it is a crit? 
+                            # Fane Eater reads as '2d8 additional necrotic damage on crit'
+                            # I would rule that you do double the dice - DM discretion?
+                            crit_bonus_dice_damage = crit_bonus_dice_damage * 2
+                        
+                        print(combatant.name + ' dealt an additional ' + repr(crit_bonus_dice_damage) + ' points of ' + crit_bonus_damage_type.name + ' damage with ' + combatant.current_weapon.name, file=f)
+                        deal_damage(combatant.target,crit_bonus_dice_damage,crit_bonus_damage_type),combatant.current_weapon.magic)
 
                     #Cabal's Ruin
                     #Only use cabal's on a crit, dump all charges
@@ -979,9 +1035,10 @@ def abilitycheck(combatant,checktype,modifier,adv,DC):
 #combat initialisation
 
 def initialise_combatants(init_combatants):
-    #initpercy(init_combatants)
-    initgrog(init_combatants)
-    initumbrasyl(init_combatants)
+    #init_percy(init_combatants)
+    init_arkhan(init_combatants)
+    init_grog(init_combatants)
+    #init_umbrasyl(init_combatants)
 
 def initialise_position(combatants):
     for combatant in combatants:
@@ -1081,7 +1138,16 @@ def initialise_combat_round(init_combatants):
         if combatant.barbarian_level >= 17:
             combatant.brutal_critical_dice = 3
         
+        # Paladin
+        # Divine Smite (2nd level)
+        if combatant.paladin_level >= 2:
+            combatant.divine_smite = True
             
+        # Extra Attack (5th level)
+        if combatant.paladin_level >= 5:
+            combatant.extra_attack += 1
+
+
         # Specific abilities (primary class/subclass must be defined)
         #Gunslinger (examine profiencies for Firearm proficiency, use fighter levels to determine abilities)
         if combatant.creature_class == creature_class.Fighter:
@@ -1142,7 +1208,7 @@ def initialise_targets(combatants):
 
 # helper functions #
 
-def initpercy(init_combatants):
+def init_percy(init_combatants):
 #Percival
     percy = creature()
     percy.fullname = "Percival Fredrickstein Von Musel Klossowski De Rolo III"
@@ -1268,7 +1334,7 @@ def initpercy(init_combatants):
     # add combatants to array
     init_combatants.append(percy)
 
-def initgrog(init_combatants):
+def init_grog(init_combatants):
 
     #GROG
     grog = creature()
@@ -1363,7 +1429,109 @@ def initgrog(init_combatants):
 
     init_combatants.append(grog)    
 
-def initumbrasyl(init_combatants):
+    
+def init_arkhan(init_combatants):
+
+    #Arkhan
+    arkhan = creature()
+    arkhan.fullname = "Highlord Arkhan the Cruel"
+    arkhan.name = "Arkhan"
+    arkhan.race = race.Dragonborn
+    arkhan.creature_class = creature_class.Paladin
+    arkhan.creature_subclass = creature_subclass.Oathbreaker
+    arkhan.paladin_level = 14
+    arkhan.barbarian_level = 3
+    arkhan.fighting_style = fighting_style.Great_Weapon_Fighting
+    arkhan.max_health = 191
+    arkhan.armor_class = 24
+    arkhan.speed = 30
+    arkhan.proficiency = math.floor((7+arkhan.paladin_level)/4)
+    arkhan.weapon_proficiency().append(weapon_type.Axe)
+
+    #arkhan.creature_feats().append(feat.Great_Weapon_Master)
+
+    #Stats
+    arkhanstats = statblock()
+    arkhanstats.str = 20
+    arkhanstats.dex = 14
+    arkhanstats.con = 14
+    arkhanstats.intel = 10
+    arkhanstats.wis = 12
+    arkhanstats.cha = 18
+
+    arkhan.stats = arkhanstats
+    
+    #Saves
+    arkhansaves = saveblock()    
+    arkhansaves.str = 5
+    arkhansaves.str_adv = True
+    arkhansaves.dex = 2
+    arkhansaves.dex_adv = False
+    arkhansaves.con = 2
+    arkhansaves.con_adv = False
+    arkhansaves.intel = 0
+    arkhansaves.int_adv = False
+    arkhansaves.wis = 7
+    arkhansaves.wis_adv = False
+    arkhansaves.cha = 10
+    arkhansaves.cha_adv = False
+    
+    arkhan.saves = arkhansaves
+
+    #Ability Checks
+    arkhanchecks = checkblock()
+    arkhanchecks.str_adv = True
+
+    arkhan.checks = arkhanchecks    
+
+    #Spell Slots
+    arkhanslots = spellslots()
+    arkhanslots.FirstLevel = 4
+    arkhanslots.SecondLevel = 3
+    arkhanslots.ThirdLevel = 3
+    arkhanslots.FourthLevel = 1
+
+    arkhan.creature_spellslots = arkhanslots
+
+    #arkhan's weapons
+    fane_eater = weapon()
+    fane_eater.name = "Fane-Eater Battleaxe"
+    fane_eater.weapon_type = weapon_type.Axe;
+    fane_eater.range = 0
+    
+    fane_eater.damage_die = 8
+    fane_eater.damage_die_count = 2
+    fane_eater.weapon_damage_type = damage_type.Slashing
+    
+    fane_eater.crit_bonus_damage_die = 8
+    fane_eater.crit_bonus_damage_die_count = 2 
+    fane_eater.crit_bonus_damage_type = damage_type.Necrotic
+    
+    fane_eater.magic_to_hit_modifier = 3
+    fane_eater.magic_damage_modifier = 3
+
+    fane_eater.heavy = True
+    fane_eater.two_handed = True
+    fane_eater.magic = True
+
+    arkhan.weapon_inventory().append(fane_eater)
+
+    #arkhan's gear    
+    handofvecna = equipment()
+    handofvecna.name = "Hand of Vecna"
+    handofvecna.grants_spell = spells.Enlarge    
+
+    arkhan.equipment_inventory().append(handofvecna)
+
+    # Arkhan's spells
+    
+    arkhan.creature_spells().append().DivineSmite
+
+    # combat stats # 
+
+    init_combatants.append(arkhan)    
+
+def init_umbrasyl(init_combatants):
 
     umbrasyl = creature()
     umbrasyl.fullname = "Umbrasyl"
@@ -1458,7 +1626,6 @@ def initumbrasyl(init_combatants):
     umbrasyl.weapon_inventory().append(tail)
 
     init_combatants.append(umbrasyl)    
-
 
 def getdistance(combatantpos,targetpos):
     return int(math.fabs(combatantpos-targetpos))
