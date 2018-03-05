@@ -714,6 +714,7 @@ def attack(combatant):
                                 if greatweaponfighting and die_damage <= 2:
                                     print(combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!', file=f)                                           
                                     die_damage = roll_weapon_die(combatant.current_weapon.damage_die)            
+                                    print(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Brutal Critical damage)', file=f)
                                 dice_damage += die_damage              
                             
                         #Hemorraghing Critical feature
