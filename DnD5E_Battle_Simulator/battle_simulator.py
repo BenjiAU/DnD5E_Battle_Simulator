@@ -614,6 +614,7 @@ def attack(combatant):
                 advantage = True
 
             if combatant.target.reckless and combatant.current_weapon.range == 0:
+                print(combatant.name + ' has advantage on the strike, as ' + combatant.target.name + ' used Reckless Attack last round!', file=f)
                 advantage = True
 
             # Make attack roll # 
@@ -711,10 +712,12 @@ def attack(combatant):
                             for x in range(0,combatant.brutal_critical_dice):                            
                                 die_damage = roll_weapon_die(combatant.current_weapon.damage_die)            
                                 print(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Brutal Critical damage)', file=f)
-                                if greatweaponfighting and die_damage <= 2:
-                                    print(combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!', file=f)                                           
-                                    die_damage = roll_weapon_die(combatant.current_weapon.damage_die)            
-                                    print(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Brutal Critical damage)', file=f)
+                                #Per https://www.reddit.com/r/criticalrole/comments/823w9v/spoilers_c1_another_dnd_combat_simulation/dv7r55m/
+                                # Brutal Critical does not benefit from Great Weapon Fighting (only applies to the attack)
+                                #if greatweaponfighting and die_damage <= 2:
+                                #    print(combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!', file=f)                                           
+                                #    die_damage = roll_weapon_die(combatant.current_weapon.damage_die)            
+                                #    print(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Brutal Critical damage)', file=f)
                                 dice_damage += die_damage              
                             
                         #Hemorraghing Critical feature
