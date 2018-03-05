@@ -120,7 +120,8 @@ class spells(Enum):
 class equipment():
     name = ""
     grants_spell = int()
-    charges = int()
+    max_charges = int()
+    current_charges = int()
     damage_die= int()
     damage_type = int()
 
@@ -213,9 +214,7 @@ class creature():
     def weapon_proficiency(self):
         if not hasattr(self, "_weapon_proficiency"):
             self._weapon_proficiency = []
-        return self._weapon_proficiency
-
-    current_equipment = equipment()
+        return self._weapon_proficiency    
 
     #Up to 10 other equipment slots
     def equipment_inventory(self):
@@ -347,11 +346,12 @@ def action(combatant):
     # Only do something if a target exists
     if combatant.target:
 
-        if combatant.current_equipment.name == "Titanstone Knuckles":
-            if not combatant.enlarged:
-                print(combatant.name + ' smashes the ' + combatant.current_equipment.name + ' together and grows in size!', file=f)            
-                combatant.enlarged = True
-                combatant.action_used = True
+        for eq in combatant.equipment_inventory():
+            if eq.grants_spell == spells.Enlarge:
+                if not combatant.enlarged:
+                    print(combatant.name + ' smashes the ' + eq.name + ' together and grows in size!', file=f)            
+                    combatant.enlarged = True
+                    combatant.action_used = True
         if not combatant.action_used:
             if combatant.current_weapon.range == 0:
                 # melee weapon #
@@ -773,17 +773,18 @@ def attack(combatant):
                     #Cabal's Ruin
                     #Only use cabal's on a crit, dump all charges
                     if crit:
-                        if combatant.current_equipment.name == "Cabal\'s Ruin":
-                            equipment_damage_type = combatant.current_equipment.damage_type
-                            if combatant.current_equipment.charges > 0:
-                                print(combatant.name + ' activates Cabal\'s Ruin, pouring ' +  repr(combatant.current_equipment.charges) + ' into ' + combatant.target.name + '!', file=f)
-                                for x in range(0,combatant.current_equipment.charges):
-                                    die_damage = roll_weapon_die(combatant.current_equipment.damage_die)                                
-                                    equipment_damage += die_damage * 2         
-                                    print(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_equipment.damage_die) + ' (Cabal\'s Ruin damage)', file=f)
-                            combatant.current_equipment.charges = 0                
-                            print(combatant.name + ' dealt an additional ' + repr(equipment_damage) + ' points of ' + equipment_damage_type.name + ' damage with ' + combatant.current_equipment.name, file=f)
-                            deal_damage(combatant.target,equipment_damage,equipment_damage_type,True)
+                        for eq in combatant.equipment_inventory():
+                            if eq.grants_spell == spells.CabalsRuin:                              
+                                equipment_damage_type = eq.damage_type
+                                if eq.current_charges > 0:
+                                    print(combatant.name + ' activates ' + eq.name + ', pouring ' +  repr(eq.current_charges) + ' charges into ' + combatant.target.name + '!', file=f)
+                                    for x in range(0,eq.current_charges):
+                                        die_damage = roll_weapon_die(eq.damage_die)                                
+                                        equipment_damage += die_damage * 2         
+                                        print(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(eq.damage_die) + ' (Cabal\'s Ruin damage)', file=f)
+                                    eq.current_charges = 0                
+                                    print(combatant.name + ' dealt an additional ' + repr(equipment_damage) + ' points of ' + equipment_damage_type.name + ' damage with ' + eq.name, file=f)
+                                    deal_damage(combatant.target,equipment_damage,equipment_damage_type,True)
                 
                     #See if the damage droped target below 0 hp
                     resolve_fatality(combatant.target)
@@ -817,7 +818,7 @@ def deal_damage(combatant,damage,weapon_damage_type,magical):
     if combatant.enlarged:
         if weapon_damage_type in (damage_type.Fire,damage_type.Cold,damage_type.Lightning):
             damage = int(damage/2)              
-            print(combatant.name + ' shrugs off ' + repr(damage) + ' points of damage due to the ' + combatant.current_equipment.name, file=f)
+            print(combatant.name + ' shrugs off ' + repr(damage) + ' points of damage due to the effects of Enlarge!', file=f)
 
     #Reduce bludgeoning/piercing/slashing if dealt by non-magical weapon
     if combatant.creature_subclass == creature_subclass.Ancient_Black_Dragon:            
@@ -884,10 +885,7 @@ def calc_to_hit_modifier(combatant):
 
 def calc_damage_modifier(combatant):
     damage = 0
-    # Add 2 for fighting style
-    if combatant.fighting_style == combatant.current_weapon.weapon_type:
-        damage += 2;
-
+    
     # Add Dex modifier for finesse weapons, otherwise Str
     if combatant.current_weapon.finesse:
         damage += dexmod(combatant)
@@ -1008,6 +1006,10 @@ def initialise_combat_round(init_combatants):
             weap.broken = False
             weap.current_ammo = weap.ammunition
                 
+        # Reset equipment
+        for eq in combatant.equipment_inventory():
+            eq.current_charges = eq.max_charges
+
         # Hemorraging Critical tracking
         combatant.hemo_damage = 0        
         combatant.hemo_damage_type = 0
@@ -1262,10 +1264,10 @@ def initpercy(init_combatants):
     cabalsruin = equipment()
     cabalsruin.name = "Cabal\'s Ruin"
     cabalsruin.grants_spell = spells.CabalsRuin
-    cabalsruin.charges = 9
+    cabalsruin.max_charges = 9
+    cabalsruin.current_charges = 0
     cabalsruin.damage_die = 6
-    cabalsruin.damage_type = damage_type.Lightning
-    percy.equipment = cabalsruin
+    cabalsruin.damage_type = damage_type.Lightning    
 
     percy.equipment_inventory().append(cabalsruin)
 
