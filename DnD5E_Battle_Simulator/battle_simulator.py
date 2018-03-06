@@ -898,10 +898,6 @@ def attack(combatant):
                     #Smite (ideally you would only do this on crit)
                     for spell in combatant.creature_spells():
                         if spell.name == "Divine Smite":
-                            if combatant.improved_divine_smite:
-                                #Additional radiant damage from Improved Divine Smite
-                                print(combatant.name + '\'s eyes glow a brilliant white as the Smite attack is infused with more power!',file=f)                                                                            
-                                resolve_bonus_damage(combatant,0,damage_type.Radiant,8,1,crit,"Improved Divine Smite")
                             #Casting Divine Smite should be the last resolution of any attack action
                             #Casting a spell calls its own 'resolve_damage' function
                             cast_spell(combatant,spell,crit)
