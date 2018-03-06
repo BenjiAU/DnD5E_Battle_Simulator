@@ -40,16 +40,39 @@ class statblock():
     wis  = int()
     cha = int()
 
+class saving_throw(Enum):
+    def __str__(self):
+        return str(self.value)    
+    Strength = auto()
+    Dexterity = auto()
+    Consitution = auto()
+    Intelligence = auto()
+    Wisdom = auto()
+    Charisma = auto()
+
+class ability_check(Enum):
+    def __str__(self):
+        return str(self.value)    
+    Strength = auto()
+    Dexterity = auto()
+    Consitution = auto()
+    Intelligence = auto()
+    Wisdom = auto()
+    Charisma = auto()
+
 #enumerable creature attributes
 class race(Enum):
     def __str__(self):
         return str(self.value)    
+    #PC Races
     Human = auto()
     Half_Elf = auto()
     Gnome = auto()
     Goliath = auto()
     Dragonborn = auto()
+    #Monster races
     Dragon = auto()
+    Undead = auto()
 
 class creature_class(Enum):
     def __str__(self):
@@ -111,19 +134,70 @@ class spells(Enum):
     Enlarge = auto()
     Leap = auto()
 
-#Spell slots
-class spellslots(Enum):
+class spell_school(Enum):
     def __str__(self):
         return str(self.value)
-    FirstLevel = auto()
-    SecondLevel = auto()
-    ThirdLevel = auto()
-    FourthLevel = auto()
-    FifthLevel = auto()
-    SixthLevel = auto()
-    SeventhLevel = auto()
-    EigthLevel = auto()
-    NinthLevel = auto()
+    Divination = auto()
+    Transmutation = auto()
+    Necromancy = auto()
+    Evocation = auto()
+
+#Spells version 2
+class spell():
+   name = str()
+   
+   #Spell school
+   school = int()
+   
+   # Castable range of spell to origin (i..e fireball = 150ft)
+   range = int()
+   # Spells' origin (point at which spell originates (i.e. fireball erupts from point you choose in range)
+   origin = int()
+   # Shape enumeration (shape that spell affects, i.e. fireball = 20 ft radius sphere)
+   shape = int()
+   shape_size = int()
+
+   #Components
+   verbal = bool()
+   somatic = bool()
+   material = bool()
+   # Cost in GP for material (as if we'll ever get to that point)
+   material_cost = int()
+
+   #Minimum spell slot to be expended to cast spell (0 = cantrip)
+   min_spell_slot = int()
+   
+   #Maximum spell slot to be expended with additional effect 
+   #(i.e. divine smite at 8th level has 5th level properties)
+   max_spell_slot = int()
+
+   damage_die = int()
+   damage_die_count = int()
+   damage_type = int()
+
+   #Additional damage to deal per spell slot gap between min_spell_slot (up to max)
+   damage_die_per_spell_slot = int()
+   damage_die_count_per_spell_slot = int()
+
+   #Bonus damage based on target
+   bonus_damage_die = int()
+   bonus_damage_die_count = int()
+   bonus_damage_target = int()
+
+   saving_throw = int()
+   saving_throw_dc = int()
+
+#Spell slots
+class spellslots():
+    FirstLevel = int()
+    SecondLevel = int()
+    ThirdLevel = int()
+    FourthLevel = int()
+    FifthLevel = int()
+    SixthLevel = int()
+    SeventhLevel = int()
+    EigthLevel = int()
+    NinthLevel = int()
 
 #various damage types
 class damage_type(Enum):
@@ -220,7 +294,7 @@ class creature():
     
     current_weapon = weapon()
 
-    creature_spellslots = spellslots():        
+    creature_spellslots = spellslots()      
 
     #Extensible properties (1 to many)
     def creature_spells(self):
@@ -254,6 +328,7 @@ class creature():
     fighting_style = int()
     rogue_level = int()
     ranger_level = int()    
+    paladin_level = int()
     proficiency = int() # Determined by taking the PC's 'primary' class, based on the level - see initgrog for example
     
     #Combat/class/race/feat properties - variety of fields used to track whether abilities can be used, the count remaining for abilities, and other combat info
@@ -551,7 +626,7 @@ def breath_attack(combatant):
             die_damage = roll_weapon_die(combatant.breath_damage_die)
             print(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.breath_damage_die) + ' (Breath Damage)', file=f)
             breath_damage += die_damage
-    if savingthrow(combatant.target,"Dexterity",dexmod(combatant.target),combatant.target.saves.dex_adv,23):
+    if savingthrow(combatant.target,saving_throw.Dexterity,dexmod(combatant.target),combatant.target.saves.dex_adv,23):
         deal_damage(combatant.target,breath_damage/2,breath_damage_type,True)
     else:
         deal_damage(combatant.target,breath_damage,breath_damage_type,True)
@@ -569,7 +644,7 @@ def breath_recharge(combatant):
     else:
         print(combatant.name + ' rolled a ' + repr(die) + ' on a d6 and did not recharge their Breath Attack.', file=f)
 
-#Attack resolution
+#Make an attack
 def attack(combatant):    
     #Only attack with a weapon
     if combatant.current_weapon.name != "":
@@ -736,6 +811,11 @@ def attack(combatant):
                     if crit:
                         dice_damage = dice_damage * 2
                                                 
+                        #Choose to cast Divine Smite if available
+                        for spell in range(0,combatant.creature_spells()):
+                            if spell.name = "Divine Smite":
+                                cast_spell(combatant,spell)
+
                         # restore grit on critical # 
                         if combatant.current_grit < combatant.max_grit:
                             print(combatant.name + ' regained 1 grit point for scoring a critical hit!', file=f)
@@ -818,7 +898,7 @@ def attack(combatant):
                             crit_bonus_dice_damage = crit_bonus_dice_damage * 2
                         
                         print(combatant.name + ' dealt an additional ' + repr(crit_bonus_dice_damage) + ' points of ' + crit_bonus_damage_type.name + ' damage with ' + combatant.current_weapon.name, file=f)
-                        deal_damage(combatant.target,crit_bonus_dice_damage,crit_bonus_damage_type),combatant.current_weapon.magic)
+                        deal_damage(combatant.target,crit_bonus_dice_damage,crit_bonus_damage_type,combatant.current_weapon.magic)
 
                     #Cabal's Ruin
                     #Only use cabal's on a crit, dump all charges
@@ -849,9 +929,87 @@ def attack(combatant):
         else:
             print(combatant.target.name + ' is unconscious!', file=f)
 
+#Cast a spell  
+def cast_spell(combatant,spell):
+    #Check if a spell slot is available to be used
+    #Always use highest level spellslot to cast spell (for now...)
+    spellslot = check_slot_available(combatant,spell)
+    #Don't burn a spell slot that doesn't give a benefit
+    if spellslot >= spell.min_spell_slot and spellslot <= spell.max_spell_slot:    
+        #Check that components (V,S,M) are available for spell?
+        #Evaluate if spell is targetted or self (i.e. buff?)?
+        #Check that target is in range of spell
+        if spell.range <= getdistance(combatant.position,combatant.target.position):
+            #Resolve saving throw
+            #if spell.saving_throw:
+                #Resolve saving throw to see if damage/condition is applied
+            #Consume the spell slot from player's available slots
+            consume_spellslot(combatant,spellslot);
+            if spell.damage_die > 0:
+                for x in range(0,spell.damage_die_count):
+                    die_damage = roll_weapon_die(spell.damage_die)
+                    spell_damage += die_damage
+                #Add additional damage for levels of expended spell slot
+                if spell.min_spell_slot < spellslot:
+                    if spellslot > spell.max_spell_slot:
+                        # Treat spellslot as the spell's maximum from now on (already marked off)
+                        spellslot = spell.max_spell_slot
+                    for x in range(spell.min_spell_slot,spellslot):
+                        for y in range(0,spell.damage_die_count_per_spell_slot):
+                            die_damage = roll_weapon_die(spell.damage_die_per_spell_slot)
+                            spell_damage += die_damage
+                #Add bonus damage
+                if combatant.target.race == spell.bonus_damage_target:
+                    for x in range(0,spell.bonus_damage_die_count):
+                        die_damage = roll_weapon_die(spell.bonus_damage_die)
+
+            deal_damage(combatant.target,spell_damage,spell.damage_type,True)
+
+def check_slot_available(combatant,spell):
+    if spell.min_spell_slot == 1 and combatant.creature_spellslots().FirstLevel > 0:
+        return 1
+    if spell.min_spell_slot <= 2 and combatant.creature_spellslots().SecondLevel > 0:
+        return 2
+    if spell.min_spell_slot <= 3 and combatant.creature_spellslots().ThirdLevel > 0:
+        return 3
+    if spell.min_spell_slot <= 4 and combatant.creature_spellslots().FourthLevel > 0:
+        return 4
+    if spell.min_spell_slot <= 5 and combatant.creature_spellslots().FifthLevel > 0:
+        return 5
+    if spell.min_spell_slot <= 6 and combatant.creature_spellslots().SixthLevel > 0:
+        return 6
+    if spell.min_spell_slot <= 7 and combatant.creature_spellslots().SeventhLevel > 0:
+        return 7
+    if spell.min_spell_slot <= 8 and combatant.creature_spellslots().EigthLevel > 0:
+        return 8
+    if spell.min_spell_slot <= 9 and combatant.creature_spellslots().NinthLevel > 0:
+        return 9
+    return 0
+  
+def consume_spell_slot(combatant,spellslot):
+    if spellslot == 1:
+       combatant.creature_spellslots().FirstLevel -= 1
+    if spellslot == 2:
+       combatant.creature_spellslots().SecondLevel -= 1
+    if spellslot == 3:
+       combatant.creature_spellslots().ThirdLevel -= 1
+    if spellslot == 4:
+       combatant.creature_spellslots().FourthLevel -= 1
+    if spellslot == 5:
+       combatant.creature_spellslots().FifthLevel -= 1
+    if spellslot == 6:
+       combatant.creature_spellslots().SixthLevel -= 1
+    if spellslot == 7:
+       combatant.creature_spellslots().SeventhLevel -= 1
+    if spellslot == 8:
+       combatant.creature_spellslots().EigthLevel -= 1
+    if spellslot == 9:
+       combatant.creature_spellslots().NinthLevel -= 1
+    
+    
 def repair_weapon(combatant):
     print(combatant.name + ' attempts to repair ' + combatant.current_weapon.name, file=f)    
-    if abilitycheck(combatant,"Dexterity",dexmod(combatant)+combatant.proficiency,False,10+combatant.current_weapon.misfire):  
+    if abilitycheck(combatant,ability_check.Dexterity,dexmod(combatant)+combatant.proficiency,False,10+combatant.current_weapon.misfire):  
         print(combatant.name + ' successfully repaired ' + combatant.current_weapon.name, file=f)
         combatant.current_weapon.broken = False
     else:
@@ -996,7 +1154,7 @@ def savingthrow(combatant,savetype,modifier,adv,DC):
     savingthrow = roll + modifier
     #print(savetype + ' save: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier), file=f)
     if savingthrow >= DC:
-        print(combatant.name + ' made a ' + savetype + ' save against a DC of ' + repr(DC) + ' with a saving throw of ' + repr(savingthrow), file = f)
+        print(combatant.name + ' made a ' + savetype.name + ' save against a DC of ' + repr(DC) + ' with a saving throw of ' + repr(savingthrow), file = f)
         return True
     if adv:
         #print(combatant.name + ' failed the save, but has advantage on ' + savetype + ' saving throws!', file=f)
@@ -1004,9 +1162,9 @@ def savingthrow(combatant,savetype,modifier,adv,DC):
         savingthrow = roll + modifier
         #print(savetype + ' save: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier), file=f)        
         if savingthrow >= DC:
-            print(combatant.name + ' made a ' + savetype + ' save against a DC of ' + repr(DC) + ' with a saving throw of ' + repr(savingthrow), file = f)
+            print(combatant.name + ' made a ' + savetype.name + ' save against a DC of ' + repr(DC) + ' with a saving throw of ' + repr(savingthrow), file = f)
             return True
-    print(combatant.name + ' failed the ' + savetype + ' save with a saving throw of ' + repr(savingthrow) + ' versus DC ' + repr(DC), file=f)
+    print(combatant.name + ' failed the ' + savetype.name + ' save with a saving throw of ' + repr(savingthrow) + ' versus DC ' + repr(DC), file=f)
     return False
 
 # check functions #
@@ -1018,7 +1176,7 @@ def abilitycheck(combatant,checktype,modifier,adv,DC):
 
     #print(checktype + ' check: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier), file=f)    
     if check >= DC:
-        print(combatant.name + ' succeeded on a DC ' + repr(DC) + ' ' + checktype + ' check with a total of ' + repr(check), file = f)
+        print(combatant.name + ' succeeded on a DC ' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check), file = f)
         return True
     if adv:
         #print(combatant.name + ' failed the check, but has advantage on ' + checktype + ' checks!', file=f)
@@ -1026,19 +1184,20 @@ def abilitycheck(combatant,checktype,modifier,adv,DC):
         check = roll + modifier
         #print(checktype + ' check: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier), file=f)    
         if check >= DC:
-            print(combatant.name + ' succeeded on a DC ' + repr(DC) + ' ' + checktype + ' check with a total of ' + repr(check), file = f)
+            print(combatant.name + ' succeeded on a DC ' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check), file = f)
             return True
-    print(combatant.name + ' FAILED on a DC ' + repr(DC) + ' ' + checktype + ' check with a total of ' + repr(check), file = f)
+    print(combatant.name + ' FAILED on a DC ' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check), file = f)
     return False
 
 
 #combat initialisation
+def initialise_spells(spellbook):
 
 def initialise_combatants(init_combatants):
     #init_percy(init_combatants)
-    init_arkhan(init_combatants)
+    #init_arkhan(init_combatants)
     init_grog(init_combatants)
-    #init_umbrasyl(init_combatants)
+    init_umbrasyl(init_combatants)
 
 def initialise_position(combatants):
     for combatant in combatants:
@@ -1208,6 +1367,13 @@ def initialise_targets(combatants):
 
 # helper functions #
 
+def characterlevel(creature):
+    return(creature.barbarian_level + 
+           creature.fighter_level + 
+           creature.rogue_level + 
+           creature.ranger_level +
+           creature.paladin_level)
+
 def init_percy(init_combatants):
 #Percival
     percy = creature()
@@ -1221,7 +1387,7 @@ def init_percy(init_combatants):
     percy.max_health = 149
     percy.armor_class = 18
     percy.speed = 30
-    percy.proficiency = math.floor((7+percy.fighter_level)/4)
+    percy.proficiency = math.floor((7+characterlevel(percy)/4)
     percy.weapon_proficiency().append(weapon_type.Firearm)
     percy.weapon_proficiency().append(weapon_type.Sword)
         
@@ -1349,7 +1515,7 @@ def init_grog(init_combatants):
     grog.max_health = 248
     grog.armor_class = 17
     grog.speed = 50
-    grog.proficiency = math.floor((7+grog.barbarian_level)/4)
+    grog.proficiency = math.floor((7+characterlevel(grog))/4)
     grog.weapon_proficiency().append(weapon_type.Axe)
 
     grog.creature_feats().append(feat.Great_Weapon_Master)
@@ -1445,7 +1611,7 @@ def init_arkhan(init_combatants):
     arkhan.max_health = 191
     arkhan.armor_class = 24
     arkhan.speed = 30
-    arkhan.proficiency = math.floor((7+arkhan.paladin_level)/4)
+    arkhan.proficiency = math.floor((7+characterlevel(arkhan))/4)
     arkhan.weapon_proficiency().append(weapon_type.Axe)
 
     #arkhan.creature_feats().append(feat.Great_Weapon_Master)
@@ -1525,7 +1691,24 @@ def init_arkhan(init_combatants):
 
     # Arkhan's spells
     
-    arkhan.creature_spells().append().DivineSmite
+    #Divine Smite
+    divine_smite = spell()
+    divine_smite.name = "Divine Smite"
+    divine_smite.min_spell_slot = 1
+    divine_smite.max_spell_slot = 6
+    #Damage is 2d8 for 1st level
+    divine_smite.damage_die = 8
+    divine_smite.damage_die_count = 2
+    divine_smite.damage_type = damage_type.Radiant
+    #Damage increases by 1d8 per spell level
+    divine_smite.damage_die_per_spell_slot = 8
+    divine_smite.damage_die_count_per_spell_slot = 1
+    #Damage increases by 1d8 for undead/fiend
+    divine_smite.bonus_damage_die = 8
+    divine_smite.bonus_damage_die_count = 1
+    divine_smite.bonus_damage_target = race.Undead
+    
+    arkhan.creature_spells().append(divine_smite)
 
     # combat stats # 
 
@@ -1539,7 +1722,7 @@ def init_umbrasyl(init_combatants):
     umbrasyl.race = race.Dragon
     umbrasyl.creature_class = creature_class.Monster
     umbrasyl.creature_subclass = creature_subclass.Ancient_Black_Dragon
-    umbrasyl.max_health = 640
+    umbrasyl.max_health = 367
     umbrasyl.armor_class = 22
     umbrasyl.speed = 40
         
@@ -1636,6 +1819,7 @@ def printdetails(combatant,position):
     print(' Race: '  + combatant.race.name, file=f)
     print(' Class: '  + combatant.creature_class.name, file=f)
     print(' Sub-class: '  + combatant.creature_subclass.name, file=f)
+    print(' Max Hit Points: '  + repr(combatant.max_health), file=f)
     print(' --------------------------------' , file=f)
     print(' Stats: ',file=f)
     print(' Strength: ' + repr(combatant.stats.str),file=f)
@@ -1694,9 +1878,9 @@ with open(filename + st + ".txt", 'a') as f:
         # roll initiative #
         print('Rolling initiative...', file=f)
         for combatant in init_combatants:                        
-            initiativeroll = abilitycheck(combatant,"Dexterity",dexmod(combatant),False,0)            
+            initiativeroll = abilitycheck(combatant,saving_throw.Dexterity,dexmod(combatant),False,0)            
             if combatant.feral_instinct:
-                initiativeroll_adv = abilitycheck(combatant,"Dexterity",dexmod(combatant),True,0)
+                initiativeroll_adv = abilitycheck(combatant,saving_throw.Dexterity,dexmod(combatant),True,0)
                 initiativeroll = max(initiativeroll,initiativeroll_adv)
             if combatant.quickdraw:
                 initiativeroll += combatant.proficiency
