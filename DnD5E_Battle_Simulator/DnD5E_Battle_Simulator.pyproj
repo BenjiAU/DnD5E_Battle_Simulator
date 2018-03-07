@@ -30,6 +30,34 @@
     <Compile Include="battle_simulator.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="battle_simulator\classes.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="battle_simulator\combat_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="battle_simulator\initialise_combat.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="battle_simulator\main.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="battle_simulator\print_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="battle_simulator\settings.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="battle_simulator\vox_machina.py" />
+    <Compile Include="battle_simulator\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="setup.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="battle_simulator\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Web.targets" />
   <!-- Specify pre- and post-build commands in the BeforeBuild and 
