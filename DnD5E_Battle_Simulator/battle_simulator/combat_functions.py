@@ -61,6 +61,13 @@ def action(combatant):
                     print_output(combatant.name + ' smashes the ' + eq.name + ' together and grows in size!')            
                     combatant.enlarged = True
                     combatant.action_used = True
+        
+        #Custom monster logic before stepping into main loop
+        if combatant.creature_class == creature_class.Monster:
+            if combatant.breath_attack and (combatant.breath_range >= getdistance(combatant.position,combatant.target.position)):            
+                breath_attack(combatant)
+                combatant.action_used = True
+
         if not combatant.action_used:
             if combatant.current_weapon.range == 0:
                 # melee weapon #
@@ -109,9 +116,13 @@ def bonus_action(combatant):
         #Rage
         if not combatant.bonus_action_used:
             if combatant.canrage and not combatant.raging:
-                print_output(combatant.name + '...would like...to ---RAGE---')
+                print_output(combatant.name + ' uses their Bonus Action to go into a mindless rage! "I would like to RAAAGE!!!"')
                 combatant.raging = True;
                 combatant.bonus_action_used = True
+                # Rage grants advantage on strength checks/saving throws for its duration
+                if combatant.armour_type != armour_type.Heavy:
+                    combatant.saves.str_adv = True
+                    combatant.checks.str_adv = True
 
         #Second Wind
         if not combatant.bonus_action_used:
@@ -203,7 +214,6 @@ def attack_action(combatant):
     #one set of rules for monsters
     if combatant.creature_class == creature_class.Monster:
         if combatant.breath_attack and (combatant.breath_range >= getdistance(combatant.position,combatant.target.position)):
-            print_output(combatant.name + ' rears back and unleashes a devastating breath attack!')                
             breath_attack(combatant)
         else:
             if combatant.multiattack:
@@ -228,6 +238,7 @@ def attack_action(combatant):
                     attack(combatant)  
 
 def breath_attack(combatant):
+    print_output(combatant.name + ' rears back and unleashes a devastating breath attack!')   
     breath_damage = 0
     breath_damage_type = 0
     die_damage = 0
@@ -316,7 +327,7 @@ def attack(combatant):
                 if not attackcomplete:
                     #Modifier conditions (i.e. GWM, sharpshooter)        
                     if combatant.sharpshooter:
-                        if (combatant.target.armor_class < to_hit_modifier+5) and not disadvantage:
+                        if (combatant.target.armour_class < to_hit_modifier+5) and not disadvantage:
                             print_output(combatant.name + ' uses Sharpshooter, taking a penalty to the attack')
                             combatant.use_sharpshooter = True           
                         else:
@@ -324,7 +335,7 @@ def attack(combatant):
         
             #Great Weapon Master
             if combatant.current_weapon.heavy and combatant.great_weapon_master:
-                if (combatant.target.armor_class < to_hit_modifier+5) and not disadvantage:
+                if (combatant.target.armour_class < to_hit_modifier+5) and not disadvantage:
                     print_output(combatant.name + ' uses Great Weapon Master, taking a penalty to the attack')
                     combatant.use_great_weapon_master = True
             
@@ -393,8 +404,8 @@ def attack(combatant):
                 if combatant.use_great_weapon_master:
                     totalatk = totalatk-5
 
-                if totalatk >= combatant.target.armor_class:
-                    print_output(combatant.name + '\'s attack with ' + combatant.current_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(totalatk) + ' versus AC ' + repr(combatant.target.armor_class) + ')')            
+                if totalatk >= combatant.target.armour_class:
+                    print_output(combatant.name + '\'s attack with ' + combatant.current_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(totalatk) + ' versus AC ' + repr(combatant.target.armour_class) + ')')            
                     print_output('    ' + 'Rolling damage for weapon attack: ')
                     # resolve trick shot #
                     if calledshot:
@@ -461,7 +472,7 @@ def attack(combatant):
                     if track_hemo:
                         print_output('    ' + combatant.name + ' adds an extra ' + repr(int(totaldamage/2)) + ' damage via Hemorrhaging Critical, which will be dealt at the end of ' + combatant.target.name + '\'s turn.')
                         combatant.target.hemo_damage += int(totaldamage/2)
-                        combatant.hemo_damage_type = weapon_damage_type
+                        combatant.target.hemo_damage_type = weapon_damage_type
                         track_hemo = False
 
                     #Bonus damage (from weapon)
@@ -514,7 +525,7 @@ def attack(combatant):
 
                     resolve_fatality(combatant.target)
                 else:
-                    print_output(combatant.name + '\'s attack on ' + combatant.target.name + ' MISSED! (' + repr(totalatk) + ' versus AC ' + repr(combatant.target.armor_class) + ')')            
+                    print_output(combatant.name + '\'s attack on ' + combatant.target.name + ' MISSED! (' + repr(totalatk) + ' versus AC ' + repr(combatant.target.armour_class) + ')')            
 
                 # consume ammo after shot #
                 if combatant.current_weapon.reload > 0:
@@ -649,8 +660,8 @@ def resolve_bonus_damage(combatant,target,type,die,count,crit,source):
         deal_damage(combatant.target,bonus_damage,type,combatant.current_weapon.magic)
 
 def deal_damage(combatant,damage,dealt_damage_type,magical):    
-    #Reduce bludgeoning/piercing/slashing if raging
-    if combatant.raging:            
+    #Reduce bludgeoning/piercing/slashing if raging (and not wearing Heavy armour)
+    if combatant.raging and not combatant.armour_type == armour_type.Heavy:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing):
             damage = int(damage/2)              
             print_output('        ' + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage in his rage!')
@@ -686,7 +697,8 @@ def resolve_damage(combatant):
     for x in combatant.pending_damage():        
         if x.damage > 0:
             total_damage += x.damage
-            damage_string += repr(int(x.damage)) + ' points of ' + x.pending_damage_type.name + " damage; "
+            damage_string += '\n'
+            damage_string += '    ' + repr(int(x.damage)) + ' points of ' + x.pending_damage_type.name + " damage"
     
     #Empty the list of pending damage
     combatant.pending_damage().clear()
@@ -706,10 +718,9 @@ def resolve_damage(combatant):
                         combatant.reaction_used = True
 
         combatant.current_health = combatant.current_health - total_damage 
-                
-        damage_string += ' Current HP: ' + repr(int(combatant.current_health)) + '/' + repr(combatant.max_health)
-
-        print_output(combatant.name + ' suffers a total of ' + repr(int(total_damage)) + ' points of damage. Summary: ' + damage_string)        
+                        
+        print_output('Damage Summary: ' + damage_string)        
+        print_output(combatant.name + ' suffers a total of ' + repr(int(total_damage)) + ' points of damage. Current HP: ' + repr(int(combatant.current_health)) + '/' + repr(combatant.max_health))
 
 def resolve_fatality(combatant):
     if combatant.current_health <= 0:
@@ -762,7 +773,7 @@ def calc_damage_modifier(combatant):
         damage += strmod(combatant)
 
     # Rage
-    if combatant.raging:
+    if combatant.raging and not combatant.armour_type == armour_type.Heavy:
         damage += combatant.ragedamage
     
     # Add weapon bonus (i.e. +3 weapon)

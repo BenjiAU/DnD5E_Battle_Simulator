@@ -37,9 +37,9 @@ def simulate_battle():
         initialise_combat.reset_combatants(init_combatants)
 
         # Hard-coded initialisation functions for combatants
-
         vox_machina.initialise_position(init_combatants)
-        
+        vox_machina.initialise_team(init_combatants)
+
         # Get targets
         initialise_combat.initialise_targets(init_combatants)          
 
@@ -119,7 +119,7 @@ def simulate_battle():
                         if combatant.hemo_damage > 0:
                             print_output(combatant.name + ' bleeds profusely from an earlier gunshot wound, suffering ' + repr(combatant.hemo_damage) + ' points of damage from Hemorrhaging Critical!')
                             #hack
-                            combatant.hemo_damage_type = combatant.target.current_weapon.weapon_damage_type
+                            #combatant.hemo_damage_type = combatant.target.current_weapon.weapon_damage_type
                             #deal damage to yourself
                             deal_damage(combatant,combatant.hemo_damage,combatant.hemo_damage_type,combatant.target.current_weapon.magic)
                             combatant.hemo_damage = 0
@@ -129,13 +129,13 @@ def simulate_battle():
                         print_output('')
                     elif combatant.alive and not combatant.target.alive:
                         combatantdead = True
-                        print_output(combatant.target.name + ' is unconscious! ' + combatant.name + ' wins!')
+                        print_output(combatant.target.name + ' is unconscious! Team ' + combatant.team.name + ' wins!')
                         combatant.no_of_wins += 1
                     else:
                         combatantdead = True
-                        print_output(combatant.name + ' is unconscious! ' + combatant.target.name + ' wins!')
+                        print_output(combatant.name + ' is unconscious! Team ' + combatant.target.team.name + ' wins!')
                         print_output('_____________________________________________________________________________')
-                        combatant.target.no_of_wins += 1                    
+                        combatant.team.no_of_wins += 1                    
         
         # After 1000 rounds, if no victor, declare stalemate
         if not combatantdead:
@@ -144,8 +144,11 @@ def simulate_battle():
     print_output('')
     print_output('------------------------')
     print_output('Summary:')
+    teams = []
     for combatant in combatants:
-        print_output('Name: ' + combatant.name + ' ----- No. of wins: ' + repr(combatant.no_of_wins))
+        teams.append(combatant.team)
+    for t in teams:
+        print_output('Name: ' + t.name + ' ----- No. of wins: ' + repr(t.no_of_wins))
     
     #Close the output file if it is open
     close_file()

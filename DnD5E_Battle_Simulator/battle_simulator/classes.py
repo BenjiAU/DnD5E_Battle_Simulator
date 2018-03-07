@@ -50,6 +50,7 @@ class ability_check(Enum):
     Wisdom = auto()
     Charisma = auto()
 
+
 #enumerable creature attributes
 class race(Enum):
     def __str__(self):
@@ -103,6 +104,15 @@ class weapon_type(Enum):
     Axe = auto()
     Sword = auto()
     Natural = auto()
+
+#Armour Type
+class armour_type():
+    def __str__(self):
+        return str(self.value)
+    Light = auto()
+    Medium = auto()
+    Heavy = auto()
+    Shield = auto()
 
 class fighting_style(Enum):
     def __str__(self):
@@ -273,8 +283,14 @@ class weapon():
     broken = bool()
     ruined = bool()
 
+class team():
+    name = ""
+    no_of_wins = int()
+
 # Generic class for players and monster entities (called creature to be consistent with rulebook)
 class creature():
+    # Team used to track allies/enemies (and not target the wrong one)
+    team = team()
     # Core properties, common across creatures
     fullname = ""
     name = ""
@@ -283,8 +299,7 @@ class creature():
     creature_subclass = int()
     
     max_health = int()
-    current_health = int()    
-    armor_class = int()
+    current_health = int()        
         
     speed = int()   
 
@@ -293,6 +308,9 @@ class creature():
     checks = checkblock()
     
     current_weapon = weapon()
+
+    armour_class = int()
+    armour_type = armour_type()
 
     creature_spellslots = spellslots()      
 
@@ -401,14 +419,13 @@ class creature():
     prone = bool() # Tracks if creature is prone (requires half movement to stand)
     alive = bool() # Tracks if creature is still alive
 
+    target = ""
+
     #Tracks damage built up over an attack action (including weapon damage, bonus damage, crit damage)
     def pending_damage(self):
         if not hasattr(self, "_pending_damage"):
             self._pending_damage = [] 
         return self._pending_damage
-
-    # Extra-combat properties, reflect status of creature across battle attempts
-    no_of_wins = int()
 
 class pending_damage():
     pending_damage_type = int()

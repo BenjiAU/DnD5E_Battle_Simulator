@@ -7,10 +7,25 @@ from .classes import *
 import math
 
 def initialise_combatants(init_combatants):
-    #init_percy(init_combatants)
-    init_arkhan(init_combatants)
+    init_percy(init_combatants)
+    #init_arkhan(init_combatants)
     init_grog(init_combatants)
-    #init_umbrasyl(init_combatants)
+    init_umbrasyl(init_combatants)
+
+def initialise_team(combatants):
+    vm = team()
+    vm.name = "Vox Machina"
+    monster = team()
+    monster.name = "Monsters"
+    for combatant in combatants:
+        if combatant.name == "Grog":
+            combatant.team = vm
+        if combatant.name == "Arkhan":
+            combatant.team = monster
+        if combatant.name == "Percy":
+            combatant.team = vm
+        if combatant.name == "Umbrasyl":
+            combatant.team = monster
 
 def initialise_position(combatants):
     for combatant in combatants:
@@ -19,12 +34,12 @@ def initialise_position(combatants):
         if combatant.name == "Arkhan":
             combatant.position = 1450
         if combatant.name == "Percy":
-            combatant.position = 1000
-        if combatant.name == "Umbrasyl":
             combatant.position = 1400
+        if combatant.name == "Umbrasyl":
+            combatant.position = 1500
 
 def init_percy(init_combatants):
-#Percival
+#Percival    
     percy = creature()
     percy.fullname = "Percival Fredrickstein Von Musel Klossowski De Rolo III"
     percy.name = "Percy"
@@ -183,24 +198,17 @@ def init_grog(init_combatants):
     #Saves
     grogsaves = saveblock()    
     grogsaves.str = 14
-    grogsaves.str_adv = True
     grogsaves.dex = 2
-    grogsaves.dex_adv = False
     grogsaves.con = 11
-    grogsaves.con_adv = False
     grogsaves.intel = -2
-    grogsaves.int_adv = False
     grogsaves.wis = 0
-    grogsaves.wis_adv = False
     grogsaves.cha = 1
-    grogsaves.cha_adv = False
     
     grog.saves = grogsaves
 
     #Ability Checks
     grogchecks = checkblock()
-    grogchecks.str_adv = True
-
+    
     grog.checks = grogchecks    
 
     #Grog's weapons
@@ -258,6 +266,10 @@ def init_arkhan(init_combatants):
     arkhan.fighting_style = fighting_style.Great_Weapon_Fighting
     arkhan.max_health = 191
     arkhan.armor_class = 24
+    
+    #Arkhan is wearing Heavy plate armour
+    arkhan.armour_type = armour_type.Heavy
+
     arkhan.speed = 30
     arkhan.proficiency = math.floor((7+characterlevel(arkhan))/4)
     arkhan.weapon_proficiency().append(weapon_type.Axe)
@@ -277,24 +289,17 @@ def init_arkhan(init_combatants):
     
     #Saves
     arkhansaves = saveblock()    
-    arkhansaves.str = 5
-    arkhansaves.str_adv = True
+    arkhansaves.str = 5    
     arkhansaves.dex = 2
-    arkhansaves.dex_adv = False
-    arkhansaves.con = 2
-    arkhansaves.con_adv = False
-    arkhansaves.intel = 0
-    arkhansaves.int_adv = False
-    arkhansaves.wis = 7
-    arkhansaves.wis_adv = False
-    arkhansaves.cha = 10
-    arkhansaves.cha_adv = False
+    arkhansaves.con = 2   
+    arkhansaves.intel = 0    
+    arkhansaves.wis = 7    
+    arkhansaves.cha = 10    
     
     arkhan.saves = arkhansaves
 
     #Ability Checks
-    arkhanchecks = checkblock()
-    arkhanchecks.str_adv = True
+    arkhanchecks = checkblock()    
 
     arkhan.checks = arkhanchecks    
 
@@ -351,7 +356,7 @@ def init_umbrasyl(init_combatants):
     umbrasyl.race = race.Dragon
     umbrasyl.creature_class = creature_class.Monster
     umbrasyl.creature_subclass = creature_subclass.Ancient_Black_Dragon
-    umbrasyl.max_health = 367
+    umbrasyl.max_health = 640
     umbrasyl.armor_class = 22
     umbrasyl.speed = 40
         

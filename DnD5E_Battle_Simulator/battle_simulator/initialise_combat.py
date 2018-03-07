@@ -2,6 +2,7 @@
 
 #Implicit imports
 from .classes import *
+from .combat_functions import *
 
 #Other imports
 
@@ -79,12 +80,13 @@ def reset_combatants(init_combatants):
         if combatant.barbarian_level >= 1:
             combatant.canrage = True
             combatant.raging = False
+            #+2 Rage Damage (1st through 8th)
+            combatant.ragedamage = 2
         # Reckless Attack (2nd level)
         if combatant.barbarian_level >= 2:
             combatant.reckless = True        
             combatant.use_reckless = False
-        # Danger Sense (2nd level)
-        if combatant.barbarian_level >= 2:
+            # Danger Sense (2nd level)        
             combatant.saves.dex_adv = True                
         # Extra Attack (+1 at 5th level)
         if combatant.barbarian_level >= 5:
@@ -97,6 +99,8 @@ def reset_combatants(init_combatants):
         if combatant.barbarian_level >= 9:
             combatant.brutal_critical = True
             combatant.brutal_critical_dice = 1
+            #+3 Rage Damage (9th through 16th)
+            combatant.ragedamage = 3
         # Relentless (11th level)
         if combatant.barbarian_level >= 11:
             combatant.relentless_rage = True
@@ -104,6 +108,9 @@ def reset_combatants(init_combatants):
         # Brutal Critical (2 die, 13th level)
         if combatant.barbarian_level >= 13:
             combatant.brutal_critical_dice = 2
+        if combatant.barbarian_level >= 16:
+            #+3 Rage Damage (9th through 16th)
+            combatant.ragedamage = 4
         # Brutal Critical (3 die, 17th level)
         if combatant.barbarian_level >= 17:
             combatant.brutal_critical_dice = 3
@@ -180,15 +187,11 @@ def reset_combatants(init_combatants):
 
 def initialise_targets(combatants):
     i = 0
-    for i in range(0,len(combatants)):        
-        if i > 0:
-            prev_combatant = combatants[i-1]
-            if combatants[i].name != prev_combatant.name:
-                combatants[i].target = prev_combatant
-        if i < len(combatants)-1:
-            next_combatant = combatants[i+1]
-            if combatants[i].name != next_combatant.name:
-                combatants[i].target = next_combatant              
+    targets = combatants
+    for combatant in combatants:
+        for potential_target in targets:
+            if combatant.target == "" and combatant.name != potential_target.name and combatant.team != potential_target.team:
+                combatant.target = potential_target         
     return(combatants)
 
 def init_spell(new_spell,name,min_ss,max_ss,dd,ddc,dt,ddpss,ddcpss,bdd,bddc,bdt):
