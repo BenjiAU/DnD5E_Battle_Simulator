@@ -27,7 +27,7 @@ def simulate_battle():
     vox_machina.initialise_combatants(init_combatants)
     
     attempt=0
-    while attempt < 100:
+    while attempt < settings.max_attempts:
         
         print_output('_____________________________________________________________________________')
         attempt += 1
@@ -71,7 +71,7 @@ def simulate_battle():
             
         #Begin combat rounds (up to a maximum to avoid overflow)
         round = 0        
-        while not combatantdead and round < 1000:
+        while not combatantdead and settings.max_rounds:
             print_output('')
             round = round + 1
             print_output('Round: ' + repr(round))

@@ -626,7 +626,8 @@ def repair_weapon(combatant):
         print_output(combatant.current_weapon.name + ' has been ruined in the repair attempt! ' + combatant.name + ' needs to go back to their workshop to fix it! ')
 
 def resolve_bonus_damage(combatant,target,type,die,count,crit,source):
-    bonus_dice_damage = 0
+    bonus_damage = 0
+    crit_damage = 0
     if (target == 0) or (target == combatant.target.race):
         print_output('    ' + 'Rolling bonus damage: ')                    
         for x in range(0,count):
@@ -636,51 +637,79 @@ def resolve_bonus_damage(combatant,target,type,die,count,crit,source):
                 print_output('        ' + combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
                 die_damage = roll_weapon_die(die)
                 print_output('        ' + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' (Bonus Damage)')
-            bonus_dice_damage += die_damage
-            if crit:
-                bonus_dice_damage = bonus_dice_damage * 2
+            bonus_damage += die_damage
+        if crit:
+            crit_damage = bonus_damage * 2           
                         
-    print_output('    ' + combatant.name + ' dealt an additional ' + repr(bonus_dice_damage) + ' points of ' + type.name + ' damage with ' + source)
-    deal_damage(combatant.target,bonus_dice_damage,type,combatant.current_weapon.magic)
+    if crit:
+        print_output('    ' + combatant.name + ' dealt an additional ' + repr(crit_damage) + ' (roll = ' + repr(bonus_damage) + ') points of ' + type.name + ' damage with ' + source)
+        deal_damage(combatant.target,crit_damage,type,combatant.current_weapon.magic)
+    else:
+        print_output('    ' + combatant.name + ' dealt an additional ' + repr(bonus_damage) + ' points of ' + type.name + ' damage with ' + source)
+        deal_damage(combatant.target,bonus_damage,type,combatant.current_weapon.magic)
 
-def deal_damage(combatant,damage,weapon_damage_type,magical):    
+def deal_damage(combatant,damage,dealt_damage_type,magical):    
     #Reduce bludgeoning/piercing/slashing if raging
     if combatant.raging:            
-        if weapon_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing):
+        if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing):
             damage = int(damage/2)              
             print_output('        ' + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage in his rage!')
     if combatant.enlarged:
-        if weapon_damage_type in (damage_type.Fire,damage_type.Cold,damage_type.Lightning):
+        if dealt_damage_type in (damage_type.Fire,damage_type.Cold,damage_type.Lightning):
             damage = int(damage/2)              
             print_output('        ' + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage due to the effects of Enlarge!')
 
-    #Reduce bludgeoning/piercing/slashing if dealt by non-magical weapon
+    #Reduce bludgeoning/piercing/slashing if dealt by non-magical dealt_
     if combatant.creature_subclass == creature_subclass.Ancient_Black_Dragon:            
-        if weapon_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing) and not magical:
+        if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing) and not magical:
             damage = int(damage/2)              
             print_output('        ' + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage from the non-magical attack!')
 
     if damage > 0:
-        combatant.current_damage += damage
+        #Check if creature already has a type of this damage pending to be deducted from hit points
+        for x in combatant.pending_damage():
+            if x.pending_damage_type == dealt_damage_type:
+                x.damage += damage
+                damage = 0
+        #If there is still damage, create a new pending damage object against the creature
+        if damage > 0:
+            pd = pending_damage()
+            pd.pending_damage_type = dealt_damage_type
+            pd.damage = damage
+            combatant.pending_damage().append(pd)        
         
 def resolve_damage(combatant):
-    if combatant.current_damage > 0:
+    total_damage = 0
+    damage_string = ""
+    #Calculate total damage
+    #Track the damage dealt for output purposes and set the damage for that type back to zero    
+    for x in combatant.pending_damage():        
+        if x.damage > 0:
+            total_damage += x.damage
+            damage_string += repr(int(x.damage)) + ' points of ' + x.pending_damage_type.name + " damage; "
+    
+    #Empty the list of pending damage
+    combatant.pending_damage().clear()
+    if total_damage > 0:
         
         #Use Reaction if it can do anything
         if not combatant.reaction_used:
             if combatant.stones_endurance:
                 if not combatant.stones_endurance_used:
                     #Don't waste stones endurance on small hits
-                    if combatant.current_damage > conmod(combatant)+12:
+                    if total_damage > conmod(combatant)+12:
                         reduction = conmod(combatant) + roll_weapon_die(12)
-                        combatant.current_damage = int(combatant.current_damage - reduction)
+                        total_damage = int(total_damage - reduction)
                         print_output(combatant.name + ' uses their reaction, and uses Stones Endurance to reduce the damage by ' + repr(reduction) + '! ')
+                        damage_string += 'reduced by ' + repr(int(reduction)) + ' (Stones Endurance)'
                         combatant.stones_endurance_used = True
                         combatant.reaction_used = True
 
-        combatant.current_health = combatant.current_health - combatant.current_damage
-        print_output(combatant.name + ' suffers a total of ' + repr(int(combatant.current_damage)) + ' points of damage. Current HP: ' + repr(int(combatant.current_health)) + '/' + repr(combatant.max_health))   
-        combatant.current_damage = 0
+        combatant.current_health = combatant.current_health - total_damage 
+                
+        damage_string += ' Current HP: ' + repr(int(combatant.current_health)) + '/' + repr(combatant.max_health)
+
+        print_output(combatant.name + ' suffers a total of ' + repr(int(total_damage)) + ' points of damage. Summary: ' + damage_string)        
 
 def resolve_fatality(combatant):
     if combatant.current_health <= 0:

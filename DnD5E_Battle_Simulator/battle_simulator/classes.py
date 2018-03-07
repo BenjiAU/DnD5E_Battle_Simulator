@@ -284,10 +284,6 @@ class creature():
     
     max_health = int()
     current_health = int()    
-    
-    #Tracks damage built up over an attack action (including weapon damage, bonus damage, crit damage)
-    current_damage = int()
-
     armor_class = int()
         
     speed = int()   
@@ -405,5 +401,15 @@ class creature():
     prone = bool() # Tracks if creature is prone (requires half movement to stand)
     alive = bool() # Tracks if creature is still alive
 
+    #Tracks damage built up over an attack action (including weapon damage, bonus damage, crit damage)
+    def pending_damage(self):
+        if not hasattr(self, "_pending_damage"):
+            self._pending_damage = [] 
+        return self._pending_damage
+
     # Extra-combat properties, reflect status of creature across battle attempts
     no_of_wins = int()
+
+class pending_damage():
+    pending_damage_type = int()
+    pending_damage = int()
