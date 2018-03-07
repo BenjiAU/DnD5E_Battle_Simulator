@@ -21,7 +21,7 @@ from operator import itemgetter, attrgetter, methodcaller
 
 def simulate_battle():
     settings.init() # do only once
-    set_output_file()
+    #set_output_file()
 
     init_combatants = []
     vox_machina.initialise_combatants(init_combatants)
@@ -130,7 +130,7 @@ def simulate_battle():
                     elif combatant.alive and not combatant.target.alive:
                         combatantdead = True
                         print_output(combatant.target.name + ' is unconscious! Team ' + combatant.team.name + ' wins!')
-                        combatant.no_of_wins += 1
+                        combatant.team.no_of_wins += 1
                     else:
                         combatantdead = True
                         print_output(combatant.name + ' is unconscious! Team ' + combatant.target.team.name + ' wins!')
@@ -146,7 +146,8 @@ def simulate_battle():
     print_output('Summary:')
     teams = []
     for combatant in combatants:
-        teams.append(combatant.team)
+        if not combatant.team in teams:
+            teams.append(combatant.team)
     for t in teams:
         print_output('Name: ' + t.name + ' ----- No. of wins: ' + repr(t.no_of_wins))
     
