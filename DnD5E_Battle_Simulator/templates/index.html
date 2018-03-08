@@ -7,8 +7,20 @@
 </head>
 <body>
     <div class="info">
-        <h2> Welcome , {{data.me}} <br /></h2>
+        <h2> Welcome <br /></h2>
         {{data.msg}}
+    </div>    
+    <form method="POST">
+        Simulate battle: <input name="simulate_battle" type="submit">{{ data.output }}</>
+    </form>
+    <form method="POST">
+        Reset battle: <input name="reset_battle" type="submit">{{ data.reset }}</>
+    </form>
+    <div class="content">
+        Filename:
+        {{filename}}
+        Content:
+        {{data.content}}
     </div>
 </body>
 </html>

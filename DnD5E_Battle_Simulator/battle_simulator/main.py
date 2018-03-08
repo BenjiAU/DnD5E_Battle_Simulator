@@ -17,8 +17,6 @@ from .classes import *
 import operator
 from operator import itemgetter, attrgetter, methodcaller
 
-
-
 def simulate_battle():
     settings.init() # do only once
     set_output_file()
@@ -160,4 +158,4 @@ def simulate_battle():
         print_output('Name: ' + t.name + ' ----- No. of wins: ' + repr(t.no_of_wins))
     
     #Close the output file if it is open
-    close_file()
+    close_file()    

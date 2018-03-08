@@ -28,9 +28,6 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="battle_simulator.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="battle_simulator\classes.py">
       <SubType>Code</SubType>
     </Compile>

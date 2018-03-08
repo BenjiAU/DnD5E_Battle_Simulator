@@ -7,3 +7,9 @@ body
     text-align: center;
     padding-top: 20%
 }
+
+.content {
+    margin: auto;
+    text-align: left;
+    padding-top: 20%
+}
