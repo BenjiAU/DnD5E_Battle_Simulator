@@ -189,9 +189,11 @@ def initialise_targets(combatants):
     i = 0
     targets = combatants
     for combatant in combatants:
+        combatant.target = None
         for potential_target in targets:
-            if combatant.target == "" and combatant.name != potential_target.name and combatant.team != potential_target.team:
-                combatant.target = potential_target         
+            if potential_target.alive:
+                if combatant.target == None and combatant.name != potential_target.name and combatant.team != potential_target.team:
+                    combatant.target = potential_target
     return(combatants)
 
 def init_spell(new_spell,name,min_ss,max_ss,dd,ddc,dt,ddpss,ddcpss,bdd,bddc,bdt):

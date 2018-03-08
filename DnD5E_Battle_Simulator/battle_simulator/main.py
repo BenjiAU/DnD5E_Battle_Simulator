@@ -21,11 +21,14 @@ from operator import itemgetter, attrgetter, methodcaller
 
 def simulate_battle():
     settings.init() # do only once
-    #set_output_file()
+    set_output_file()
 
     init_combatants = []
     vox_machina.initialise_combatants(init_combatants)
-    
+    vox_machina.initialise_team(init_combatants)
+    # Hard-coded initialisation functions for combatants
+    vox_machina.initialise_position(init_combatants)
+
     attempt=0
     while attempt < settings.max_attempts:
         
@@ -35,15 +38,12 @@ def simulate_battle():
         print_output(' ')      
 
         initialise_combat.reset_combatants(init_combatants)
-
-        # Hard-coded initialisation functions for combatants
+        
+        #Re-initialise position for new roudn
         vox_machina.initialise_position(init_combatants)
-        vox_machina.initialise_team(init_combatants)
 
         # Get targets
         initialise_combat.initialise_targets(init_combatants)          
-
-        combatantdead = False
 
         # roll initiative #
         print_output('Rolling initiative...')
@@ -71,74 +71,82 @@ def simulate_battle():
             
         #Begin combat rounds (up to a maximum to avoid overflow)
         round = 0        
-        while not combatantdead and settings.max_rounds:
+        round_complete = False
+        while not round_complete and settings.max_rounds:
             print_output('')
             round = round + 1
             print_output('Round: ' + repr(round))
     
             for combatant in combatants:        
-                if not combatantdead:
-                    if combatant.alive:
-                        print_output('It is now ' + combatant.name + '\'s turn. Current HP: ' + repr(combatant.current_health) + '/' + repr(combatant.max_health))
-                        combatant.movement_used = False
-                        combatant.action_used = False
-                        combatant.bonus_action_used = False
-                        combatant.reaction_used = False
-
-                        #print_output(combatant.name + ' starts the turn at position ' + repr(combatant.position))
+                if not round_complete:
+                    print_output('It is now ' + combatant.name + '\'s turn. Current HP: ' + repr(combatant.current_health) + '/' + repr(combatant.max_health))
+                    if combatant.alive:                        
                         if combatant.target:
-                            print_output('Distance to target: ' + repr(getdistance(combatant.position,combatant.target.position)) + ' feet')
+                            if not combatant.target.alive:
+                                #refresh targets
+                                print_output(combatant.name + '\'s target is unconscious! Choosing new target...')
+                                initialise_combat.initialise_targets(init_combatants)
 
-                        #check for breath weapon recharge
-                        if combatant.creature_class == creature_class.Monster:
-                            if combatant.creature_subclass == creature_subclass.Ancient_Black_Dragon:
-                                if not combatant.breath_attack:
-                                    breath_recharge(combatant)
+                            if combatant.target:
+                                print_output(combatant.name + 'is targetting: ' + combatant.target.name)
 
-                        # use movement first #
-                        movement(combatant)
+                                combatant.movement_used = False
+                                combatant.action_used = False
+                                combatant.bonus_action_used = False
+                                combatant.reaction_used = False
 
-                        # action #
-                        action(combatant)              
+                                #print_output(combatant.name + ' starts the turn at position ' + repr(combatant.position))
+                                if combatant.target:
+                                    print_output('Distance to target: ' + repr(getdistance(combatant.position,combatant.target.position)) + ' feet')
 
-                        # bonus action #        
-                        bonus_action(combatant)            
+                                #check for breath weapon recharge
+                                if combatant.creature_class == creature_class.Monster:
+                                    if combatant.creature_subclass == creature_subclass.Ancient_Black_Dragon:
+                                        if not combatant.breath_attack:
+                                            breath_recharge(combatant)
+
+                                # use movement first #
+                                movement(combatant)
+
+                                # action #
+                                action(combatant)              
+
+                                # bonus action #        
+                                bonus_action(combatant)            
                 
-                        # additional abilities (action surge etc.)
-                        if combatant.action_surge > 0: 
-                            print_output('********************')
-                            print_output(combatant.name + ' summons all their might, and uses an Action Surge!')
-                            print_output('********************')
-                            combatant.action_surge -= 1
-                            combatant.action_used = False;
-                            action(combatant)
+                                # additional abilities (action surge etc.)
+                                if combatant.action_surge > 0: 
+                                    print_output('********************')
+                                    print_output(combatant.name + ' summons all their might, and uses an Action Surge!')
+                                    print_output('********************')
+                                    combatant.action_surge -= 1
+                                    combatant.action_used = False;
+                                    action(combatant)
 
-                        #print_output(combatant.name + "s new position: " + repr(combatant.position))
+                                #print_output(combatant.name + "s new position: " + repr(combatant.position))
                         
-                        #Apply Hemorraging Critical damage
-                        if combatant.hemo_damage > 0:
-                            print_output(combatant.name + ' bleeds profusely from an earlier gunshot wound, suffering ' + repr(combatant.hemo_damage) + ' points of damage from Hemorrhaging Critical!')
-                            #hack
-                            #combatant.hemo_damage_type = combatant.target.current_weapon.weapon_damage_type
-                            #deal damage to yourself
-                            deal_damage(combatant,combatant.hemo_damage,combatant.hemo_damage_type,combatant.target.current_weapon.magic)
-                            combatant.hemo_damage = 0
-                            combatant.hemo_damage_type = 0                        
+                                #Apply Hemorraging Critical damage
+                                if combatant.hemo_damage > 0:
+                                    print_output(combatant.name + ' bleeds profusely from an earlier gunshot wound, suffering ' + repr(combatant.hemo_damage) + ' points of damage from Hemorrhaging Critical!')
+                                    #hack
+                                    #combatant.hemo_damage_type = combatant.target.current_weapon.weapon_damage_type
+                                    #deal damage to yourself
+                                    deal_damage(combatant,combatant.hemo_damage,combatant.hemo_damage_type,combatant.target.current_weapon.magic)
+                                    combatant.hemo_damage = 0
+                                    combatant.hemo_damage_type = 0                        
 
-                        print_output('That finishes ' + combatant.name + '\'s turn.')
-                        print_output('')
-                    elif combatant.alive and not combatant.target.alive:
-                        combatantdead = True
-                        print_output(combatant.target.name + ' is unconscious! Team ' + combatant.team.name + ' wins!')
-                        combatant.team.no_of_wins += 1
+                                print_output('That finishes ' + combatant.name + '\'s turn.')
+                                print_output('')
+                            else:
+                                print_output(combatant.name + ' has no valid targets! Team ' + combatant.team.name + ' wins!')
+                                combatant.team.no_of_wins += 1
+                                round_complete = True
                     else:
-                        combatantdead = True
-                        print_output(combatant.name + ' is unconscious! Team ' + combatant.target.team.name + ' wins!')
-                        print_output('_____________________________________________________________________________')
-                        combatant.team.no_of_wins += 1                    
+                        print_output(combatant.name + ' is unconscious!')    
+                        print_output('')
         
         # After 1000 rounds, if no victor, declare stalemate
-        if not combatantdead:
+        if not round_complete:
             print_output('Nobody wins - stalemate!')        
 
     print_output('')

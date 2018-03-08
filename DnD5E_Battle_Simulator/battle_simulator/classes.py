@@ -419,7 +419,7 @@ class creature():
     prone = bool() # Tracks if creature is prone (requires half movement to stand)
     alive = bool() # Tracks if creature is still alive
 
-    target = ""
+    target = None
 
     #Tracks damage built up over an attack action (including weapon damage, bonus damage, crit damage)
     def pending_damage(self):

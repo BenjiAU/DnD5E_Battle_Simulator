@@ -8,7 +8,7 @@ import math
 
 def initialise_combatants(init_combatants):
     init_percy(init_combatants)
-    #init_arkhan(init_combatants)
+    init_arkhan(init_combatants)
     init_grog(init_combatants)
     init_umbrasyl(init_combatants)
 
@@ -30,13 +30,13 @@ def initialise_team(combatants):
 def initialise_position(combatants):
     for combatant in combatants:
         if combatant.name == "Grog":
-            combatant.position = 1450
+            combatant.position = 1400
         if combatant.name == "Arkhan":
-            combatant.position = 1450
+            combatant.position = 1410
         if combatant.name == "Percy":
             combatant.position = 1400
         if combatant.name == "Umbrasyl":
-            combatant.position = 1500
+            combatant.position = 1450
 
 def init_percy(init_combatants):
 #Percival    
@@ -49,7 +49,7 @@ def init_percy(init_combatants):
     percy.fighter_level = 20
     percy.fighting_style = fighting_style.Archery
     percy.max_health = 149
-    percy.armor_class = 18
+    percy.armour_class = 18
     percy.speed = 30
     percy.proficiency = math.floor((7+characterlevel(percy)/4))
     percy.weapon_proficiency().append(weapon_type.Firearm)
@@ -177,7 +177,7 @@ def init_grog(init_combatants):
     grog.fighter_level = 3
     grog.fighting_style = fighting_style.Great_Weapon_Fighting
     grog.max_health = 248
-    grog.armor_class = 17
+    grog.armour_class = 17
     grog.speed = 50
     grog.proficiency = math.floor((7+characterlevel(grog))/4)
     grog.weapon_proficiency().append(weapon_type.Axe)
@@ -191,7 +191,7 @@ def init_grog(init_combatants):
     grogstats.con = 20
     grogstats.intel = 6
     grogstats.wis = 10
-    grogstats.cha = 8
+    grogstats.cha = 13
 
     grog.stats = grogstats
     
@@ -265,7 +265,7 @@ def init_arkhan(init_combatants):
     arkhan.barbarian_level = 3
     arkhan.fighting_style = fighting_style.Great_Weapon_Fighting
     arkhan.max_health = 191
-    arkhan.armor_class = 24
+    arkhan.armour_class = 24
     
     #Arkhan is wearing Heavy plate armour
     arkhan.armour_type = armour_type.Heavy
@@ -357,7 +357,7 @@ def init_umbrasyl(init_combatants):
     umbrasyl.creature_class = creature_class.Monster
     umbrasyl.creature_subclass = creature_subclass.Ancient_Black_Dragon
     umbrasyl.max_health = 640
-    umbrasyl.armor_class = 22
+    umbrasyl.armour_class = 22
     umbrasyl.speed = 40
         
     #Stats

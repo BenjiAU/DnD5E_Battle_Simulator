@@ -636,11 +636,14 @@ def repair_weapon(combatant):
         combatant.current_weapon.ruined = True
         print_output(combatant.current_weapon.name + ' has been ruined in the repair attempt! ' + combatant.name + ' needs to go back to their workshop to fix it! ')
 
-def resolve_bonus_damage(combatant,target,type,die,count,crit,source):
+def resolve_bonus_damage(combatant,bonus_target,type,die,count,crit,source):
     bonus_damage = 0
     crit_damage = 0
-    if (target == 0) or (target == combatant.target.race):
-        print_output('    ' + 'Rolling bonus damage: ')                    
+    if (bonus_target == 0) or (bonus_target == combatant.target.race):
+        if bonus_target == 0:
+            print_output('    ' + 'Rolling bonus damage: ')
+        else:
+            print_output('    ' + 'Rolling bonus damage against ' + combatant.target.race.name + ': ')                    
         for x in range(0,count):
             die_damage = roll_weapon_die(die)
             print_output('        ' + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')

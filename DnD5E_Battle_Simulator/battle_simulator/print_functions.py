@@ -1,3 +1,4 @@
+import os
 from os import path    
 import time
 import datetime
@@ -7,12 +8,16 @@ from battle_simulator import settings
 def set_output_file():
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H%M%S')    
-    settings.filename = "C:\stuff\combatlog" + st + ".txt"
+    if not os.path.exists("\combatlog"):
+        os.makedirs("\combatlog")
+    settings.filename = "\combatlog\combat_" + st + ".txt"
 
 def open_file():
     if settings.filename != "":
         if not settings.file_open:
+            
             settings.file = open(settings.filename,'a')
+            print("File located at " + settings.file.name)
             settings.file_open = True
 
 def close_file():
