@@ -229,7 +229,7 @@ def attack_action(combatant):
                 if len(multiattack_weapons) > 0:
                     print_output(combatant.name + ' unleashes a Multiattack against ' + combatant.target.name)                
                     for ma_weap in multiattack_weapons:
-                        combatant.current_weapon = weap
+                        combatant.current_weapon = ma_weap
                         attack(combatant)
                 else:
                     #Revert to normal attack/swap to range or reach weapon if required
@@ -538,7 +538,7 @@ def attack(combatant):
 
                         resolve_fatality(combatant.target)
                     else:
-                        print_output(combatant.name + '\'s attack on ' + combatant.target.name + ' MISSED! (' + repr(totalatk) + ' versus AC ' + repr(combatant.target.armour_class) + ')')            
+                        print_output(combatant.name + '\'s attack on ' + combatant.target.name + ' with ' + combatant.current_weapon.name + ' MISSED! (' + repr(totalatk) + ' versus AC ' + repr(combatant.target.armour_class) + ')')            
 
                     # consume ammo after shot #
                     if combatant.current_weapon.reload > 0:
