@@ -64,6 +64,8 @@ class race(Enum):
     #Monster races
     Dragon = auto()
     Undead = auto()
+    Construct = auto()
+    Beast = auto()
 
 class creature_class(Enum):
     def __str__(self):
@@ -88,6 +90,11 @@ class creature_subclass(Enum):
     Beastmaster = auto()
     #Paladin subclasses
     Oathbreaker = auto()
+    #Constructs
+    Doty = auto()
+    #Beasts
+    Bear = auto()
+    #Dragons
     Ancient_Black_Dragon = auto()
 
 class feat(Enum):

@@ -23,7 +23,10 @@ def reset_combatants(init_combatants):
             weap.ruined = False
             weap.broken = False
             weap.current_ammo = weap.ammunition
-                
+        
+        # Set currently equipped weapon to first weapon in inventory
+        combatant.current_Weapon = combatant.weapon_inventory()[0]
+
         # Reset equipment
         for eq in combatant.equipment_inventory():
             eq.current_charges = eq.max_charges
@@ -183,7 +186,13 @@ def reset_combatants(init_combatants):
                 combatant.breath_damage_die = 8
                 combatant.breath_range = 90               
 
+            ### Trinket ###
+            if combatant.creature_subclass == creature_subclass.Bear:
+                combatant.multiattack = ["Bite","Claw"]
 
+            ### Doty ###
+            if combatant.creature_subclass == creature_subclass.Doty:                            
+                combatant.multiattack = ["Bash","Headbutt"]
 
 def initialise_targets(combatants):
     i = 0
