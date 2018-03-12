@@ -8,6 +8,9 @@ from .print_functions import *
 import random
 import math
 
+indent = '<div class="indent">'
+doubleindent = '<div class="doubleindent">'
+
 ### Core Round functions ###
 def movement(combatant):
     # Only move if a target exists
@@ -419,7 +422,7 @@ def attack(combatant):
 
                     if totalatk >= combatant.target.armour_class:
                         print_output(combatant.name + '\'s attack with ' + combatant.current_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(totalatk) + ' versus AC ' + repr(combatant.target.armour_class) + ')')            
-                        print_output('    ' + 'Rolling damage for weapon attack: ')
+                        print_output(indent + 'Rolling damage for weapon attack: ')
                         # resolve trick shot #
                         if calledshot:
                             # logic to choose the right kind of called shot? lol #
@@ -433,11 +436,11 @@ def attack(combatant):
                         weapon_damage_type = damage_type(combatant.current_weapon.weapon_damage_type)
                         for x in range(0,combatant.current_weapon.damage_die_count):                                    
                             die_damage = roll_weapon_die(combatant.current_weapon.damage_die)   
-                            print_output('        ' + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Weapon Damage)')
+                            print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Weapon Damage)')
                             if greatweaponfighting(combatant) and die_damage <= 2:
-                                print_output('        ' + combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
+                                print_output(doubleindent + combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
                                 die_damage = roll_weapon_die(combatant.current_weapon.damage_die)   
-                                print_output('        ' + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Weapon Damage)')    
+                                print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Weapon Damage)')    
                             dice_damage += die_damage                    
                      
                         if crit:
@@ -445,15 +448,15 @@ def attack(combatant):
                                                                         
                             # restore grit on critical # 
                             if combatant.current_grit < combatant.max_grit:
-                                print_output('    ' + combatant.name + ' regained 1 grit point for scoring a critical hit!')
+                                print_output(indent + combatant.name + ' regained 1 grit point for scoring a critical hit!')
                                 combatant.current_grit = combatant.current_grit + 1;
                     
                             #Brutal Critical feature
                             if combatant.brutal_critical:
-                                print_output('    ' + combatant.name + ' dealt massive damage with Brutal Critical! Rolling an additional ' + repr(combatant.brutal_critical_dice) + ' d' + repr(combatant.current_weapon.damage_die))
+                                print_output(indent + combatant.name + ' dealt massive damage with Brutal Critical! Rolling an additional ' + repr(combatant.brutal_critical_dice) + ' d' + repr(combatant.current_weapon.damage_die))
                                 for x in range(0,combatant.brutal_critical_dice):                            
                                     die_damage = roll_weapon_die(combatant.current_weapon.damage_die)            
-                                    print_output('        ' + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Brutal Critical damage)')
+                                    print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Brutal Critical damage)')
                                     #Per https://www.reddit.com/r/criticalrole/comments/823w9v/spoilers_c1_another_dnd_combat_simulation/dv7r55m/
                                     # Brutal Critical does not benefit from Great Weapon Fighting (only applies to the attack)
                                     #if greatweaponfighting and die_damage <= 2:
@@ -472,18 +475,18 @@ def attack(combatant):
                 
                         if combatant.use_sharpshooter:
                             damage_modifier = damage_modifier + 10
-                            print_output('    ' + combatant.name + ' dealt extra damage because of Sharpshooter')
+                            print_output(indent + combatant.name + ' dealt extra damage because of Sharpshooter')
 
                         if combatant.use_great_weapon_master:
                             damage_modifier = damage_modifier + 10
-                            print_output('    ' + combatant.name + ' dealt extra damage because of Great Weapon Master')
+                            print_output(indent + combatant.name + ' dealt extra damage because of Great Weapon Master')
                 
                         totaldamage = dice_damage + damage_modifier             
-                        print_output('    ' + combatant.name + '\'s strike dealt ' + repr(totaldamage) + ' points of ' + weapon_damage_type.name + ' damage (dice damage: ' + repr(dice_damage) + ' modifier: ' + repr(damage_modifier) + ')')
+                        print_output(indent + combatant.name + '\'s strike dealt ' + repr(totaldamage) + ' points of ' + weapon_damage_type.name + ' damage (dice damage: ' + repr(dice_damage) + ' modifier: ' + repr(damage_modifier) + ')')
                         deal_damage(combatant.target,totaldamage,weapon_damage_type,combatant.current_weapon.magic)
                 
                         if track_hemo:
-                            print_output('    ' + combatant.name + ' adds an extra ' + repr(int(totaldamage/2)) + ' damage via Hemorrhaging Critical, which will be dealt at the end of ' + combatant.target.name + '\'s turn.')
+                            print_output(indent + combatant.name + ' adds an extra ' + repr(int(totaldamage/2)) + ' damage via Hemorrhaging Critical, which will be dealt at the end of ' + combatant.target.name + '\'s turn.')
                             combatant.target.hemo_damage += int(totaldamage/2)
                             combatant.target.hemo_damage_type = weapon_damage_type
                             track_hemo = False
@@ -566,13 +569,13 @@ def cast_spell(combatant,spell,crit):
                 #Resolve saving throw to see if damage/condition is applied
             #Consume the spell slot from player's available slots
             print_output(combatant.name + ' is burning a ' + repr(spellslot) + 'th level spell slot to cast ' + spell.name)                            
-            print_output('    ' + 'Rolling spell damage:')
+            print_output(indent + 'Rolling spell damage:')
             consume_spell_slot(combatant,spellslot);
             spell_damage = 0
             if spell.damage_die > 0:
                 for x in range(0,spell.damage_die_count):
                     die_damage = roll_weapon_die(spell.damage_die)
-                    print_output('        ' + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die) + ' (Spell Damage)')
+                    print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die) + ' (Spell Damage)')
                     spell_damage += die_damage
                 #Add additional damage for levels of expended spell slot
                 if spell.min_spell_slot < spellslot:
@@ -582,7 +585,7 @@ def cast_spell(combatant,spell,crit):
                     for x in range(spell.min_spell_slot,spellslot):
                         for y in range(0,spell.damage_die_count_per_spell_slot):
                             die_damage = roll_weapon_die(spell.damage_die_per_spell_slot)
-                            print_output('        ' + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die_per_spell_slot) + ' (Additional Spell Damage from Spell Slot)')
+                            print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die_per_spell_slot) + ' (Additional Spell Damage from Spell Slot)')
                             spell_damage += die_damage
                 #Add bonus damage
                 if combatant.target.race == spell.bonus_damage_target:
@@ -594,7 +597,7 @@ def cast_spell(combatant,spell,crit):
                 spell_damage = spell_damage + 2
             # Add modifier
 
-            print_output('    ' + combatant.name + ' cast ' + spell.name + ' and dealt a total of ' + repr(spell_damage) + ' points of ' + spell.damage_type.name + ' damage!')                    
+            print_output(indent + combatant.name + ' cast ' + spell.name + ' and dealt a total of ' + repr(spell_damage) + ' points of ' + spell.damage_type.name + ' damage!')                    
             deal_damage(combatant.target,spell_damage,spell.damage_type,True)
             #Resolve spell damage immediately
             resolve_damage(combatant.target)
@@ -656,25 +659,25 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,crit,source):
     crit_damage = 0
     if (bonus_target == 0) or (bonus_target == combatant.target.race):
         if bonus_target == 0:
-            print_output('    ' + 'Rolling bonus damage: ')
+            print_output(indent + 'Rolling bonus damage: ')
         else:
-            print_output('    ' + 'Rolling bonus damage against ' + combatant.target.race.name + ': ')                    
+            print_output(indent + 'Rolling bonus damage against ' + combatant.target.race.name + ': ')                    
         for x in range(0,count):
             die_damage = roll_weapon_die(die)
-            print_output('        ' + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')
+            print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')
             if greatweaponfighting(combatant) and die_damage <= 2 and source == combatant.current_weapon.name:
-                print_output('        ' + combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
+                print_output(doubleindent + combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
                 die_damage = roll_weapon_die(die)
-                print_output('        ' + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' (Bonus Damage)')
+                print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' (Bonus Damage)')
             bonus_damage += die_damage
         if crit:
             crit_damage = bonus_damage * 2           
                         
     if crit:
-        print_output('    ' + combatant.name + ' dealt an additional ' + repr(crit_damage) + ' (roll = ' + repr(bonus_damage) + ') points of ' + type.name + ' damage with ' + source)
+        print_output(indent + combatant.name + ' dealt an additional ' + repr(crit_damage) + ' (roll = ' + repr(bonus_damage) + ') points of ' + type.name + ' damage with ' + source)
         deal_damage(combatant.target,crit_damage,type,combatant.current_weapon.magic)
     else:
-        print_output('    ' + combatant.name + ' dealt an additional ' + repr(bonus_damage) + ' points of ' + type.name + ' damage with ' + source)
+        print_output(indent + combatant.name + ' dealt an additional ' + repr(bonus_damage) + ' points of ' + type.name + ' damage with ' + source)
         deal_damage(combatant.target,bonus_damage,type,combatant.current_weapon.magic)
 
 def deal_damage(combatant,damage,dealt_damage_type,magical):    
@@ -682,17 +685,17 @@ def deal_damage(combatant,damage,dealt_damage_type,magical):
     if combatant.raging and not combatant.armour_type == armour_type.Heavy:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing):
             damage = int(damage/2)              
-            print_output('        ' + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage in his rage!')
+            print_output(doubleindent + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage in his rage!')
     if combatant.enlarged:
         if dealt_damage_type in (damage_type.Fire,damage_type.Cold,damage_type.Lightning):
             damage = int(damage/2)              
-            print_output('        ' + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage due to the effects of Enlarge!')
+            print_output(doubleindent + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage due to the effects of Enlarge!')
 
     #Reduce bludgeoning/piercing/slashing if dealt by non-magical dealt_
     if combatant.creature_subclass == creature_subclass.Ancient_Black_Dragon:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing) and not magical:
             damage = int(damage/2)              
-            print_output('        ' + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage from the non-magical attack!')
+            print_output(doubleindent + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage from the non-magical attack!')
 
     if damage > 0:
         #Check if creature already has a type of this damage pending to be deducted from hit points
@@ -716,7 +719,7 @@ def resolve_damage(combatant):
         if x.damage > 0:
             total_damage += x.damage
             damage_string += '\n'
-            damage_string += '    ' + repr(int(x.damage)) + ' points of ' + x.pending_damage_type.name + " damage"
+            damage_string += indent + repr(int(x.damage)) + ' points of ' + x.pending_damage_type.name + " damage"
     
     #Empty the list of pending damage
     combatant.pending_damage().clear()

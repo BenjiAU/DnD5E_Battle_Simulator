@@ -15,3 +15,7 @@ def init():
     #Maximum number of rounds of combat before aborting
     global max_rounds
     max_rounds = 100
+
+    #List for appending output
+    global output
+    output = []

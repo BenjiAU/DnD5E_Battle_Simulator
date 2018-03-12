@@ -1,5 +1,5 @@
 from os import environ
-from flask import Flask,render_template,request,redirect,url_for
+from flask import Flask,render_template,request,redirect,url_for,Markup
 import battle_simulator
 from battle_simulator import main 
 from battle_simulator import settings
@@ -9,41 +9,43 @@ app=Flask(__name__)
 
 def index():
     filename = ""
-    content = "No content yet!"
-    if settings:
-        if hasattr(settings,'filename'):        
-            filename = "Opening file: " + settings.filename
-            with open(settings.filename) as f:
-                content = f.readlines()
+    html = ""
+    if hasattr(settings,'output'):
+        if settings.output != None:
+            if len(settings.output) > 0:
+                for i in settings.output:
+                    if '<div>' in i:
+                        html += Markup(i + '</div>')
+                    else:
+                        html += Markup('<div>' + i + '</div>')
+
+        #if hasattr(settings,'filename'):        
+         #   filename = "Opening file: " + settings.filename
+          #  with open(settings.filename) as f:
+           #     content = f.readlines()
 
     data = {
         "title": 'Home Page',
         "msg":'Battle Simulator for DND 5E',
         "me": environ.get('USERNAME'),
-        "output": output_form(),
-        "reset": reset_form(),
+        "process_form": process_form(),
         "filename": filename,
-        "content": content }
+        "content": html }
 
     return render_template('index.html',data=data)
 
 @app.route('/', methods=['GET', 'POST'])
-def output_form():
-    if request.method == 'POST':
-        # do stuff when the form is submitted        
-        main.simulate_battle()        
-            
+def process_form():
+    if request.method == 'POST':        
+        # do stuff when the 'run battle' button is pushed
+        if request.form['button'] == 'Simulate':
+            main.simulate_battle()        
+            return redirect(url_for('index'))
+        elif request.form['button'] == 'Reset':
+            main.reset_simulation()
+            return redirect(url_for('index'))
         # redirect to end the POST handling
         # the redirect can be to the same route or somewhere else
-        return redirect(url_for('index'))
-
-@app.route('/', methods=['GET', 'POST'])
-def reset_form():
-    if request.method == 'POST':
-        # do stuff when the form is submitted          
-        # redirect to end the POST handling
-        # the redirect can be to the same route or somewhere else
-        return render_template('index.html')
 
 if __name__ == '__main__':
     HOST = environ.get('SERVER_HOST', 'localhost')

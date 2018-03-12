@@ -5,11 +5,17 @@ body
 .info {
     margin: auto;
     text-align: center;
-    padding-top: 20%
 }
 
 .content {
     margin: auto;
     text-align: left;
-    padding-top: 20%
+}
+
+.indent {
+    margin-left: 40px;
+}
+
+.doubleindent {
+    margin-left: 80px;
 }

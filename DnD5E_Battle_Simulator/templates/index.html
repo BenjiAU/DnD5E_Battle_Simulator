@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>{{data.title}}</title>
-    <link href="/static/styles.css" rel="stylesheet" />
+    <link href="/static/style.css" rel="stylesheet" />
 </head>
 <body>
     <div class="info">
@@ -11,15 +11,12 @@
         {{data.msg}}
     </div>    
     <form method="POST">
-        Simulate battle: <input name="simulate_battle" type="submit">{{ data.output }}</>
+        Simulate battle: <input name="button" value ="Simulate" type="submit">{{ data.process_form }}</>
     </form>
     <form method="POST">
-        Reset battle: <input name="reset_battle" type="submit">{{ data.reset }}</>
+        Reset battle: <input name="button" value="Reset" type="submit">{{ data.process_form }}</>
     </form>
     <div class="content">
-        Filename:
-        {{filename}}
-        Content:
         {{data.content}}
     </div>
 </body>

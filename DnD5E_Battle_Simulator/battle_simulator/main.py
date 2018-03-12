@@ -86,7 +86,7 @@ def simulate_battle():
                                 initialise_combat.initialise_targets(init_combatants)
 
                             if combatant.target:
-                                print_output(combatant.name + 'is targetting: ' + combatant.target.name)
+                                print_output(combatant.name + ' is targetting: ' + combatant.target.name)
 
                                 combatant.movement_used = False
                                 combatant.action_used = False
@@ -159,3 +159,7 @@ def simulate_battle():
     
     #Close the output file if it is open
     close_file()    
+
+def reset_simulation():
+    settings.output = None
+    settings.filename = None
