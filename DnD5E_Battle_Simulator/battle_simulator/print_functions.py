@@ -17,8 +17,8 @@ def open_file():
         if not settings.file_open:
             
             settings.file = open(settings.filename,'a')
-            print("File located at " + settings.file.name)
             settings.file_open = True
+            print("File located at " + settings.file.name)
 
 def close_file():
     if settings.filename != "":
@@ -30,8 +30,10 @@ def print_output(string):
         if not settings.file_open:
             open_file()      
         print(string,file=settings.file)
+        settings.output.append(string)
     else:
         print(string)
+        settings.output.append(string)
 
 def print_details(combatant,position):
     print_output('Position: ' + repr(position)) 

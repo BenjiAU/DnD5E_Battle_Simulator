@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>{{data.title}}</title>
+    <link href="/static/style.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="info">
+        <h2> Welcome <br /></h2>
+        {{data.msg}}
+    </div>    
+    <form method="POST">
+        Simulate battle: <input name="button" value ="Simulate" type="submit">{{ data.process_form }}</>
+    </form>
+    <form method="POST">
+        Reset battle: <input name="button" value="Reset" type="submit">{{ data.process_form }}</>
+    </form>
+    <div class="content">
+        {{data.content}}
+    </div>
+</body>
+</html>

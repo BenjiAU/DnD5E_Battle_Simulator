@@ -17,8 +17,6 @@ from .classes import *
 import operator
 from operator import itemgetter, attrgetter, methodcaller
 
-
-
 def simulate_battle():
     settings.init() # do only once
     set_output_file()
@@ -88,7 +86,7 @@ def simulate_battle():
                                 initialise_combat.initialise_targets(init_combatants)
 
                             if combatant.target:
-                                print_output(combatant.name + 'is targetting: ' + combatant.target.name)
+                                print_output(combatant.name + ' is targetting: ' + combatant.target.name)
 
                                 combatant.movement_used = False
                                 combatant.action_used = False
@@ -160,4 +158,8 @@ def simulate_battle():
         print_output('Name: ' + t.name + ' ----- No. of wins: ' + repr(t.no_of_wins))
     
     #Close the output file if it is open
-    close_file()
+    close_file()    
+
+def reset_simulation():
+    settings.output = None
+    settings.filename = None

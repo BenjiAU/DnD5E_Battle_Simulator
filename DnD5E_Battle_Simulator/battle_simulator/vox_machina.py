@@ -7,16 +7,22 @@ from .classes import *
 import math
 
 def initialise_combatants(init_combatants):
-    init_percy(init_combatants)
-    init_arkhan(init_combatants)
-    init_grog(init_combatants)
-    init_umbrasyl(init_combatants)
+    #init_percy(init_combatants)
+    #init_arkhan(init_combatants)
+    #init_grog(init_combatants)
+    #init_trinket(init_combatants)
+    init_doty(init_combatants)
+    init_trinket(init_combatants)
 
 def initialise_team(combatants):
     vm = team()
     vm.name = "Vox Machina"
     monster = team()
     monster.name = "Monsters"
+    doty = team()
+    doty.name = "Tary"
+    trinket = team()
+    trinket.name = "Rrraoowr"
     for combatant in combatants:
         if combatant.name == "Grog":
             combatant.team = vm
@@ -26,6 +32,11 @@ def initialise_team(combatants):
             combatant.team = vm
         if combatant.name == "Umbrasyl":
             combatant.team = monster
+        if combatant.name == "Doty":
+            combatant.team = doty
+        if combatant.name == "Trinket":
+            combatant.team = trinket
+                
 
 def initialise_position(combatants):
     for combatant in combatants:
@@ -37,6 +48,10 @@ def initialise_position(combatants):
             combatant.position = 1400
         if combatant.name == "Umbrasyl":
             combatant.position = 1450
+        if combatant.name == "Doty":
+            combatant.position = 1450
+        if combatant.name == "Trinket":
+            combatant.position = 1500
 
 def init_percy(init_combatants):
 #Percival    
@@ -443,3 +458,153 @@ def init_umbrasyl(init_combatants):
     umbrasyl.weapon_inventory().append(tail)
 
     init_combatants.append(umbrasyl)    
+
+def init_doty(init_combatants):
+
+    doty = creature()
+    doty.fullname = "Doty 2.0"
+    doty.name = "Doty"
+    doty.race = race.Construct
+    doty.creature_class = creature_class.Monster
+    doty.creature_subclass = creature_subclass.Doty
+    doty.max_health = 42
+    doty.armour_class = 12
+    doty.speed = 40
+        
+    #Stats
+    dotystats = statblock()
+    dotystats.str = 19
+    dotystats.dex = 10
+    dotystats.con = 16
+    dotystats.intel = 10
+    dotystats.wis = 12
+    dotystats.cha = 7
+
+    doty.stats = dotystats
+    
+    #Saves
+    dotysaves = saveblock()       
+    doty.saves = dotysaves
+
+    #Ability Checks
+    dotychecks = checkblock()
+
+    doty.checks = dotychecks
+
+    #doty's weapons
+    armcannon = weapon()
+    armcannon.name = "Arm Cannon"
+    armcannon.weapon_type = weapon_type.Firearm;
+    armcannon.range = 300
+    
+    armcannon.damage_die = 12
+    armcannon.damage_die_count = 2
+    armcannon.weapon_damage_type = damage_type.Piercing
+
+    armcannon.reach = 0
+    
+    armcannon.magic_to_hit_modifier = 3
+    armcannon.magic_damage_modifier = 0
+
+    armcannon.reload = 1
+    armcannon.current_ammo = 1
+    armcannon.misfire = 2
+    
+    doty.weapon_inventory().append(armcannon)
+
+    bash = weapon()
+    bash.name = "Bash"
+    bash.weapon_type = weapon_type.Natural;
+    bash.range = 0
+    
+    bash.damage_die = 6
+    bash.damage_die_count = 2
+    bash.weapon_damage_type = damage_type.Bludgeoning
+
+    bash.reach = 0
+    
+    bash.magic_to_hit_modifier = 3
+    bash.magic_damage_modifier = 1
+
+    doty.weapon_inventory().append(bash)   
+
+    headbutt = weapon()
+    headbutt.name = "Headbutt"
+    headbutt.weapon_type = weapon_type.Natural;
+    headbutt.range = 0
+    
+    headbutt.damage_die = 8
+    headbutt.damage_die_count = 1
+    headbutt.weapon_damage_type = damage_type.Bludgeoning
+
+    headbutt.reach = 0
+    
+    headbutt.magic_to_hit_modifier = 3
+    headbutt.magic_damage_modifier = 1
+
+    doty.weapon_inventory().append(headbutt) 
+
+    init_combatants.append(doty)    
+
+def init_trinket(init_combatants):
+
+    trinket = creature()
+    trinket.fullname = "Trinket"
+    trinket.name = "Trinket"
+    trinket.race = race.Beast
+    trinket.creature_class = creature_class.Monster
+    trinket.creature_subclass = creature_subclass.Bear
+    trinket.max_health = 64
+    trinket.armour_class = 20
+    trinket.speed = 40
+        
+    #Stats
+    trinketstats = statblock()
+    trinketstats.str = 19
+    trinketstats.dex = 10
+    trinketstats.con = 16
+    trinketstats.intel = 4
+    trinketstats.wis = 13
+    trinketstats.cha = 7
+
+    trinket.stats = trinketstats
+    
+    #Saves
+    trinketsaves = saveblock()    
+    
+    trinket.saves = trinketsaves
+
+    #Ability Checks
+    trinketchecks = checkblock()
+    trinketchecks.str_adv = True
+
+    trinket.checks = trinketchecks
+
+    #trinket's weapons
+    bite = weapon()
+    bite.name = "Bite"
+    bite.weapon_type = weapon_type.Natural;
+    bite.range = 0
+    
+    bite.damage_die = 6
+    bite.damage_die_count = 2
+    bite.weapon_damage_type = damage_type.Slashing
+    
+    bite.magic_to_hit_modifier = 5
+
+    trinket.weapon_inventory().append(bite)
+        
+    claw = weapon()
+    claw.name = "Claw"
+    claw.weapon_type = weapon_type.Natural;
+    claw.range = 0
+    
+    claw.damage_die = 8
+    claw.damage_die_count = 1
+    claw.weapon_damage_type = damage_type.Piercing    
+    
+    claw.magic_to_hit_modifier = 5
+
+    trinket.weapon_inventory().append(claw)
+
+    init_combatants.append(trinket)    
