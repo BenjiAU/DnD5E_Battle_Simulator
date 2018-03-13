@@ -262,7 +262,7 @@ def breath_attack(combatant):
         i = 1
         for i in range(1,15):
             die_damage = roll_weapon_die(combatant.breath_damage_die)
-            print_output(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.breath_damage_die) + ' (Breath Damage)')
+            print_output(indent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.breath_damage_die) + ' (Breath Damage)')
             breath_damage += die_damage
     if savingthrow(combatant.target,saving_throw.Dexterity,dexmod(combatant.target),combatant.target.saves.dex_adv,23):
         deal_damage(combatant.target,breath_damage/2,breath_damage_type,True)
@@ -467,7 +467,7 @@ def attack(combatant):
                             
                             #Hemorraghing Critical feature
                             if combatant.hemorrhaging_critical and combatant.current_weapon.weapon_type == weapon_type.Firearm:
-                                print_output(combatant.name + ' scored a Hemorraghing Critical!')
+                                print_output(indent + combatant.name + ' scored a Hemorraghing Critical!')
                                 #Set boolean to track and increase hemo damage (possible multiple crits per round)
                                 track_hemo = True                        
 
@@ -525,13 +525,13 @@ def attack(combatant):
                                 if eq.grants_equipment_spell == equipment_spells.CabalsRuin:                              
                                     equipment_damage_type = eq.damage_type
                                     if eq.current_charges > 0:
-                                        print_output(combatant.name + ' activates ' + eq.name + ', pouring ' +  repr(eq.current_charges) + ' charges into ' + combatant.target.name + '!')
+                                        print_output(indent + combatant.name + ' activates ' + eq.name + ', pouring ' +  repr(eq.current_charges) + ' charges into ' + combatant.target.name + '!')
                                         for x in range(0,eq.current_charges):
                                             die_damage = roll_weapon_die(eq.damage_die)                                
                                             equipment_damage += die_damage * 2         
-                                            print_output(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(eq.damage_die) + ' (Cabal\'s Ruin damage)')
+                                            print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(eq.damage_die) + ' (Cabal\'s Ruin damage)')
                                         eq.current_charges = 0                
-                                        print_output(combatant.name + ' dealt an additional ' + repr(equipment_damage) + ' points of ' + equipment_damage_type.name + ' damage with ' + eq.name)
+                                        print_output(indent + combatant.name + ' dealt an additional ' + repr(equipment_damage) + ' points of ' + equipment_damage_type.name + ' damage with ' + eq.name)
                                         deal_damage(combatant.target,equipment_damage,equipment_damage_type,True)
                 
                         #After all the damage from the attack action is resolved, check the fatality
@@ -884,9 +884,9 @@ def abilitycheck(combatant,checktype,modifier,adv,DC):
 
 # Initiative
 def roll_initiative(combatant):
-    initiativeroll = abilitycheck(combatant,saving_throw.Dexterity,dexmod(combatant),False,0)            
+    initiativeroll = abilitycheck(combatant,ability_check.Dexterity,dexmod(combatant),False,0)            
     if combatant.feral_instinct:
-        initiativeroll_adv = abilitycheck(combatant,saving_throw.Dexterity,dexmod(combatant),True,0)
+        initiativeroll_adv = abilitycheck(combatant,ability_check.Dexterity,dexmod(combatant),True,0)
         initiativeroll = max(initiativeroll,initiativeroll_adv)
     if combatant.quickdraw:
         initiativeroll += combatant.proficiency
