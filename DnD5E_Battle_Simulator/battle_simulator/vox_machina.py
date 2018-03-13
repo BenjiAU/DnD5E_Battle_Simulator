@@ -41,7 +41,7 @@ def initialise_team(combatants):
 def initialise_position(combatants):
     for combatant in combatants:
         if combatant.name == "Grog":
-            combatant.position = 1400
+            combatant.position = 1420
         if combatant.name == "Arkhan":
             combatant.position = 1410
         if combatant.name == "Percy":
@@ -285,7 +285,7 @@ def init_arkhan(init_combatants):
     #Arkhan is wearing Heavy plate armour
     arkhan.armour_type = armour_type.Heavy
 
-    arkhan.speed = 30
+    arkhan.speed = 40
     arkhan.proficiency = math.floor((7+characterlevel(arkhan))/4)
     arkhan.weapon_proficiency().append(weapon_type.Axe)
 
