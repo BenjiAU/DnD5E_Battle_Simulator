@@ -10,7 +10,7 @@ def initialise_combatants(init_combatants):
     init_percy(init_combatants)
     init_arkhan(init_combatants)
     init_grog(init_combatants)
-    init_trinket(init_combatants)
+    init_umbrasyl(init_combatants)
     #init_doty(init_combatants)
     #init_trinket(init_combatants)
 
