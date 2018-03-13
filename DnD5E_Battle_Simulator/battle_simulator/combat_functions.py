@@ -422,7 +422,6 @@ def attack(combatant):
 
                     if totalatk >= combatant.target.armour_class:
                         print_output(combatant.name + '\'s attack with ' + combatant.current_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(totalatk) + ' versus AC ' + repr(combatant.target.armour_class) + ')')            
-                        print_output(indent + 'Rolling damage for weapon attack: ')
                         # resolve trick shot #
                         if calledshot:
                             # logic to choose the right kind of called shot? lol #
@@ -431,7 +430,8 @@ def attack(combatant):
                             else:
                                 print_output(combatant.target.name + ' failed the Leg Shot save - they are now prone!')
                                 combatant.target.prone = True
-
+                        
+                        print_output(indent + 'Rolling damage for weapon attack: ')
                         #Great Weapon Fighting (reroll 1s and 2s)                    
                         weapon_damage_type = damage_type(combatant.current_weapon.weapon_damage_type)
                         for x in range(0,combatant.current_weapon.damage_die_count):                                    
@@ -712,14 +712,14 @@ def deal_damage(combatant,damage,dealt_damage_type,magical):
         
 def resolve_damage(combatant):
     total_damage = 0
-    damage_string = ""
+    damage_string = indent
     #Calculate total damage
     #Track the damage dealt for output purposes and set the damage for that type back to zero    
     for x in combatant.pending_damage():        
         if x.damage > 0:
             total_damage += x.damage
-            damage_string += '\n'
-            damage_string += indent + repr(int(x.damage)) + ' points of ' + x.pending_damage_type.name + " damage"
+            damage_string += repr(int(x.damage)) + ' points of ' + x.pending_damage_type.name + " damage"
+            damage_string += "</br>"
     
     #Empty the list of pending damage
     combatant.pending_damage().clear()

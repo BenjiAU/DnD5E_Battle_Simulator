@@ -14,7 +14,7 @@ def index():
         if settings.output != None:
             if len(settings.output) > 0:
                 for i in settings.output:
-                    if '<div>' in i:
+                    if '<div' in i:
                         html += Markup(i + '</div>')
                     else:
                         html += Markup('<div>' + i + '</div>')

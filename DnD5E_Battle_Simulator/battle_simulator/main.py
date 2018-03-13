@@ -60,7 +60,7 @@ def simulate_battle():
             combatants = sorted(init_combatants, key=initkey,reverse=True)
         
         #print_output out combat order at top of attempt
-        print_output('')
+        print_output("</br>")
         print_output('Combat order: ')
         combatorder = 0
         for combatant in combatants:                     
@@ -71,7 +71,7 @@ def simulate_battle():
         round = 0        
         round_complete = False
         while not round_complete and settings.max_rounds:
-            print_output('')
+            print_output("</br>")
             round = round + 1
             print_output('Round: ' + repr(round))
     
@@ -134,20 +134,20 @@ def simulate_battle():
                                     combatant.hemo_damage_type = 0                        
 
                                 print_output('That finishes ' + combatant.name + '\'s turn.')
-                                print_output('')
+                                print_output("</br>")
                             else:
                                 print_output(combatant.name + ' has no valid targets! Team ' + combatant.team.name + ' wins!')
                                 combatant.team.no_of_wins += 1
                                 round_complete = True
                     else:
                         print_output(combatant.name + ' is unconscious!')    
-                        print_output('')
+                        print_output("</br>")
         
         # After 1000 rounds, if no victor, declare stalemate
         if not round_complete:
             print_output('Nobody wins - stalemate!')        
 
-    print_output('')
+    print_output("</br>")
     print_output('------------------------')
     print_output('Summary:')
     teams = []
