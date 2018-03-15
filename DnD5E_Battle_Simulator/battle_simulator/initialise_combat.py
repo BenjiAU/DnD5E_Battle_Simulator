@@ -13,6 +13,7 @@ def reset_combatants(init_combatants):
 
         # Reset creature values #
         combatant.alive = True
+        combatant.conscious = True
         combatant.current_health = combatant.max_health
         combatant.enlarged = False        # Need a better wayto handle this        
         combatant.action_surge = 0
@@ -83,6 +84,10 @@ def reset_combatants(init_combatants):
         if combatant.barbarian_level >= 1:
             combatant.canrage = True
             combatant.raging = False
+            # Number of rounds rage has been up for
+            combatant.rage_duration = 0
+            # Number of rounds rage can be sustained for
+            combatant.max_rage_duration = 10 
             #+2 Rage Damage (1st through 8th)
             combatant.ragedamage = 2
         # Reckless Attack (2nd level)
@@ -171,7 +176,23 @@ def reset_combatants(init_combatants):
                 # Retaliation (14th level)
                 if combatant.barbarian_level >= 14:
                     combatant.retaliation = True
-                
+
+            # Path of the Zealot
+            if combatant.creature_subclass == creature_subclass.Zealot:
+                # Divine Fury (3rd level, 1d6+half barb level to first attack each turn while raging)
+                if combatant.barbarian_level >= 3:
+                    combatant.divine_fury = True
+                    combatant.divine_fury_damage_type = damage_type.Necrotic
+                # Fanatical Focus (6th level, reroll one failed save per rage, must take second roll)
+                if combatant.barbarian_level >= 6:
+                    combatant.fanatical_focus = True
+                # Zealous Presence (10th level, once per LR advantage on attacks/saving throws to 10 creatures in 60 feet as bonus action until end of next turn)
+                if combatant.barbarian_level >= 10:
+                    combatant.zealous_presence = True
+                # Rage Beyond death (14th level, while raging, fall below 0 you don't go unconscious - still make Death Saving Throws)
+                if combatant.barbarian_level >= 14:
+                    combatant.rage_beyond_death = True
+
         # Racial Features
         # Goliath
         if combatant.race == race.Goliath:        

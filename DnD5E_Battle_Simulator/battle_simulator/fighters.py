@@ -7,10 +7,11 @@ from .classes import *
 import math
 
 def initialise_combatants(init_combatants):
-    init_percy(init_combatants)
-    init_arkhan(init_combatants)
+    #init_percy(init_combatants)
+    #init_arkhan(init_combatants)
     init_grog(init_combatants)
-    init_umbrasyl(init_combatants)
+    init_yasha(init_combatants)
+    #init_umbrasyl(init_combatants)
     #init_doty(init_combatants)
     #init_trinket(init_combatants)
 
@@ -19,13 +20,19 @@ def initialise_team(combatants):
     vm.name = "Vox Machina"
     monster = team()
     monster.name = "Monsters"
+    beserker = team()
+    beserker.name = "Path of the Beserker"
+    zealot = team()
+    zealot.name = "Path of the Zealot"
     doty = team()
     doty.name = "Tary"
     trinket = team()
     trinket.name = "Rrraoowr"
     for combatant in combatants:
         if combatant.name == "Grog":
-            combatant.team = vm
+            combatant.team = beserker
+        if combatant.name == "Yasha":
+            combatant.team = zealot
         if combatant.name == "Arkhan":
             combatant.team = monster
         if combatant.name == "Percy":
@@ -41,6 +48,8 @@ def initialise_team(combatants):
 def initialise_position(combatants):
     for combatant in combatants:
         if combatant.name == "Grog":
+            combatant.position = 1420
+        if combatant.name == "Yasha":
             combatant.position = 1420
         if combatant.name == "Arkhan":
             combatant.position = 1410
@@ -266,6 +275,95 @@ def init_grog(init_combatants):
     # combat stats # 
 
     init_combatants.append(grog)    
+
+def init_yasha(init_combatants):
+
+    #yasha
+    yasha = creature()
+    yasha.fullname = "Yasha"
+    yasha.name = "Yasha"
+    yasha.race = race.Aasamir
+    yasha.creature_class = creature_class.Barbarian
+    yasha.creature_subclass = creature_subclass.Zealot    
+    yasha.barbarian_level = 20
+    yasha.fighter_level = 0
+    yasha.fighting_style = fighting_style.Great_Weapon_Fighting
+    yasha.max_health = 248
+    yasha.armour_class = 17
+    yasha.speed = 50
+    yasha.proficiency = math.floor((7+characterlevel(yasha))/4)
+    yasha.weapon_proficiency().append(weapon_type.Axe)
+
+    yasha.creature_feats().append(feat.Great_Weapon_Master)
+
+    #Stats
+    yashastats = statblock()
+    yashastats.str = 26
+    yashastats.dex = 15
+    yashastats.con = 20
+    yashastats.intel = 6
+    yashastats.wis = 10
+    yashastats.cha = 13
+
+    yasha.stats = yashastats
+    
+    #Saves
+    yashasaves = saveblock()    
+    yashasaves.str = 14
+    yashasaves.dex = 2
+    yashasaves.con = 11
+    yashasaves.intel = -2
+    yashasaves.wis = 0
+    yashasaves.cha = 1
+    
+    yasha.saves = yashasaves
+
+    #Ability Checks
+    yashachecks = checkblock()
+    
+    yasha.checks = yashachecks    
+
+    #yasha's weapons
+    bloodaxe = weapon()
+    bloodaxe.name = "Blood Axe"
+    bloodaxe.weapon_type = weapon_type.Axe;
+    bloodaxe.range = 0
+    
+    bloodaxe.damage_die = 12
+    bloodaxe.damage_die_count = 1
+    bloodaxe.weapon_damage_type = damage_type.Slashing
+    
+    bloodaxe.bonus_damage_die = 6
+    bloodaxe.bonus_damage_die_count = 1
+    bloodaxe.bonus_damage_type = damage_type.Necrotic
+    
+    bloodaxe.magic_to_hit_modifier = 2
+    bloodaxe.magic_damage_modifier = 2
+
+    bloodaxe.heavy = True
+    bloodaxe.two_handed = True
+    bloodaxe.magic = True
+
+    yasha.weapon_inventory().append(bloodaxe)
+
+    #yasha's gear
+    
+    titanstoneknuckles = equipment()
+    titanstoneknuckles.name = "Titanstone Knuckles"
+    titanstoneknuckles.grants_equipment_spell = equipment_spells.Enlarge    
+
+    yasha.equipment_inventory().append(titanstoneknuckles)
+
+    bootsofferalleaping = equipment()
+    bootsofferalleaping.name = "Boots of Feral Leaping"
+    bootsofferalleaping.grans_spell = equipment_spells.Leap
+
+    yasha.equipment_inventory().append(bootsofferalleaping)
+
+    # combat stats # 
+
+    init_combatants.append(yasha)    
+
     
 def init_arkhan(init_combatants):
 

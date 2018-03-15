@@ -10,14 +10,18 @@
         <h2> Welcome <br /></h2>
         {{data.msg}}
     </div>    
-    <form method="POST">
-        Simulate battle: <input name="button" value ="Simulate" type="submit">{{data.process_form}}</>
-    </form>
-    <form method="POST">
-        Reset battle: <input name="button" value="Reset" type="submit">{{data.process_form}}</>
-    </form>
+
     <div class="content">
         {{data.content}}
+    </div>
+
+    <div class="input">
+        <form method="POST">
+            Simulate battle: <input name="button" value="Simulate" type="submit">{{data.process_form}}</>
+        </form>
+        <form method="POST">
+            Reset battle: <input name="button" value="Reset" type="submit">{{data.process_form}}</>
+        </form>
     </div>
 </body>
 </html>

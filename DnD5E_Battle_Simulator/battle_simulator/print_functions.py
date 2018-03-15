@@ -66,3 +66,5 @@ def print_details(combatant,position):
         print_output(' Item: ' + item.name)
     print_output('')
     print_output('---------------------------------')       
+    print_output('Feats')
+    print_output('Rage Beyond Death: ' + repr(combatant.rage_beyond_death))

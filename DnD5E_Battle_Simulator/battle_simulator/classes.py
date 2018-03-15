@@ -60,6 +60,7 @@ class race(Enum):
     Half_Elf = auto()
     Gnome = auto()
     Goliath = auto()
+    Aasamir = auto()
     Dragonborn = auto()
     #Monster races
     Dragon = auto()
@@ -84,6 +85,7 @@ class creature_subclass(Enum):
     Gunslinger = auto()
     #Barbarian subclasses
     Beserker = auto()
+    Zealot = auto()
     #Rogue subclasses
     Thief = auto()
     #Ranger subclasses
@@ -381,8 +383,9 @@ class creature():
     ## Barbarian
     canrage = bool()
     ragedamage = int()
-    raging = bool()
-    frenzy = bool()
+    raging = bool()    
+    rage_duration = int()
+    max_rage_duration = int()
     reckless = bool()
     use_reckless = bool()
     great_weapon_master = bool()
@@ -392,9 +395,19 @@ class creature():
     brutal_critical_dice = int()
     relentless_rage = bool()
     relentless_rage_DC = int()
-    retaliation = bool()
     feral_instinct = bool()
 
+    # Beserker
+    frenzy = bool()
+    retaliation = bool()
+    
+    # Zealot
+    divine_fury = bool()
+    divine_fury_used = bool()
+    divine_fury_damage_type = int()
+    fanatical_focus = bool()
+    zealous_presence = bool()
+    rage_beyond_death = bool()
     # Paladin
     divine_smite = bool()
     divine_health = bool()
@@ -424,6 +437,10 @@ class creature():
     reaction_used = bool() # Tracks if Reaction step of turn has been used
 
     prone = bool() # Tracks if creature is prone (requires half movement to stand)
+    conscious = bool() # Tracks if creature is conscious
+    death_saving_throw_success = int() # Tracks succesful Death Saving Throws
+    death_saving_throw_failure = int() # Tracks failed Death Saving Throws
+    stabilised = bool() # Tracks stabilisation (i.e. 3 successes)
     alive = bool() # Tracks if creature is still alive
 
     target = None

@@ -121,6 +121,8 @@ def bonus_action(combatant):
             if combatant.canrage and not combatant.raging:
                 print_output(combatant.name + ' uses their Bonus Action to go into a mindless rage! "I would like to RAAAGE!!!"')
                 combatant.raging = True;
+                # Reset duration of this rage
+                combatant.rage_duration = 0
                 combatant.bonus_action_used = True
                 # Rage grants advantage on strength checks/saving throws for its duration
                 if combatant.armour_type != armour_type.Heavy:
@@ -152,7 +154,7 @@ def bonus_action(combatant):
             for item in combatant.equipment_inventory():
                 if item.grants_equipment_spell == equipment_spells.Leap:
                     if combatant.position != combatant.target.position:
-                        print_output(combatant.name + ' is taking a flying leap using his ' + item.name + ' as a Bonus Action!')
+                        print_output(combatant.name + ' is taking a flying leap using their ' + item.name + ' as a Bonus Action!')
                         if abilitycheck(combatant,ability_check.Strength,strmod(combatant),combatant.checks.str_adv,16):
                             print_output(combatant.name + ' leaps forward 20 feet')
                             if combatant.position - 20 <= combatant.target.position:
@@ -162,7 +164,7 @@ def bonus_action(combatant):
                                 #movement cannot close gap to target #
                                 combatant.position -= 20
                         else:
-                            print_output(combatant.name + ' fell over where he stands!')
+                            print_output(combatant.name + ' fell over where they stand!')
                             combatant.prone = True
                         combatant.bonus_action_used = True
 
@@ -327,7 +329,7 @@ def attack(combatant):
                             # legs trick shot #
                             # don't bother if target is already prone #
                             if combatant.target.prone:
-                                #print_output(combatant.target.name + ' is prone on the ground - ' + combatant.name + ' is saving his Grit for later')
+                                #print_output(combatant.target.name + ' is prone on the ground - ' + combatant.name + ' is saving their Grit for later')
                                 disadvantage = True
                             else:
                                 print_output(combatant.name + ' spends 1 Grit Point to perform a Leg Trick Shot. Current Grit: ' + repr(combatant.current_grit-1))
@@ -422,6 +424,10 @@ def attack(combatant):
 
                     if totalatk >= combatant.target.armour_class:
                         print_output(combatant.name + '\'s attack with ' + combatant.current_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(totalatk) + ' versus AC ' + repr(combatant.target.armour_class) + ')')            
+                        if combatant.target.conscious == False and not crit and combatant.current_weapon.range == 0:
+                            print_output('The blow strikes the unconscious form of ' + combatant.target.name + ' and deals CRITICAL DAMAGE!')
+                            crit = True       
+                            
                         # resolve trick shot #
                         if calledshot:
                             # logic to choose the right kind of called shot? lol #
@@ -493,24 +499,32 @@ def attack(combatant):
 
                         #Bonus damage (from weapon)
                         if combatant.current_weapon.bonus_damage_die > 0:
-                            resolve_bonus_damage(combatant,combatant.current_weapon.bonus_damage_target,combatant.current_weapon.bonus_damage_type,combatant.current_weapon.bonus_damage_die,combatant.current_weapon.bonus_damage_die_count,crit,combatant.current_weapon.name)
-                    
+                            resolve_bonus_damage(combatant,combatant.current_weapon.bonus_damage_target,combatant.current_weapon.bonus_damage_type,combatant.current_weapon.bonus_damage_die,combatant.current_weapon.bonus_damage_die_count,0,crit,combatant.current_weapon.name)
+                        
                         #Bonus damage (from hand of Vecna, 2d8 cold damage on melee hit)
                         for item in combatant.equipment_inventory():
                             if item.grants_equipment_spell == equipment_spells.HandOfVecna and combatant.current_weapon.range == 0:
                                 print_output(combatant.name + '\'s left hand crackles with power! They dealt bonus damage with the ' + item.name)
-                                resolve_bonus_damage(combatant,0,item.damage_type,item.damage_die,item.damage_die_count,crit,item.name)
+                                resolve_bonus_damage(combatant,0,item.damage_type,item.damage_die,item.damage_die_count,0,crit,item.name)
                         
                         # Bonus damage (from critical weapon effect)
                         if crit and combatant.current_weapon.crit_bonus_damage_die > 0:
                             print_output(combatant.current_weapon.name + ' surges with power, dealing bonus damage on a critical strike!')                            
-                            resolve_bonus_damage(combatant,0,combatant.current_weapon.crit_bonus_damage_type,combatant.current_weapon.crit_bonus_damage_die,combatant.current_weapon.crit_bonus_damage_die_count,crit,combatant.current_weapon.name)                        
+                            resolve_bonus_damage(combatant,0,combatant.current_weapon.crit_bonus_damage_type,combatant.current_weapon.crit_bonus_damage_die,combatant.current_weapon.crit_bonus_damage_die_count,0,crit,combatant.current_weapon.name)                        
+
+                        # Bonus damage (from Zealot's Divine Fury - 1d6 + half barbairna level, damage type selected by player)
+                        if combatant.divine_fury:
+                            if not combatant.divine_fury_used:
+                                print_output(combatant.name + '\'s weapon crackles with the strength of their Divine Fury!')
+                                resolve_bonus_damage(combatant,0,combatant.divine_fury_damage_type,6,1,math.floor(combatant.barbarian_level/2),crit,"Divine Fury")
+                                combatant.divine_fury_used = True
 
                         # Bonus damage (from Improved Divine Smite)
                         if combatant.improved_divine_smite:
                             print_output(combatant.name + '\'s eyes glow, as their attacks are infused with radiant energy!')                                                    
-                            resolve_bonus_damage(combatant,0,damage_type.Radiant,8,1,crit,"Improved Divine Smite")
-                        #Conditionall cast spells/use items on crit after initial damage resolved
+                            resolve_bonus_damage(combatant,0,damage_type.Radiant,8,1,0,crit,"Improved Divine Smite")
+
+                        #Conditionally cast spells/use items on crit after initial damage resolved
                         #Smite (ideally you would only do this on crit)
                         for spell in combatant.creature_spells():
                             if spell.name == "Divine Smite":
@@ -536,8 +550,18 @@ def attack(combatant):
                 
                         #After all the damage from the attack action is resolved, check the fatality
                         #Do this sparingly or players wlil die multiple times from one attack 
-                        #i.e. fail death saving throws/activate relentless rage each time they drop below 0
-                        resolve_damage(combatant.target)
+                        #i.e. activate relentless rage each time they drop below 0
+                        if combatant.target.conscious:
+                            resolve_damage(combatant.target)
+                        else:                            
+                            if crit:
+                                print_output('The critical blow strikes the unconscious form of ' + combatant.target.name + ' and causes them to fail two Death Saving Throws!')
+                                combatant.target.death_saving_throw_failure += 2
+                            else:
+                                print_output('The blow strikes the unconscious form of ' + combatant.target.name + ' and causes them to fail a Death Saving Throw!')
+                                combatant.target.death_saving_throw_failure += 1
+                            
+                            print_output(indent + 'Death Saving Throw Successes: ' + repr(combatant.target.death_saving_throw_success) + ' Failures: ' + repr(combatant.target.death_saving_throw_failure))
 
                         resolve_fatality(combatant.target)
                     else:
@@ -549,7 +573,7 @@ def attack(combatant):
 
                     attackcomplete = True
             else:
-                print_output(combatant.target.name + ' is unconscious!')
+                print_output(combatant.target.name + ' is dead on the ground, and not worthy of an attack.')
         else:
             print_output(combatant.target.name + ' is out of range of ' + combatant.current_weapon.name + '!')
 
@@ -654,14 +678,16 @@ def repair_weapon(combatant):
         combatant.current_weapon.ruined = True
         print_output(combatant.current_weapon.name + ' has been ruined in the repair attempt! ' + combatant.name + ' needs to go back to their workshop to fix it! ')
 
-def resolve_bonus_damage(combatant,bonus_target,type,die,count,crit,source):
+def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source):
     bonus_damage = 0
     crit_damage = 0
     if (bonus_target == 0) or (bonus_target == combatant.target.race):
-        if bonus_target == 0:
-            print_output(indent + 'Rolling bonus damage: ')
-        else:
-            print_output(indent + 'Rolling bonus damage against ' + combatant.target.race.name + ': ')                    
+        #if bonus_target == 0:
+            #print_output(indent + 'Rolling bonus damage: ')
+
+        #else:
+            #print_output(indent + 'Rolling bonus damage against ' + combatant.target.race.name + ': ')  
+            #                  
         for x in range(0,count):
             die_damage = roll_weapon_die(die)
             print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')
@@ -674,18 +700,18 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,crit,source):
             crit_damage = bonus_damage * 2           
                         
     if crit:
-        print_output(indent + combatant.name + ' dealt an additional ' + repr(crit_damage) + ' (roll = ' + repr(bonus_damage) + ') points of ' + type.name + ' damage with ' + source)
-        deal_damage(combatant.target,crit_damage,type,combatant.current_weapon.magic)
+        print_output(indent + combatant.name + ' dealt an additional ' + repr(crit_damage+flat) + ' (roll = ' + repr(bonus_damage) + ') points of ' + type.name + ' damage with ' + source)
+        deal_damage(combatant.target,crit_damage+flat,type,combatant.current_weapon.magic)
     else:
-        print_output(indent + combatant.name + ' dealt an additional ' + repr(bonus_damage) + ' points of ' + type.name + ' damage with ' + source)
-        deal_damage(combatant.target,bonus_damage,type,combatant.current_weapon.magic)
+        print_output(indent + combatant.name + ' dealt an additional ' + repr(bonus_damage+flat) + ' points of ' + type.name + ' damage with ' + source)
+        deal_damage(combatant.target,bonus_damage+flat,type,combatant.current_weapon.magic)
 
 def deal_damage(combatant,damage,dealt_damage_type,magical):    
     #Reduce bludgeoning/piercing/slashing if raging (and not wearing Heavy armour)
     if combatant.raging and not combatant.armour_type == armour_type.Heavy:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing):
             damage = int(damage/2)              
-            print_output(doubleindent + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage in his rage!')
+            print_output(doubleindent + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage in their rage!')
     if combatant.enlarged:
         if dealt_damage_type in (damage_type.Fire,damage_type.Cold,damage_type.Lightning):
             damage = int(damage/2)              
@@ -725,41 +751,86 @@ def resolve_damage(combatant):
     combatant.pending_damage().clear()
     if total_damage > 0:
         
-        #Use Reaction if it can do anything
-        if not combatant.reaction_used:
-            if combatant.stones_endurance:
-                if not combatant.stones_endurance_used:
-                    #Don't waste stones endurance on small hits
-                    if total_damage > conmod(combatant)+12:
-                        reduction = conmod(combatant) + roll_weapon_die(12)
-                        total_damage = int(total_damage - reduction)
-                        print_output(combatant.name + ' uses their reaction, and uses Stones Endurance to reduce the damage by ' + repr(reduction) + '! ')
-                        damage_string += 'reduced by ' + repr(int(reduction)) + ' (Stones Endurance)'
-                        combatant.stones_endurance_used = True
-                        combatant.reaction_used = True
+        if combatant.current_health >= 0 and combatant.conscious:
+            #Use Reaction if it can do anything
+            if not combatant.reaction_used:
+                if combatant.stones_endurance:
+                    if not combatant.stones_endurance_used:
+                        #Don't waste stones endurance on small hits
+                        if total_damage > conmod(combatant)+12:
+                            reduction = conmod(combatant) + roll_weapon_die(12)
+                            total_damage = int(total_damage - reduction)
+                            print_output(combatant.name + ' uses their reaction, and uses Stones Endurance to reduce the damage by ' + repr(reduction) + '! ')
+                            damage_string += 'reduced by ' + repr(int(reduction)) + ' (Stones Endurance)'
+                            combatant.stones_endurance_used = True
+                            combatant.reaction_used = True
 
-        combatant.current_health = combatant.current_health - total_damage 
+            combatant.current_health = combatant.current_health - total_damage 
                         
-        print_output('Damage Summary: ' + damage_string)        
-        print_output(combatant.name + ' suffers a total of ' + repr(int(total_damage)) + ' points of damage. Current HP: ' + repr(int(combatant.current_health)) + '/' + repr(combatant.max_health))
+            print_output('Damage Summary: ' + damage_string)        
+            print_output(combatant.name + ' suffers a total of ' + repr(int(total_damage)) + ' points of damage. Current HP: ' + repr(int(combatant.current_health)) + '/' + repr(combatant.max_health))        
 
 def resolve_fatality(combatant):
-    if combatant.current_health <= 0:
+    if combatant.alive and combatant.conscious and combatant.current_health <= 0:
+        # Default proposition - combatant goes unconscious
+        combatant.conscious = False   
+        
         #Relentless rage
-        if combatant.relentless_rage:
+        if combatant.relentless_rage and combatant.raging:
             if savingthrow(combatant,saving_throw.Consitution,combatant.saves.con,False,combatant.relentless_rage_DC):
-                print_output(combatant.name + ' was dropped below 0 hit points, but recovers to 1 hit point due to his Relentless Rage!')
+                print_output(combatant.name + ' was dropped below 0 hit points, but recovers to 1 hit point due to their Relentless Rage!')
                 combatant.alive = True
+                combatant.conscious = True
                 combatant.current_health = 1
                 combatant.relentless_rage_DC += 5
             else:                
-                print_output('The relentless fury within ' + combatant.name + '\'s eyes fades, and he slumps to the ground, unconscious.')
-                combatant.alive = False      
-                combatant.relentless_rage = False
-        else:            
-            combatant.alive = False                    
-    if not combatant.alive:
+                print_output('The relentless fury within ' + combatant.name + '\'s eyes fades, and they slump to the ground.')
+                combatant.conscious = False      
+                combatant.relentless_rage = False  
+
+        # rage beyond death (if we need to)
+        if not combatant.conscious and combatant.rage_beyond_death and combatant.raging:
+            # Combatant is not unconscious if they have Rage Beyond Death
+            print_output(combatant.name + ' picks themselves up and continues fighting in their divine rage!')
+            combatant.conscious = True
+            if combatant.death_saving_throw_failure <= 3:
+                # Roll a death saving throw; only track failures, when we hit 3 they are dead at the end of rage
+                death_saving_throw(combatant)
+                if combatant.death_saving_throw_failure >= 3:
+                    print_output(combatant.name + ' fails their third death saving throw, but remains standingin their zealous rage beyond death!')       
+                    combatant.conscious = True
+                    combatant.alive = True
+        elif combatant.rage_beyond_death and not combatant.raging:
+            if combatant.death_saving_throw_failure >= 3:
+                print_output(combatant.name + ' falls to their knees, the white-hot rage leaving their eyes as their jaw goes slack, and they perish on the ground.')                    
+                combatant.conscious = False
+                combatant.alive = False  
+
+    #Resolve death saving throws (thrown at other parts, i.e. when damage suffered or when unconscious on your turn)
+    elif combatant.alive and not combatant.conscious and combatant.current_health <= 0:
+        if combatant.death_saving_throw_failure >= 3:
+            print_output(combatant.name + '\'s chest stops moving, as the cold embrace of death welcomes them.')
+            combatant.alive = False
+        elif combatant.death_saving_throw_success >= 3:
+            print_output(combatant.name + '\'s breathing steadies, and they appear to no longer be in imminent risk of death, stabilised and unconscious')
+            combatant.stabilised = True                
+
+    #Resolve death
+    if not combatant.alive and not combatant.conscious and combatant.current_health <=0:
         print_output('HOW DO YOU WANT TO DO THIS??')        
+
+def death_saving_throw(combatant):
+    i = roll_d20()
+    print_output(' *** ' + combatant.name + ' makes a Death Saving Throw: they rolled a ' + repr(i) + ' *** ')
+    if i <= 1:
+        combatant.death_saving_throw_failure += 2
+    elif i <= 10:
+        combatant.death_saving_throw_failure += 1
+    elif i <= 19:
+        combatant.death_saving_throw_success += 1
+    elif i == 20:
+        combatant.death_saving_throw_success = 3
+    print_output(indent + 'Death Saving Throw Successes: ' + repr(combatant.death_saving_throw_success) + ' Failures: ' + repr(combatant.death_saving_throw_failure))
 
 def calc_to_hit_modifier(combatant):
     to_hit = 0
