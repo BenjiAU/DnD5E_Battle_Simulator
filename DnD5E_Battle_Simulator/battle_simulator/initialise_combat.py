@@ -13,6 +13,8 @@ def reset_combatants(init_combatants):
 
         # Reset creature values #
         combatant.alive = True
+        combatant.death_saving_throw_failure = 0
+        combatant.death_saving_throw_success = 0
         combatant.conscious = True
         combatant.current_health = combatant.max_health
         combatant.enlarged = False        # Need a better wayto handle this        

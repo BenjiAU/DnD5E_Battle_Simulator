@@ -10,7 +10,7 @@ def set_output_file():
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H%M%S')    
     if not os.path.exists("\combatlog"):
         os.makedirs("\combatlog")
-    settings.filename = "\combatlog\combat_" + st + ".txt"
+    settings.filename = "\combatlog\combat_" + st + ".html"
 
 def open_file():
     if settings.filename != "":

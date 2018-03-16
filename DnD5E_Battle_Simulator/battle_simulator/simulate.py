@@ -36,7 +36,7 @@ def simulate_battle():
         
         print_output('_____________________________________________________________________________')
         attempt += 1
-        print_output('Attempt number:' + repr(attempt))
+        print_output('<b>Attempt number: ' + repr(attempt)+ '</b>')
         print_output(' ')      
         
         initialise_combat.reset_combatants(init_combatants)
@@ -77,16 +77,18 @@ def simulate_battle():
         while not round_complete and settings.max_rounds:
             print_output("</br>")
             round = round + 1
-            print_output('Round: ' + repr(round))
+            print_output('<b>Round: ' + repr(round) + '</b>')
     
             for combatant in combatants:        
                 if not round_complete:
+                    print_output("</br>")
                     print_output('It is now ' + combatant.name + '\'s turn. Current HP: ' + repr(combatant.current_health) + '/' + repr(combatant.max_health))
-                    if combatant.alive:                        
+                    if combatant.alive:
+                        print_output('<b>Determining targets:</b>')
                         if combatant.target:
                             if not combatant.target.alive:
                                 #refresh targets
-                                print_output(combatant.name + '\'s target is unconscious! Choosing new target...')
+                                print_output(combatant.name + '\'s target is dead! Choosing new target...')
                                 initialise_combat.initialise_targets(init_combatants)
 
                             # Conscious actions
@@ -102,10 +104,11 @@ def simulate_battle():
                                     #Divine Fury (resets at thes tart of each turn)
                                     if combatant.divine_fury:
                                         combatant.divine_fury_used = False
-
-                                    #print_output(combatant.name + ' starts the turn at position ' + repr(combatant.position))
-                                    if combatant.target:
-                                        print_output('Distance to target: ' + repr(getdistance(combatant.position,combatant.target.position)) + ' feet')
+                                    
+                                    # Determine distance between targets and report if it is > 0
+                                    dist = getdistance(combatant.position,combatant.target.position)
+                                    if combatant.target and dist > 0:
+                                        print_output('Distance to target: ' + repr(dist) + ' feet')
 
                                     #check for breath weapon recharge
                                     if combatant.creature_class == creature_class.Monster:
@@ -114,12 +117,15 @@ def simulate_battle():
                                                 breath_recharge(combatant)
 
                                     # use movement first #
+                                    print_output('<b>Movement:</b>')
                                     movement(combatant)
 
                                     # action #
+                                    print_output('<b>Action:</b>')
                                     action(combatant)              
 
-                                    # bonus action #        
+                                    # bonus action #       
+                                    print_output('<b>Bonus Action:</b>') 
                                     bonus_action(combatant)            
                 
                                     # additional abilities (action surge etc.)
@@ -129,6 +135,7 @@ def simulate_battle():
                                         print_output('********************')
                                         combatant.action_surge -= 1
                                         combatant.action_used = False;
+                                        print_output('<b>Action Surge action:</b>')
                                         action(combatant)                                
                                 
                                     #print_output(combatant.name + "s new position: " + repr(combatant.position))
@@ -153,7 +160,6 @@ def simulate_battle():
                                         resolve_fatality(combatant)
 
                                     print_output('That finishes ' + combatant.name + '\'s turn.')
-                                    print_output("</br>")
                                 else:
                                     print_output(combatant.name + ' has no valid targets! Team ' + combatant.team.name + ' wins!')
                                     combatant.team.no_of_wins += 1
@@ -172,6 +178,10 @@ def simulate_battle():
         # After 1000 rounds, if no victor, declare stalemate
         if not round_complete:
             print_output('Nobody wins - stalemate!')        
+        
+        print_output('_____________________________________________________________________________')        
+        print_output('<b>Attempt complete.</b>')
+        print_output('_____________________________________________________________________________')
 
     print_output("</br>")
     print_output('------------------------')

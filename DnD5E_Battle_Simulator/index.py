@@ -28,7 +28,7 @@ def index():
 
     data = {
         "title": 'Dungeons & Dragons 5E - Battle Simulator',
-        "msg":'Select and customise your combatants, the hit Simulate to see how they compete!',
+        "msg":'Yasha vs Grog - both level 20, same equipment, to compare Path of Beserker with Path of the Zealot.</br>Salient features should be in, each Simulate will run 5 attempts at the battle.</br> Try it out and see how strong Zealots are!',
         "process_form": process_form(),
         "filename": filename,
         "content": html
