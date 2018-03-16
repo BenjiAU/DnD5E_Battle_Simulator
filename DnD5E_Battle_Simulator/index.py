@@ -27,8 +27,8 @@ def index():
                         html += Markup('<div>' + i + '</div>')           
 
     data = {
-        "title": '5E Battle Simulator - Barbarians',
-        "msg":'Yasha vs Grog - both level 20, same equipment, to compare Path of Beserker with Path of the Zealot.</br>Salient features should be in, each Simulate will run 5 attempts at the battle.</br> Try it out and see how strong Zealots are!',
+        "title": '5E Battle Simulator - Barbarians [Spoilers C1/C2]',
+        "msg":'Warning - content on this website may contain spoilers for Critical Role.',
         "process_form": process_form(),
         "filename": filename,
         "content": html
