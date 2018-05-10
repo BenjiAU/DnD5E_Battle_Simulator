@@ -866,7 +866,7 @@ def resolve_fatality(combatant):
 
     #Resolve death
     if not combatant.alive and not combatant.conscious and combatant.current_health <=0:
-        print_output('!!!!<<<<HOW DO YOU WANT TO DO THIS??>>>>!!!!')        
+        print_output('********' + 'HOW DO YOU WANT TO DO THIS??' + '********')        
 
 def death_saving_throw(combatant):
     i = roll_d20()
