@@ -594,8 +594,7 @@ def init_umbrasyl(init_combatants):
     bite.range = 0
     
     bite.damage_die = 10
-    bite.damage_die_count = 2
-    bite.weapon_bonus_damage = 8
+    bite.damage_die_count = 2    
     bite.weapon_damage_type = damage_type.Piercing
     
     bite.bonus_damage_die = 8
@@ -614,8 +613,7 @@ def init_umbrasyl(init_combatants):
     claw.range = 0
     
     claw.damage_die = 6
-    claw.damage_die_count = 2
-    claw.weapon_bonus_damage = 8
+    claw.damage_die_count = 2   
     claw.weapon_damage_type = damage_type.Slashing
         
     claw.reach = 10
@@ -631,7 +629,6 @@ def init_umbrasyl(init_combatants):
     
     tail.damage_die = 8
     tail.damage_die_count = 2
-    tail.weapon_bonus_damage = 8
     tail.weapon_damage_type = damage_type.Bludgeoning
         
     tail.reach = 20
@@ -768,7 +765,6 @@ def init_hill_giant(init_combatants):
     
     greatclub.damage_die = 8
     greatclub.damage_die_count = 3
-    greatclub.weapon_bonus_damage = 5
     greatclub.weapon_damage_type = damage_type.Bludgeoning
     
     greatclub.magic_to_hit_modifier = 3

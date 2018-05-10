@@ -270,9 +270,7 @@ class weapon():
 
     # Main weapon damage 
     damage_die = int()
-    damage_die_count = int()
-    # Flat bonus damage
-    weapon_bonus_damage = int()    
+    damage_die_count = int()      
     weapon_damage_type = int()
         
     # Bonus damage (i.e. 1d6 Necrotic on Blood Axe)

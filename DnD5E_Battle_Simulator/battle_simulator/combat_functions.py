@@ -455,9 +455,8 @@ def attack(combatant):
                                 else:
                                     print_output(combatant.target.name + ' failed the Leg Shot save - they are now prone!')
                                     combatant.target.prone = True
-                        
-                            weapon_bonus_damage = combatant.current_weapon.weapon_bonus_damage
-                            damage_modifier = calc_damage_modifier(combatant) + weapon_bonus_damage                            
+                                                    
+                            damage_modifier = calc_damage_modifier(combatant)
 
                             print_output(indent + combatant.current_weapon.name + ' deals ' + repr(combatant.current_weapon.damage_die_count) + 'd' + repr(combatant.current_weapon.damage_die) + ' + ' + repr(damage_modifier) + ' '  + combatant.current_weapon.weapon_damage_type.name + ' damage: ')
                             #Great Weapon Fighting (reroll 1s and 2s)                    
