@@ -729,6 +729,17 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source)
         print_output(indent + combatant.name + ' dealt an additional ' + repr(bonus_damage+flat) + ' points of ' + type.name + ' damage with ' + source)
         deal_damage(combatant.target,bonus_damage+flat,type,combatant.current_weapon.magic)
 
+def resolve_hemo_damage(combatant):        
+    #Gunslinger - Hemorrhaging Shot; damage and type is stored against the target and resolved after the target takes its turn (treated as nonmagical always?)
+    if combatant.hemo_damage > 0:
+        print_output(combatant.name + ' bleeds profusely from an earlier gunshot wound, suffering ' + repr(combatant.hemo_damage) + ' points of damage from Hemorrhaging Critical!')
+        #hack
+        #combatant.hemo_damage_type = combatant.target.current_weapon.weapon_damage_type
+        #deal damage to yourself
+        deal_damage(combatant,combatant.hemo_damage,combatant.hemo_damage_type,False)
+        combatant.hemo_damage = 0
+        combatant.hemo_damage_type = 0     
+
 def deal_damage(combatant,damage,dealt_damage_type,magical):    
     #Reduce bludgeoning/piercing/slashing if raging (and not wearing Heavy armour)
     if combatant.raging and not combatant.armour_type == armour_type.Heavy:            

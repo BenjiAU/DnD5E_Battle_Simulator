@@ -25,6 +25,10 @@ def close_file():
         settings.file.close()
         settings.file_open = False
 
+def delete_file():
+    if (settings.filename != "") and (settings.file_open == False):
+        os.remove(settings.filename)      
+
 def print_output(string): 
     if settings.filename != "":
         if not settings.file_open:
