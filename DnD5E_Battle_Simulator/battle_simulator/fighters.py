@@ -771,7 +771,7 @@ def init_hill_giant(init_combatants):
     greatclub.weapon_bonus_damage = 5
     greatclub.weapon_damage_type = damage_type.Bludgeoning
     
-    greatclub.magic_to_hit_modifier = 8
+    greatclub.magic_to_hit_modifier = 3
 
     hillgiant.weapon_inventory().append(greatclub)
 
