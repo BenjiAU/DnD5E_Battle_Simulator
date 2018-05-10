@@ -7,11 +7,11 @@ from .classes import *
 import math
 
 def initialise_combatants(init_combatants):
-    #init_percy(init_combatants)
+    init_percy(init_combatants)
     #init_arkhan(init_combatants)
-    #init_grog(init_combatants)
-    init_yasha_level4(init_combatants)
-    init_hill_giant(init_combatants)
+    init_grog(init_combatants)
+    #init_yasha_level4(init_combatants)
+    #init_hill_giant(init_combatants)
     #init_yasha(init_combatants)
     #init_umbrasyl(init_combatants)
     #init_doty(init_combatants)
@@ -52,7 +52,7 @@ def initialise_team(combatants):
 def initialise_position(combatants):
     for combatant in combatants:
         if combatant.name == "Grog":
-            combatant.position = 1420
+            combatant.position = 2600
         if combatant.name == "Yasha":
             combatant.position = 1420
         if combatant.name == "Arkhan":
