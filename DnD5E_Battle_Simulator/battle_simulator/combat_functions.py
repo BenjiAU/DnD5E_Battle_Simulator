@@ -457,7 +457,7 @@ def attack(combatant):
                                     combatant.target.prone = True
                         
                             weapon_bonus_damage = combatant.current_weapon.weapon_bonus_damage
-                            damage_modifier = calc_damage_modifier(combatant)                            
+                            damage_modifier = calc_damage_modifier(combatant) + weapon_bonus_damage                            
 
                             print_output(indent + combatant.current_weapon.name + ' deals ' + repr(combatant.current_weapon.damage_die_count) + 'd' + repr(combatant.current_weapon.damage_die) + ' + ' + repr(damage_modifier) + ' '  + combatant.current_weapon.weapon_damage_type.name + ' damage: ')
                             #Great Weapon Fighting (reroll 1s and 2s)                    
@@ -507,7 +507,7 @@ def attack(combatant):
                                 feat_bonus = 10
                                 print_output(indent + combatant.name + ' dealt an additional ' + repr(feat_bonus) + ' damage because of Great Weapon Master')
                 
-                            totaldamage = dice_damage + weapon_bonus_damage + damage_modifier + feat_bonus            
+                            totaldamage = dice_damage + damage_modifier + feat_bonus            
 
                             if feat_bonus == 0:
                                 print_output(indent + combatant.name + '\'s strike dealt a total of ' + repr(totaldamage) + ' points of ' + weapon_damage_type.name + ' damage (Dice: ' + repr(dice_damage) + ' Modifier: ' + repr(damage_modifier) + ')')
