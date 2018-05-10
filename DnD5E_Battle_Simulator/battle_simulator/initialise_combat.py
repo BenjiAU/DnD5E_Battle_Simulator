@@ -220,6 +220,10 @@ def reset_combatants(init_combatants):
             if combatant.creature_subclass == creature_subclass.Doty:                            
                 combatant.multiattack = ["Bash","Headbutt"]
 
+            ### Hill Giant
+            if combatant.creature_subclass == creature_subclass.Hill:                            
+                combatant.multiattack = ["Greatclub","Greatclub"]
+
 def initialise_targets(combatants):
     i = 0
     targets = combatants
