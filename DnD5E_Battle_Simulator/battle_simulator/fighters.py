@@ -9,8 +9,10 @@ import math
 def initialise_combatants(init_combatants):
     #init_percy(init_combatants)
     #init_arkhan(init_combatants)
-    init_grog(init_combatants)
-    init_yasha(init_combatants)
+    #init_grog(init_combatants)
+    init_yasha_level4(init_combatants)
+    init_hill_giant(init_combatants)
+    #init_yasha(init_combatants)
     #init_umbrasyl(init_combatants)
     #init_doty(init_combatants)
     #init_trinket(init_combatants)
@@ -39,6 +41,8 @@ def initialise_team(combatants):
             combatant.team = vm
         if combatant.name == "Umbrasyl":
             combatant.team = monster
+        if combatant.name == "Hill Giant":
+            combatant.team = monster        
         if combatant.name == "Doty":
             combatant.team = doty
         if combatant.name == "Trinket":
@@ -56,6 +60,8 @@ def initialise_position(combatants):
         if combatant.name == "Percy":
             combatant.position = 1400
         if combatant.name == "Umbrasyl":
+            combatant.position = 1450
+        if combatant.name == "Hill Giant":
             combatant.position = 1450
         if combatant.name == "Doty":
             combatant.position = 1450
@@ -364,6 +370,80 @@ def init_yasha(init_combatants):
 
     init_combatants.append(yasha)    
 
+def init_yasha_level4(init_combatants):
+
+    #yasha
+    yasha = creature()
+    yasha.fullname = "Yasha"
+    yasha.name = "Yasha"
+    yasha.race = race.Aasamir
+    yasha.creature_class = creature_class.Barbarian
+    yasha.creature_subclass = creature_subclass.Zealot    
+    yasha.barbarian_level = 4
+    yasha.fighter_level = 0
+    yasha.fighting_style = fighting_style.Great_Weapon_Fighting
+    yasha.max_health = 42
+    yasha.armour_class = 14
+    yasha.speed = 30
+    yasha.proficiency = math.floor((7+characterlevel(yasha))/4)
+    yasha.weapon_proficiency().append(weapon_type.Greatsword)
+    
+
+    #Stats
+    yashastats = statblock()
+    yashastats.str = 17
+    yashastats.dex = 15
+    yashastats.con = 14
+    yashastats.intel = 12
+    yashastats.wis = 9
+    yashastats.cha = 7
+
+    yasha.stats = yashastats
+    
+    #Saves
+    yashasaves = saveblock()    
+    yashasaves.str = 5
+    yashasaves.dex = 2
+    yashasaves.con = 4
+    yashasaves.intel = 1
+    yashasaves.wis = -1
+    yashasaves.cha = -2
+    
+    yasha.saves = yashasaves
+
+    #Ability Checks
+    yashachecks = checkblock()
+    
+    yasha.checks = yashachecks    
+
+    #yasha's weapons
+    magiciansjudge = weapon()
+    magiciansjudge.name = "Magician\'s Judge"
+    magiciansjudge.weapon_type = weapon_type.Greatsword;
+    magiciansjudge.range = 0
+    
+    magiciansjudge.damage_die = 6
+    magiciansjudge.damage_die_count = 2
+    magiciansjudge.weapon_damage_type = damage_type.Slashing
+    
+    magiciansjudge.bonus_damage_die = 0
+    magiciansjudge.bonus_damage_die_count = 0
+    magiciansjudge.bonus_damage_type = damage_type.Necrotic
+    
+    magiciansjudge.magic_to_hit_modifier = 1
+    magiciansjudge.magic_damage_modifier = 1
+
+    magiciansjudge.heavy = True
+    magiciansjudge.two_handed = True
+    magiciansjudge.magic = True
+
+    yasha.weapon_inventory().append(magiciansjudge)
+
+    #yasha's gear
+    # combat stats # 
+
+    init_combatants.append(yasha)    
+
     
 def init_arkhan(init_combatants):
 
@@ -515,6 +595,7 @@ def init_umbrasyl(init_combatants):
     
     bite.damage_die = 10
     bite.damage_die_count = 2
+    bite.weapon_bonus_damage = 8
     bite.weapon_damage_type = damage_type.Piercing
     
     bite.bonus_damage_die = 8
@@ -534,6 +615,7 @@ def init_umbrasyl(init_combatants):
     
     claw.damage_die = 6
     claw.damage_die_count = 2
+    claw.weapon_bonus_damage = 8
     claw.weapon_damage_type = damage_type.Slashing
         
     claw.reach = 10
@@ -549,6 +631,7 @@ def init_umbrasyl(init_combatants):
     
     tail.damage_die = 8
     tail.damage_die_count = 2
+    tail.weapon_bonus_damage = 8
     tail.weapon_damage_type = damage_type.Bludgeoning
         
     tail.reach = 20
@@ -643,6 +726,57 @@ def init_doty(init_combatants):
     doty.weapon_inventory().append(headbutt) 
 
     init_combatants.append(doty)    
+
+def init_hill_giant(init_combatants):
+
+    hillgiant = creature()
+    hillgiant.fullname = "Hill Giant"
+    hillgiant.name = "Hill Giant"
+    hillgiant.race = race.Giant
+    hillgiant.creature_class = creature_class.Monster
+    hillgiant.creature_subclass = creature_subclass.Hill
+    hillgiant.max_health = 105
+    hillgiant.armour_class = 13
+    hillgiant.speed = 40
+        
+    #Stats
+    hillgiantstats = statblock()
+    hillgiantstats.str = 21
+    hillgiantstats.dex = 8
+    hillgiantstats.con = 19
+    hillgiantstats.intel = 5
+    hillgiantstats.wis = 9
+    hillgiantstats.cha = 6
+
+    hillgiant.stats = hillgiantstats
+    
+    #Saves
+    hillgiantsaves = saveblock()    
+    
+    hillgiant.saves = hillgiantsaves
+
+    #Ability Checks
+    hillgiantchecks = checkblock()    
+
+    hillgiant.checks = hillgiantchecks
+
+    #hillgiant's weapons
+    greatclub = weapon()
+    greatclub.name = "Greatclub"
+    greatclub.weapon_type = weapon_type.Natural;
+    greatclub.range = 0
+    
+    greatclub.damage_die = 8
+    greatclub.damage_die_count = 3
+    greatclub.weapon_bonus_damage = 5
+    greatclub.weapon_damage_type = damage_type.Bludgeoning
+    
+    greatclub.magic_to_hit_modifier = 8
+
+    hillgiant.weapon_inventory().append(greatclub)
+
+    init_combatants.append(hillgiant)    
+
 
 def init_trinket(init_combatants):
 

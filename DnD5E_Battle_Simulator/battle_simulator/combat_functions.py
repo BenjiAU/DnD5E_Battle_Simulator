@@ -141,7 +141,7 @@ def bonus_action(combatant):
             if combatant.second_wind:
                 #Don't use Second Wind unless current HP is more than 10+fighter level less than max
                 if combatant.current_health + 10 + combatant.fighter_level < combatant.max_health:
-                    second_wind_heal = roll_weapon_die(10) + combatant.fighter_level
+                    second_wind_heal = roll_die(10) + combatant.fighter_level
                     heal_damage(combatant,second_wind_heal)                    
                     print_output(combatant.name + ' uses their Bonus Action to gain a Second Wind, and restores ' + repr(second_wind_heal) + ' hit points!')
                     combatant.second_wind = False
@@ -270,7 +270,7 @@ def breath_attack(combatant):
         breath_damage_type = damage_type.Acid
         i = 1
         for i in range(1,15):
-            die_damage = roll_weapon_die(combatant.breath_damage_die)
+            die_damage = roll_die(combatant.breath_damage_die)
             print_output(indent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.breath_damage_die) + ' (Breath Damage)')
             breath_damage += die_damage
     if savingthrow(combatant.target,saving_throw.Dexterity,dexmod(combatant.target),combatant.target.saves.dex_adv,23):
@@ -285,7 +285,7 @@ def breath_attack(combatant):
     resolve_fatality(combatant.target)
 
 def breath_recharge(combatant):    
-    die = roll_weapon_die(6)
+    die = roll_die(6)
     if die >= 5:
         print_output(combatant.name + ' rolled a ' + repr(die) + ' on a d6 and recharged their Breath Attack!')
         combatant.breath_attack = True
@@ -381,16 +381,16 @@ def attack(combatant):
 
                     # Make attack roll # 
                     if not attackcomplete:
-                        initroll = roll_d20()                    
+                        initroll = roll_die(20)                    
                         if advantage and disadvantage:
                             print_output(combatant.name + ' has both advantage and disadvantage on the attack, and rolled a ' + repr(initroll) + ' on a d20 with a +' + repr(to_hit_modifier) + ' to hit')
                             atkroll = initroll
                         if advantage and not disadvantage:
-                            advroll = roll_d20()
+                            advroll = roll_die(20)
                             print_output(combatant.name + ' has advantage on the attack, and rolled a ' + repr(initroll) + ' and a ' + repr(advroll) + ' on a d20 with a +' + repr(to_hit_modifier) + ' to hit')
                             atkroll = max(initroll,advroll)
                         if disadvantage and not advantage:
-                            disadvroll = roll_d20()
+                            disadvroll = roll_die(20)
                             print_output(combatant.name + ' has disadvantage on the attack, and rolled a ' + repr(initroll) + ' and a ' + repr(disadvroll) + ' on a d20 with a +' + repr(to_hit_modifier) + ' to hit')
                             atkroll = min(initroll,disadvroll)
                         if not advantage and not disadvantage:
@@ -456,17 +456,18 @@ def attack(combatant):
                                     print_output(combatant.target.name + ' failed the Leg Shot save - they are now prone!')
                                     combatant.target.prone = True
                         
-                            damage_modifier = calc_damage_modifier(combatant)
+                            weapon_bonus_damage = combatant.current_weapon.weapon_bonus_damage
+                            damage_modifier = calc_damage_modifier(combatant)                            
 
                             print_output(indent + combatant.current_weapon.name + ' deals ' + repr(combatant.current_weapon.damage_die_count) + 'd' + repr(combatant.current_weapon.damage_die) + ' + ' + repr(damage_modifier) + ' '  + combatant.current_weapon.weapon_damage_type.name + ' damage: ')
                             #Great Weapon Fighting (reroll 1s and 2s)                    
                             weapon_damage_type = damage_type(combatant.current_weapon.weapon_damage_type)
                             for x in range(0,combatant.current_weapon.damage_die_count):                                    
-                                die_damage = roll_weapon_die(combatant.current_weapon.damage_die)   
+                                die_damage = roll_die(combatant.current_weapon.damage_die)   
                                 print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Weapon Damage)')
                                 if greatweaponfighting(combatant) and die_damage <= 2:
                                     print_output(doubleindent + combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
-                                    die_damage = roll_weapon_die(combatant.current_weapon.damage_die)   
+                                    die_damage = roll_die(combatant.current_weapon.damage_die)   
                                     print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Weapon Damage)')    
                                 dice_damage += die_damage                    
                      
@@ -482,13 +483,13 @@ def attack(combatant):
                                 if combatant.brutal_critical:
                                     print_output(indent + combatant.name + ' dealt massive damage with Brutal Critical! Rolling an additional ' + repr(combatant.brutal_critical_dice) + ' d' + repr(combatant.current_weapon.damage_die))
                                     for x in range(0,combatant.brutal_critical_dice):                            
-                                        die_damage = roll_weapon_die(combatant.current_weapon.damage_die)            
+                                        die_damage = roll_die(combatant.current_weapon.damage_die)            
                                         print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Brutal Critical damage)')
                                         #Per https://www.reddit.com/r/criticalrole/comments/823w9v/spoilers_c1_another_dnd_combat_simulation/dv7r55m/
                                         # Brutal Critical does not benefit from Great Weapon Fighting (only applies to the attack)
                                         #if greatweaponfighting and die_damage <= 2:
                                         #    print_output(combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')                                           
-                                        #    die_damage = roll_weapon_die(combatant.current_weapon.damage_die)            
+                                        #    die_damage = roll_die(combatant.current_weapon.damage_die)            
                                         #    print_output(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Brutal Critical damage)')
                                         dice_damage += die_damage              
                             
@@ -506,7 +507,8 @@ def attack(combatant):
                                 feat_bonus = 10
                                 print_output(indent + combatant.name + ' dealt an additional ' + repr(feat_bonus) + ' damage because of Great Weapon Master')
                 
-                            totaldamage = dice_damage + damage_modifier + feat_bonus            
+                            totaldamage = dice_damage + weapon_bonus_damage + damage_modifier + feat_bonus            
+
                             if feat_bonus == 0:
                                 print_output(indent + combatant.name + '\'s strike dealt a total of ' + repr(totaldamage) + ' points of ' + weapon_damage_type.name + ' damage (Dice: ' + repr(dice_damage) + ' Modifier: ' + repr(damage_modifier) + ')')
                             else:
@@ -564,7 +566,7 @@ def attack(combatant):
                                         if eq.current_charges > 0:
                                             print_output(indent + combatant.name + ' activates ' + eq.name + ', pouring ' +  repr(eq.current_charges) + ' charges into ' + combatant.target.name + '!')
                                             for x in range(0,eq.current_charges):
-                                                die_damage = roll_weapon_die(eq.damage_die)                                
+                                                die_damage = roll_die(eq.damage_die)                                
                                                 equipment_damage += die_damage * 2         
                                                 print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(eq.damage_die) + ' (Cabal\'s Ruin damage)')
                                             eq.current_charges = 0                
@@ -621,7 +623,7 @@ def cast_spell(combatant,spell,crit):
             spell_damage = 0
             if spell.damage_die > 0:
                 for x in range(0,spell.damage_die_count):
-                    die_damage = roll_weapon_die(spell.damage_die)
+                    die_damage = roll_die(spell.damage_die)
                     print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die) + ' (Spell Damage)')
                     spell_damage += die_damage
                 #Add additional damage for levels of expended spell slot
@@ -631,13 +633,13 @@ def cast_spell(combatant,spell,crit):
                         spellslot = spell.max_spell_slot
                     for x in range(spell.min_spell_slot,spellslot):
                         for y in range(0,spell.damage_die_count_per_spell_slot):
-                            die_damage = roll_weapon_die(spell.damage_die_per_spell_slot)
+                            die_damage = roll_die(spell.damage_die_per_spell_slot)
                             print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die_per_spell_slot) + ' (Additional Spell Damage from Spell Slot)')
                             spell_damage += die_damage
                 #Add bonus damage
                 if combatant.target.race == spell.bonus_damage_target:
                     for x in range(0,spell.bonus_damage_die_count):
-                        die_damage = roll_weapon_die(spell.bonus_damage_die)
+                        die_damage = roll_die(spell.bonus_damage_die)
             
             #Double dice if crit
             if crit:
@@ -712,11 +714,11 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source)
             #print_output(indent + 'Rolling bonus damage against ' + combatant.target.race.name + ': ')  
             #                  
         for x in range(0,count):
-            die_damage = roll_weapon_die(die)
+            die_damage = roll_die(die)
             print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')
             if greatweaponfighting(combatant) and die_damage <= 2 and source == combatant.current_weapon.name:
                 print_output(doubleindent + combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
-                die_damage = roll_weapon_die(die)
+                die_damage = roll_die(die)
                 print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' (Bonus Damage)')
             bonus_damage += die_damage
         if crit:
@@ -801,9 +803,9 @@ def resolve_damage(combatant):
             if not combatant.reaction_used:
                 if combatant.stones_endurance:
                     if not combatant.stones_endurance_used:
-                        #Don't waste stones endurance on small hits
+                        #Don't waste stones endurance on small hits (i.e. assume you can roll a 12)
                         if total_damage > conmod(combatant)+12:
-                            reduction = conmod(combatant) + roll_weapon_die(12)
+                            reduction = conmod(combatant) + roll_die(12)
                             total_damage = int(total_damage - reduction)
                             print_output(combatant.name + ' uses their reaction, and uses Stones Endurance to reduce the damage by ' + repr(reduction) + '! ')
                             damage_string += 'reduced by ' + repr(int(reduction)) + ' (Stones Endurance)'
@@ -873,7 +875,7 @@ def resolve_fatality(combatant):
         print_output('********' + 'HOW DO YOU WANT TO DO THIS??' + '********')        
 
 def death_saving_throw(combatant):
-    i = roll_d20()
+    i = roll_die(20)
     print_output(' *** ' + combatant.name + ' makes a Death Saving Throw: they rolled a ' + repr(i) + ' *** ')
     if i <= 1:
         combatant.death_saving_throw_failure += 2
@@ -935,14 +937,9 @@ def calc_min_crit(combatant):
     return min_crit
 
 # roll functions #
-
-def roll_d20(): 
+def roll_die(die):
     random.seed
-    return random.randint(1,20)
-
-def roll_weapon_die(weapon_die):
-    random.seed
-    return random.randint(1,weapon_die)
+    return random.randint(1,die)
 
 # mod functions #
 
@@ -967,7 +964,7 @@ def chamod(combatant):
 # save functions #
 
 def savingthrow(combatant,savetype,modifier,adv,DC):
-    roll = roll_d20()
+    roll = roll_die(20)
     savingthrow = roll + modifier
     #print_output(savetype + ' save: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier))
     if savingthrow >= DC:
@@ -975,7 +972,7 @@ def savingthrow(combatant,savetype,modifier,adv,DC):
         return True
     if adv:
         #print_output(combatant.name + ' failed the save, but has advantage on ' + savetype + ' saving throws!')
-        roll = roll_d20()
+        roll = roll_die(20)
         savingthrow = roll + modifier
         #print_output(savetype + ' save: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier))        
         if savingthrow >= DC:
@@ -986,7 +983,7 @@ def savingthrow(combatant,savetype,modifier,adv,DC):
 
 # check functions #
 def abilitycheck(combatant,checktype,modifier,adv,DC):
-    roll = roll_d20()
+    roll = roll_die(20)
     check = roll + modifier
     if DC == 0:
         return(check)
@@ -997,7 +994,7 @@ def abilitycheck(combatant,checktype,modifier,adv,DC):
         return True
     if adv:
         #print_output(combatant.name + ' failed the check, but has advantage on ' + checktype + ' checks!')
-        roll = roll_d20()
+        roll = roll_die(20)
         check = roll + modifier
         #print_output(checktype + ' check: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier))    
         if check >= DC:

@@ -66,6 +66,7 @@ class race(Enum):
     Dragon = auto()
     Undead = auto()
     Construct = auto()
+    Giant = auto()
     Beast = auto()
 
 class creature_class(Enum):
@@ -91,9 +92,11 @@ class creature_subclass(Enum):
     #Ranger subclasses
     Beastmaster = auto()
     #Paladin subclasses
-    Oathbreaker = auto()
+    Oathbreaker = auto()   
     #Constructs
     Doty = auto()
+    #Giants
+    Hill = auto()
     #Beasts
     Bear = auto()
     #Dragons
@@ -112,6 +115,7 @@ class weapon_type(Enum):
     Firearm = auto()
     Axe = auto()
     Sword = auto()
+    Greatsword = auto()
     Natural = auto()
 
 #Armour Type
@@ -267,8 +271,10 @@ class weapon():
     # Main weapon damage 
     damage_die = int()
     damage_die_count = int()
+    # Flat bonus damage
+    weapon_bonus_damage = int()    
     weapon_damage_type = int()
-    
+        
     # Bonus damage (i.e. 1d6 Necrotic on Blood Axe)
     bonus_damage_die = int()
     bonus_damage_die_count = int()
