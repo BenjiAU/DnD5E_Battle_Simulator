@@ -542,8 +542,10 @@ def attack(combatant):
                             
                             # Sneak attack (if we had advantage on the strike)
                             if advantage and combatant.sneak_attack:
+                                print_output(indent + combatant.name + ' deals Sneak Attack damage with their attack!')
                                 for x in range(0,combatant.sneak_attack_damage_die_count):                                    
                                     die_damage = roll_die(combatant.sneak_attack_damage_die)
+                                    print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.sneak_attack_damage_die) + ' (Sneak Attack Damage)')
                                     dice_damage += die_damage
 
                             if crit:
