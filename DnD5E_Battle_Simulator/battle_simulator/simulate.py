@@ -142,6 +142,9 @@ def simulate_battle():
                                 
                                     #print_output(combatant.name + "s new position: " + repr(combatant.position))
                         
+                                    #Resolve events at the end of turn                                    
+                                    print_output('<b>End of Turn:</b>')
+                                    
                                     #Apply Hemorraging Critical damage
                                     resolve_hemo_damage(combatant)                   
                                 
@@ -177,7 +180,7 @@ def simulate_battle():
 
         # After settings.max_rounds of combat, if no victor, declare stalemate
         if not battle_complete:
-            print_output('Nobody wins - stalemate!')  
+            print_output(repr(settings.max_rounds) + ' rounds of combat have passed, and there is no clear victor in the battle. Stalemate!')  
             battle_complete = True
         
         print_output('_____________________________________________________________________________')        
