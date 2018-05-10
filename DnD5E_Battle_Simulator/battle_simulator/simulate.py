@@ -74,112 +74,111 @@ def simulate_battle():
             
         #Begin combat rounds (up to a maximum to avoid overflow)
         round = 0              
-        while not battle_complete:
-            while round < settings.max_rounds:
-                # Beginning of round
-                round_complete = False
-                print_output("</br>")
-                round = round + 1                
-                print_output('<b>Round: ' + repr(round) + '</b>')
+        while not battle_complete and round < settings.max_rounds:
+            # Beginning of round
+            round_complete = False
+            print_output("</br>")
+            round = round + 1                
+            print_output('<b>Round: ' + repr(round) + '</b>')
     
-                for combatant in combatants:        
-                    if not round_complete:
-                        print_output("</br>")
-                        print_output('It is now ' + combatant.name + '\'s turn. Current HP: ' + repr(combatant.current_health) + '/' + repr(combatant.max_health))
-                        if combatant.alive:
-                            print_output('<b>Determining targets:</b>')
-                            if combatant.target:
-                                if not combatant.target.alive:
-                                    #refresh targets
-                                    print_output(combatant.name + '\'s target is dead! Choosing new target...')
-                                    initialise_combat.initialise_targets(init_combatants)
+            for combatant in combatants:        
+                if not round_complete:
+                    print_output("</br>")
+                    print_output('It is now ' + combatant.name + '\'s turn. Current HP: ' + repr(combatant.current_health) + '/' + repr(combatant.max_health))
+                    if combatant.alive:
+                        print_output('<b>Determining targets:</b>')
+                        if combatant.target:
+                            if not combatant.target.alive:
+                                #refresh targets
+                                print_output(combatant.name + '\'s target is dead! Choosing new target...')
+                                initialise_combat.initialise_targets(init_combatants)
 
-                                # Conscious actions
-                                if combatant.conscious:
-                                    if combatant.target:
-                                        print_output(combatant.name + ' is targetting: ' + combatant.target.name)
+                            # Conscious actions
+                            if combatant.conscious:
+                                if combatant.target:
+                                    print_output(combatant.name + ' is targetting: ' + combatant.target.name)
 
-                                        combatant.movement_used = False
-                                        combatant.action_used = False
-                                        combatant.bonus_action_used = False
-                                        combatant.reaction_used = False
+                                    combatant.movement_used = False
+                                    combatant.action_used = False
+                                    combatant.bonus_action_used = False
+                                    combatant.reaction_used = False
 
-                                        #Divine Fury (resets at thes tart of each turn)
-                                        if combatant.divine_fury:
-                                            combatant.divine_fury_used = False
+                                    #Divine Fury (resets at thes tart of each turn)
+                                    if combatant.divine_fury:
+                                        combatant.divine_fury_used = False
                                     
-                                        # Determine distance between targets and report if it is > 0
-                                        dist = getdistance(combatant.position,combatant.target.position)
-                                        if combatant.target and dist > 0:
-                                            print_output('Distance to target: ' + repr(dist) + ' feet')
+                                    # Determine distance between targets and report if it is > 0
+                                    dist = getdistance(combatant.position,combatant.target.position)
+                                    if combatant.target and dist > 0:
+                                        print_output('Distance to target: ' + repr(dist) + ' feet')
 
-                                        #check for breath weapon recharge
-                                        if combatant.creature_class == creature_class.Monster:
-                                            if combatant.creature_subclass == creature_subclass.Ancient_Black_Dragon:
-                                                if not combatant.breath_attack:
-                                                    breath_recharge(combatant)
+                                    #check for breath weapon recharge
+                                    if combatant.creature_class == creature_class.Monster:
+                                        if combatant.creature_subclass == creature_subclass.Ancient_Black_Dragon:
+                                            if not combatant.breath_attack:
+                                                breath_recharge(combatant)
 
-                                        # use movement first #
-                                        print_output('<b>Movement:</b>')
-                                        movement(combatant)
+                                    # use movement first #
+                                    print_output('<b>Movement:</b>')
+                                    movement(combatant)
 
-                                        # action #
-                                        print_output('<b>Action:</b>')
-                                        action(combatant)              
+                                    # action #
+                                    print_output('<b>Action:</b>')
+                                    action(combatant)              
 
-                                        # bonus action #       
-                                        print_output('<b>Bonus Action:</b>') 
-                                        bonus_action(combatant)            
+                                    # bonus action #       
+                                    print_output('<b>Bonus Action:</b>') 
+                                    bonus_action(combatant)            
                 
-                                        # additional abilities (action surge etc.)
-                                        if combatant.action_surge > 0: 
-                                            print_output('********************')
-                                            print_output(combatant.name + ' summons all their might, and uses an Action Surge!')
-                                            print_output('********************')
-                                            combatant.action_surge -= 1
-                                            combatant.action_used = False;
-                                            print_output('<b>Action Surge action:</b>')
-                                            action(combatant)                                
+                                    # additional abilities (action surge etc.)
+                                    if combatant.action_surge > 0: 
+                                        print_output('********************')
+                                        print_output(combatant.name + ' summons all their might, and uses an Action Surge!')
+                                        print_output('********************')
+                                        combatant.action_surge -= 1
+                                        combatant.action_used = False;
+                                        print_output('<b>Action Surge action:</b>')
+                                        action(combatant)                                
                                 
-                                        #print_output(combatant.name + "s new position: " + repr(combatant.position))
+                                    #print_output(combatant.name + "s new position: " + repr(combatant.position))
                         
-                                        #Apply Hemorraging Critical damage
-                                        resolve_hemo_damage(combatant)                   
+                                    #Apply Hemorraging Critical damage
+                                    resolve_hemo_damage(combatant)                   
                                 
-                                        # Update rage counter
-                                        if combatant.raging:
-                                            combatant.rage_duration += 1
-                                        if combatant.raging and combatant.rage_duration >= combatant.max_rage_duration:
-                                            print_output(combatant.name + ' cannot sustain their rage any longer, and it expires')
-                                            combatant.raging = False
-                                            # Resolve fatality to see if the combatant dies because of Rage Beyond Death
-                                            resolve_fatality(combatant)
-
-                                        print_output('That finishes ' + combatant.name + '\'s turn.')
-                                    else:
-                                        print_output(combatant.name + ' has no valid targets! Team ' + combatant.team.name + ' wins!')
-                                        combatant.team.no_of_wins += 1
-                                        round_complete = True
-                                        battle_complete = True
-                                else:
-                                    print_output(combatant.name + ' is unconscious on the ground!')
-                                    # unconscious actions
-                                    if not combatant.conscious and combatant.current_health <= 0 and not combatant.stabilised:
-                                        death_saving_throw(combatant)
-                                        # See if they're dead
+                                    # Update rage counter
+                                    if combatant.raging:
+                                        combatant.rage_duration += 1
+                                    if combatant.raging and combatant.rage_duration >= combatant.max_rage_duration:
+                                        print_output(combatant.name + ' cannot sustain their rage any longer, and it expires')
+                                        combatant.raging = False
+                                        # Resolve fatality to see if the combatant dies because of Rage Beyond Death
                                         resolve_fatality(combatant)
-                        else:
-                            print_output(combatant.name + ' is dead!')    
-                            print_output("</br>")
-                
-                
-                round_complete = True
-                # End of round
 
-            # After settings.max_rounds of combat, if no victor, declare stalemate
-            if not battle_complete:
-                print_output('Nobody wins - stalemate!')  
-                battle_complete = True
+                                    print_output('That finishes ' + combatant.name + '\'s turn.')
+                                else:
+                                    print_output(combatant.name + ' has no valid targets! Team ' + combatant.team.name + ' wins!')
+                                    combatant.team.no_of_wins += 1
+                                    round_complete = True
+                                    battle_complete = True
+                            else:
+                                print_output(combatant.name + ' is unconscious on the ground!')
+                                # unconscious actions
+                                if not combatant.conscious and combatant.current_health <= 0 and not combatant.stabilised:
+                                    death_saving_throw(combatant)
+                                    # See if they're dead
+                                    resolve_fatality(combatant)
+                    else:
+                        print_output(combatant.name + ' is dead!')    
+                        print_output("</br>")
+                
+                
+            round_complete = True
+            # End of round
+
+        # After settings.max_rounds of combat, if no victor, declare stalemate
+        if not battle_complete:
+            print_output('Nobody wins - stalemate!')  
+            battle_complete = True
         
         print_output('_____________________________________________________________________________')        
         print_output('<b>Attempt complete.</b>')
