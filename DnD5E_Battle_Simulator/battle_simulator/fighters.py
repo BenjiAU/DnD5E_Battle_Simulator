@@ -399,7 +399,7 @@ def init_vax(init_combatants):
     bootsofhaste.name = "Boots of Haste"
     bootsofhaste.grants_equipment_spell = equipment_spells.Haste
 
-    vax.equipment_inventory().append(BootsofHaste)
+    vax.equipment_inventory().append(bootsofhaste)
     
     # combat stats # 
 
