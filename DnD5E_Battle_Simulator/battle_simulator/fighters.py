@@ -298,7 +298,7 @@ def init_vax(init_combatants):
     vax.race = race.Half_Elf
     vax.subrace = subrace.Revenant
     vax.creature_class = creature_class.Rogue
-    vax.creature_subclass = creature_subclass.Assasin
+    vax.creature_subclass = creature_subclass.Assassin
     vax.rogue_level = 12
     vax.paladin_level = 6
     vax.druid_level = 1    
