@@ -69,6 +69,11 @@ class race(Enum):
     Giant = auto()
     Beast = auto()
 
+class subrace(Enum):
+    def __str__(self):
+        return str(self.value)    
+    Revenant = auto()
+
 class creature_class(Enum):
     def __str__(self):
         return str(self.value)    
@@ -89,6 +94,7 @@ class creature_subclass(Enum):
     Zealot = auto()
     #Rogue subclasses
     Thief = auto()
+    Assassin = auto()
     #Ranger subclasses
     Beastmaster = auto()
     #Paladin subclasses
@@ -113,7 +119,10 @@ class weapon_type(Enum):
     def __str__(self):
         return str(self.value)
     Firearm = auto()
+    Dagger = auto()
+    Crossbow = auto()
     Axe = auto()
+    Greataxe = auto()
     Sword = auto()
     Greatsword = auto()
     Natural = auto()
@@ -145,6 +154,7 @@ class equipment_spells(Enum):
     Enlarge = auto()
     Leap = auto()
     HandOfVecna = auto()
+    Haste = auto()
 
 class spell_school(Enum):
     def __str__(self):
@@ -308,6 +318,7 @@ class creature():
     fullname = ""
     name = ""
     race = int()
+    subrace = int()
     creature_class = int()
     creature_subclass = int()
     
@@ -355,36 +366,26 @@ class creature():
 
     # PC specific - levels in various classes, used to determine which abilities are available
     barbarian_level = int()
-    fighter_level = int()    
-    fighting_style = int()
-    rogue_level = int()
-    ranger_level = int()    
+    bard_level = int()
+    cleric_level = int()
+    druid_level = int()
+    fighter_level = int()
+    monk_level = int()
     paladin_level = int()
+    rogue_level = int()
+    ranger_level = int()
+    sorcerer_level = int()
+    warlock_level = int()
+    wizard_level = int()
+    
     proficiency = int() # Determined by taking the PC's 'primary' class, based on the level - see initgrog for example
     
     #Combat/class/race/feat properties - variety of fields used to track whether abilities can be used, the count remaining for abilities, and other combat info
     # Class
     ## Generic
-    extra_attack = int()
+    extra_attack = int()        
     
-    ## Fighter
-    action_surge = int()
-    second_wind = bool()
-    
-    ## Gunslinger 
-    max_grit = int()
-    current_grit = int()
-    sharpshooter = bool()    
-    use_sharpshooter = bool()    
-
-    quickdraw = bool()
-    lighting_reload = bool()
-    vicious_intent = bool()
-    hemorrhaging_critical = bool()
-    hemo_damage = int()
-    hemo_damage_type = int()
-    
-    ## Barbarian
+    ### Barbarian ###
     canrage = bool()
     ragedamage = int()
     raging = bool()    
@@ -412,7 +413,43 @@ class creature():
     fanatical_focus = bool()
     zealous_presence = bool()
     rage_beyond_death = bool()
-    # Paladin
+    
+    ### Fighter ###
+    action_surge = int()
+    second_wind = bool()
+    fighting_style = int()
+    
+    ## Gunslinger 
+    max_grit = int()
+    current_grit = int()
+    sharpshooter = bool()    
+    use_sharpshooter = bool()    
+
+    quickdraw = bool()
+    lighting_reload = bool()
+    vicious_intent = bool()
+    hemorrhaging_critical = bool()
+    hemo_damage = int()
+    hemo_damage_type = int()
+    
+    ### Rogue ###
+    sneak_attack = bool()    
+    sneak_attack_damage_die = int()
+    sneak_attack_damage_die_count = int()
+    cunning_action = bool()
+    uncanny_dodge = bool()    
+    evasion = bool()
+    blindsense = bool()
+    slippery_mind = bool()
+    elusive = bool()
+    stroke_of_luck = bool()
+
+    ## Assassin
+
+    assassinate = bool()
+    can_assassinate_target = bool()
+
+    ### Paladin ###
     divine_smite = bool()
     divine_health = bool()
     aura_of_protection = bool()
@@ -446,6 +483,12 @@ class creature():
     death_saving_throw_failure = int() # Tracks failed Death Saving Throws
     stabilised = bool() # Tracks stabilisation (i.e. 3 successes)
     alive = bool() # Tracks if creature is still alive
+
+    enlarged = bool() # Tracks whether creature is affected by the Enlarge equipment spell
+    hasted = bool() # Tracks whether creature is affected by the Haste equipment spell 
+    hasted_bonus_armour = int() # Tracks the bonus armour granted by Haste
+    hasted_action = bool() # Tracks whether the creature has a Hasted action
+    hasted_action_used = bool() # Tracks whether the creature used their Hasted action
 
     target = None
 

@@ -122,6 +122,16 @@ def simulate_battle():
                                         if not combatant.breath_attack:
                                             breath_recharge(combatant)
 
+                                # Can this combatant assassinate it's target? (Advantage on any creature that hasn't had a turn; critical on surprise)
+                                if combatant.assassinate:
+                                    if (round == 1) and (combatant.initiative_roll > combatant.target.initiative_roll):
+                                        combatant.can_assassinate_target = True
+
+                                # Is the combatant wearing equipment? Evaluate and use if appropriate
+                                if combatant.equipment_inventory():
+                                    print_output('<b>Use Equipment:</b>')                            
+                                    use_equipment(combatant)
+
                                 # use movement first #
                                 print_output('<b>Movement:</b>')
                                 movement(combatant)
@@ -134,6 +144,11 @@ def simulate_battle():
                                 print_output('<b>Bonus Action:</b>') 
                                 bonus_action(combatant)            
                 
+                                # hasted action #
+                                if combatant.hasted_action and not combatant.hasted_action_used:
+                                    hasted_action(combatant)
+                                    combatant.hasted_action_used = True
+
                                 # additional abilities (action surge etc.)
                                 if combatant.action_surge > 0: 
                                     print_output('********************')

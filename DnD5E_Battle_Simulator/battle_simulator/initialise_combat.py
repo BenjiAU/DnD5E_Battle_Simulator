@@ -18,6 +18,10 @@ def reset_combatants(init_combatants):
         combatant.conscious = True
         combatant.current_health = combatant.max_health
         combatant.enlarged = False        # Need a better wayto handle this        
+        combatant.hasted = False
+        combatant.hasted_bonus_armour = 0
+        combatant.hasted_action = False
+        combatant.hasted_action_used = False
         combatant.action_surge = 0
         combatant.extra_attack = 0
         
@@ -61,30 +65,9 @@ def reset_combatants(init_combatants):
                 combatant.great_weapon_master = True
                 combatant.use_great_weapon_master = False
                 
-        # Generic abilities (primary class need not be this to get benefit)
-        # Fighter 
-        # Action surge (1 at 2nd level
-        if combatant.fighter_level >= 2:
-            combatant.action_surge += 1
-        # Action surge (2 at 17th level)
-        if combatant.fighter_level >= 17:
-            combatant.action_surge += 1
+        ### Generic abilities (primary class need not be this to get benefit) ###
 
-        # Extra Attack (+1 at 5th level)
-        if combatant.fighter_level >= 5:
-            combatant.extra_attack = 1
-        # Extra Attack (+1 at 11th level)
-        if combatant.fighter_level >= 11:
-            combatant.extra_attack = 2
-        # Extra Attack (+1 at 20th level)
-        if combatant.fighter_level >= 20:
-            combatant.extra_attack = 3
-        
-        # Second Wind (1 use at 1st level)
-        if combatant.fighter_level >= 1:
-            combatant.second_wind = True        
-        
-        # Barbarian
+        ### Barbarian ###
         # Rage (1st level)
         if combatant.barbarian_level >= 1:
             combatant.canrage = True
@@ -127,8 +110,58 @@ def reset_combatants(init_combatants):
         # Brutal Critical (3 die, 17th level)
         if combatant.barbarian_level >= 17:
             combatant.brutal_critical_dice = 3
+
+        ### Fighter ###
+        # Action surge (1 at 2nd level
+        if combatant.fighter_level >= 2:
+            combatant.action_surge += 1
+        # Action surge (2 at 17th level)
+        if combatant.fighter_level >= 17:
+            combatant.action_surge += 1
+
+        # Extra Attack (+1 at 5th level)
+        if combatant.fighter_level >= 5:
+            combatant.extra_attack = 1
+        # Extra Attack (+1 at 11th level)
+        if combatant.fighter_level >= 11:
+            combatant.extra_attack = 2
+        # Extra Attack (+1 at 20th level)
+        if combatant.fighter_level >= 20:
+            combatant.extra_attack = 3
+            
+        # Second Wind (1 use at 1st level)
+        if combatant.fighter_level >= 1:
+            combatant.second_wind = True                        
         
-        # Paladin
+        ### Rogue ###
+        # Sneak Attack
+        if combatant.rogue_level >= 1:
+            combatant.sneak_attack = True
+            combatant.sneak_attack_damage_die = 6
+            combatant.sneak_attack_damage_die_count = int(round(combatant.rogue_level/2))
+        # Cunning Action (Dash/Hide/Disengage as Bonus)
+        if combatant.rogue_level >= 2:
+            combatant.cunning_action = True
+        # Uncanny Dodge (Use reaction to halve damage from melee strike)
+        if combatant.rogue_level >= 5:
+            combatant.uncanny_dodge = True
+        # Evasion (Fail Dex save = half damage, succeed = 0)
+        if combatant.rogue_level >= 7:
+            combatant.evasion = True
+        # Blindsense (always detect hidden/invis creatures in 10 feet)
+        if combatant.rogue_level >= 14:
+            combatant.blindsense = True
+        # Slippery Mind (prof in Wisdom saving throws)
+        if combatant.rogue_level >= 15:
+            combatant.slippery_mind = True
+        # Elusive (no attacks have advantage against you while not incapacitated)
+        if combatant.rogue_level >= 18:
+            combatant.elusive = True
+        # Stroke of Luck (any miss can hit, any fail check can critically succeed, recharge short/long rest)
+        if combatant.rogue_level >= 20:
+            combatant.elusive = True
+
+        ### Paladin ###
         # Divine Smite (2nd level)
         if combatant.paladin_level >= 2:
             combatant.divine_smite = True
@@ -151,6 +184,7 @@ def reset_combatants(init_combatants):
         # Improved Divine Smite (14th level)
         if combatant.paladin_level >= 14:
             combatant.improved_divine_smite = True
+
         # Specific abilities (primary class/subclass must be defined)
         # Gunslinger (examine profiencies for Firearm proficiency, use fighter levels to determine abilities)
         if combatant.creature_class == creature_class.Fighter:
@@ -197,6 +231,11 @@ def reset_combatants(init_combatants):
                 # Rage Beyond death (14th level, while raging, fall below 0 you don't go unconscious - still make Death Saving Throws)
                 if combatant.barbarian_level >= 14:
                     combatant.rage_beyond_death = True
+        if combatant.creature_class == creature_class.Rogue:
+            # Assassin
+            if combatant.creature_subclass == creature_subclass.Assassin:
+                if combatant.rogue_level >= 3:
+                    combatant.assassinate = True
 
         # Racial Features
         # Goliath

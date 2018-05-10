@@ -57,62 +57,80 @@ def movement(combatant):
 
     combatant.movement_used = True
 
+def use_equipment(combatant):
+    # Iterate through equipment and use any available spells (if possible)
+    for eq in combatant.equipment_inventory():
+        # Enlarge (i.e. from Titanstone Knuckles)
+        if eq.grants_equipment_spell == equipment_spells.Enlarge:
+            if not combatant.enlarged:
+                print_output(combatant.name + ' smashes the ' + eq.name + ' together and grows in size! This uses up their Action')            
+                combatant.enlarged = True
+                combatant.action_used = True
+
+        # Haste (i.e. from Boots of Haste)
+        if eq.grants_equipment_spell == equipment_spells.Haste:
+            if not combatant.hasted:
+                print_output(combatant.name + ' clicks the ' + eq.name + ' together and begins to move rapidly! This uses up their Bonus Action')            
+                combatant.hasted = True
+                combatant.hasted_bonus_armour = 2;
+                combatant.hasted_action = True;
+                combatant.hasted_action_used = False;
+                combatant.bonus_action_used = True
+
 def action(combatant):
     # Only perform an action if target exists
     if combatant.target:
-        # Iterate through equipment and use any available spells (if possible)
-        for eq in combatant.equipment_inventory():
-            if eq.grants_equipment_spell == equipment_spells.Enlarge:
-                if not combatant.enlarged:
-                    print_output(combatant.name + ' smashes the ' + eq.name + ' together and grows in size!')            
-                    combatant.enlarged = True
-                    combatant.action_used = True
-        
-        #Custom monster logic before stepping into main loop
-        if combatant.creature_class == creature_class.Monster:
-            if combatant.breath_attack and (combatant.breath_range >= getdistance(combatant.position,combatant.target.position)):            
-                breath_attack(combatant)
-                combatant.action_used = True
-
         if not combatant.action_used:
-            # Swap to a different weapon if it makes sense due to range                    
-            current_range = getdistance(combatant.position,combatant.target.position)
-            # Attempt a weapon swap - change weapons depending on range
-            # This will prefer to swap a non-broken or ruined weapon in
-            weapon_swap(combatant,current_range)
+            #Custom monster logic before stepping into main loop
+            if combatant.creature_class == creature_class.Monster:
+                if combatant.breath_attack and (combatant.breath_range >= getdistance(combatant.position,combatant.target.position)):            
+                    breath_attack(combatant)
+                    combatant.action_used = True
 
-            if combatant.current_weapon.range == 0:
-                # melee weapon #
-                if combatant.position != combatant.target.position:  
-                    # melee target out of range - using Action to Dash #
-                    movement = combatant.speed
-                    print_output(combatant.name + ' uses the Dash action, travelling towards ' + combatant.target.name)
-                    if combatant.position - movement <= combatant.target.position:  
-                        # movement can close gap to target # 
-                        combatant.position = combatant.target.position
+            if not combatant.action_used:
+                # Swap to a different weapon if it makes sense due to range                    
+                current_range = getdistance(combatant.position,combatant.target.position)
+                # Attempt a weapon swap - change weapons depending on range
+                # This will prefer to swap a non-broken or ruined weapon in
+                weapon_swap(combatant,current_range)
+
+                if combatant.current_weapon.range == 0:
+                    # melee weapon #
+                    if combatant.position != combatant.target.position:  
+                        # melee target out of range - using Action to Dash #
+                        movement = combatant.speed
+                        
+                        # If combatant under the effect of the Haste spell, double movement
+                        if combatant.hasted:
+                            movement = movement * 2
+
+                        print_output(combatant.name + ' uses the Dash action, travelling towards ' + combatant.target.name)
+                        if combatant.position - movement <= combatant.target.position:  
+                            # movement can close gap to target # 
+                            combatant.position = combatant.target.position
+                        else:
+                            # movement cannot close gap to target #
+                            combatant.position -= movement
                     else:
-                        # movement cannot close gap to target #
-                        combatant.position -= movement
+                        # melee target in range - using Action to Attack #
+                        attack_action(combatant)
                 else:
-                    # melee target in range - using Action to Attack #
-                    attack_action(combatant)
-            else:
-                # If the weapon is Ruined, and we could not swap to a non-ruined weapon, we're out of luck
-                if combatant.current_weapon.ruined:
-                    print_output(combatant.name + ' can\'t do anything with ' + combatant.current_weapon.name + ', it is damaged beyond repair!')
-                    # Can't swap to a valid weapon - just have to sit this one out
-                    combatant.action_used = True
-
-                # If the weaopn is broken, and we could not swap to a non-broken weapon, must waste action reparing it
-                if not combatant.action_used:
-                    if combatant.current_weapon.broken:
-                        repair_weapon(combatant)            
+                    # If the weapon is Ruined, and we could not swap to a non-ruined weapon, we're out of luck
+                    if combatant.current_weapon.ruined:
+                        print_output(combatant.name + ' can\'t do anything with ' + combatant.current_weapon.name + ', it is damaged beyond repair!')
+                        # Can't swap to a valid weapon - just have to sit this one out
                         combatant.action_used = True
+
+                    # If the weaopn is broken, and we could not swap to a non-broken weapon, must waste action reparing it
+                    if not combatant.action_used:
+                        if combatant.current_weapon.broken:
+                            repair_weapon(combatant)            
+                            combatant.action_used = True
                 
-                #If we have not attacked yet, attempt to attack
-                if not combatant.action_used:
-                    attack_action(combatant)
-                    combatant.action_used = True
+                    #If we have not attacked yet, attempt to attack
+                    if not combatant.action_used:
+                        attack_action(combatant)
+                        combatant.action_used = True
 
     combatant.action_used = True
 
@@ -183,6 +201,44 @@ def bonus_action(combatant):
                         combatant.current_weapon.currentammo = combatant.current_weapon.reload
                         print_output(combatant.name + ' used a bonus action to reload.')
                         combatant.bonus_action_used = True
+
+def hasted_action(combatant):
+    # Only perform an action if target exists
+    if combatant.target:
+        # Swap to a different weapon if it makes sense due to range                    
+        current_range = getdistance(combatant.position,combatant.target.position)
+        # Attempt a weapon swap - change weapons depending on range
+        # This will prefer to swap a non-broken or ruined weapon in
+        weapon_swap(combatant,current_range)
+
+        if combatant.current_weapon.range == 0:
+            # melee weapon #
+            if combatant.position != combatant.target.position:  
+                # melee target out of range - using Action to Dash #
+                movement = combatant.speed
+                        
+                # If combatant under the effect of the Haste spell, double movement
+                if combatant.hasted:
+                    movement = movement * 2
+
+                print_output(combatant.name + ' uses the Dash action as a Hasted action, travelling towards ' + combatant.target.name)
+                if combatant.position - movement <= combatant.target.position:  
+                    # movement can close gap to target # 
+                    combatant.position = combatant.target.position
+                else:
+                    # movement cannot close gap to target #
+                    combatant.position -= movement
+            else:
+                # melee target in range - using Hasted Action to Attack (one attack only)#        
+                attack(combatant)            
+                combatant.hasted_action_used = True
+        else:             
+            #If we have not attacked yet, attempt to attack
+            if not combatant.action_used:
+                attack(combatant)     
+                combatant.hasted_action_used = True
+
+    combatant.hasted_action_used = True
 
 #Weapon swap
 def weapon_swap(combatant,current_range):
@@ -274,9 +330,15 @@ def breath_attack(combatant):
             print_output(indent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.breath_damage_die) + ' (Breath Damage)')
             breath_damage += die_damage
     if savingthrow(combatant.target,saving_throw.Dexterity,dexmod(combatant.target),combatant.target.saves.dex_adv,23):
-        deal_damage(combatant.target,breath_damage/2,breath_damage_type,True)
+        #If target has evasion and saves, nothing happens
+        if not combatant.target.evasion:
+            deal_damage(combatant.target,breath_damage/2,breath_damage_type,True)
     else:
-        deal_damage(combatant.target,breath_damage,breath_damage_type,True)
+        #If target has evasion and fails, half damage
+        if combatant.target.evasion:
+            deal_damage(combatant.target,breath_damage/2,breath_damage_type,True)
+        else:
+            deal_damage(combatant.target,breath_damage,breath_damage_type,True)
 
     combatant.breath_attack = False
 
@@ -341,6 +403,10 @@ def attack(combatant):
                     if combatant.target.prone and combatant.current_weapon.range != 0:
                         print_output(combatant.target.name + ' is prone on the ground, giving ' + combatant.name + ' disadvantage on the attack!')
                         disadvantage = True
+                    #Check assassination flag
+                    if combatant.can_assassinate_target:
+                        print_output(combatant.target.name + ' is prone on the ground, giving ' + combatant.name + ' disadvantage on the attack!')
+                        advantage = True
 
                     #Did the target use reckless attack last round?
                     if combatant.target.use_reckless and combatant.current_weapon.range == 0:
@@ -438,11 +504,13 @@ def attack(combatant):
                             feat_penalty = 5
                             totalatk = totalatk-feat_penalty
                 
-                        if totalatk >= combatant.target.armour_class:
+                        totalAC = combatant.target.armour_class + combatant.target.hasted_bonus_armour
+
+                        if totalatk >= totalAC:
                             if feat_penalty == 0:
-                                print_output(combatant.name + '\'s attack with ' + combatant.current_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' versus AC ' + repr(combatant.target.armour_class) + ')')            
+                                print_output(combatant.name + '\'s attack with ' + combatant.current_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' versus AC ' + repr(totalAC) + ')')            
                             else:
-                                print_output(combatant.name + '\'s attack with ' + combatant.current_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' - ' + repr(feat_penalty) + ' = ' + repr(totalatk) + ' versus AC ' + repr(combatant.target.armour_class) + ')')            
+                                print_output(combatant.name + '\'s attack with ' + combatant.current_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' - ' + repr(feat_penalty) + ' = ' + repr(totalatk) + ' versus AC ' + repr(totalAC) + ')')            
                             if combatant.target.conscious == False and not crit and combatant.current_weapon.range == 0:
                                 print_output('The blow strikes the unconscious form of ' + combatant.target.name + ' and deals CRITICAL DAMAGE!')
                                 crit = True       
@@ -455,21 +523,29 @@ def attack(combatant):
                                 else:
                                     print_output(combatant.target.name + ' failed the Leg Shot save - they are now prone!')
                                     combatant.target.prone = True
-                                                    
+                                         
+                            # Calculate damage modifier (adds strmod/dexmod to attack)
                             damage_modifier = calc_damage_modifier(combatant)
 
+                            # Calculate main attack dice
                             print_output(indent + combatant.current_weapon.name + ' deals ' + repr(combatant.current_weapon.damage_die_count) + 'd' + repr(combatant.current_weapon.damage_die) + ' + ' + repr(damage_modifier) + ' '  + combatant.current_weapon.weapon_damage_type.name + ' damage: ')
-                            #Great Weapon Fighting (reroll 1s and 2s)                    
                             weapon_damage_type = damage_type(combatant.current_weapon.weapon_damage_type)
                             for x in range(0,combatant.current_weapon.damage_die_count):                                    
                                 die_damage = roll_die(combatant.current_weapon.damage_die)   
                                 print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Weapon Damage)')
+                                #Great Weapon Fighting (reroll 1s and 2s)                                                
                                 if greatweaponfighting(combatant) and die_damage <= 2:
                                     print_output(doubleindent + combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
                                     die_damage = roll_die(combatant.current_weapon.damage_die)   
                                     print_output(doubleindent + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Weapon Damage)')    
                                 dice_damage += die_damage                    
-                     
+                            
+                            # Sneak attack (if we had advantage on the strike)
+                            if advantage and combatant.sneak_attack:
+                                for x in range(0,combatant.sneak_attack_damage_die_count):                                    
+                                    die_damage = roll_die(combatant.sneak_attack_damage_die)
+                                    dice_damage += die_damage
+
                             if crit:
                                 dice_damage = dice_damage * 2
                                                                         
@@ -800,6 +876,7 @@ def resolve_damage(combatant):
         if combatant.current_health >= 0 and combatant.conscious:
             #Use Reaction if it can do anything
             if not combatant.reaction_used:
+                # Stone's Endurance
                 if combatant.stones_endurance:
                     if not combatant.stones_endurance_used:
                         #Don't waste stones endurance on small hits (i.e. assume you can roll a 12)
@@ -810,6 +887,14 @@ def resolve_damage(combatant):
                             damage_string += 'reduced by ' + repr(int(reduction)) + ' (Stones Endurance)'
                             combatant.stones_endurance_used = True
                             combatant.reaction_used = True
+
+                # Uncanny Dodge
+                if combatant.uncanny_dodge:
+                    reduction = total_damage/2
+                    total_damage = int(total_damage - reduction)
+                    print_output(combatant.name + ' uses their reaction, and uses Uncanny Dodge to reduce the damage by ' + repr(reduction) + '! ')
+                    damage_string += 'reduced by ' + repr(int(reduction)) + ' (Uncanny Dodge)'
+                    combatant.reaction_used = True
 
             combatant.current_health = combatant.current_health - total_damage 
                         

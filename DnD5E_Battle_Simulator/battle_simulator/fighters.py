@@ -9,9 +9,10 @@ import math
 def initialise_combatants(init_combatants):
     #init_percy(init_combatants)
     #init_arkhan(init_combatants)
-    #init_grog(init_combatants)
-    init_yasha_level4(init_combatants)
-    init_hill_giant(init_combatants)
+    init_grog(init_combatants)
+    init_vax(init_combatants)
+    #init_yasha_level4(init_combatants)
+    #init_hill_giant(init_combatants)
     #init_yasha(init_combatants)
     #init_umbrasyl(init_combatants)
     #init_doty(init_combatants)
@@ -24,6 +25,8 @@ def initialise_team(combatants):
     monster.name = "Monsters"
     beserker = team()
     beserker.name = "Path of the Beserker"
+    assassin = team()
+    assassin.name = "The Lord of Edges"
     zealot = team()
     zealot.name = "Path of the Zealot"
     doty = team()
@@ -33,6 +36,8 @@ def initialise_team(combatants):
     for combatant in combatants:
         if combatant.name == "Grog":
             combatant.team = beserker
+        if combatant.name == "Vax":
+            combatant.team = assassin
         if combatant.name == "Yasha":
             combatant.team = zealot
         if combatant.name == "Arkhan":
@@ -53,6 +58,8 @@ def initialise_position(combatants):
     for combatant in combatants:
         if combatant.name == "Grog":
             combatant.position = 2600
+        if combatant.name == "Vax":
+            combatant.position = 2550
         if combatant.name == "Yasha":
             combatant.position = 1420
         if combatant.name == "Arkhan":
@@ -281,6 +288,122 @@ def init_grog(init_combatants):
     # combat stats # 
 
     init_combatants.append(grog)    
+
+def init_vax(init_combatants):
+
+    #vax
+    vax = creature()
+    vax.fullname = "Vax'ildan"
+    vax.name = "Vax"
+    vax.race = race.Half_Elf
+    vax.subrace = subrace.Revenant
+    vax.creature_class = creature_class.Rogue
+    vax.creature_subclass = creature_subclass.Assasin
+    vax.rogue_level = 12
+    vax.paladin_level = 6
+    vax.druid_level = 1    
+    vax.max_health = 127
+    vax.armour_class = 20
+    vax.speed = 30
+    vax.proficiency = math.floor((7+characterlevel(vax))/4)
+    vax.weapon_proficiency().append(weapon_type.Dagger)
+
+    vax.creature_feats().append(feat.Sharpshooter)
+
+    #Stats
+    vaxstats = statblock()
+    vaxstats.str = 14
+    vaxstats.dex = 20
+    vaxstats.con = 12
+    vaxstats.intel = 16
+    vaxstats.wis = 14
+    vaxstats.cha = 14
+
+    vax.stats = vaxstats
+    
+    #Saves
+    vaxsaves = saveblock()    
+    vaxsaves.str = 2
+    vaxsaves.dex = 11
+    vaxsaves.con = 7
+    vaxsaves.intel = 9
+    vaxsaves.wis = 2
+    vaxsaves.cha = 2
+    
+    vax.saves = vaxsaves
+
+    #Ability Checks
+    vaxchecks = checkblock()
+    
+    vax.checks = vaxchecks    
+
+    #vax's weapons
+    whisper = weapon()
+    whisper.name = "Whisper"
+    whisper.weapon_type = weapon_type.Dagger;
+    whisper.range = 60
+    
+    whisper.damage_die = 4
+    whisper.damage_die_count = 1
+    whisper.weapon_damage_type = damage_type.Piercing
+    
+    whisper.bonus_damage_die = 8
+    whisper.bonus_damage_die_count = 1
+    whisper.bonus_damage_type = damage_type.Psychic
+    
+    whisper.magic_to_hit_modifier = 3
+    whisper.magic_damage_modifier = 3
+
+    whisper.finesse = True    
+    whisper.magic = True
+
+    vax.weapon_inventory().append(whisper)
+
+    daggerofvenom = weapon()
+    daggerofvenom.name = "Dagger of Venom"
+    daggerofvenom.weapon_type = weapon_type.Dagger;
+    daggerofvenom.range = 60
+    
+    daggerofvenom.damage_die = 4
+    daggerofvenom.damage_die_count = 1
+    daggerofvenom.weapon_damage_type = damage_type.Piercing
+    
+    daggerofvenom.magic_to_hit_modifier = 1
+    daggerofvenom.magic_damage_modifier = 1
+
+    daggerofvenom.finesse = True    
+    daggerofvenom.magic = True
+
+    vax.weapon_inventory().append(daggerofvenom)
+
+    flametonguedagger = weapon()
+    flametonguedagger.name = "Flametongue Dagger"
+    flametonguedagger.weapon_type = weapon_type.Dagger;
+    flametonguedagger.range = 60
+    
+    flametonguedagger.damage_die = 4
+    flametonguedagger.damage_die_count = 1
+    flametonguedagger.weapon_damage_type = damage_type.Piercing
+    
+    flametonguedagger.magic_to_hit_modifier = 1
+    flametonguedagger.magic_damage_modifier = 1
+
+    flametonguedagger.finesse = True    
+    flametonguedagger.magic = True
+
+    vax.weapon_inventory().append(flametonguedagger)
+
+    #vax's gear
+    
+    bootsofhaste = equipment()
+    bootsofhaste.name = "Boots of Haste"
+    bootsofhaste.grants_equipment_spell = equipment_spells.Haste
+
+    vax.equipment_inventory().append(BootsofHaste)
+    
+    # combat stats # 
+
+    init_combatants.append(vax)    
 
 def init_yasha(init_combatants):
 
