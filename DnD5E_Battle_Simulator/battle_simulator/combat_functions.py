@@ -578,10 +578,10 @@ def attack(combatant):
                                 resolve_damage(combatant.target)
                             else:                            
                                 if crit:
-                                    print_output('The critical blow strikes the unconscious form of ' + combatant.target.name + ' and causes them to fail two Death Saving Throws!')
+                                    print_output('***' + 'The critical blow strikes the unconscious form of ' + combatant.target.name + ' and causes them to fail two Death Saving Throws!' + '***')
                                     combatant.target.death_saving_throw_failure += 2
                                 else:
-                                    print_output('The blow strikes the unconscious form of ' + combatant.target.name + ' and causes them to fail a Death Saving Throw!')
+                                    print_output('***' + 'The blow strikes the unconscious form of ' + combatant.target.name + ' and causes them to fail a Death Saving Throw!' + '***')
                                     combatant.target.death_saving_throw_failure += 1
                             
                                 print_output(indent + 'Death Saving Throw Successes: ' + repr(combatant.target.death_saving_throw_success) + ' Failures: ' + repr(combatant.target.death_saving_throw_failure))
@@ -854,7 +854,7 @@ def resolve_fatality(combatant):
     #Resolve death saving throws (thrown at other parts, i.e. when damage suffered or when unconscious on your turn)
     elif combatant.alive and not combatant.conscious and combatant.current_health <= 0:
         if combatant.death_saving_throw_failure >= 3:
-            print_output(combatant.name + '\'s chest stops moving, as the cold embrace of death welcomes them.')
+            print_output('~~~~' + combatant.name + '\'s chest stops moving, as the cold embrace of death welcomes them.' + '~~~~')
             combatant.alive = False
         elif combatant.death_saving_throw_success >= 3:
             print_output(combatant.name + '\'s breathing steadies, and they appear to no longer be in imminent risk of death, stabilised and unconscious')
@@ -866,7 +866,7 @@ def resolve_fatality(combatant):
 
     #Resolve death
     if not combatant.alive and not combatant.conscious and combatant.current_health <=0:
-        print_output('HOW DO YOU WANT TO DO THIS??')        
+        print_output('!!!!<<<<HOW DO YOU WANT TO DO THIS??>>>>!!!!')        
 
 def death_saving_throw(combatant):
     i = roll_d20()

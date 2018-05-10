@@ -107,7 +107,7 @@ def simulate_battle():
                                 combatant.bonus_action_used = False
                                 combatant.reaction_used = False
 
-                                #Divine Fury (resets at thes tart of each turn)
+                                #Divine Fury (resets at the start of each turn)
                                 if combatant.divine_fury:
                                     combatant.divine_fury_used = False
                                     
