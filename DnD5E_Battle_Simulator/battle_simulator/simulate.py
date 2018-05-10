@@ -157,7 +157,7 @@ def simulate_battle():
                                     combatant.rage_duration += 1
                                 if combatant.raging and combatant.rage_duration >= combatant.max_rage_duration:
                                     print_output(combatant.name + ' cannot sustain their rage any longer, and it expires')
-                                    combatant.raging = False
+                                    combatant.raging = False                                    
                                     # Resolve fatality to see if the combatant dies because of Rage Beyond Death
                                     resolve_fatality(combatant)
 

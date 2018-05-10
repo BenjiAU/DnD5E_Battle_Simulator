@@ -850,6 +850,10 @@ def resolve_fatality(combatant):
                 print_output(combatant.name + ' falls to their knees, the white-hot rage leaving their eyes as their jaw goes slack, and they perish on the ground.')                    
                 combatant.conscious = False
                 combatant.alive = False  
+            else:
+                print_output(combatant.name + ' collapses unconscious on the ground, exhausted by their divine rage, but still breathing')
+                combatant.conscious = False
+                combatant.alive = True
 
     #Resolve death saving throws (thrown at other parts, i.e. when damage suffered or when unconscious on your turn)
     elif combatant.alive and not combatant.conscious and combatant.current_health <= 0:
