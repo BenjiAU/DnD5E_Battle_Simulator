@@ -381,7 +381,7 @@ def init_yasha_level4(init_combatants):
     yasha.creature_subclass = creature_subclass.Zealot    
     yasha.barbarian_level = 4
     yasha.fighter_level = 0
-    yasha.fighting_style = fighting_style.Great_Weapon_Fighting
+    #yasha.fighting_style = fighting_style.Great_Weapon_Fighting
     yasha.max_health = 42
     yasha.armour_class = 14
     yasha.speed = 30
