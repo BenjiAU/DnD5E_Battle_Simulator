@@ -20,6 +20,9 @@ def reset_combatants(init_combatants):
         combatant.enlarged = False        # Need a better wayto handle this        
         combatant.action_surge = 0
         combatant.extra_attack = 0
+        
+        # Clear any pending damage against the combatant that was not resolved (i.e. damage dealt via crit to unconscious player doesn't get deducted from hp)
+        combatant.pending_damage().clear()
 
         # Reset weapons
         for weap in combatant.weapon_inventory():
