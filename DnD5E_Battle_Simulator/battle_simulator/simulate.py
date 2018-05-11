@@ -5,8 +5,11 @@ from battle_simulator import settings
 #Generic combat initialisation functions
 from battle_simulator import initialise_combat
 
-#Hard-coded combatant values
+#Hard-coded combatant values for initialisation
 from battle_simulator import fighters
+
+#The master list of combatants, shared between modules
+from battle_simulator import combatants
 
 #Implicit imports
 from .print_functions import *
@@ -17,19 +20,11 @@ from .classes import *
 import operator
 from operator import itemgetter, attrgetter, methodcaller
 
-
-def default_simulation(init_combatants):
-    fighters.initialise_combatants(init_combatants)
-    fighters.initialise_team(init_combatants)
-    # Hard-coded initialisation functions for combatants
-    fighters.initialise_position(init_combatants)
-
 def simulate_battle():
     settings.init() # do only once
     set_output_file()
 
-    init_combatants = []
-    default_simulation(init_combatants)
+    combatants.default_simulation()
 
     attempt=0
     while attempt < settings.max_attempts:
@@ -40,38 +35,27 @@ def simulate_battle():
         print_output('<b>Attempt number: ' + repr(attempt)+ '</b>')
         print_output(' ')      
         
-        initialise_combat.reset_combatants(init_combatants)
-        
+        #Reset values on the global module list of combatants
+        combatants.reset_combatants()
+
         #Re-initialise position for new round
-        fighters.initialise_position(init_combatants)
-
-        # Get targets
-        initialise_combat.initialise_targets(init_combatants)          
-
+        combatants.initialise_position()
+            
         # roll initiative #
         print_output('Rolling initiative...')
-        for combatant in init_combatants:     
-            roll_initiative(combatant)            
-            
-            print_output(combatant.name + ' rolled a total of ' + repr(combatant.initiative_roll) + '. They are located at co-ordinates: ' + repr(combatant.position))
-            #If the combatant has a valid target, equip a weapon
-            if combatant.target:
-                weapon_swap(combatant,getdistance(combatant.position,combatant.target.position))
-                    #print_output('ERROR: ' + combatant.name + ' has no valid weapons to draw. They will be unable to partake in combat.')
-
-
-            initkey = operator.attrgetter("initiative_roll")
-
-            combatants = sorted(init_combatants, key=initkey,reverse=True)
+        combatants.set_initiative_order()
         
         #print_output out combat order at top of attempt
         print_output("</br>")
         print_output('Combat order: ')
-        combatorder = 0
-        for combatant in combatants:                     
+        combatorder = 0                   
+        
+        #Print initiative order and initialise targets
+        for combatant in combatants.get_combatants():                     
             combatorder += 1
             print_details(combatant,combatorder)
-            
+            find_target(combatant)
+
         #Begin combat rounds (up to a maximum to avoid overflow)
         round = 0              
         while not battle_complete and round < settings.max_rounds:
@@ -81,7 +65,7 @@ def simulate_battle():
             round = round + 1                
             print_output('<b>Round: ' + repr(round) + '</b>')
     
-            for combatant in combatants:        
+            for combatant in combatants.get_combatants():        
                 if not round_complete:
                     print_output("</br>")
                     print_output('It is now ' + combatant.name + '\'s turn. Current HP: ' + repr(combatant.current_health) + '/' + repr(combatant.max_health))
@@ -95,8 +79,10 @@ def simulate_battle():
                                 if not combatant.target.alive:
                                     #Aim for a new target as the current one is dead
                                     print_output(combatant.name + '\'s target is dead! Choosing new target...')
-                                    initialise_combat.initialise_targets(init_combatants)
-
+                                    find_target(combatant)
+                            else:
+                                find_target(combatant)
+                                
                             #If we have not retrieved a target from the function, victory is declared for this team
                             if combatant.target:
                                 # Targetable actions
@@ -210,12 +196,13 @@ def simulate_battle():
     print_output("</br>")
     print_output('------------------------')
     print_output('Summary:')
+
     teams = []
-    for combatant in combatants:
+    for combatant in combatants.get_combatants:
         if not combatant.team in teams:
             teams.append(combatant.team)
     for t in teams:
-        print_output('Name: ' + t.name + ' ----- No. of wins: ' + repr(t.no_of_wins))
+        print_output('Team: ' + t.name + ' ----- No. of wins: ' + repr(t.no_of_wins))
     
     #Close the output file if it is open
     close_file()    

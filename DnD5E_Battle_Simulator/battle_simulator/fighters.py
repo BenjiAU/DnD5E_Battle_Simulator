@@ -57,23 +57,26 @@ def initialise_team(combatants):
 def initialise_position(combatants):
     for combatant in combatants:
         if combatant.name == "Grog":
-            combatant.position = 2600
+            combatant.xpos = 50
+            combatant.ypos = 50
         if combatant.name == "Vax":
-            combatant.position = 2550
-        if combatant.name == "Yasha":
-            combatant.position = 1420
-        if combatant.name == "Arkhan":
-            combatant.position = 1410
-        if combatant.name == "Percy":
-            combatant.position = 1400
-        if combatant.name == "Umbrasyl":
-            combatant.position = 1450
-        if combatant.name == "Hill Giant":
-            combatant.position = 1450
-        if combatant.name == "Doty":
-            combatant.position = 1450
-        if combatant.name == "Trinket":
-            combatant.position = 1500
+            combatant.xpos = 75
+            combatant.ypos = 75
+        
+        #if combatant.name == "Yasha":
+        #    combatant.position = 1420
+        #if combatant.name == "Arkhan":
+        #    combatant.position = 1410
+        #if combatant.name == "Percy":
+        #    combatant.position = 1400
+        #if combatant.name == "Umbrasyl":
+        #    combatant.position = 1450
+        #if combatant.name == "Hill Giant":
+        #    combatant.position = 1450
+        #if combatant.name == "Doty":
+        #    combatant.position = 1450
+        #if combatant.name == "Trinket":
+        #    combatant.position = 1500
 
 def init_percy(init_combatants):
 #Percival    
@@ -356,6 +359,7 @@ def init_vax(init_combatants):
 
     whisper.finesse = True    
     whisper.magic = True
+    whisper.thrown = True
 
     vax.weapon_inventory().append(whisper)
 
@@ -373,6 +377,7 @@ def init_vax(init_combatants):
 
     daggerofvenom.finesse = True    
     daggerofvenom.magic = True
+    daggerofvenom.thrown = True
 
     vax.weapon_inventory().append(daggerofvenom)
 
@@ -390,6 +395,7 @@ def init_vax(init_combatants):
 
     flametonguedagger.finesse = True    
     flametonguedagger.magic = True
+    flametonguedagger.thrown = True
 
     vax.weapon_inventory().append(flametonguedagger)
 

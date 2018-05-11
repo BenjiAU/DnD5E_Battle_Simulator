@@ -1,4 +1,5 @@
 #Explicit imports
+from battle_simulator import combatants
 
 #Implicit imports
 from .classes import *
@@ -17,45 +18,43 @@ def movement(combatant):
     if combatant.target:
         # movement #
         movement = combatant.speed
+        if combatant.hasted:
+            movement = movement * 2
+
         if combatant.prone:
             # Spend half movement to get up #
             movement = math.floor(movement/2)
             print_output(combatant.name + ' spends ' + repr(movement) + ' feet of movement to stand up from prone ')            
             combatant.prone = False
 
-        if combatant.current_weapon.range == 0:        
-            # melee weapon #            
-            if combatant.position != combatant.target.position:  
-                # melee target out of range #
-                if combatant.position - movement <= combatant.target.position:  
-                    # movement can close gap to target # 
-                    print_output(combatant.name + ' uses their movement to engage in melee with ' + combatant.target.name + '!')            
-                    combatant.position = combatant.target.position
-                else:
-                    # movement cannot close gap to target #
-                    print_output(combatant.name + ' uses their movement to travel ' + repr(movement) + ' feet towards ' + combatant.target.name)            
-                    combatant.position -= movement
-            else:
-                # Positions are the same, do not move
-                print_output(combatant.name + ' stays where they are, in melee range of ' + combatant.target.name)
-        else:
-            # range weapon #
-            if combatant.position < combatant.target.position and getdistance(combatant.position,combatant.target.position) <= combatant.current_weapon.range:  
-                # distance between target, kite #
-                if getdistance(combatant.position - movement,combatant.target.position) < combatant.current_weapon.range:  
-                    print_output(combatant.name + ' uses their movement to travel ' + repr(movement) + ' feet away from ' + combatant.target.name)            
-                    combatant.position -= movement
-                else:
-                    movement = combatant.current_weapon.range - getdistance(combatant.position,combatant.target.position)
-                    if movement != 0:
-                        print_output(combatant.name + ' uses part of their movement to travel ' + repr(movement) + ' feet away from ' + combatant.target.name)            
-                        combatant.position -= movement
-                    else:
-                        print_output(combatant.name + ' stays where they are.')
-            else:
-                print_output(combatant.name + ' stays where they are.')            
-
+        use_movement(combatant,movement)
     combatant.movement_used = True
+
+def use_movement(combatant,movement):
+    # Melee weapon?
+    if (combatant.current_weapon.range == 0) and not (combatant.current_weapon.thrown):                    
+        if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):            
+            print_output(combatant.name + ' stays where they are, in melee range of ' + combatant.target.name)
+        else:
+            move_to_target(combatant,combatant.target,movement)
+    else:
+        # Range weapon?
+        if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):
+            if target_in_weapon_range(combatant,combatant.target,0):
+                use_bonus_action(combatant,"Disengage")
+                move_from_target(combatant,combatant.target,movement)
+            else:
+                additional_gap = combatant.current_weapon.range - getdistance(combatant,combatant.target);
+                if additional_gap <= movement:
+                    move_from_target(combatant,combatant.target,additional_gap)
+                else:
+                    move_from_target(combatant,combatant.target,movement)
+        else:
+            gap_to_close = getdistance(combatant,combatant.target) - combatant.current_weapon.range;
+            if gap_to_close <= movement:
+                move_to_target(combatant,combatant.target,gap_to_close)
+            else:
+                move_to_target(combatant,combatant.target,movement)
 
 def use_equipment(combatant):
     # Iterate through equipment and use any available spells (if possible)
@@ -83,37 +82,24 @@ def action(combatant):
         if not combatant.action_used:
             #Custom monster logic before stepping into main loop
             if combatant.creature_class == creature_class.Monster:
-                if combatant.breath_attack and (combatant.breath_range >= getdistance(combatant.position,combatant.target.position)):            
+                if combatant.breath_attack and (combatant.breath_range >= getdistance(combatant,combatant.target)):            
                     breath_attack(combatant)
                     combatant.action_used = True
 
             if not combatant.action_used:
                 # Swap to a different weapon if it makes sense due to range                    
-                current_range = getdistance(combatant.position,combatant.target.position)
+                current_range = getdistance(combatant,combatant.target)
                 # Attempt a weapon swap - change weapons depending on range
                 # This will prefer to swap a non-broken or ruined weapon in
                 weapon_swap(combatant,current_range)
 
-                if combatant.current_weapon.range == 0:
-                    # melee weapon #
-                    if combatant.position != combatant.target.position:  
-                        # melee target out of range - using Action to Dash #
-                        movement = combatant.speed
-                        
-                        # If combatant under the effect of the Haste spell, double movement
-                        if combatant.hasted:
-                            movement = movement * 2
-
-                        print_output(combatant.name + ' uses the Dash action, travelling towards ' + combatant.target.name)
-                        if combatant.position - movement <= combatant.target.position:  
-                            # movement can close gap to target # 
-                            combatant.position = combatant.target.position
-                        else:
-                            # movement cannot close gap to target #
-                            combatant.position -= movement
-                    else:
-                        # melee target in range - using Action to Attack #
+                if combatant.current_weapon.ruined == False:
+                    if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):
                         attack_action(combatant)
+                    else:
+                        print_output(combatant.name + ' is taking the Dash action!')
+                        use_movement(combatant,combatant.target,combatant.speed)
+                        combatant.action_used = True
                 else:
                     # If the weapon is Ruined, and we could not swap to a non-ruined weapon, we're out of luck
                     if combatant.current_weapon.ruined:
@@ -140,7 +126,15 @@ def bonus_action(combatant):
 
         if combatant.bonus_action_used:
             print_output(combatant.name + ' has already used their Bonus Action this turn.')
+        
+        #Cunning Action
+        #if not combatant.bonus_action_used:
+        #    if combatant.cunning_action:
+                #Dodge
+                #Disengage
+         #       if enemy_in_melee_range(combatant):
 
+                #Hide
         #Rage
         if not combatant.bonus_action_used:
             if combatant.canrage and not combatant.raging:
@@ -206,7 +200,7 @@ def hasted_action(combatant):
     # Only perform an action if target exists
     if combatant.target:
         # Swap to a different weapon if it makes sense due to range                    
-        current_range = getdistance(combatant.position,combatant.target.position)
+        current_range = getdistance(combatant,combatant.target)
         # Attempt a weapon swap - change weapons depending on range
         # This will prefer to swap a non-broken or ruined weapon in
         weapon_swap(combatant,current_range)
@@ -240,6 +234,16 @@ def hasted_action(combatant):
 
     combatant.hasted_action_used = True
 
+def use_bonus_action(combatant,action):
+    # For out of sequence bonus actions (i.e. Disengaging before moving)
+    # Only execute anything if we haven't already used the bonus action this round (otherwise it fails)
+    if not bonus_action_used:
+        if action == "Disengage":
+            if combatant.cunning_action and not combatant.bonus_action_used:
+                combatant.disengaged = True
+                combatant.bonus_action_used = True
+        print_output(combatant.name + ' uses their Bonus action and takes the ' + action + ' Action!')
+    
 #Weapon swap
 def weapon_swap(combatant,current_range):
     # A weapon is already equipped; equip a new one
@@ -270,7 +274,8 @@ def weapon_swap(combatant,current_range):
                     if not weap.ruined and not weap.broken:
                         print_output(combatant.name + ' stows ' + combatant.current_weapon.name + ' and readies ' + weap.name)                        
                         combatant.current_weapon = weap                    
-                        return True                                            
+                        return True                           
+                    
     # No weapon is equipped; draw one
     else:
         for weap in combatant.weapon_inventory():    
@@ -283,7 +288,7 @@ def weapon_swap(combatant,current_range):
 def attack_action(combatant):
     #one set of rules for monsters
     if combatant.creature_class == creature_class.Monster:
-        if combatant.breath_attack and (combatant.breath_range >= getdistance(combatant.position,combatant.target.position)):
+        if combatant.breath_attack and (combatant.breath_range >= getdistance(combatant,combatant.target)):
             breath_attack(combatant)
         else:
             if combatant.multiattack:
@@ -291,7 +296,7 @@ def attack_action(combatant):
                 multiattack_weapons = []
                 for ma in combatant.multiattack:
                     for weap in combatant.weapon_inventory():
-                        if weapon.range >= getdistance(combatant.position,combatant.target.position) and ma == weap.name:                        
+                        if weapon.range >= getdistance(combatant,combatant.target) and ma == weap.name:                        
                             multiattack_weapons.append(weap)
 
                 if len(multiattack_weapons) > 0:
@@ -359,7 +364,7 @@ def attack(combatant):
     #Only attack with a weapon
     if combatant.current_weapon.name != "":
         # only resolve attack if target is within range
-        if combatant.current_weapon.range >= getdistance(combatant.position,combatant.target.position):
+        if combatant.current_weapon.range >= getdistance(combatant,combatant.target):
             # only resolve attack if target is alive
             if combatant.target.alive:
                 # Only continue with attack steps if we don't break out because of something else interfering
@@ -689,7 +694,7 @@ def cast_spell(combatant,spell,crit):
         #Check that components (V,S,M) are available for spell?
         #Evaluate if spell is targetted or self (i.e. buff?)?
         #Check that target is in range of spell
-        if spell.range <= getdistance(combatant.position,combatant.target.position):
+        if spell.range <= getdistance(combatant,combatant.target):
             #Resolve saving throw
             #if spell.saving_throw:
                 #Resolve saving throw to see if damage/condition is applied
@@ -1099,7 +1104,122 @@ def roll_initiative(combatant):
         initiativeroll += combatant.proficiency
     combatant.initiative_roll = initiativeroll
 
+
+# Position/movement functions
+def getposition(combatant):
+    return(combatant.xpos,combatant.ypos)
+
+def setposition(combatant,xpos,ypos):
+    combatant.xpos = xpos;
+    combatant.ypos = ypos;
+
+def getdistance(combatant,target):
+    xdistance = int(math.fabs(combatant.xpos-target.xpos))
+    ydistance = int(math.fabs(combatant.ypos-target.ypos))
+    return int(math.sqrt((xdistance * xdistance) + (ydistance * ydistance)))
+
+def move_to_target(combatant,target,movement):
+    # Goal - decrease the distance between us and target
+    print_output(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
+    grids_to_move = calc_no_of_grids(getdistance(combatant,target))
+    grid_movement = calc_no_of_grids(movement)
+    while grids_to_move > 0 and grid_movement > 0:
+        if combatant.xpos > target.xpos and combatant.ypos > target.ypos:
+            combatant.xpos -= 5
+            combatant.ypos -= 5            
+        elif combatant.xpos > target.xpos and combatant.ypos < target.ypos:
+            combatant.xpos -= 5
+            combatant.ypos += 5
+        elif combatant.xpos < target.xpos and combatant.ypos < target.ypos:
+            combatant.xpos += 5
+            combatant.ypos += 5
+        elif combatant.xpos < target.xpos and combatant.ypos > target.ypos:
+            combatant.xpos += 5
+            combatant.ypos -= 5
+        elif combatant.xpos < target.xpos and combatant.ypos == target.ypos:
+            combatant.xpos += 5            
+        elif combatant.xpos > target.xpos and combatant.ypos == target.ypos:
+            combatant.xpos -= 5
+        elif combatant.xpos == target.xpos and combatant.ypos < target.ypos:
+            combatant.ypos += 5
+        elif combatant.xpos == target.xpos and combatant.ypos > target.ypos:
+            combatant.ypos -= 5
+
+        grids_to_move -= 1
+        grid_movement -= 1
+    print_output(combatant.name + ' uses their movement to travel ' + repr(movement) + ' feet towards ' + combatant.target.name + '(New position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
+
+def move_from_target(combatant,target,movement):
+    # Goal - extend the distance between us and target
+    print_output(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
+    grids_to_move = calc_no_of_grids(getdistance(combatant,target))
+    grid_movement = calc_no_of_grids(movement)
+    while grids_to_move > 0 and grid_movement > 0:
+        if combatant.xpos > target.xpos and combatant.ypos > target.ypos:
+            combatant.xpos += 5
+            combatant.ypos += 5            
+        elif combatant.xpos > target.xpos and combatant.ypos < target.ypos:
+            combatant.xpos += 5
+            combatant.ypos -= 5
+        elif combatant.xpos < target.xpos and combatant.ypos < target.ypos:
+            combatant.xpos -= 5
+            combatant.ypos -= 5
+        elif combatant.xpos < target.xpos and combatant.ypos > target.ypos:
+            combatant.xpos -= 5
+            combatant.ypos += 5
+        elif combatant.xpos < target.xpos and combatant.ypos == target.ypos:
+            combatant.xpos -= 5            
+        elif combatant.xpos > target.xpos and combatant.ypos == target.ypos:
+            combatant.xpos += 5
+        elif combatant.xpos == target.xpos and combatant.ypos < target.ypos:
+            combatant.ypos -= 5
+        elif combatant.xpos == target.xpos and combatant.ypos > target.ypos:
+            combatant.ypos += 5
+
+        grids_to_move -= 1
+        grid_movement -= 1
+    print_output(combatant.name + ' uses their movement to travel ' + repr(movement) + ' feet away from ' + combatant.target.name + '(New position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
+
+def calc_no_of_grids(distance):
+    returnb(math.fabs(distance/5))
+
+def enemy_in_range(combatant,range):
+    enemies = []
+    identify_enemies(combatant,enemies)        
+    for enemy in enemies:
+        if calc_distance(combatant,enemy) <= range:
+            return True                   
+    return False
+
+def target_in_weapon_range(combatant,target,range):
+    if range == 0:
+        #Treating default melee weapon range as 5 feet
+        range = 5
+    distance_to_target = getdistance(combatant,target)
+    if (distance_to_target < range) or (combatant.current_weapon.reach and distance_to_target < range + 5):
+        return True
+    return False
+
+def find_target(combatant):    
+    combatant.target = None
+    enemies = []
+    identify_enemies(combatant,enemies)
+    while combatant.target == None:
+        for enemy in enemies:
+            if enemy.alive:
+                combatant.target = enemy
+                print_output(combatant.name + ' is now targetting ' + enemy.name)
+                #Swap to an appropriate weapon as a free action
+                weapon_swap(combatant,calc_distance(combatant,combatant.target))
+    
 # helper functions #
+#Identifies if there are any enemies of this combatant on the battlefield
+def identify_enemies(combatant,enemies):
+    #Take a copy of the global list of combatants
+    potential_enemies = combatants.get_combatants    
+    for potential_enemy in potential_enemies:
+        if combatant.name != potential_enemy.name and combatant.team != potential_enemy.team:
+            enemies.add(potential_enemy)
 
 def greatweaponfighting(combatant):
     if combatant.fighting_style == fighting_style.Great_Weapon_Fighting and (combatant.current_weapon.two_handed or combatant.current_weapon.versatile):
@@ -1115,4 +1235,3 @@ def characterlevel(combatant):
 
 def getdistance(combatantpos,targetpos):
     return int(math.fabs(combatantpos-targetpos))
-

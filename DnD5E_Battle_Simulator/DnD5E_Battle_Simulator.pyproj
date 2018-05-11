@@ -31,6 +31,9 @@
     <Compile Include="battle_simulator\classes.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="battle_simulator\combatants.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="battle_simulator\combat_functions.py">
       <SubType>Code</SubType>
     </Compile>

@@ -470,7 +470,9 @@ class creature():
 
     # In-combat properties, reflect status of creature within battle attempt #
     
-    position = int() # This flat int is all that's used for tracking distance/position at the moment - needs to be converted to x,y co-ordinate system
+    xpos = int() # x co-ordinate
+    ypos = int() # y co-ordinate
+    zpos = int() # z co-ordinate (flying/vertical)
     initiative_roll = int() # Used to sort combatants in initiative order
     movement_used = bool() # Tracks if Movement step of turn has been used
     action_used = bool() # Tracks if Action step of turn has been used
@@ -489,6 +491,8 @@ class creature():
     hasted_bonus_armour = int() # Tracks the bonus armour granted by Haste
     hasted_action = bool() # Tracks whether the creature has a Hasted action
     hasted_action_used = bool() # Tracks whether the creature used their Hasted action
+    disengaged = bool() #Has taken the Disengage action and does not provoke opportunity attacks
+    dodging = bool() # Has taken the Dodge action and imparts disadvantage on inbound attacks
 
     target = None
 
