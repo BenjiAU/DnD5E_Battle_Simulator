@@ -11,6 +11,9 @@ from battle_simulator import fighters
 #The master list of combatants, shared between modules
 from battle_simulator import combatants
 
+# Combat functions
+from battle_simulator import combat_functions
+
 #Implicit imports
 from .print_functions import *
 from .combat_functions import *
@@ -24,7 +27,7 @@ def simulate_battle():
     settings.init() # do only once
     set_output_file()
 
-    combatants.default_simulation()
+    default_simulation()
 
     attempt=0
     while attempt < settings.max_attempts:
@@ -36,14 +39,14 @@ def simulate_battle():
         print_output(' ')      
         
         #Reset values on the global module list of combatants
-        combatants.reset_combatants()
+        reset_combatants()
 
         #Re-initialise position for new round
-        combatants.initialise_position()
+        initialise_position()
             
         # roll initiative #
         print_output('Rolling initiative...')
-        combatants.set_initiative_order()
+        set_initiative_order()
         
         #print_output out combat order at top of attempt
         print_output("</br>")
@@ -51,7 +54,7 @@ def simulate_battle():
         combatorder = 0                   
         
         #Print initiative order and initialise targets
-        for combatant in combatants.get_combatants():                     
+        for combatant in combatants.list:                     
             combatorder += 1
             print_details(combatant,combatorder)
             find_target(combatant)
@@ -65,7 +68,7 @@ def simulate_battle():
             round = round + 1                
             print_output('<b>Round: ' + repr(round) + '</b>')
     
-            for combatant in combatants.get_combatants():        
+            for combatant in combatants.list:        
                 if not round_complete:
                     print_output("</br>")
                     print_output('It is now ' + combatant.name + '\'s turn. Current HP: ' + repr(combatant.current_health) + '/' + repr(combatant.max_health))
@@ -98,7 +101,7 @@ def simulate_battle():
                                     combatant.divine_fury_used = False
                                     
                                 # Determine distance between targets and report if it is > 0
-                                dist = getdistance(combatant.position,combatant.target.position)
+                                dist = calc_distance(combatant,combatant.target)
                                 if combatant.target and dist > 0:
                                     print_output('Distance to target: ' + repr(dist) + ' feet')
 
@@ -212,3 +215,24 @@ def reset_simulation():
     delete_file()
     settings.output = None
     settings.filename = None
+
+def default_simulation():
+    fighters.initialise_combatants(combatants.list)
+    fighters.initialise_team(combatants.list)
+    # Hard-coded initialisation functions for combatants
+    initialise_position()    
+
+def reset_combatants():
+    initialise_combat.reset_combatants(combatants.list)
+
+def initialise_position():
+    fighters.initialise_position(combatants.list)
+
+def set_initiative_order():
+    unsorted_combatants = combatants.list
+    #Roll initiative for each combatant
+    for combatant in unsorted_combatants:     
+        combat_functions.roll_initiative(combatant)            
+                            
+    initkey = operator.attrgetter("initiative_roll")
+    combatants.list = sorted(unsorted_combatants, key=initkey,reverse=True)    
