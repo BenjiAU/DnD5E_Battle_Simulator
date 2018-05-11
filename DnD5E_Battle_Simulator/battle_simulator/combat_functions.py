@@ -20,17 +20,17 @@ def movement(combatant):
         movement = combatant.speed
         if combatant.hasted:
             movement = movement * 2
-
-        if combatant.prone:
-            # Spend half movement to get up #
-            movement = math.floor(movement/2)
-            print_output(combatant.name + ' spends ' + repr(movement) + ' feet of movement to stand up from prone ')            
-            combatant.prone = False
-
         use_movement(combatant,movement)
+
     combatant.movement_used = True
 
 def use_movement(combatant,movement):
+    if combatant.prone:
+        # Spend half movement to get up #
+        movement = math.floor(movement/2)
+        print_output(combatant.name + ' spends ' + repr(movement) + ' feet of movement to stand up from prone ')            
+        combatant.prone = False
+
     # Melee weapon?
     if (combatant.current_weapon.range == 0) and not (combatant.current_weapon.thrown):                    
         if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):            
@@ -95,10 +95,13 @@ def action(combatant):
 
                 if combatant.current_weapon.ruined == False:
                     if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):
-                        attack_action(combatant)
+                        attack_action(combatant)                        
                     else:
                         print_output(combatant.name + ' is taking the Dash action!')
-                        use_movement(combatant,combatant.target,combatant.speed)
+                        movement = combatant.speed
+                        if combatant.hasted:
+                            movement = combatant.speed * 2                                                
+                        use_movement(combatant,movement)
                         combatant.action_used = True
                 else:
                     # If the weapon is Ruined, and we could not swap to a non-ruined weapon, we're out of luck
@@ -205,32 +208,14 @@ def hasted_action(combatant):
         # This will prefer to swap a non-broken or ruined weapon in
         weapon_swap(combatant,current_range)
 
-        if combatant.current_weapon.range == 0:
-            # melee weapon #
-            if combatant.position != combatant.target.position:  
-                # melee target out of range - using Action to Dash #
-                movement = combatant.speed
-                        
-                # If combatant under the effect of the Haste spell, double movement
-                if combatant.hasted:
-                    movement = movement * 2
-
-                print_output(combatant.name + ' uses the Dash action as a Hasted action, travelling towards ' + combatant.target.name)
-                if combatant.position - movement <= combatant.target.position:  
-                    # movement can close gap to target # 
-                    combatant.position = combatant.target.position
-                else:
-                    # movement cannot close gap to target #
-                    combatant.position -= movement
-            else:
-                # melee target in range - using Hasted Action to Attack (one attack only)#        
-                attack(combatant)            
-                combatant.hasted_action_used = True
-        else:             
-            #If we have not attacked yet, attempt to attack
-            if not combatant.action_used:
-                attack(combatant)     
-                combatant.hasted_action_used = True
+        if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):
+            attack(combatant)
+            combatant.hasted_action_used = True
+        else:
+            print_output(combatant.name + ' uses the Dash action as a Hasted action!')            
+            movement = combatant.speed * 2                        
+            use_movement(combatant,movement)          
+            combatant.hasted_action_used = True
 
     combatant.hasted_action_used = True
 
