@@ -1,5 +1,5 @@
 #Explicit imports
-from .combat_functions import characterlevel
+
 #Implicit imports
 from .classes import *
 
@@ -965,3 +965,10 @@ def init_trinket(init_combatants):
     trinket.weapon_inventory().append(claw)
 
     init_combatants.append(trinket)    
+
+def characterlevel(combatant):
+    return(combatant.barbarian_level + 
+           combatant.fighter_level + 
+           combatant.rogue_level + 
+           combatant.ranger_level +
+           combatant.paladin_level)
