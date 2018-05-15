@@ -140,6 +140,7 @@ def reset_combatants(init_combatants):
             combatant.sneak_attack = True
             combatant.sneak_attack_damage_die = 6
             combatant.sneak_attack_damage_die_count = int(round(combatant.rogue_level/2))
+
         # Cunning Action (Dash/Hide/Disengage as Bonus)
         if combatant.rogue_level >= 2:
             combatant.cunning_action = True
@@ -175,6 +176,10 @@ def reset_combatants(init_combatants):
                 divine_smite = spell()
                 init_spell(divine_smite,"Divine Smite",1,6,8,2,damage_type.Radiant,8,1,8,1,race.Undead)
                 combatant.creature_spells().append(divine_smite)
+
+        # Channel Divinity
+        if combatant.paladin_level >= 3: 
+            combatant.channel_divinity = True
 
         # Extra Attack (5th level)
         if combatant.paladin_level >= 5:
@@ -232,12 +237,21 @@ def reset_combatants(init_combatants):
                 # Rage Beyond death (14th level, while raging, fall below 0 you don't go unconscious - still make Death Saving Throws)
                 if combatant.barbarian_level >= 14:
                     combatant.rage_beyond_death = True
+
         if combatant.creature_class == creature_class.Rogue:
             # Assassin
             if combatant.creature_subclass == creature_subclass.Assassin:
                 if combatant.rogue_level >= 3:
                     combatant.assassinate = True
 
+        # New way of handling class features
+        ### Paladin Subclasses ###
+        # Oath of Vengeance
+        if combatant.paladin_subclass == creature_subclass.Vengeance:
+            if combatant.paladin_level >= 3:
+                combatant.vow_of_enmity = True
+                combatant.vow_of_enmity_target = None
+        
         # Racial Features
         # Goliath
         if combatant.race == race.Goliath:        

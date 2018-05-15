@@ -293,8 +293,9 @@ def init_vax(init_combatants):
     vax.subrace = subrace.Revenant
     vax.creature_class = creature_class.Rogue
     vax.creature_subclass = creature_subclass.Assassin
-    vax.rogue_level = 12
+    vax.rogue_level = 13
     vax.paladin_level = 6
+    vax.paladin_subclass = creature_subclass.Vengeance
     vax.druid_level = 1    
     vax.max_health = 127
     vax.armour_class = 20
@@ -330,6 +331,12 @@ def init_vax(init_combatants):
     vaxchecks = checkblock()
     
     vax.checks = vaxchecks    
+
+    vaxslots = spellslots()
+    vaxslots.FirstLevelMax = 4
+    vaxslots.SecondLevelMax = 2
+
+    vax.creature_spellslots = vaxslots
 
     #vax's weapons
     whisper = weapon()
@@ -397,6 +404,12 @@ def init_vax(init_combatants):
     bootsofhaste.grants_equipment_spell = equipment_spells.Haste
 
     vax.equipment_inventory().append(bootsofhaste)
+
+    beltofbladereturning = equipment()
+    beltofbladereturning.name = "Belt of Blade Returning"
+    beltofbladereturning.grants_equipment_spell = equipment_spells.BladeReturn
+
+    vax.equipment_inventory().append(beltofbladereturning)
     
     # combat stats # 
 

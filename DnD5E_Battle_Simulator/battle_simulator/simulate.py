@@ -102,11 +102,16 @@ def simulate_battle():
                                 #Divine Fury (resets at the start of each turn)
                                 if combatant.divine_fury:
                                     combatant.divine_fury_used = False
-                                    
+
+                                # Sneak Attack (resets at the start of each turn)
+                                if combatant.sneak_attack:
+                                    combatant.sneak_attack_used = False
+
                                 # Determine distance between targets and report if it is > 0
                                 dist = calc_distance(combatant,combatant.target)
+                                grids = calc_no_of_grids(dist)
                                 if combatant.target and dist > 0:
-                                    print_output('Distance to target: ' + repr(dist) + ' feet')
+                                    print_output('Distance to target: ' + repr(grids) + ' grid squares, or ' + repr(dist) + ' feet')
 
                                 #check for breath weapon recharge
                                 if combatant.creature_class == creature_class.Monster:
@@ -118,6 +123,8 @@ def simulate_battle():
                                 if combatant.assassinate:
                                     if (round == 1) and (combatant.initiative_roll > combatant.target.initiative_roll):
                                         combatant.can_assassinate_target = True
+                                    else:
+                                        combatant.can_assassinate_target = False
 
                                 # Is the combatant wearing equipment? Evaluate and use if appropriate
                                 if combatant.equipment_inventory():
@@ -128,13 +135,18 @@ def simulate_battle():
                                 print_output('<b>Movement:</b>')
                                 movement(combatant)
 
+                                # bonus action (pre-action)#       
+                                print_output('<b>Bonus Action:</b>') 
+                                bonus_action(combatant)     
+
                                 # action #
                                 print_output('<b>Action:</b>')
                                 action(combatant)              
 
-                                # bonus action #       
-                                print_output('<b>Bonus Action:</b>') 
-                                bonus_action(combatant)            
+                                # bonus action (post-action)#       
+                                if not combatant.bonus_action_used:
+                                    print_output('<b>Bonus Action:</b>') 
+                                    bonus_action(combatant)            
                 
                                 # hasted action #
                                 if combatant.hasted_action and not combatant.hasted_action_used:

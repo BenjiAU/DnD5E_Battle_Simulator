@@ -22,5 +22,5 @@ def init():
 
     #Verbosity controls
     global verbose_movement
-    verbose_movement = True
+    verbose_movement = False
 

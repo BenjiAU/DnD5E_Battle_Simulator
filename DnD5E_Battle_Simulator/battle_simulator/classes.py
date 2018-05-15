@@ -114,6 +114,7 @@ class creature_subclass(Enum):
     Beastmaster = auto()
     #Paladin subclasses
     Oathbreaker = auto()   
+    Vengeance = auto()
     #Constructs
     Doty = auto()
     #Giants
@@ -170,6 +171,7 @@ class equipment_spells(Enum):
     Leap = auto()
     HandOfVecna = auto()
     Haste = auto()
+    BladeReturn = auto()
 
 class spell_school(Enum):
     def __str__(self):
@@ -289,6 +291,7 @@ class weapon():
     range = int()
     reach = int()
     thrown = bool()
+    was_thrown = bool()
     two_handed = bool()
     versatile = bool()
     silvered = bool()
@@ -381,25 +384,37 @@ class creature():
 
     # PC specific - levels in various classes, used to determine which abilities are available
     barbarian_level = int()
+    barbarian_subclass = int()
     bard_level = int()
+    bard_subclass = int()
     cleric_level = int()
+    cleric_subclass = int()
     druid_level = int()
+    druid_subclass = int()
     fighter_level = int()
+    fighter_subclass = int()
     monk_level = int()
+    monk_subclass = int()
     paladin_level = int()
+    paladin_subclass = int()
     rogue_level = int()
+    rogue_subclass = int()
     ranger_level = int()
+    ranger_subclass = int()
     sorcerer_level = int()
+    sorcerer_subclass = int()
     warlock_level = int()
+    warlock_subclass = int()
     wizard_level = int()
+    wizard_subclass = int()
     
     proficiency = int() # Determined by taking the PC's 'primary' class, based on the level - see initgrog for example
     
     #Combat/class/race/feat properties - variety of fields used to track whether abilities can be used, the count remaining for abilities, and other combat info
     # Class
     ## Generic
-    extra_attack = int()        
-    
+    extra_attack = int()            
+
     ### Barbarian ###
     canrage = bool()
     ragedamage = int()
@@ -450,7 +465,9 @@ class creature():
     ### Rogue ###
     sneak_attack = bool()    
     sneak_attack_damage_die = int()
-    sneak_attack_damage_die_count = int()
+    sneak_attack_damage_die_count = int()    
+    sneak_attack_used = bool() #Only one sneak attack per round
+
     cunning_action = bool()
     uncanny_dodge = bool()    
     evasion = bool()
@@ -465,12 +482,17 @@ class creature():
     can_assassinate_target = bool()
 
     ### Paladin ###
+    channel_divinity = bool()
     divine_smite = bool()
     divine_health = bool()
     aura_of_protection = bool()
     aura_of_courage = bool()
     improved_divine_smite = bool()
     cleansing_touch = bool()
+
+    ## Vengeance
+    vow_of_enmity = bool()
+    vow_of_enmity_target = None
 
     # Race
     ## Goliath #    
@@ -508,7 +530,7 @@ class creature():
     hasted_action_used = bool() # Tracks whether the creature used their Hasted action
     disengaged = bool() #Has taken the Disengage action and does not provoke opportunity attacks
     dodging = bool() # Has taken the Dodge action and imparts disadvantage on inbound attacks
-
+    
     target = None
 
     #Tracks damage built up over an attack action (including weapon damage, bonus damage, crit damage)
