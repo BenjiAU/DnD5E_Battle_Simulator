@@ -26,8 +26,9 @@ from operator import itemgetter, attrgetter, methodcaller
 def simulate_battle():
     settings.init() # do only once
     set_output_file()
-
-    default_simulation()
+    
+    fighters.initialise_combatants(combatants.list)
+    fighters.initialise_team(combatants.list)        
 
     attempt=0
     while attempt < settings.max_attempts:
@@ -39,10 +40,10 @@ def simulate_battle():
         print_output(' ')      
         
         #Reset values on the global module list of combatants
-        reset_combatants()
+        initialise_combat.reset_combatants(combatants.list)
 
         #Re-initialise position for new round
-        initialise_position()
+        initialise_combat.set_starting_positions(combatants.list)
             
         # roll initiative #
         print_output('Rolling initiative...')
@@ -58,6 +59,8 @@ def simulate_battle():
             combatorder += 1
             print_details(combatant,combatorder)
             find_target(combatant)
+            print_output('')
+            print_output('')
 
         #Begin combat rounds (up to a maximum to avoid overflow)
         round = 0              
@@ -78,7 +81,7 @@ def simulate_battle():
                         if combatant.conscious:
                             # Re-evaluate targets
                             print_output('<b>Determining targets:</b>')
-                            if combatant.target:
+                            if combatant.target:                                
                                 if not combatant.target.alive:
                                     #Aim for a new target as the current one is dead
                                     print_output(combatant.name + '\'s target is dead! Choosing new target...')
@@ -201,7 +204,7 @@ def simulate_battle():
     print_output('Summary:')
 
     teams = []
-    for combatant in combatants.get_combatants:
+    for combatant in combatants.list:
         if not combatant.team in teams:
             teams.append(combatant.team)
     for t in teams:
@@ -215,18 +218,6 @@ def reset_simulation():
     delete_file()
     settings.output = None
     settings.filename = None
-
-def default_simulation():
-    fighters.initialise_combatants(combatants.list)
-    fighters.initialise_team(combatants.list)
-    # Hard-coded initialisation functions for combatants
-    initialise_position()    
-
-def reset_combatants():
-    initialise_combat.reset_combatants(combatants.list)
-
-def initialise_position():
-    fighters.initialise_position(combatants.list)
 
 def set_initiative_order():
     unsorted_combatants = combatants.list

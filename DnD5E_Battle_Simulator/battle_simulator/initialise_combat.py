@@ -16,6 +16,7 @@ def reset_combatants(init_combatants):
         combatant.death_saving_throw_failure = 0
         combatant.death_saving_throw_success = 0
         combatant.conscious = True
+        combatant.prone = False
         combatant.current_health = combatant.max_health
         combatant.enlarged = False        # Need a better wayto handle this        
         combatant.hasted = False
@@ -262,6 +263,15 @@ def reset_combatants(init_combatants):
             ### Hill Giant
             if combatant.creature_subclass == creature_subclass.Hill:                            
                 combatant.multiattack = ["Greatclub","Greatclub"]
+                
+def set_starting_positions(combatants):
+    for combatant in combatants:
+        if combatant.name == "Grog":
+            combatant.xpos = 50
+            combatant.ypos = 50
+        if combatant.name == "Vax":
+            combatant.xpos = 75
+            combatant.ypos = 75
 
 def init_spell(new_spell,name,min_ss,max_ss,dd,ddc,dt,ddpss,ddcpss,bdd,bddc,bdt):
     new_spell.name = name

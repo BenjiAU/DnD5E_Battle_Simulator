@@ -40,15 +40,15 @@ def use_movement(combatant,movement):
     else:
         # Range weapon?
         if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):
+            # Don't move out of weapon range - figure out current gap, subtract it from weapon range, thats how far we can move
             if target_in_weapon_range(combatant,combatant.target,0):
                 use_bonus_action(combatant,"Disengage")
+            
+            if movement > combatant.current_weapon.range - calc_distance(combatant,combatant.target):
+                movement = combatant.current_weapon.range - calc_distance(combatant,combatant.target)
+            
+            if movement > 0:
                 move_from_target(combatant,combatant.target,movement)
-            else:
-                additional_gap = combatant.current_weapon.range - calc_distance(combatant,combatant.target);
-                if additional_gap <= movement:
-                    move_from_target(combatant,combatant.target,additional_gap)
-                else:
-                    move_from_target(combatant,combatant.target,movement)
         else:
             gap_to_close = calc_distance(combatant,combatant.target) - combatant.current_weapon.range;
             if gap_to_close <= movement:
@@ -195,6 +195,7 @@ def bonus_action(combatant):
                         combatant.bonus_action_used = True
 
 def hasted_action(combatant):
+    print_output('<b>Hasted Action:</b>')
     # Only perform an action if target exists
     if combatant.target:
         # Swap to a different weapon if it makes sense due to range                    
@@ -1089,9 +1090,61 @@ def roll_initiative(combatant):
 def getposition(combatant):
     return(combatant.xpos,combatant.ypos)
 
-def setposition(combatant,xpos,ypos):
-    combatant.xpos = xpos;
-    combatant.ypos = ypos;
+def move_grid(combatant,direction):
+    if direction == cardinal_direction.Stay:
+        return 
+
+    xpos = 0
+    ypos = 0
+    initialxpos = combatant.xpos
+    initialypos = combatant.ypos    
+
+    #1 = Southwest
+    #2 = South
+    #3 = Southeast
+    #4 = East
+    #5 = NorthEast
+    #6 = North
+    #7 = Northwest
+    #8 = West    
+    #9 = Random
+
+    if direction == None or direction == cardinal_direction.Random:       
+        rand_direction = random.randint(1,8)
+        direction = cardinal_direction(rand_direction)
+
+        print_output(indent + combatant.name + ' chooses to travel ' + direction.name)
+
+    if direction == cardinal_direction.SouthWest:
+        xpos = -5
+        ypos = -5
+    elif direction == cardinal_direction.South:
+        xpos = 0
+        ypos = -5
+    elif direction == cardinal_direction.SouthEast:
+        xpos = 5
+        ypos = -5
+    elif direction == cardinal_direction.East:
+        xpos = 5
+        ypos = 0
+    elif direction == cardinal_direction.NorthEast:
+        xpos = 5
+        ypos = 5
+    elif direction == cardinal_direction.North:
+        xpos = 0
+        ypos = 5
+    elif direction == cardinal_direction.NorthWest:
+        xpos = -5
+        ypos = 5
+    elif direction == cardinal_direction.West:
+        xpos = -5
+        ypos = 0
+
+    combatant.xpos += xpos;
+    combatant.ypos += ypos;
+
+    if settings.verbose_movement:
+        print_output(indent + combatant.name + ' moves ' + direction.name + ' from (' + repr(initialxpos) + ',' + repr(initialypos) + ') to (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
 
 def calc_distance(combatant,target):
     xdistance = int(math.fabs(combatant.xpos-target.xpos))
@@ -1100,66 +1153,79 @@ def calc_distance(combatant,target):
 
 def move_to_target(combatant,target,movement):
     # Goal - decrease the distance between us and target
-    print_output(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
+    print_output(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move towards ' + combatant.target.name + ' at (' + repr(combatant.target.xpos) + ',' + repr(combatant.target.ypos) + ')')
     grids_to_move = calc_no_of_grids(calc_distance(combatant,target))
     grid_movement = calc_no_of_grids(movement)
-    while grids_to_move > 0 and grid_movement > 0:
+    while grids_to_move > 0 and grid_movement > 0:        
+        if settings.verbose_movement:
+            print_output(indent + combatant.name + ' is ' + repr(grids_to_move) + ' grids away from their destination')
+            print_output(indent + combatant.name + ' has a maximum of ' + repr(grid_movement) + ' grids of movement available')
+
+        direction = cardinal_direction.Stay
+
         if combatant.xpos > target.xpos and combatant.ypos > target.ypos:
-            combatant.xpos -= 5
-            combatant.ypos -= 5            
+            direction = cardinal_direction.SouthWest
         elif combatant.xpos > target.xpos and combatant.ypos < target.ypos:
-            combatant.xpos -= 5
-            combatant.ypos += 5
+            direction = cardinal_direction.NorthWest
         elif combatant.xpos < target.xpos and combatant.ypos < target.ypos:
-            combatant.xpos += 5
-            combatant.ypos += 5
+            direction = cardinal_direction.NorthEast
         elif combatant.xpos < target.xpos and combatant.ypos > target.ypos:
-            combatant.xpos += 5
-            combatant.ypos -= 5
+            direction = cardinal_direction.SouthEast
         elif combatant.xpos < target.xpos and combatant.ypos == target.ypos:
-            combatant.xpos += 5            
+            direction = cardinal_direction.East
         elif combatant.xpos > target.xpos and combatant.ypos == target.ypos:
-            combatant.xpos -= 5
+            direction = cardinal_direction.West
         elif combatant.xpos == target.xpos and combatant.ypos < target.ypos:
-            combatant.ypos += 5
+            direction = cardinal_direction.North
         elif combatant.xpos == target.xpos and combatant.ypos > target.ypos:
-            combatant.ypos -= 5
+            direction = cardinal_direction.South
+        
+        move_grid(combatant,direction)  
 
         grids_to_move -= 1
         grid_movement -= 1
-    print_output(combatant.name + ' uses their movement to travel ' + repr(movement) + ' feet towards ' + combatant.target.name + '(New position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
+    print_output(combatant.name + ' uses their movement to travel ' + repr(movement) + ' feet towards ' + combatant.target.name + ' (Distance to target: ' + repr(calc_distance(combatant,combatant.target)) + ')')
 
 def move_from_target(combatant,target,movement):
     # Goal - extend the distance between us and target
-    print_output(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
-    grids_to_move = calc_no_of_grids(calc_distance(combatant,target))
+    #Essentially figure out where we are in relation to the target, and keep travelling in that direction
+    print_output(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move away from ' + combatant.target.name + ' at (' + repr(combatant.target.xpos) + ',' + repr(combatant.target.ypos) + ')')
+    grids_to_move = calc_no_of_grids(movement)
     grid_movement = calc_no_of_grids(movement)
     while grids_to_move > 0 and grid_movement > 0:
-        if combatant.xpos > target.xpos and combatant.ypos > target.ypos:
-            combatant.xpos += 5
-            combatant.ypos += 5            
-        elif combatant.xpos > target.xpos and combatant.ypos < target.ypos:
-            combatant.xpos += 5
-            combatant.ypos -= 5
-        elif combatant.xpos < target.xpos and combatant.ypos < target.ypos:
-            combatant.xpos -= 5
-            combatant.ypos -= 5
-        elif combatant.xpos < target.xpos and combatant.ypos > target.ypos:
-            combatant.xpos -= 5
-            combatant.ypos += 5
-        elif combatant.xpos < target.xpos and combatant.ypos == target.ypos:
-            combatant.xpos -= 5            
-        elif combatant.xpos > target.xpos and combatant.ypos == target.ypos:
-            combatant.xpos += 5
-        elif combatant.xpos == target.xpos and combatant.ypos < target.ypos:
-            combatant.ypos -= 5
-        elif combatant.xpos == target.xpos and combatant.ypos > target.ypos:
-            combatant.ypos += 5
+        if settings.verbose_movement:
+            print_output(indent + combatant.name + ' is ' + repr(grids_to_move) + ' grids away from their destination')
+            print_output(indent + combatant.name + ' has a maximum of ' + repr(grid_movement) + ' grids of movement available')
 
+        direction = cardinal_direction.Stay
+
+        if combatant.xpos == target.xpos and combatant.ypos == target.ypos:
+            #Choose a random direction to move in         
+            direction = cardinal_direction.Random
+        elif combatant.xpos > target.xpos and combatant.ypos > target.ypos:
+            direction = cardinal_direction.NorthEast
+        elif combatant.xpos > target.xpos and combatant.ypos < target.ypos:
+            direction = cardinal_direction.SouthEast
+        elif combatant.xpos < target.xpos and combatant.ypos < target.ypos:
+            direction = cardinal_direction.SouthWest
+        elif combatant.xpos < target.xpos and combatant.ypos > target.ypos:
+            direction = cardinal_direction.NorthWest
+        elif combatant.xpos < target.xpos and combatant.ypos == target.ypos:
+            direction = cardinal_direction.West
+        elif combatant.xpos > target.xpos and combatant.ypos == target.ypos:
+            direction = cardinal_direction.East
+        elif combatant.xpos == target.xpos and combatant.ypos < target.ypos:
+            direction = cardinal_direction.South
+        elif combatant.xpos == target.xpos and combatant.ypos > target.ypos:
+            direction = cardinal_direction.North
+                
+        if direction != 0:
+            move_grid(combatant,direction)          
+        
         grids_to_move -= 1
         grid_movement -= 1
-    print_output(combatant.name + ' uses their movement to travel ' + repr(movement) + ' feet away from ' + combatant.target.name + '(New position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
-
+    print_output(combatant.name + ' uses their movement to travel ' + repr(movement) + ' feet away from ' + combatant.target.name + ' (Distance to target: ' + repr(calc_distance(combatant,combatant.target)) + ')')
+    
 def calc_no_of_grids(distance):
     return(math.fabs(distance/5))
 
@@ -1181,26 +1247,23 @@ def target_in_weapon_range(combatant,target,range):
     return False
 
 def find_target(combatant):    
-    combatant.target = None
-    enemies = []
-    identify_enemies(combatant,enemies)
-    while combatant.target == None:
-        for enemy in enemies:
-            if enemy.alive:
-                combatant.target = enemy
-                print_output(combatant.name + ' is now targetting ' + enemy.name)
-                #Swap to an appropriate weapon as a free action
-                weapon_swap(combatant,calc_distance(combatant,combatant.target))
-    
-# helper functions #
-#Identifies if there are any enemies of this combatant on the battlefield
-def identify_enemies(combatant,enemies):
-    #Take a copy of the global list of combatants
-    potential_enemies = combatants.list
-    for potential_enemy in potential_enemies:
+    #Always set the target as a reference to the master list of combatants (to avoid having to constantly refresht to pick up changes in the target)
+    combatant.target = None    
+    for potential_enemy in combatants.list:
         if combatant.name != potential_enemy.name and combatant.team != potential_enemy.team:
-            enemies.append(potential_enemy)
+            if potential_enemy.alive:
+                if combatant.target == None or calc_distance(combatant,potential_enemy) <= calc_distance(combatant,combatant.target):
+                    combatant.target = potential_enemy                
+  
+    if combatant.target:
+        print_output(combatant.name + ' is now targetting ' + combatant.target.name)
+        #Swap to an appropriate weapon as a free action
+        weapon_swap(combatant,calc_distance(combatant,combatant.target))                        
+        return True
+    else:
+        return False
 
+# helper functions #
 def greatweaponfighting(combatant):
     if combatant.fighting_style == fighting_style.Great_Weapon_Fighting and (combatant.current_weapon.two_handed or combatant.current_weapon.versatile):
         return True

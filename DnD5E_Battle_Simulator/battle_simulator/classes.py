@@ -30,6 +30,21 @@ class statblock():
     wis  = int()
     cha = int()
 
+class cardinal_direction(Enum):
+    #integers matter for this one
+    def __str__(self):
+        return str(self.value)    
+    Stay = 0
+    SouthWest = 1
+    South = 2
+    SouthEast = 3
+    East = 4
+    NorthEast = 5
+    North = 6
+    NorthWest = 7
+    West = 8
+    Random = 9        
+
 class saving_throw(Enum):
     def __str__(self):
         return str(self.value)    

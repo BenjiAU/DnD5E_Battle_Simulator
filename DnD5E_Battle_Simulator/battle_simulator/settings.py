@@ -19,3 +19,8 @@ def init():
     #List for appending output
     global output
     output = []
+
+    #Verbosity controls
+    global verbose_movement
+    verbose_movement = True
+

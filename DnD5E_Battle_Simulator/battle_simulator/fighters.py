@@ -52,16 +52,7 @@ def initialise_team(combatants):
             combatant.team = doty
         if combatant.name == "Trinket":
             combatant.team = trinket
-                
 
-def initialise_position(combatants):
-    for combatant in combatants:
-        if combatant.name == "Grog":
-            combatant.xpos = 50
-            combatant.ypos = 50
-        if combatant.name == "Vax":
-            combatant.xpos = 75
-            combatant.ypos = 75
         
         #if combatant.name == "Yasha":
         #    combatant.position = 1420
