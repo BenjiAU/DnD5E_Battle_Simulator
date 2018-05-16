@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-class checkblock():
+class abilitycheck_block():
     str_adv = bool()
     dex_adv = bool()
     con_adv = bool()
@@ -8,7 +8,7 @@ class checkblock():
     wis_adv = bool()
     cha_adv = bool()
 
-class saveblock():
+class savingthrow_block():
     str = int()
     str_adv = bool()
     dex = int()
@@ -22,13 +22,50 @@ class saveblock():
     cha = int()
     cha_adv = bool()
 
-class statblock():
+class statistic_block():
     str = int()
     dex = int()
     con = int()
     intel = int()
     wis  = int()
     cha = int()
+
+class player_class_block():
+    player_class = int()
+    player_class_level = int()
+    player_subclass = int()
+    
+class player_class(Enum):
+    def __str__(self):
+        return str(self.value)    
+    Barbarian = auto()
+    Bard = auto()
+    Cleric = auto()
+    Druid = auto()
+    Fighter = auto()    
+    Rogue = auto()
+    Ranger = auto()
+    Sorcerer = auto()
+    Paladin = auto()
+    Warlock = auto()
+    Wizard = auto()    
+    
+class player_subclass(Enum):
+    def __str__(self):
+        return str(self.value)    
+    #Barbarian subclasses
+    Beserker = auto()
+    Zealot = auto()
+    #Fighter subclasses
+    Gunslinger = auto()
+    #Paladin subclasses
+    Oathbreaker = auto()   
+    Vengeance = auto()    
+    #Rogue subclasses
+    Thief = auto()
+    Assassin = auto()    
+    #Ranger subclasses
+    Beastmaster = auto()    
 
 class cardinal_direction(Enum):
     #integers matter for this one
@@ -89,32 +126,9 @@ class subrace(Enum):
         return str(self.value)    
     Revenant = auto()
 
-class creature_class(Enum):
+class monster_type(Enum):
     def __str__(self):
-        return str(self.value)    
-    Fighter = auto()
-    Barbarian = auto()
-    Rogue = auto()
-    Ranger = auto()
-    Paladin = auto()
-    Monster = auto()
-    
-class creature_subclass(Enum):
-    def __str__(self):
-        return str(self.value)    
-    #Fighter subclasses
-    Gunslinger = auto()
-    #Barbarian subclasses
-    Beserker = auto()
-    Zealot = auto()
-    #Rogue subclasses
-    Thief = auto()
-    Assassin = auto()
-    #Ranger subclasses
-    Beastmaster = auto()
-    #Paladin subclasses
-    Oathbreaker = auto()   
-    Vengeance = auto()
+        return str(self.value)        
     #Constructs
     Doty = auto()
     #Giants
@@ -336,31 +350,34 @@ class creature():
     fullname = ""
     name = ""
     race = int()
-    subrace = int()
-    creature_class = int()
-    creature_subclass = int()
+    subrace = int()    
     
     max_health = int()
     current_health = int()        
         
     speed = int()   
 
-    stats = statblock()
-    saves = saveblock()
-    checks = checkblock()
-    
+    stats = statistic_block()
+    saves = savingthrow_block()
+    checks = abilitycheck_block()    
+
     current_weapon = weapon()
 
     armour_class = int()
     armour_type = armour_type()
 
-    creature_spellslots = spellslots()      
+    spellslots = spellslots()      
 
     #Extensible properties (1 to many)
-    def creature_spells(self):
-        if not hasattr(self, "_creature_spells"):
-            self._creature_spells = []
-        return self._creature_spells           
+    def player_classes(self):
+        if not hasattr(self, "_player_classes"):
+            self._player_classes = []
+        return self._player_classes
+
+    def spell_list(self):
+        if not hasattr(self, "_spell_list"):
+            self._spell_list = []
+        return self._spell_list           
 
     def creature_feats(self):
         if not hasattr(self, "_creature_feats"):
@@ -380,33 +397,7 @@ class creature():
     def equipment_inventory(self):
         if not hasattr(self, "_equipment_inventory"):
             self._equipment_inventory = []
-        return self._equipment_inventory
-
-    # PC specific - levels in various classes, used to determine which abilities are available
-    barbarian_level = int()
-    barbarian_subclass = int()
-    bard_level = int()
-    bard_subclass = int()
-    cleric_level = int()
-    cleric_subclass = int()
-    druid_level = int()
-    druid_subclass = int()
-    fighter_level = int()
-    fighter_subclass = int()
-    monk_level = int()
-    monk_subclass = int()
-    paladin_level = int()
-    paladin_subclass = int()
-    rogue_level = int()
-    rogue_subclass = int()
-    ranger_level = int()
-    ranger_subclass = int()
-    sorcerer_level = int()
-    sorcerer_subclass = int()
-    warlock_level = int()
-    warlock_subclass = int()
-    wizard_level = int()
-    wizard_subclass = int()
+        return self._equipment_inventory      
     
     proficiency = int() # Determined by taking the PC's 'primary' class, based on the level - see initgrog for example
     

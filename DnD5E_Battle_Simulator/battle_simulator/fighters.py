@@ -291,12 +291,24 @@ def init_vax(init_combatants):
     vax.name = "Vax"
     vax.race = race.Half_Elf
     vax.subrace = subrace.Revenant
-    vax.creature_class = creature_class.Rogue
-    vax.creature_subclass = creature_subclass.Assassin
-    vax.rogue_level = 13
-    vax.paladin_level = 6
-    vax.paladin_subclass = creature_subclass.Vengeance
-    vax.druid_level = 1    
+
+    rogue_class = player_class_block()
+    rogue_class.player_class = player_class.Rogue
+    rogue_class.player_subclass = player_subclass.Assassin
+    rogue_class.player_class_level = 13
+    vax.player_classes().append(rogue_class)
+
+    paladin_class = player_class_block()
+    paladin_class.player_class = player_class.Paladin
+    paladin_class.player_subclass = player_subclass.Vengeance
+    paladin_class.player_class_level = 6
+    vax.player_classes().append(paladin_class)
+
+    druid_class = player_class_block()
+    druid_class.player_class = player_class.Druid    
+    druid_class.player_class_level = 1
+    vax.player_classes().append(druid_class)
+
     vax.max_health = 127
     vax.armour_class = 20
     vax.speed = 30

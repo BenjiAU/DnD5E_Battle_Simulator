@@ -44,15 +44,16 @@ def reset_combatants(init_combatants):
 
         # Reset spell slots
         
-        combatant.creature_spellslots.FirstLevel = combatant.creature_spellslots.FirstLevelMax
-        combatant.creature_spellslots.SecondLevel = combatant.creature_spellslots.SecondLevelMax
-        combatant.creature_spellslots.ThirdLevel = combatant.creature_spellslots.ThirdLevelMax
-        combatant.creature_spellslots.FourthLevel = combatant.creature_spellslots.FourthLevelMax
-        combatant.creature_spellslots.FifthLevel = combatant.creature_spellslots.FifthLevelMax
-        combatant.creature_spellslots.SixthLevel = combatant.creature_spellslots.SixthLevelMax
-        combatant.creature_spellslots.SeventhLevel = combatant.creature_spellslots.SeventhLevelMax
-        combatant.creature_spellslots.EigthLevel = combatant.creature_spellslots.EigthLevelMax
-        combatant.creature_spellslots.NinthLevel = combatant.creature_spellslots.NinthLevelMax
+        combatant.spellslots.FirstLevel = combatant.spellslots.FirstLevelMax
+        combatant.spellslots.SecondLevel = combatant.spellslots.SecondLevelMax
+        combatant.spellslots.ThirdLevel = combatant.spellslots.ThirdLevelMax
+        combatant.spellslots.FourthLevel = combatant.spellslots.FourthLevelMax
+        combatant.spellslots.FifthLevel = combatant.spellslots.FifthLevelMax
+        combatant.spellslots.SixthLevel = combatant.spellslots.SixthLevelMax
+        combatant.spellslots.SeventhLevel = combatant.spellslots.SeventhLevelMax
+        combatant.spellslots.EigthLevel = combatant.spellslots.EigthLevelMax
+        combatant.spellslots.NinthLevel = combatant.spellslots.NinthLevelMax
+
         # Hemorraging Critical tracking
         combatant.hemo_damage = 0        
         combatant.hemo_damage_type = 0
@@ -65,193 +66,9 @@ def reset_combatants(init_combatants):
             if ft == feat.Great_Weapon_Master:
                 combatant.great_weapon_master = True
                 combatant.use_great_weapon_master = False
-                
-        ### Generic abilities (primary class need not be this to get benefit) ###
-
-        ### Barbarian ###
-        # Rage (1st level)
-        if combatant.barbarian_level >= 1:
-            combatant.canrage = True
-            combatant.raging = False
-            # Number of rounds rage has been up for
-            combatant.rage_duration = 0
-            # Number of rounds rage can be sustained for
-            combatant.max_rage_duration = 10 
-            #+2 Rage Damage (1st through 8th)
-            combatant.ragedamage = 2
-        # Reckless Attack (2nd level)
-        if combatant.barbarian_level >= 2:
-            combatant.reckless = True        
-            combatant.use_reckless = False
-            # Danger Sense (2nd level)        
-            combatant.saves.dex_adv = True                
-        # Extra Attack (+1 at 5th level)
-        if combatant.barbarian_level >= 5:
-            if combatant.extra_attack == 0:
-                combatant.extra_attack = 1
-        # Feral Instinct (7th level)
-        if combatant.barbarian_level >= 7:
-            combatant.feral_instinct = True
-        # Brutal Critical (1 die, 9th level)
-        if combatant.barbarian_level >= 9:
-            combatant.brutal_critical = True
-            combatant.brutal_critical_dice = 1
-            #+3 Rage Damage (9th through 16th)
-            combatant.ragedamage = 3
-        # Relentless (11th level)
-        if combatant.barbarian_level >= 11:
-            combatant.relentless_rage = True
-            combatant.relentless_rage_DC = 10        
-        # Brutal Critical (2 die, 13th level)
-        if combatant.barbarian_level >= 13:
-            combatant.brutal_critical_dice = 2
-        if combatant.barbarian_level >= 16:
-            #+3 Rage Damage (9th through 16th)
-            combatant.ragedamage = 4
-        # Brutal Critical (3 die, 17th level)
-        if combatant.barbarian_level >= 17:
-            combatant.brutal_critical_dice = 3
-
-        ### Fighter ###
-        # Action surge (1 at 2nd level
-        if combatant.fighter_level >= 2:
-            combatant.action_surge += 1
-        # Action surge (2 at 17th level)
-        if combatant.fighter_level >= 17:
-            combatant.action_surge += 1
-
-        # Extra Attack (+1 at 5th level)
-        if combatant.fighter_level >= 5:
-            combatant.extra_attack = 1
-        # Extra Attack (+1 at 11th level)
-        if combatant.fighter_level >= 11:
-            combatant.extra_attack = 2
-        # Extra Attack (+1 at 20th level)
-        if combatant.fighter_level >= 20:
-            combatant.extra_attack = 3
-            
-        # Second Wind (1 use at 1st level)
-        if combatant.fighter_level >= 1:
-            combatant.second_wind = True                        
         
-        ### Rogue ###
-        # Sneak Attack
-        if combatant.rogue_level >= 1:
-            combatant.sneak_attack = True
-            combatant.sneak_attack_damage_die = 6
-            combatant.sneak_attack_damage_die_count = int(round(combatant.rogue_level/2))
-
-        # Cunning Action (Dash/Hide/Disengage as Bonus)
-        if combatant.rogue_level >= 2:
-            combatant.cunning_action = True
-        # Uncanny Dodge (Use reaction to halve damage from melee strike)
-        if combatant.rogue_level >= 5:
-            combatant.uncanny_dodge = True
-        # Evasion (Fail Dex save = half damage, succeed = 0)
-        if combatant.rogue_level >= 7:
-            combatant.evasion = True
-        # Blindsense (always detect hidden/invis creatures in 10 feet)
-        if combatant.rogue_level >= 14:
-            combatant.blindsense = True
-        # Slippery Mind (prof in Wisdom saving throws)
-        if combatant.rogue_level >= 15:
-            combatant.slippery_mind = True
-        # Elusive (no attacks have advantage against you while not incapacitated)
-        if combatant.rogue_level >= 18:
-            combatant.elusive = True
-        # Stroke of Luck (any miss can hit, any fail check can critically succeed, recharge short/long rest)
-        if combatant.rogue_level >= 20:
-            combatant.elusive = True
-
-        ### Paladin ###
-        # Divine Smite (2nd level)
-        if combatant.paladin_level >= 2:
-            combatant.divine_smite = True
-            # Add Divine Smite to combatants spell-book
-            add_divine_smite = True
-            for existing_spell in combatant.creature_spells():
-                if existing_spell.name == "Divine Smite":
-                    add_divine_smite = False
-            if add_divine_smite: 
-                divine_smite = spell()
-                init_spell(divine_smite,"Divine Smite",1,6,8,2,damage_type.Radiant,8,1,8,1,race.Undead)
-                combatant.creature_spells().append(divine_smite)
-
-        # Channel Divinity
-        if combatant.paladin_level >= 3: 
-            combatant.channel_divinity = True
-
-        # Extra Attack (5th level)
-        if combatant.paladin_level >= 5:
-            # Extra attacks from multiclassing do not stack, only give one attack
-            if combatant.extra_attack == 0:
-                combatant.extra_attack = 1
-
-        # Improved Divine Smite (14th level)
-        if combatant.paladin_level >= 14:
-            combatant.improved_divine_smite = True
-
-        # Specific abilities (primary class/subclass must be defined)
-        # Gunslinger (examine profiencies for Firearm proficiency, use fighter levels to determine abilities)
-        if combatant.creature_class == creature_class.Fighter:
-            if combatant.creature_subclass == creature_subclass.Gunslinger:
-                # Grit (3rd level)
-                combatant.max_grit = wismod(combatant) #Some debate as to whether this should be Int or Wis (Int was used by Percy in some fights)
-                combatant.current_grit = combatant.max_grit
-
-                #Quickdraw (7th level)
-                if combatant.fighter_level >= 7:
-                    combatant.quickdraw = True
-                #Lightning Reload (15th level)
-                if combatant.fighter_level >= 15:
-                    combatant.lighting_reload = True        
-                #Vicious Intent (18th level)
-                if combatant.fighter_level >= 18:
-                    combatant.vicious_intent = True       
-                #Hemorrhaging Critical (20th level)
-                if combatant.fighter_level >= 20:
-                    combatant.hemorrhaging_critical = True
-
-        if combatant.creature_class == creature_class.Barbarian:
-            # Path of the Beserker
-            if combatant.creature_subclass == creature_subclass.Beserker:
-                # Frenzy (3rd level)
-                if combatant.barbarian_level >= 3:
-                    combatant.frenzy = True
-                # Retaliation (14th level)
-                if combatant.barbarian_level >= 14:
-                    combatant.retaliation = True
-
-            # Path of the Zealot
-            if combatant.creature_subclass == creature_subclass.Zealot:
-                # Divine Fury (3rd level, 1d6+half barb level to first attack each turn while raging)
-                if combatant.barbarian_level >= 3:
-                    combatant.divine_fury = True
-                    combatant.divine_fury_damage_type = damage_type.Necrotic
-                # Fanatical Focus (6th level, reroll one failed save per rage, must take second roll)
-                if combatant.barbarian_level >= 6:
-                    combatant.fanatical_focus = True
-                # Zealous Presence (10th level, once per LR advantage on attacks/saving throws to 10 creatures in 60 feet as bonus action until end of next turn)
-                if combatant.barbarian_level >= 10:
-                    combatant.zealous_presence = True
-                # Rage Beyond death (14th level, while raging, fall below 0 you don't go unconscious - still make Death Saving Throws)
-                if combatant.barbarian_level >= 14:
-                    combatant.rage_beyond_death = True
-
-        if combatant.creature_class == creature_class.Rogue:
-            # Assassin
-            if combatant.creature_subclass == creature_subclass.Assassin:
-                if combatant.rogue_level >= 3:
-                    combatant.assassinate = True
-
-        # New way of handling class features
-        ### Paladin Subclasses ###
-        # Oath of Vengeance
-        if combatant.paladin_subclass == creature_subclass.Vengeance:
-            if combatant.paladin_level >= 3:
-                combatant.vow_of_enmity = True
-                combatant.vow_of_enmity_target = None
-        
+        initialise_class_features(combatant)        
+                        
         # Racial Features
         # Goliath
         if combatant.race == race.Goliath:        
@@ -260,24 +77,222 @@ def reset_combatants(init_combatants):
 
         ### monsters###
         if combatant.creature_class == creature_class.Monster:
-            if combatant.creature_subclass == creature_subclass.Ancient_Black_Dragon:
+            if class_instance.player_subclass == player_subclass.Ancient_Black_Dragon:
                 combatant.multiattack = ["Bite","Claw","Claw"]
                 combatant.breath_attack = True
                 combatant.breath_damage_die = 8
                 combatant.breath_range = 90               
 
             ### Trinket ###
-            if combatant.creature_subclass == creature_subclass.Bear:
+            if class_instance.player_subclass == player_subclass.Bear:
                 combatant.multiattack = ["Bite","Claw"]
 
             ### Doty ###
-            if combatant.creature_subclass == creature_subclass.Doty:                            
+            if class_instance.player_subclass == player_subclass.Doty:                            
                 combatant.multiattack = ["Bash","Headbutt"]
 
             ### Hill Giant
-            if combatant.creature_subclass == creature_subclass.Hill:                            
+            if class_instance.player_subclass == player_subclass.Hill:                            
                 combatant.multiattack = ["Greatclub","Greatclub"]
                 
+def initialise_class_features(combatant):
+    ### Initialise Class Abilities ###        
+    for class_instance in combatant.player_classes():
+        #############
+        # Barbarian #
+        #############
+        if class_instance.player_class == player_class.Barbarian:
+            # Rage (1st level)
+            if class_instance.player_class_level >= 1:
+                combatant.canrage = True
+                combatant.raging = False
+                # Number of rounds rage has been up for
+                combatant.rage_duration = 0
+                # Number of rounds rage can be sustained for
+                combatant.max_rage_duration = 10 
+                #+2 Rage Damage (1st through 8th)
+                combatant.ragedamage = 2
+            # Reckless Attack (2nd level)
+            if class_instance.player_class_level >= 2:
+                combatant.reckless = True        
+                combatant.use_reckless = False
+                # Danger Sense (2nd level)        
+                combatant.saves.dex_adv = True                
+            # Extra Attack (+1 at 5th level)
+            if class_instance.player_class_level >= 5:
+                if combatant.extra_attack == 0:
+                    combatant.extra_attack = 1
+            # Feral Instinct (7th level)
+            if class_instance.player_class_level >= 7:
+                combatant.feral_instinct = True
+            # Brutal Critical (1 die, 9th level)
+            if class_instance.player_class_level >= 9:
+                combatant.brutal_critical = True
+                combatant.brutal_critical_dice = 1
+                #+3 Rage Damage (9th through 16th)
+                combatant.ragedamage = 3
+            # Relentless (11th level)
+            if class_instance.player_class_level >= 11:
+                combatant.relentless_rage = True
+                combatant.relentless_rage_DC = 10        
+            # Brutal Critical (2 die, 13th level)
+            if class_instance.player_class_level >= 13:
+                combatant.brutal_critical_dice = 2
+            if class_instance.player_class_level >= 16:
+                #+3 Rage Damage (9th through 16th)
+                combatant.ragedamage = 4
+            # Brutal Critical (3 die, 17th level)
+            if class_instance.player_class_level >= 17:
+                combatant.brutal_critical_dice = 3
+                            
+            ## Barbarian Subclasses ##
+            # Path of the Beserker
+            if class_instance.player_subclass == player_subclass.Beserker:
+                # Frenzy (3rd level)
+                if class_instance.player_class_level >= 3:
+                    combatant.frenzy = True
+                # Retaliation (14th level)
+                if class_instance.player_class_level >= 14:
+                    combatant.retaliation = True
+
+            # Path of the Zealot
+            if class_instance.player_subclass == player_subclass.Zealot:
+                # Divine Fury (3rd level, 1d6+half barb level to first attack each turn while raging)
+                if class_instance.player_class_level >= 3:
+                    combatant.divine_fury = True
+                    combatant.divine_fury_damage_type = damage_type.Necrotic
+                # Fanatical Focus (6th level, reroll one failed save per rage, must take second roll)
+                if class_instance.player_class_level >= 6:
+                    combatant.fanatical_focus = True
+                # Zealous Presence (10th level, once per LR advantage on attacks/saving throws to 10 creatures in 60 feet as bonus action until end of next turn)
+                if class_instance.player_class_level >= 10:
+                    combatant.zealous_presence = True
+                # Rage Beyond death (14th level, while raging, fall below 0 you don't go unconscious - still make Death Saving Throws)
+                if class_instance.player_class_level >= 14:
+                    combatant.rage_beyond_death = True
+
+
+        #############
+        ## Fighter ##
+        #############
+        if class_instance.player_class == player_class.Fighter:
+            # Action surge (1 at 2nd level
+            if class_instance.player_class_level >= 2:
+                combatant.action_surge += 1
+            # Action surge (2 at 17th level)
+            if class_instance.player_class_level >= 17:
+                combatant.action_surge += 1
+
+            # Extra Attack (+1 at 5th level)
+            if class_instance.player_class_level >= 5:
+                combatant.extra_attack = 1
+            # Extra Attack (+1 at 11th level)
+            if class_instance.player_class_level >= 11:
+                combatant.extra_attack = 2
+            # Extra Attack (+1 at 20th level)
+            if class_instance.player_class_level >= 20:
+                combatant.extra_attack = 3
+            
+            # Second Wind (1 use at 1st level)
+            if class_instance.player_class_level >= 1:
+                combatant.second_wind = True                        
+        
+            ## Fighter Subclasses ##
+            # Gunslinger (examine profiencies for Firearm proficiency, use fighter levels to determine abilities)        
+            if class_instance.player_subclass == player_subclass.Gunslinger:
+                # Grit (3rd level)
+                combatant.max_grit = wismod(combatant) #Some debate as to whether this should be Int or Wis (Int was used by Percy in some fights)
+                combatant.current_grit = combatant.max_grit
+
+                #Quickdraw (7th level)
+                if class_instance.player_class_level >= 7:
+                    combatant.quickdraw = True
+                #Lightning Reload (15th level)
+                if class_instance.player_class_level >= 15:
+                    combatant.lighting_reload = True        
+                #Vicious Intent (18th level)
+                if class_instance.player_class_level >= 18:
+                    combatant.vicious_intent = True       
+                #Hemorrhaging Critical (20th level)
+                if class_instance.player_class_level >= 20:
+                    combatant.hemorrhaging_critical = True
+            
+        #############
+        ### Rogue ###
+        #############
+        if class_instance.player_class == player_class.Rogue:
+            # Sneak Attack
+            if class_instance.player_class_level >= 1:
+                combatant.sneak_attack = True
+                combatant.sneak_attack_damage_die = 6
+                combatant.sneak_attack_damage_die_count = int(round(class_instance.player_class_level/2))
+
+            # Cunning Action (Dash/Hide/Disengage as Bonus)
+            if class_instance.player_class_level >= 2:
+                combatant.cunning_action = True
+            # Uncanny Dodge (Use reaction to halve damage from melee strike)
+            if class_instance.player_class_level >= 5:
+                combatant.uncanny_dodge = True
+            # Evasion (Fail Dex save = half damage, succeed = 0)
+            if class_instance.player_class_level >= 7:
+                combatant.evasion = True
+            # Blindsense (always detect hidden/invis creatures in 10 feet)
+            if class_instance.player_class_level >= 14:
+                combatant.blindsense = True
+            # Slippery Mind (prof in Wisdom saving throws)
+            if class_instance.player_class_level >= 15:
+                combatant.slippery_mind = True
+            # Elusive (no attacks have advantage against you while not incapacitated)
+            if class_instance.player_class_level >= 18:
+                combatant.elusive = True
+            # Stroke of Luck (any miss can hit, any fail check can critically succeed, recharge short/long rest)
+            if class_instance.player_class_level >= 20:
+                combatant.elusive = True
+
+            ## Rogue Subclasses ##
+            # Assassin
+            if class_instance.player_subclass == player_subclass.Assassin:
+                if class_instance.player_class_level >= 3:
+                    combatant.assassinate = True
+
+        #############
+        ## Paladin ##
+        #############
+        if class_instance.player_class == player_class.Paladin:
+            # Divine Smite (2nd level)
+            if class_instance.player_class_level >= 2:
+                combatant.divine_smite = True
+                # Add Divine Smite to combatants spell-book
+                add_divine_smite = True
+                for existing_spell in combatant.spell_list():
+                    if existing_spell.name == "Divine Smite":
+                        add_divine_smite = False
+                if add_divine_smite: 
+                    divine_smite = spell()
+                    init_spell(divine_smite,"Divine Smite",1,6,8,2,damage_type.Radiant,8,1,8,1,race.Undead)
+                    combatant.spell_list().append(divine_smite)
+
+            # Channel Divinity
+            if class_instance.player_class_level >= 3: 
+                combatant.channel_divinity = True
+
+            # Extra Attack (5th level)
+            if class_instance.player_class_level >= 5:
+                # Extra attacks from multiclassing do not stack, only give one attack
+                if combatant.extra_attack == 0:
+                    combatant.extra_attack = 1
+
+            # Improved Divine Smite (14th level)
+            if class_instance.player_class_level >= 14:
+                combatant.improved_divine_smite = True   
+                
+            ## Paladin Subclasses ##
+            # Oath of Vengeance
+            if class_instance.player_subclass == player_subclass.Vengeance:
+                if class_instance.player_class_level >= 3:
+                    combatant.vow_of_enmity = True
+                    combatant.vow_of_enmity_target = None
+
 def set_starting_positions(combatants):
     for combatant in combatants:
         if combatant.name == "Grog":
@@ -301,8 +316,8 @@ def init_spell(new_spell,name,min_ss,max_ss,dd,ddc,dt,ddpss,ddcpss,bdd,bddc,bdt)
     new_spell.bonus_damage_target = bdt
 
 def characterlevel(combatant):
-    return(combatant.barbarian_level + 
-           combatant.fighter_level + 
-           combatant.rogue_level + 
+    return(class_instance.player_class_level + 
+           class_instance.player_class_level + 
+           class_instance.player_class_level + 
            combatant.ranger_level +
-           combatant.paladin_level)
+           class_instance.player_class_level)

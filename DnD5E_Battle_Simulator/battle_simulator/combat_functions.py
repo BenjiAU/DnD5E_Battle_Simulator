@@ -261,7 +261,7 @@ def use_bonus_action(combatant,action):
 def weapon_swap(combatant,current_range):
     # A weapon is already equipped; equip a new one
     if combatant.current_weapon.name != "":                    
-        for weap in combatant.weapon_inventory():                
+        for weap in combatant.weapon_inventory():                            
             # Swap to range weapon if within range (preferring shorter range non-broken weapons), unless in melee, in which case only swap to melee                        
                 # swap out broken weapon, unless this is the better weapon
             if ((weap.range >= current_range and current_range != 0 and combatant.current_weapon.broken and not weap.broken) or 
@@ -669,7 +669,7 @@ def attack(combatant):
 
                             #Conditionally cast spells/use items on crit after initial damage resolved
                             #Smite (ideally you would only do this on crit)
-                            for spell in combatant.creature_spells():
+                            for spell in combatant.spell_list():
                                 if spell.name == "Divine Smite":
                                     #Casting Divine Smite should be the last resolution of any attack action
                                     #Casting a spell calls its own 'resolve_damage' function
@@ -776,45 +776,45 @@ def cast_spell(combatant,spell,crit):
             resolve_damage(combatant.target)
 
 def check_slot_available(combatant,spell):
-    if spell.min_spell_slot <= 9 and combatant.creature_spellslots.NinthLevel > 0:
+    if spell.min_spell_slot <= 9 and combatant.spellslots.NinthLevel > 0:
         return 9
-    if spell.min_spell_slot <= 8 and combatant.creature_spellslots.EigthLevel > 0:
+    if spell.min_spell_slot <= 8 and combatant.spellslots.EigthLevel > 0:
         return 8
-    if spell.min_spell_slot <= 7 and combatant.creature_spellslots.SeventhLevel > 0:
+    if spell.min_spell_slot <= 7 and combatant.spellslots.SeventhLevel > 0:
         return 7
-    if spell.min_spell_slot <= 6 and combatant.creature_spellslots.SixthLevel > 0:
+    if spell.min_spell_slot <= 6 and combatant.spellslots.SixthLevel > 0:
         return 6    
-    if spell.min_spell_slot <= 5 and combatant.creature_spellslots.FifthLevel > 0:
+    if spell.min_spell_slot <= 5 and combatant.spellslots.FifthLevel > 0:
         return 5
-    if spell.min_spell_slot <= 4 and combatant.creature_spellslots.FourthLevel > 0:
+    if spell.min_spell_slot <= 4 and combatant.spellslots.FourthLevel > 0:
         return 4    
-    if spell.min_spell_slot <= 3 and combatant.creature_spellslots.ThirdLevel > 0:
+    if spell.min_spell_slot <= 3 and combatant.spellslots.ThirdLevel > 0:
         return 3    
-    if spell.min_spell_slot <= 2 and combatant.creature_spellslots.SecondLevel > 0:
+    if spell.min_spell_slot <= 2 and combatant.spellslots.SecondLevel > 0:
         return 2    
-    if spell.min_spell_slot == 1 and combatant.creature_spellslots.FirstLevel > 0:
+    if spell.min_spell_slot == 1 and combatant.spellslots.FirstLevel > 0:
         return 1    
     return 0
   
 def consume_spell_slot(combatant,spellslot):
     if spellslot == 1:
-       combatant.creature_spellslots.FirstLevel -= 1
+       combatant.spellslots.FirstLevel -= 1
     if spellslot == 2:
-       combatant.creature_spellslots.SecondLevel -= 1
+       combatant.spellslots.SecondLevel -= 1
     if spellslot == 3:
-       combatant.creature_spellslots.ThirdLevel -= 1
+       combatant.spellslots.ThirdLevel -= 1
     if spellslot == 4:
-       combatant.creature_spellslots.FourthLevel -= 1
+       combatant.spellslots.FourthLevel -= 1
     if spellslot == 5:
-       combatant.creature_spellslots.FifthLevel -= 1
+       combatant.spellslots.FifthLevel -= 1
     if spellslot == 6:
-       combatant.creature_spellslots.SixthLevel -= 1
+       combatant.spellslots.SixthLevel -= 1
     if spellslot == 7:
-       combatant.creature_spellslots.SeventhLevel -= 1
+       combatant.spellslots.SeventhLevel -= 1
     if spellslot == 8:
-       combatant.creature_spellslots.EigthLevel -= 1
+       combatant.spellslots.EigthLevel -= 1
     if spellslot == 9:
-       combatant.creature_spellslots.NinthLevel -= 1
+       combatant.spellslots.NinthLevel -= 1
     
     
 def repair_weapon(combatant):
