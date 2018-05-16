@@ -33,8 +33,7 @@ def simulate_battle():
     attempt=0
     while attempt < settings.max_attempts:
         # Beginning of battle attempt
-        battle_complete = False
-        print_output('_____________________________________________________________________________')
+        battle_complete = False        
         attempt += 1
         print_output('<b>Attempt number: ' + repr(attempt)+ '</b>')
         print_output(' ')      
@@ -45,8 +44,7 @@ def simulate_battle():
         #Re-initialise position for new round
         initialise_combat.set_starting_positions(combatants.list)
             
-        # roll initiative #
-        print_output('Rolling initiative...')
+        # roll initiative #        
         set_initiative_order()
         
         #print_output out combat order at top of attempt
@@ -220,7 +218,7 @@ def simulate_battle():
         if not combatant.team in teams:
             teams.append(combatant.team)
     for t in teams:
-        print_output('Team: ' + t.name + ' ----- No. of wins: ' + repr(t.no_of_wins))
+        print_output(t.name + ' ----- No. of wins: ' + repr(t.no_of_wins))
     
     # Cleanup
     combatants.list = []
@@ -234,11 +232,22 @@ def reset_simulation():
     settings.output = None
     settings.filename = None
 
-def set_initiative_order():
+def set_initiative_order():    
+    namestring = ""
     unsorted_combatants = combatants.list
     #Roll initiative for each combatant
     for combatant in unsorted_combatants:     
+        if namestring == '':
+            namestring += combatant.name
+        else:
+            namestring += ', ' + combatant.name
         combat_functions.roll_initiative(combatant)            
                             
     initkey = operator.attrgetter("initiative_roll")
     combatants.list = sorted(unsorted_combatants, key=initkey,reverse=True)    
+    namestring += ': I need you to roll initiative!'
+    print_output(namestring)
+
+    for combatant in combatants.list:
+        print_output(indent() + 'Name:' + combatant.name + ': Initiative Roll: ' + repr(combatant.initiative_roll))
+    

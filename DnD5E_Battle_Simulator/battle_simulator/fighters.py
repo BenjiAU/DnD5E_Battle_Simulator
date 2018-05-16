@@ -7,9 +7,9 @@ from .classes import *
 import math
 
 def initialise_combatants(init_combatants):
-    #init_percy(init_combatants)
+    init_percy(init_combatants)
     #init_arkhan(init_combatants)
-    init_grog(init_combatants)
+    #init_grog(init_combatants)
     init_vax(init_combatants)
     #init_yasha_level4(init_combatants)
     #init_hill_giant(init_combatants)
@@ -26,7 +26,9 @@ def initialise_team(combatants):
     beserker = team()
     beserker.name = "Path of the Beserker"
     assassin = team()
-    assassin.name = "The Lord of Edges"
+    assassin.name = "The Raven's Revenant"
+    gunslinger = team()
+    gunslinger.name = "The Lord of Whitestone"
     zealot = team()
     zealot.name = "Path of the Zealot"
     doty = team()
@@ -43,7 +45,7 @@ def initialise_team(combatants):
         if combatant.name == "Arkhan":
             combatant.team = monster
         if combatant.name == "Percy":
-            combatant.team = vm
+            combatant.team = gunslinger
         if combatant.name == "Umbrasyl":
             combatant.team = monster
         if combatant.name == "Hill Giant":
@@ -79,7 +81,7 @@ def init_percy(init_combatants):
     
     fighter_class = player_class_block()
     fighter_class.player_class = player_class.Fighter
-    fighter_class.player_subclass = player_subclass.Beserker
+    fighter_class.player_subclass = player_subclass.Gunslinger
     fighter_class.player_class_level = 20
     percy.player_classes().append(fighter_class)
 
@@ -88,7 +90,7 @@ def init_percy(init_combatants):
     percy.max_health = 149
     percy.armour_class = 18
     percy.speed = 30
-    percy.proficiency = math.floor((7+characterlevel(percy)/4))
+    percy.proficiency = calc_proficiency(percy)
     percy.weapon_proficiency().append(weapon_type.Firearm)
     percy.weapon_proficiency().append(weapon_type.Sword)
         
@@ -224,7 +226,7 @@ def init_grog(init_combatants):
     grog.max_health = 248
     grog.armour_class = 17
     grog.speed = 50
-    grog.proficiency = math.floor((7+characterlevel(grog))/4)
+    grog.proficiency = calc_proficiency(grog)
     grog.weapon_proficiency().append(weapon_type.Axe)
 
     grog.creature_feats().append(feat.Great_Weapon_Master)
@@ -327,10 +329,11 @@ def init_vax(init_combatants):
     vax.max_health = 127
     vax.armour_class = 20
     vax.speed = 30
-    vax.proficiency = math.floor((7+characterlevel(vax))/4)
+    vax.proficiency = calc_proficiency(vax)
     vax.weapon_proficiency().append(weapon_type.Dagger)
 
     vax.creature_feats().append(feat.Sharpshooter)
+    vax.creature_feats().append(feat.Lucky)
 
     #Stats
     vaxstats = statistic_block()
@@ -358,6 +361,7 @@ def init_vax(init_combatants):
     vaxchecks = ability_check_block()
     
     vax.checks = vaxchecks        
+
 
     #vax's weapons
     whisper = weapon()
@@ -454,7 +458,7 @@ def init_yasha(init_combatants):
     yasha.max_health = 248
     yasha.armour_class = 17
     yasha.speed = 50
-    yasha.proficiency = math.floor((7+characterlevel(yasha))/4)
+    yasha.proficiency = calc_proficiency(yasha)
     yasha.weapon_proficiency().append(weapon_type.Axe)
 
     yasha.creature_feats().append(feat.Great_Weapon_Master)
@@ -542,7 +546,7 @@ def init_yasha_level4(init_combatants):
     yasha.max_health = 42
     yasha.armour_class = 14
     yasha.speed = 30
-    yasha.proficiency = math.floor((7+characterlevel(yasha))/4)
+    yasha.proficiency = math.floor(7+(characterlevel(yasha)/4))
     yasha.weapon_proficiency().append(weapon_type.Greatsword)
     
 
@@ -631,7 +635,7 @@ def init_arkhan(init_combatants):
     arkhan.armour_type = armour_type.Heavy
 
     arkhan.speed = 40
-    arkhan.proficiency = math.floor((7+characterlevel(arkhan))/4)
+    arkhan.proficiency = calc_proficiency(arkhan)
     arkhan.weapon_proficiency().append(weapon_type.Axe)
 
     #arkhan.creature_feats().append(feat.Great_Weapon_Master)
@@ -1001,3 +1005,7 @@ def characterlevel(combatant):
     for class_instance in combatant.player_classes():
         player_level += class_instance.player_class_level
     return player_level
+
+def calc_proficiency(combatant):
+    prof_calc = 7+characterlevel(combatant)
+    return math.floor(prof_calc/4)

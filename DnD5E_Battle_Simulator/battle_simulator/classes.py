@@ -148,6 +148,7 @@ class feat(Enum):
         return str(self.value)    
     Sharpshooter = auto()
     Great_Weapon_Master = auto()
+    Lucky = auto()
 
 #enumerable weapon attributes
 class weapon_type(Enum):
@@ -405,6 +406,15 @@ class creature():
     ## Generic
     extra_attack = int()            
 
+    # Feat
+    sharpshooter = bool()    
+    use_sharpshooter = bool()    
+    
+    great_weapon_master = bool()
+    use_great_weapon_master = bool()
+    
+    luck_uses = int()
+    
     ### Barbarian ###
     canrage = bool()
     ragedamage = int()
@@ -413,8 +423,6 @@ class creature():
     max_rage_duration = int()
     reckless = bool()
     use_reckless = bool()
-    great_weapon_master = bool()
-    use_great_weapon_master = bool()
 
     brutal_critical = bool()
     brutal_critical_dice = int()
@@ -442,8 +450,6 @@ class creature():
     ## Gunslinger 
     max_grit = int()
     current_grit = int()
-    sharpshooter = bool()    
-    use_sharpshooter = bool()    
 
     quickdraw = bool()
     lighting_reload = bool()

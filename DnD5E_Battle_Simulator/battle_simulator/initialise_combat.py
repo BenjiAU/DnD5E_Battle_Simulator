@@ -47,6 +47,7 @@ def reset_combatants(init_combatants):
         combatant.hemo_damage_type = 0
 
         #Setup feats
+        combatant.luck_uses = 0
         for ft in combatant.creature_feats():
             if ft == feat.Sharpshooter:
                 combatant.sharpshooter = True
@@ -54,6 +55,8 @@ def reset_combatants(init_combatants):
             if ft == feat.Great_Weapon_Master:
                 combatant.great_weapon_master = True
                 combatant.use_great_weapon_master = False
+            if ft == feat.Lucky:
+                combatant.luck_uses = 3
 
         # Set up class features (i.e. Rage, Sneak Attack, innate abilities)
         initialise_class_features(combatant)      
@@ -286,6 +289,7 @@ def initialise_class_features(combatant):
                     combatant.vow_of_enmity_target = None
 
 def initialise_class_spellslots(combatant):
+    reset_spellslots(combatant)
     ### Set maximum number of spellslots based on spells available to classes ###        
     for class_instance in combatant.player_classes():
         
@@ -293,45 +297,45 @@ def initialise_class_spellslots(combatant):
         if class_instance.player_class == player_class.Paladin:
             #if class_instance.player_class_level = 1:
             if class_instance.player_class_level >= 2:
-                add_spell_slot(combatant,1,2)                
+                add_spellslot(combatant,1,2)                
             if class_instance.player_class_level >= 3:
-                add_spell_slot(combatant,1,1)
+                add_spellslot(combatant,1,1)
             if class_instance.player_class_level >= 4:
-                add_spell_slot(combatant,1,1)
+                add_spellslot(combatant,1,1)
             if class_instance.player_class_level >= 5:
-                add_spell_slot(combatant,2,2)
+                add_spellslot(combatant,2,2)
             #if class_instance.player_class_level >= 6:
             if class_instance.player_class_level >= 7:
-                add_spell_slot(combatant,2,1)
+                add_spellslot(combatant,2,1)
             #if class_instance.player_class_level >= 8:
             if class_instance.player_class_level >= 9:
-                add_spell_slot(combatant,3,2)
+                add_spellslot(combatant,3,2)
             #if class_instance.player_class_level >= 10:
             if class_instance.player_class_level >= 11:
-                add_spell_slot(combatant,3,1)
+                add_spellslot(combatant,3,1)
             #if class_instance.player_class_level >= 12:
             if class_instance.player_class_level >= 13:
-                add_spell_slot(combatant,4,1)
+                add_spellslot(combatant,4,1)
             #if class_instance.player_class_level >= 14:
             if class_instance.player_class_level >= 15:
-                add_spell_slot(combatant,4,1)
+                add_spellslot(combatant,4,1)
             #if class_instance.player_class_level >= 16:
             if class_instance.player_class_level >= 17:
-                add_spell_slot(combatant,4,1)
-                add_spell_slot(combatant,5,1)
+                add_spellslot(combatant,4,1)
+                add_spellslot(combatant,5,1)
             #if class_instance.player_class_level >= 18:
             if class_instance.player_class_level >= 19:
-                add_spell_slot(combatant,5,1)
+                add_spellslot(combatant,5,1)
             #if class_instance.player_class_level >= 20:
 
         ### Druid Spellslots ###
         if class_instance.player_class == player_class.Druid:
             if class_instance.player_class_level == 1:
-                add_spell_slot(combatant,1,2)
+                add_spellslot(combatant,1,2)
             if class_instance.player_class_level >= 2:
-                add_spell_slot(combatant,1,1)                     
+                add_spellslot(combatant,1,1)                     
 
-def add_spell_slot(combatant,spell_level,spellslot_count):
+def add_spellslot(combatant,spell_level,spellslot_count):
     for existing_spellslot in combatant.spellslots():
         if existing_spellslot.level == spell_level:
             existing_spellslot.current += spellslot_count
@@ -345,6 +349,9 @@ def add_spell_slot(combatant,spell_level,spellslot_count):
     newslot.max = spellslot_count
     combatant.spellslots().append(newslot)
 
+def reset_spellslots(combatant):
+    combatant.spellslots().clear()
+        
 def set_starting_positions(combatants):
     for combatant in combatants:
         if combatant.name == "Grog":
@@ -353,6 +360,9 @@ def set_starting_positions(combatants):
         if combatant.name == "Vax":
             combatant.xpos = 75
             combatant.ypos = 75
+        if combatant.name == "Percy":
+            combatant.xpos = 25
+            combatant.ypos = 25
 
 def init_spell(new_spell,name,min_spellslot_level,max_spellslot_level,damage_die,damage_die_count,damage_type,damage_die_per_spell_slot,damage_die_count_per_spell_slot,bonus_damage_die,bonus_damage_die_count,bonus_damage_target,range):
     new_spell.name = name

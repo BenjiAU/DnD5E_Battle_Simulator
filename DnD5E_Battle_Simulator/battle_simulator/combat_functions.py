@@ -115,7 +115,7 @@ def action(combatant):
             # This will prefer to swap a non-broken or ruined weapon in
             weapon_swap(combatant,current_range)
 
-            if combatant.current_weapon.ruined == False:
+            if combatant.current_weapon.broken == False:
                 if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):
                     attack_action(combatant)                        
                 else:
@@ -132,7 +132,7 @@ def action(combatant):
                     # Can't swap to a valid weapon - just have to sit this one out
                     combatant.action_used = True
 
-                # If the weaopn is broken, and we could not swap to a non-broken weapon, must waste action reparing it
+                # If the weapon is broken, and we could not swap to a non-broken weapon, must waste action reparing it
                 if not combatant.action_used:
                     if combatant.current_weapon.broken:
                         repair_weapon(combatant)            
@@ -271,7 +271,7 @@ def weapon_swap(combatant,current_range):
                 # prefer melee weapon for melee range, but don't swap out for no reason
             (weapon.range == 0 and current_range == 0 and combatant.current_weapon.range != 0)):         
                 # Don't swap if we're already using this weapon
-                if combatant.current_weapon != weap:
+                if combatant.current_weapon != weapon:
                     # Draw ruined and cry if current weapon is ruined - making it here means there are no better options
                     if weapon.ruined and (combatant.current_weapon.ruined):
                         print_output(combatant.name + ' sadly puts away ' + combatant.current_weapon.name + ' and draws out the ruined ' + weapon.name)                        
@@ -434,7 +434,7 @@ def attack(combatant):
                 
                     #Check condition of target                
                     if combatant.target.prone and range_attack:
-                        print_output(combatant.target.namsne + ' is prone on the ground, giving ' + combatant.name + ' disadvantage on the attack!')
+                        print_output(combatant.target.name + ' is prone on the ground, giving ' + combatant.name + ' disadvantage on the attack!')
                         disadvantage = True
 
                     #Check assassination flag
@@ -501,6 +501,13 @@ def attack(combatant):
                         if not advantage and not disadvantage:
                             atkroll = initroll
                             print_output(combatant.name + ' rolled a ' + repr(initroll) + ' on a d20 for the attack with a +' + repr(to_hit_modifier) + ' to hit')                               
+                        
+                        #Decide if we need to use luck to reroll
+                            #If the savingthrow fails, and we could make it with a decent roll (say higher than 15), and we have luck, spend luck to reroll the d20
+                        if combatant.luck_uses > 0 and (atkroll + to_hit_modifier < combatant.target.armour_class):
+                            luck_roll = use_luck(combatant)
+                            if luck_roll > atkroll:                                
+                                atkroll = luck_roll                                                                
 
                         #Track critical 
                         crit = False
@@ -841,6 +848,7 @@ def resolve_hemo_damage(combatant):
         deal_damage(combatant,combatant.hemo_damage,combatant.hemo_damage_type,False)
         combatant.hemo_damage = 0
         combatant.hemo_damage_type = 0     
+        resolve_fatality(combatant)
 
 def deal_damage(combatant,damage,dealt_damage_type,magical):    
     #Reduce bludgeoning/piercing/slashing if raging (and not wearing Heavy armour)
@@ -1010,9 +1018,8 @@ def calc_to_hit_modifier(combatant):
 
     # Add proficiency bonus if proficiency in weapon
     for combatant_weapon_proficiency in combatant.weapon_proficiency():
-        if combatant.current_weapon.weapon_type != 0:
-            if combatant.current_weapon.weapon_type == combatant_weapon_proficiency:
-                to_hit += combatant.proficiency
+        if combatant.current_weapon.weapon_type != 0 and combatant.current_weapon.weapon_type == combatant_weapon_proficiency:
+            to_hit += combatant.proficiency
 
     # Add weapon bonus (i.e. +3 weapon)
     to_hit += combatant.current_weapon.magic_to_hit_modifier
@@ -1050,6 +1057,14 @@ def roll_die(die):
     random.seed
     return random.randint(1,die)
 
+def use_luck(combatant):
+    if combatant.luck_uses > 0:        
+        random.seed
+        luck_die_roll = random.randint(1,20)        
+        combatant.luck_uses -= 1
+        print_output(indent() + combatant.name + ' used a point of Luck, and rolled a ' + repr(luck_die_roll) + ' on the lucky d20!')
+        return(luck_die_roll)        
+
 # mod functions #
 
 def strmod(combatant):
@@ -1075,7 +1090,7 @@ def chamod(combatant):
 def savingthrow(combatant,savetype,modifier,adv,DC):
     print_output('<i>Saving Throw</i>')
     roll = roll_die(20)
-    savingthrow = roll + modifier
+    savingthrow = roll + modifier    
     #print_output(savetype + ' save: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier))
     if savingthrow >= DC:
         print_output(indent() + combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a saving throw of ' + repr(savingthrow))
@@ -1088,6 +1103,16 @@ def savingthrow(combatant,savetype,modifier,adv,DC):
         if savingthrow >= DC:
             print_output(indent() + combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a saving throw of ' + repr(savingthrow))
             return True
+
+    #If the savingthrow fails, and we could make it with a decent roll (say higher than 15), and we have luck, spend luck to reroll the d20
+    if combatant.luck_uses > 0 and (DC - modifier <= 15):
+        luck_roll = use_luck(combatant)
+        if luck_roll > roll:
+            savingthrow = luck_roll + modifier
+            if savingthrow >= DC:
+                print_output(indent() + combatant.name + ' used a point of Luck, and has now succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a saving throw of ' + repr(savingthrow))
+                return True
+
     print_output(indent() + combatant.name + ' FAILED on a DC' + repr(DC) + ' ' + savetype.name + ' save with a saving throw of ' + repr(savingthrow))
     return False
 
@@ -1112,19 +1137,28 @@ def abilitycheck(combatant,checktype,modifier,adv,DC):
         if check >= DC:
             print_output(indent() + combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check))
             return True
+
+    #If the savingthrow fails, and we could make it with a decent roll (say higher than 15), and we have luck, spend luck to reroll the d20
+    if combatant.luck_uses > 0 and (DC - modifier <= 15):
+        luck_roll = use_luck(combatant)
+        if luck_roll > roll:
+            check = luck_roll + modifier
+            if check >= DC:
+                print_output(indent() + combatant.name + ' used a point of Luck, and has now succeeded on a DC' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check))
+                return True
+
     print_output(indent() + combatant.name + ' FAILED on a DC' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check))
     return False
 
 # Initiative
 def roll_initiative(combatant):
-    initiativeroll = abilitycheck(combatant,ability_check.Dexterity,dexmod(combatant),False,0)            
+    initiativeroll = abilitycheck(combatant,ability_check.Dexterity,dexmod(combatant),False,0)      
     if combatant.feral_instinct:
         initiativeroll_adv = abilitycheck(combatant,ability_check.Dexterity,dexmod(combatant),True,0)
         initiativeroll = max(initiativeroll,initiativeroll_adv)
     if combatant.quickdraw:
         initiativeroll += combatant.proficiency
     combatant.initiative_roll = initiativeroll
-
 
 # Position/movement functions
 def getposition(combatant):
@@ -1232,7 +1266,7 @@ def move_to_target(combatant,target,movement):
         grids_moved += 1
         #Evaluate after each step if the target is in range of our weapon
         if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):                        
-            print_output(indent() + combatant.name + ' skids to a halt at at (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ') to avoid entering the space of ' + combatant.target.name)
+            print_output(indent() + combatant.name + ' skids to a halt at at (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), now in range of ' + combatant.target.name)
             grids_to_move = 0
             grid_movement = 0
             grids_moved -= 1

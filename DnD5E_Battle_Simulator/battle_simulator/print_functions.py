@@ -77,7 +77,9 @@ def print_details(combatant,position):
         print_output(indent() + item.name)
     print_output('')
     print_output('---------------------------------')       
-    #print_output('Feats')
+    print_output('Feats')
+    for feat in combatant.creature_feats():
+        print_output(indent() + feat.name)
     #print_output('Rage Beyond Death: ' + repr(combatant.rage_beyond_death))
     #print_output('---------------------------------')
     print_output('Spellslots')    
