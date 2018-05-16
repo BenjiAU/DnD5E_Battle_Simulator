@@ -40,11 +40,18 @@ def print_output(string):
         settings.output.append(string)
 
 def print_details(combatant,position):
+    print_output('**************************')
     print_output('Position: ' + repr(position)) 
     print_output(' Name: '  + combatant.fullname)
     print_output(' Race: '  + combatant.race.name)
-    print_output(' Class: '  + combatant.creature_class.name)
-    print_output(' Sub-class: '  + combatant.creature_subclass.name)
+    print_output(' Character Level ' + repr(characterlevel(combatant)))
+    print_output(' Class Breakdown: ')
+    for class_instance in combatant.player_classes():
+        print_output(indent() + ' Class: '  + class_instance.player_class.name)
+        if class_instance.player_subclass:
+            print_output(doubleindent() + ' Sub-class: '  + class_instance.player_subclass.name)
+        print_output(doubleindent() + ' Level: '  + repr(class_instance.player_class_level))
+        print_output('')
     print_output(' Max Hit Points: '  + repr(combatant.max_health))
     print_output(' --------------------------------' )
     print_output(' Stats: ')
@@ -54,22 +61,52 @@ def print_details(combatant,position):
     print_output(' Intelligence: ' + repr(combatant.stats.intel))
     print_output(' Wisdom: ' + repr(combatant.stats.wis))
     print_output(' Charisma: ' + repr(combatant.stats.cha))
+    print_output(' --------------------------------' )
     print_output('')            
     print_output(' Weapon Proficiencies: ')
     for item in combatant.weapon_proficiency():
-        print_output(' Weapon Proficiency: ' + item.name)
+        print_output(indent() + item.name)
     print_output('')
-    print_output('')
-    print_output(' Equipped Weapon: ' + combatant.current_weapon.name)
-    print_output(' Other Weapons: ')
-    for item in combatant.weapon_inventory():
-        print_output(' Weapon: ' + item.name)
+    print_output('')    
+    print_output(' Weapons: ')
+    for weapon in combatant.weapon_inventory():
+        print_output(indent() + weapon.name)
     print_output('')
     print_output(' Other Equipment: ')
     for item in combatant.equipment_inventory():                
-        print_output(' Item: ' + item.name)
+        print_output(indent() + item.name)
     print_output('')
     print_output('---------------------------------')       
-    print_output('Feats')
-    print_output('Rage Beyond Death: ' + repr(combatant.rage_beyond_death))
-    print_output('---------------------------------')
+    #print_output('Feats')
+    #print_output('Rage Beyond Death: ' + repr(combatant.rage_beyond_death))
+    #print_output('---------------------------------')
+    print_output('Spellslots')    
+    for spellslot in combatant.spellslots():                               
+        print_output(indent() + numbered_list(spellslot.level) + ' Level Spellslots: ' + repr(spellslot.current))        
+    print_output('**************************')
+
+
+def indent():
+    return '<div class="indent">'
+
+def doubleindent():
+    return '<div class="doubleindent">'
+
+def numbered_list(counter):
+    suffix = ""
+    if counter == 1:
+        suffix = 'st'
+    elif counter == 2:
+        suffix = 'nd'
+    elif counter == 3:
+        suffix = 'rd'
+    elif counter >= 4 and counter <= 9:
+        suffix = 'th'
+    return repr(counter) + suffix
+
+
+def characterlevel(combatant):
+    player_level = 0
+    for class_instance in combatant.player_classes():
+        player_level += class_instance.player_class_level
+    return player_level

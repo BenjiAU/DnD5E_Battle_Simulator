@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-class abilitycheck_block():
+class ability_check_block():
     str_adv = bool()
     dex_adv = bool()
     con_adv = bool()
@@ -8,7 +8,7 @@ class abilitycheck_block():
     wis_adv = bool()
     cha_adv = bool()
 
-class savingthrow_block():
+class saving_throw_block():
     str = int()
     str_adv = bool()
     dex = int()
@@ -102,7 +102,12 @@ class ability_check(Enum):
     Wisdom = auto()
     Charisma = auto()
 
-
+class creature_type(Enum):
+    def __str__(self):
+        return str(self.value)    
+    Player = auto()
+    Monster = auto()
+    
 #enumerable creature attributes
 class race(Enum):
     def __str__(self):
@@ -194,6 +199,13 @@ class spell_school(Enum):
     Transmutation = auto()
     Necromancy = auto()
     Evocation = auto()
+    
+#Spell slots
+# Generic object for tracking min/max spells and level
+class spellslot():
+    level = int()
+    count = int()
+    max = int()    
 
 #Spells version 2
 class spell():
@@ -218,11 +230,11 @@ class spell():
    material_cost = int()
 
    #Minimum spell slot to be expended to cast spell (0 = cantrip)
-   min_spell_slot = int()
+   min_spellslot_level = int()
    
    #Maximum spell slot to be expended with additional effect 
    #(i.e. divine smite at 8th level has 5th level properties)
-   max_spell_slot = int()
+   max_spellslot_level = int()
 
    damage_die = int()
    damage_die_count = int()
@@ -239,28 +251,6 @@ class spell():
 
    saving_throw = int()
    saving_throw_dc = int()
-
-#Spell slots
-class spellslots():
-    FirstLevel = int()
-    SecondLevel = int()
-    ThirdLevel = int()
-    FourthLevel = int()
-    FifthLevel = int()
-    SixthLevel = int()
-    SeventhLevel = int()
-    EigthLevel = int()
-    NinthLevel = int()
-
-    FirstLevelMax = int()
-    SecondLevelMax = int()
-    ThirdLevelMax = int()
-    FourthLevelMax = int()
-    FifthLevelMax = int()
-    SixthLevelMax = int()
-    SeventhLevelMax = int()
-    EigthLevelMax = int()
-    NinthLevelMax = int()
 
 #various damage types
 class damage_type(Enum):
@@ -344,6 +334,12 @@ class team():
 
 # Generic class for players and monster entities (called creature to be consistent with rulebook)
 class creature():
+    #Creature type - broadly defines monster vs player behaviour
+    creature_type = int()
+
+    #Monster type - narrows down monster list for specific abilities
+    monster_type = int()
+
     # Team used to track allies/enemies (and not target the wrong one)
     team = team()
     # Core properties, common across creatures
@@ -358,17 +354,15 @@ class creature():
     speed = int()   
 
     stats = statistic_block()
-    saves = savingthrow_block()
-    checks = abilitycheck_block()    
+    saves = saving_throw_block()
+    checks = ability_check_block()    
 
     current_weapon = weapon()
 
     armour_class = int()
     armour_type = armour_type()
-
-    spellslots = spellslots()      
-
-    #Extensible properties (1 to many)
+    
+    #Extensible properties (1 to many)    
     def player_classes(self):
         if not hasattr(self, "_player_classes"):
             self._player_classes = []
@@ -378,6 +372,11 @@ class creature():
         if not hasattr(self, "_spell_list"):
             self._spell_list = []
         return self._spell_list           
+
+    def spellslots(self):
+        if not hasattr(self, "_spellslots"):
+            self._spellslots = []
+        return self._spellslots        
 
     def creature_feats(self):
         if not hasattr(self, "_creature_feats"):

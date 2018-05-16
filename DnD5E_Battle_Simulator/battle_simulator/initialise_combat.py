@@ -42,18 +42,6 @@ def reset_combatants(init_combatants):
         for eq in combatant.equipment_inventory():
             eq.current_charges = eq.max_charges
 
-        # Reset spell slots
-        
-        combatant.spellslots.FirstLevel = combatant.spellslots.FirstLevelMax
-        combatant.spellslots.SecondLevel = combatant.spellslots.SecondLevelMax
-        combatant.spellslots.ThirdLevel = combatant.spellslots.ThirdLevelMax
-        combatant.spellslots.FourthLevel = combatant.spellslots.FourthLevelMax
-        combatant.spellslots.FifthLevel = combatant.spellslots.FifthLevelMax
-        combatant.spellslots.SixthLevel = combatant.spellslots.SixthLevelMax
-        combatant.spellslots.SeventhLevel = combatant.spellslots.SeventhLevelMax
-        combatant.spellslots.EigthLevel = combatant.spellslots.EigthLevelMax
-        combatant.spellslots.NinthLevel = combatant.spellslots.NinthLevelMax
-
         # Hemorraging Critical tracking
         combatant.hemo_damage = 0        
         combatant.hemo_damage_type = 0
@@ -66,9 +54,13 @@ def reset_combatants(init_combatants):
             if ft == feat.Great_Weapon_Master:
                 combatant.great_weapon_master = True
                 combatant.use_great_weapon_master = False
-        
-        initialise_class_features(combatant)        
+
+        # Set up class features (i.e. Rage, Sneak Attack, innate abilities)
+        initialise_class_features(combatant)      
                         
+        # Set up spellslots
+        initialise_class_spellslots(combatant)           
+                
         # Racial Features
         # Goliath
         if combatant.race == race.Goliath:        
@@ -76,23 +68,23 @@ def reset_combatants(init_combatants):
             combatant.stones_endurance_used = False    
 
         ### monsters###
-        if combatant.creature_class == creature_class.Monster:
-            if class_instance.player_subclass == player_subclass.Ancient_Black_Dragon:
+        if combatant.creature_type == creature_type.Monster:
+            if combatant.monster_type == monster_type.Ancient_Black_Dragon:
                 combatant.multiattack = ["Bite","Claw","Claw"]
                 combatant.breath_attack = True
                 combatant.breath_damage_die = 8
                 combatant.breath_range = 90               
 
             ### Trinket ###
-            if class_instance.player_subclass == player_subclass.Bear:
+            if combatant.monster_type == monster_type.Bear:
                 combatant.multiattack = ["Bite","Claw"]
 
             ### Doty ###
-            if class_instance.player_subclass == player_subclass.Doty:                            
+            if combatant.monster_type == monster_type.Doty:                            
                 combatant.multiattack = ["Bash","Headbutt"]
 
             ### Hill Giant
-            if class_instance.player_subclass == player_subclass.Hill:                            
+            if combatant.monster_type == monster_type.Hill:                            
                 combatant.multiattack = ["Greatclub","Greatclub"]
                 
 def initialise_class_features(combatant):
@@ -269,7 +261,7 @@ def initialise_class_features(combatant):
                         add_divine_smite = False
                 if add_divine_smite: 
                     divine_smite = spell()
-                    init_spell(divine_smite,"Divine Smite",1,6,8,2,damage_type.Radiant,8,1,8,1,race.Undead)
+                    init_spell(divine_smite,"Divine Smite",1,6,8,2,damage_type.Radiant,8,1,8,1,race.Undead,0)
                     combatant.spell_list().append(divine_smite)
 
             # Channel Divinity
@@ -293,6 +285,66 @@ def initialise_class_features(combatant):
                     combatant.vow_of_enmity = True
                     combatant.vow_of_enmity_target = None
 
+def initialise_class_spellslots(combatant):
+    ### Set maximum number of spellslots based on spells available to classes ###        
+    for class_instance in combatant.player_classes():
+        
+        ### Paladin Spellslots ###
+        if class_instance.player_class == player_class.Paladin:
+            #if class_instance.player_class_level = 1:
+            if class_instance.player_class_level >= 2:
+                add_spell_slot(combatant,1,2)                
+            if class_instance.player_class_level >= 3:
+                add_spell_slot(combatant,1,1)
+            if class_instance.player_class_level >= 4:
+                add_spell_slot(combatant,1,1)
+            if class_instance.player_class_level >= 5:
+                add_spell_slot(combatant,2,2)
+            #if class_instance.player_class_level >= 6:
+            if class_instance.player_class_level >= 7:
+                add_spell_slot(combatant,2,1)
+            #if class_instance.player_class_level >= 8:
+            if class_instance.player_class_level >= 9:
+                add_spell_slot(combatant,3,2)
+            #if class_instance.player_class_level >= 10:
+            if class_instance.player_class_level >= 11:
+                add_spell_slot(combatant,3,1)
+            #if class_instance.player_class_level >= 12:
+            if class_instance.player_class_level >= 13:
+                add_spell_slot(combatant,4,1)
+            #if class_instance.player_class_level >= 14:
+            if class_instance.player_class_level >= 15:
+                add_spell_slot(combatant,4,1)
+            #if class_instance.player_class_level >= 16:
+            if class_instance.player_class_level >= 17:
+                add_spell_slot(combatant,4,1)
+                add_spell_slot(combatant,5,1)
+            #if class_instance.player_class_level >= 18:
+            if class_instance.player_class_level >= 19:
+                add_spell_slot(combatant,5,1)
+            #if class_instance.player_class_level >= 20:
+
+        ### Druid Spellslots ###
+        if class_instance.player_class == player_class.Druid:
+            if class_instance.player_class_level == 1:
+                add_spell_slot(combatant,1,2)
+            if class_instance.player_class_level >= 2:
+                add_spell_slot(combatant,1,1)                     
+
+def add_spell_slot(combatant,spell_level,spellslot_count):
+    for existing_spellslot in combatant.spellslots():
+        if existing_spellslot.level == spell_level:
+            existing_spellslot.current += spellslot_count
+            existing_spellslot.max += spellslot_count
+            return
+
+    #Slot doesn't exist, create a new one
+    newslot = spellslot()
+    newslot.level = spell_level    
+    newslot.current = spellslot_count
+    newslot.max = spellslot_count
+    combatant.spellslots().append(newslot)
+
 def set_starting_positions(combatants):
     for combatant in combatants:
         if combatant.name == "Grog":
@@ -302,22 +354,16 @@ def set_starting_positions(combatants):
             combatant.xpos = 75
             combatant.ypos = 75
 
-def init_spell(new_spell,name,min_ss,max_ss,dd,ddc,dt,ddpss,ddcpss,bdd,bddc,bdt):
+def init_spell(new_spell,name,min_spellslot_level,max_spellslot_level,damage_die,damage_die_count,damage_type,damage_die_per_spell_slot,damage_die_count_per_spell_slot,bonus_damage_die,bonus_damage_die_count,bonus_damage_target,range):
     new_spell.name = name
-    new_spell.min_spell_slot = min_ss
-    new_spell.max_spell_slot = max_ss   
-    new_spell.damage_die = dd
-    new_spell.damage_die_count = ddc
-    new_spell.damage_type = dt
-    new_spell.damage_die_per_spell_slot = ddpss
-    new_spell.damage_die_count_per_spell_slot = ddcpss
-    new_spell.bonus_damage_die = bdd
-    new_spell.bonus_damage_die_count = bddc
-    new_spell.bonus_damage_target = bdt
-
-def characterlevel(combatant):
-    return(class_instance.player_class_level + 
-           class_instance.player_class_level + 
-           class_instance.player_class_level + 
-           combatant.ranger_level +
-           class_instance.player_class_level)
+    new_spell.min_spellslot_level = min_spellslot_level
+    new_spell.max_spellslot_level = max_spellslot_level
+    new_spell.damage_die = damage_die 
+    new_spell.damage_die_count = damage_die_count 
+    new_spell.damage_type = damage_type 
+    new_spell.damage_die_per_spell_slot = damage_die_per_spell_slot 
+    new_spell.damage_die_count_per_spell_slot = damage_die_count_per_spell_slot 
+    new_spell.bonus_damage_die = bonus_damage_die 
+    new_spell.bonus_damage_die_count = bonus_damage_die_count 
+    new_spell.bonus_damage_target = bonus_damage_target 
+    new_spell.range = range

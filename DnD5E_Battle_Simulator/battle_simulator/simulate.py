@@ -114,8 +114,8 @@ def simulate_battle():
                                     print_output('Distance to target: ' + repr(grids) + ' grid squares, or ' + repr(dist) + ' feet')
 
                                 #check for breath weapon recharge
-                                if combatant.creature_class == creature_class.Monster:
-                                    if combatant.creature_subclass == creature_subclass.Ancient_Black_Dragon:
+                                if combatant.creature_type == creature_type.Monster:
+                                    if combatant.monster_type == monster_type.Ancient_Black_Dragon:
                                         if not combatant.breath_attack:
                                             breath_recharge(combatant)
 
@@ -222,7 +222,10 @@ def simulate_battle():
     for t in teams:
         print_output('Team: ' + t.name + ' ----- No. of wins: ' + repr(t.no_of_wins))
     
-    #Close the output file if it is open
+    # Cleanup
+    combatants.list = []
+
+    #Close the output file if it is open    
     close_file()    
 
 def reset_simulation():

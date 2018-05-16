@@ -72,13 +72,19 @@ def initialise_team(combatants):
 def init_percy(init_combatants):
 #Percival    
     percy = creature()
+    percy.creature_type = creature_type.Player
     percy.fullname = "Percival Fredrickstein Von Musel Klossowski De Rolo III"
     percy.name = "Percy"
     percy.race = race.Human
-    percy.creature_class = creature_class.Fighter
-    percy.creature_subclass = creature_subclass.Gunslinger
-    percy.fighter_level = 20
+    
+    fighter_class = player_class_block()
+    fighter_class.player_class = player_class.Fighter
+    fighter_class.player_subclass = player_subclass.Beserker
+    fighter_class.player_class_level = 20
+    percy.player_classes().append(fighter_class)
+
     percy.fighting_style = fighting_style.Archery
+
     percy.max_health = 149
     percy.armour_class = 18
     percy.speed = 30
@@ -88,9 +94,8 @@ def init_percy(init_combatants):
         
     percy.creature_feats().append(feat.Sharpshooter)
     
-
     #Stats
-    percystats = statblock()    
+    percystats = statistic_block()    
     percystats.str = 12
     percystats.dex = 22
     percystats.con = 14
@@ -101,12 +106,12 @@ def init_percy(init_combatants):
     percy.stats = percystats
 
     #Saves
-    percysaves = saveblock()
+    percysaves = saving_throw_block()
     
     percy.saves = percysaves
 
     #Ability checks
-    percychecks = checkblock()
+    percychecks = ability_check_block()
     
     percy.checks = percychecks
 
@@ -199,13 +204,22 @@ def init_grog(init_combatants):
 
     #GROG
     grog = creature()
+    grog.creature_type = creature_type.Player
     grog.fullname = "Grog Strongjaw"
     grog.name = "Grog"
     grog.race = race.Goliath
-    grog.creature_class = creature_class.Barbarian
-    grog.creature_subclass = creature_subclass.Beserker    
-    grog.barbarian_level = 17
-    grog.fighter_level = 3
+    
+    barbarian_class = player_class_block()
+    barbarian_class.player_class = player_class.Barbarian
+    barbarian_class.player_subclass = player_subclass.Beserker
+    barbarian_class.player_class_level = 17
+    grog.player_classes().append(barbarian_class)
+
+    fighter_class = player_class_block()
+    fighter_class.player_class = player_class.Fighter
+    fighter_class.player_class_level = 3
+    grog.player_classes().append(fighter_class)
+        
     grog.fighting_style = fighting_style.Great_Weapon_Fighting
     grog.max_health = 248
     grog.armour_class = 17
@@ -216,7 +230,7 @@ def init_grog(init_combatants):
     grog.creature_feats().append(feat.Great_Weapon_Master)
 
     #Stats
-    grogstats = statblock()
+    grogstats = statistic_block()
     grogstats.str = 26
     grogstats.dex = 15
     grogstats.con = 20
@@ -227,7 +241,7 @@ def init_grog(init_combatants):
     grog.stats = grogstats
     
     #Saves
-    grogsaves = saveblock()    
+    grogsaves = saving_throw_block()    
     grogsaves.str = 14
     grogsaves.dex = 2
     grogsaves.con = 11
@@ -238,7 +252,7 @@ def init_grog(init_combatants):
     grog.saves = grogsaves
 
     #Ability Checks
-    grogchecks = checkblock()
+    grogchecks = ability_check_block()
     
     grog.checks = grogchecks    
 
@@ -287,6 +301,7 @@ def init_vax(init_combatants):
 
     #vax
     vax = creature()
+    vax.creature_type = creature_type.Player
     vax.fullname = "Vax'ildan"
     vax.name = "Vax"
     vax.race = race.Half_Elf
@@ -318,7 +333,7 @@ def init_vax(init_combatants):
     vax.creature_feats().append(feat.Sharpshooter)
 
     #Stats
-    vaxstats = statblock()
+    vaxstats = statistic_block()
     vaxstats.str = 14
     vaxstats.dex = 20
     vaxstats.con = 12
@@ -329,7 +344,7 @@ def init_vax(init_combatants):
     vax.stats = vaxstats
     
     #Saves
-    vaxsaves = saveblock()    
+    vaxsaves = saving_throw_block()    
     vaxsaves.str = 2
     vaxsaves.dex = 11
     vaxsaves.con = 7
@@ -340,15 +355,9 @@ def init_vax(init_combatants):
     vax.saves = vaxsaves
 
     #Ability Checks
-    vaxchecks = checkblock()
+    vaxchecks = ability_check_block()
     
-    vax.checks = vaxchecks    
-
-    vaxslots = spellslots()
-    vaxslots.FirstLevelMax = 4
-    vaxslots.SecondLevelMax = 2
-
-    vax.creature_spellslots = vaxslots
+    vax.checks = vaxchecks        
 
     #vax's weapons
     whisper = weapon()
@@ -434,10 +443,13 @@ def init_yasha(init_combatants):
     yasha.fullname = "Yasha"
     yasha.name = "Yasha"
     yasha.race = race.Aasamir
-    yasha.creature_class = creature_class.Barbarian
-    yasha.creature_subclass = creature_subclass.Zealot    
-    yasha.barbarian_level = 20
-    yasha.fighter_level = 0
+    
+    barbarian_class = player_class_block()
+    barbarian_class.player_class = player_class.Barbarian
+    barbarian_class.player_subclass = player_subclass.Zealot
+    barbarian_class.player_class_level = 20
+    yasha.player_classes().append(barbarian_class)
+
     yasha.fighting_style = fighting_style.Great_Weapon_Fighting
     yasha.max_health = 248
     yasha.armour_class = 17
@@ -448,7 +460,7 @@ def init_yasha(init_combatants):
     yasha.creature_feats().append(feat.Great_Weapon_Master)
 
     #Stats
-    yashastats = statblock()
+    yashastats = statistic_block()
     yashastats.str = 26
     yashastats.dex = 15
     yashastats.con = 20
@@ -459,7 +471,7 @@ def init_yasha(init_combatants):
     yasha.stats = yashastats
     
     #Saves
-    yashasaves = saveblock()    
+    yashasaves = saving_throw_block()    
     yashasaves.str = 14
     yashasaves.dex = 2
     yashasaves.con = 11
@@ -470,7 +482,7 @@ def init_yasha(init_combatants):
     yasha.saves = yashasaves
 
     #Ability Checks
-    yashachecks = checkblock()
+    yashachecks = ability_check_block()
     
     yasha.checks = yashachecks    
 
@@ -535,7 +547,7 @@ def init_yasha_level4(init_combatants):
     
 
     #Stats
-    yashastats = statblock()
+    yashastats = statistic_block()
     yashastats.str = 17
     yashastats.dex = 15
     yashastats.con = 14
@@ -546,7 +558,7 @@ def init_yasha_level4(init_combatants):
     yasha.stats = yashastats
     
     #Saves
-    yashasaves = saveblock()    
+    yashasaves = saving_throw_block()    
     yashasaves.str = 5
     yashasaves.dex = 2
     yashasaves.con = 4
@@ -557,7 +569,7 @@ def init_yasha_level4(init_combatants):
     yasha.saves = yashasaves
 
     #Ability Checks
-    yashachecks = checkblock()
+    yashachecks = ability_check_block()
     
     yasha.checks = yashachecks    
 
@@ -594,13 +606,23 @@ def init_arkhan(init_combatants):
 
     #Arkhan
     arkhan = creature()
+    arkhan.creature_type = creature_type.Player
     arkhan.fullname = "Highlord Arkhan the Cruel"
     arkhan.name = "Arkhan"
     arkhan.race = race.Dragonborn
-    arkhan.creature_class = creature_class.Paladin
-    arkhan.creature_subclass = creature_subclass.Oathbreaker
-    arkhan.paladin_level = 14
-    arkhan.barbarian_level = 3
+    
+    paladin_class = player_class_block()
+    paladin_class.player_class = player_class.Paladin
+    paladin_class.player_subclass = player_subclass.Oathbreaker
+    paladin_class.player_class_level = 14
+    arkhan.player_classes().append(paladin_class)
+
+    barbarian_class = player_class_block()
+    barbarian_class.player_class = player_class.Barbarian
+    barbarian_class.player_subclass = player_subclass.Beserker
+    barbarian_class.player_class_level = 3
+    arkhan.player_classes().append(barbarian_class)
+
     arkhan.fighting_style = fighting_style.Great_Weapon_Fighting
     arkhan.max_health = 191
     arkhan.armour_class = 24
@@ -615,7 +637,7 @@ def init_arkhan(init_combatants):
     #arkhan.creature_feats().append(feat.Great_Weapon_Master)
 
     #Stats
-    arkhanstats = statblock()
+    arkhanstats = statistic_block()
     arkhanstats.str = 20
     arkhanstats.dex = 14
     arkhanstats.con = 14
@@ -626,7 +648,7 @@ def init_arkhan(init_combatants):
     arkhan.stats = arkhanstats
     
     #Saves
-    arkhansaves = saveblock()    
+    arkhansaves = saving_throw_block()    
     arkhansaves.str = 5    
     arkhansaves.dex = 2
     arkhansaves.con = 2   
@@ -637,18 +659,9 @@ def init_arkhan(init_combatants):
     arkhan.saves = arkhansaves
 
     #Ability Checks
-    arkhanchecks = checkblock()    
+    arkhanchecks = ability_check_block()    
 
     arkhan.checks = arkhanchecks    
-
-    #Spell Slots
-    arkhanslots = spellslots()
-    arkhanslots.FirstLevelMax = 4
-    arkhanslots.SecondLevelMax = 3
-    arkhanslots.ThirdLevelMax = 3
-    arkhanslots.FourthLevelMax = 1
-
-    arkhan.creature_spellslots = arkhanslots
 
     #arkhan's weapons
     fane_eater = weapon()
@@ -689,6 +702,7 @@ def init_arkhan(init_combatants):
 def init_umbrasyl(init_combatants):
 
     umbrasyl = creature()
+    umbrasyl.creature_type = creature_type.Monster
     umbrasyl.fullname = "Umbrasyl"
     umbrasyl.name = "Umbrasyl"
     umbrasyl.race = race.Dragon
@@ -699,7 +713,7 @@ def init_umbrasyl(init_combatants):
     umbrasyl.speed = 40
         
     #Stats
-    umbrasylstats = statblock()
+    umbrasylstats = statistic_block()
     umbrasylstats.str = 27
     umbrasylstats.dex = 14
     umbrasylstats.con = 25
@@ -710,7 +724,7 @@ def init_umbrasyl(init_combatants):
     umbrasyl.stats = umbrasylstats
     
     #Saves
-    umbrasylsaves = saveblock()    
+    umbrasylsaves = saving_throw_block()    
     umbrasylsaves.str = 14
     umbrasylsaves.str_adv = True
     umbrasylsaves.dex = 9
@@ -727,7 +741,7 @@ def init_umbrasyl(init_combatants):
     umbrasyl.saves = umbrasylsaves
 
     #Ability Checks
-    umbrasylchecks = checkblock()
+    umbrasylchecks = ability_check_block()
     umbrasylchecks.str_adv = True
 
     umbrasyl.checks = umbrasylchecks
@@ -795,7 +809,7 @@ def init_doty(init_combatants):
     doty.speed = 40
         
     #Stats
-    dotystats = statblock()
+    dotystats = statistic_block()
     dotystats.str = 19
     dotystats.dex = 10
     dotystats.con = 16
@@ -806,11 +820,11 @@ def init_doty(init_combatants):
     doty.stats = dotystats
     
     #Saves
-    dotysaves = saveblock()       
+    dotysaves = saving_throw_block()       
     doty.saves = dotysaves
 
     #Ability Checks
-    dotychecks = checkblock()
+    dotychecks = ability_check_block()
 
     doty.checks = dotychecks
 
@@ -882,7 +896,7 @@ def init_hill_giant(init_combatants):
     hillgiant.speed = 40
         
     #Stats
-    hillgiantstats = statblock()
+    hillgiantstats = statistic_block()
     hillgiantstats.str = 21
     hillgiantstats.dex = 8
     hillgiantstats.con = 19
@@ -893,12 +907,12 @@ def init_hill_giant(init_combatants):
     hillgiant.stats = hillgiantstats
     
     #Saves
-    hillgiantsaves = saveblock()    
+    hillgiantsaves = saving_throw_block()    
     
     hillgiant.saves = hillgiantsaves
 
     #Ability Checks
-    hillgiantchecks = checkblock()    
+    hillgiantchecks = ability_check_block()    
 
     hillgiant.checks = hillgiantchecks
 
@@ -932,7 +946,7 @@ def init_trinket(init_combatants):
     trinket.speed = 40
         
     #Stats
-    trinketstats = statblock()
+    trinketstats = statistic_block()
     trinketstats.str = 19
     trinketstats.dex = 10
     trinketstats.con = 16
@@ -943,12 +957,12 @@ def init_trinket(init_combatants):
     trinket.stats = trinketstats
     
     #Saves
-    trinketsaves = saveblock()    
+    trinketsaves = saving_throw_block()    
     
     trinket.saves = trinketsaves
 
     #Ability Checks
-    trinketchecks = checkblock()
+    trinketchecks = ability_check_block()
     trinketchecks.str_adv = True
 
     trinket.checks = trinketchecks
@@ -983,8 +997,7 @@ def init_trinket(init_combatants):
     init_combatants.append(trinket)    
 
 def characterlevel(combatant):
-    return(combatant.barbarian_level + 
-           combatant.fighter_level + 
-           combatant.rogue_level + 
-           combatant.ranger_level +
-           combatant.paladin_level)
+    player_level = 0
+    for class_instance in combatant.player_classes():
+        player_level += class_instance.player_class_level
+    return player_level
