@@ -8,54 +8,96 @@ import math
 
 def initialise_combatants(init_combatants):
     init_percy(init_combatants)
-    #init_arkhan(init_combatants)
-    #init_grog(init_combatants)
+    init_grog(init_combatants)
     init_vax(init_combatants)
-    #init_yasha_level4(init_combatants)
-    #init_hill_giant(init_combatants)
-    #init_yasha(init_combatants)
-    #init_umbrasyl(init_combatants)
-    #init_doty(init_combatants)
-    #init_trinket(init_combatants)
+    init_arkhan(init_combatants)
+    init_umbrasyl(init_combatants)
+    
+    init_yasha(init_combatants)
+    
+    init_doty(init_combatants)
+    init_trinket(init_combatants)
+    init_yasha_level4(init_combatants)
+    init_hill_giant(init_combatants)
 
-def initialise_team(combatants):
+def initialise_teams(combatants,teams):
     vm = team()
-    vm.name = "Vox Machina"
+    vm.name = "Vox Machina"    
+    teams.append(vm)
+
+    m9 = team()
+    m9.name = "The Mighty Nein"
+    teams.append(m9)
+
     monster = team()
     monster.name = "Monsters"
+    teams.append(monster)
+
     beserker = team()
     beserker.name = "Path of the Beserker"
-    assassin = team()
-    assassin.name = "The Raven's Revenant"
-    gunslinger = team()
-    gunslinger.name = "The Lord of Whitestone"
+    teams.append(beserker)
+    
     zealot = team()
     zealot.name = "Path of the Zealot"
-    doty = team()
-    doty.name = "Tary"
-    trinket = team()
-    trinket.name = "Rrraoowr"
+    teams.append(zealot)
+
+    assassin = team()
+    assassin.name = "The Raven's Revenant"
+    teams.append(assassin)
+
+    gunslinger = team()
+    gunslinger.name = "The Lord of Whitestone"
+    teams.append(gunslinger)
+
+    blue = team()
+    blue.name = "The Blue Team"
+    teams.append(blue)
+
+    red = team()
+    red.name = "The Red Team"
+    teams.append(red)
+
+    #Iterate through all combatants and initially assign them to team
     for combatant in combatants:
         if combatant.name == "Grog":
-            combatant.team = beserker
+            combatant.team = vm
         if combatant.name == "Vax":
-            combatant.team = assassin
-        if combatant.name == "Yasha":
-            combatant.team = zealot
-        if combatant.name == "Arkhan":
-            combatant.team = monster
+            combatant.team = vm
+        if combatant.name == "Doty":
+            combatant.team = vm
+        if combatant.name == "Trinket":
+            combatant.team = vm
         if combatant.name == "Percy":
-            combatant.team = gunslinger
+            combatant.team = vm
+        
+        if combatant.name == "Yasha":
+            combatant.team = m9        
+        
         if combatant.name == "Umbrasyl":
             combatant.team = monster
         if combatant.name == "Hill Giant":
             combatant.team = monster        
-        if combatant.name == "Doty":
-            combatant.team = doty
-        if combatant.name == "Trinket":
-            combatant.team = trinket
+        if combatant.name == "Arkhan":
+            combatant.team = monster     
 
-        
+def initialise_starting_positions(combatants):
+    for combatant in combatants:
+        if combatant.name == "Grog":
+            combatant.starting_xpos = 50
+            combatant.starting_ypos = 50
+        if combatant.name == "Vax":
+            combatant.starting_xpos = 25
+            combatant.starting_ypos = 25
+        if combatant.name == "Percy":
+            combatant.starting_xpos = 25
+            combatant.starting_ypos = 25
+        if combatant.name == "Arkhan":
+            combatant.starting_xpos = 100
+            combatant.starting_ypos = 100
+        if combatant.name == "Umbrasyl":
+            combatant.starting_xpos = 100
+            combatant.starting_ypos = 100
+                   
         #if combatant.name == "Yasha":
         #    combatant.position = 1420
         #if combatant.name == "Arkhan":
@@ -535,13 +577,16 @@ def init_yasha_level4(init_combatants):
 
     #yasha
     yasha = creature()
-    yasha.fullname = "Yasha"
-    yasha.name = "Yasha"
+    yasha.fullname = "Yasha (level 4)"
+    yasha.name = "Yasha lvl 4"
     yasha.race = race.Aasamir
-    yasha.creature_class = creature_class.Barbarian
-    yasha.creature_subclass = creature_subclass.Zealot    
-    yasha.barbarian_level = 4
-    yasha.fighter_level = 0
+    
+    barbarian_class = player_class_block()
+    barbarian_class.player_class = player_class.Barbarian
+    barbarian_class.player_subclass = player_subclass.Zealot
+    barbarian_class.player_class_level = 4
+    yasha.player_classes().append(barbarian_class)
+
     #yasha.fighting_style = fighting_style.Great_Weapon_Fighting
     yasha.max_health = 42
     yasha.armour_class = 14
@@ -709,9 +754,8 @@ def init_umbrasyl(init_combatants):
     umbrasyl.creature_type = creature_type.Monster
     umbrasyl.fullname = "Umbrasyl"
     umbrasyl.name = "Umbrasyl"
-    umbrasyl.race = race.Dragon
-    umbrasyl.creature_class = creature_class.Monster
-    umbrasyl.creature_subclass = creature_subclass.Ancient_Black_Dragon
+    umbrasyl.race = race.Dragon    
+    umbrasyl.monster_type = monster_type.Ancient_Black_Dragon
     umbrasyl.max_health = 640
     umbrasyl.armour_class = 22
     umbrasyl.speed = 40
@@ -803,11 +847,11 @@ def init_umbrasyl(init_combatants):
 def init_doty(init_combatants):
 
     doty = creature()
+    doty.creature_type = creature_type.Monster
     doty.fullname = "Doty 2.0"
     doty.name = "Doty"
     doty.race = race.Construct
-    doty.creature_class = creature_class.Monster
-    doty.creature_subclass = creature_subclass.Doty
+    doty.monster_type = monster_type.Doty    
     doty.max_health = 42
     doty.armour_class = 12
     doty.speed = 40
@@ -890,11 +934,11 @@ def init_doty(init_combatants):
 def init_hill_giant(init_combatants):
 
     hillgiant = creature()
+    hillgiant.creature_type = creature_type.Monster
     hillgiant.fullname = "Hill Giant"
     hillgiant.name = "Hill Giant"
     hillgiant.race = race.Giant
-    hillgiant.creature_class = creature_class.Monster
-    hillgiant.creature_subclass = creature_subclass.Hill
+    hillgiant.monster_type = monster_type.Hill    
     hillgiant.max_health = 105
     hillgiant.armour_class = 13
     hillgiant.speed = 40
@@ -940,11 +984,11 @@ def init_hill_giant(init_combatants):
 def init_trinket(init_combatants):
 
     trinket = creature()
+    trinket.creature_type = creature_type.Monster
     trinket.fullname = "Trinket"
     trinket.name = "Trinket"
     trinket.race = race.Beast
-    trinket.creature_class = creature_class.Monster
-    trinket.creature_subclass = creature_subclass.Bear
+    trinket.monster_type = monster_type.Bear    
     trinket.max_health = 64
     trinket.armour_class = 20
     trinket.speed = 40

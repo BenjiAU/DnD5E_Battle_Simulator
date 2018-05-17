@@ -115,7 +115,7 @@ def initialise_class_features(combatant):
                 combatant.saves.dex_adv = True                
             # Extra Attack (+1 at 5th level)
             if class_instance.player_class_level >= 5:
-                if combatant.extra_attack == 0:
+                if combatant.extra_attack <= 1:
                     combatant.extra_attack = 1
             # Feral Instinct (7th level)
             if class_instance.player_class_level >= 7:
@@ -180,13 +180,16 @@ def initialise_class_features(combatant):
 
             # Extra Attack (+1 at 5th level)
             if class_instance.player_class_level >= 5:
-                combatant.extra_attack = 1
+                if combatant.extra_attack <= 1:
+                    combatant.extra_attack = 1
             # Extra Attack (+1 at 11th level)
             if class_instance.player_class_level >= 11:
-                combatant.extra_attack = 2
+                if combatant.extra_attack <= 2:
+                    combatant.extra_attack = 2
             # Extra Attack (+1 at 20th level)
             if class_instance.player_class_level >= 20:
-                combatant.extra_attack = 3
+                if combatant.extra_attack <= 3:
+                    combatant.extra_attack = 3
             
             # Second Wind (1 use at 1st level)
             if class_instance.player_class_level >= 1:
@@ -273,8 +276,8 @@ def initialise_class_features(combatant):
 
             # Extra Attack (5th level)
             if class_instance.player_class_level >= 5:
-                # Extra attacks from multiclassing do not stack, only give one attack
-                if combatant.extra_attack == 0:
+                # Extra attacks from multiclassing do not stack, only give one attack                
+                if combatant.extra_attack <= 1:
                     combatant.extra_attack = 1
 
             # Improved Divine Smite (14th level)
@@ -352,18 +355,12 @@ def add_spellslot(combatant,spell_level,spellslot_count):
 def reset_spellslots(combatant):
     combatant.spellslots().clear()
         
+
 def set_starting_positions(combatants):
     for combatant in combatants:
-        if combatant.name == "Grog":
-            combatant.xpos = 50
-            combatant.ypos = 50
-        if combatant.name == "Vax":
-            combatant.xpos = 75
-            combatant.ypos = 75
-        if combatant.name == "Percy":
-            combatant.xpos = 25
-            combatant.ypos = 25
-
+        combatant.xpos = combatant.starting_xpos
+        combatant.ypos = combatant.starting_ypos
+        
 def init_spell(new_spell,name,min_spellslot_level,max_spellslot_level,damage_die,damage_die_count,damage_type,damage_die_per_spell_slot,damage_die_count_per_spell_slot,bonus_damage_die,bonus_damage_die_count,bonus_damage_target,range):
     new_spell.name = name
     new_spell.min_spellslot_level = min_spellslot_level

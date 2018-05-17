@@ -503,6 +503,8 @@ class creature():
 
     # In-combat properties, reflect status of creature within battle attempt #
     
+    starting_xpos = int()
+    starting_ypos = int()
     xpos = int() # x co-ordinate
     ypos = int() # y co-ordinate
     zpos = int() # z co-ordinate (flying/vertical)

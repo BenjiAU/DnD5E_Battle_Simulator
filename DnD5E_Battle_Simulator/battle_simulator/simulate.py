@@ -23,15 +23,49 @@ from .classes import *
 import operator
 from operator import itemgetter, attrgetter, methodcaller
 
-def simulate_battle():
-    settings.init() # do only once
-    set_output_file()
-    
+def load_combatants():
+    combatants.list = []
+    combatants.teams = []
     fighters.initialise_combatants(combatants.list)
-    fighters.initialise_team(combatants.list)        
+    fighters.initialise_teams(combatants.list,combatants.teams)    
+    fighters.initialise_starting_positions(combatants.list)
+
+def set_combatants(selected_combatants,selected_teams):
+    for combatant in combatants.list:
+        combatant_selected = False
+        for selected_combatant in selected_combatants:
+            if combatant.fullname == selected_combatant:
+                combatant_selected = True
+                #Retrieve the team object base don the team name for the same position element in 'selected teams'
+                position = selected_combatants.index(selected_combatant)
+                for team in combatants.teams:
+                    # If the team name matches the name from the list in the same position as the combatant, and doesn't match the existing team name, update it
+                    if team.name == selected_teams[position] and team.name != combatant.team.name:
+                        #Swap the combatant to the selected team
+                        combatant.team = team
+
+        if not combatant_selected:
+            combatants.list.remove(combatant)    
+
+def simulate_battle():
+    #Error handling
+    error_occurred = False
+
+    settings.init() # do only once
+    set_output_file()            
+    
+    # Error checking
+    if len(combatants.list) <= 1:
+        print_output('Error: you must select at least two combatants to simulate a battle')
+        error_occurred = True
+
+    #for combatant in combatants.list:
+        #if combatant.team
+    #    print_output('Error: there must be at least 2 competing teams to battle')
+    #    error_occurred = True
 
     attempt=0
-    while attempt < settings.max_attempts:
+    while attempt < settings.max_attempts and not error_occurred:
         # Beginning of battle attempt
         battle_complete = False        
         attempt += 1
@@ -96,6 +130,10 @@ def simulate_battle():
                                 combatant.action_used = False
                                 combatant.bonus_action_used = False
                                 combatant.reaction_used = False
+                                
+                                # Reset Hasted action if still under the effect of the Haste spell
+                                if combatant.hasted:
+                                    combatant.hasted_action_used = False;
 
                                 #Divine Fury (resets at the start of each turn)
                                 if combatant.divine_fury:
@@ -181,7 +219,11 @@ def simulate_battle():
                                 print_output('That finishes ' + combatant.name + '\'s turn.')
                             else:
                                 print_output(combatant.name + ' has no valid targets! Team ' + combatant.team.name + ' wins!')
-                                combatant.team.no_of_wins += 1
+                                
+                                for team in combatants.teams:
+                                    if team.name == combatant.team.name:
+                                        team.no_of_wins += 1
+
                                 round_complete = True
                                 battle_complete = True
                         else:
@@ -213,16 +255,10 @@ def simulate_battle():
     print_output('------------------------')
     print_output('Summary:')
 
-    teams = []
-    for combatant in combatants.list:
-        if not combatant.team in teams:
-            teams.append(combatant.team)
-    for t in teams:
-        print_output(t.name + ' ----- No. of wins: ' + repr(t.no_of_wins))
+    for team in combatants.teams:
+        if team.no_of_wins > 0:
+            print_output(team.name + ' ----- No. of wins: ' + repr(team.no_of_wins))
     
-    # Cleanup
-    combatants.list = []
-
     #Close the output file if it is open    
     close_file()    
 

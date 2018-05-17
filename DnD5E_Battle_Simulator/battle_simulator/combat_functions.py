@@ -314,14 +314,14 @@ def attack_action(combatant):
                 #Determine which attacks out of the multiattack will reach (due to range, reach)                
                 multiattack_weapons = []
                 for ma in combatant.multiattack:
-                    for weapo in combatant.weapon_inventory():
-                        if weapon.range >= calc_distance(combatant,combatant.target) and ma == weapon.name:                        
-                            multiattack_weapons.append(weap)
+                    for weapon in combatant.weapon_inventory():
+                        if target_in_weapon_range(combatant,combatant.target,weapon.range) and ma == weapon.name:                        
+                            multiattack_weapons.append(weapon)
 
                 if len(multiattack_weapons) > 0:
                     print_output(combatant.name + ' unleashes a Multiattack against ' + combatant.target.name)                
-                    for ma_weapo in multiattack_weapons:
-                        combatant.current_weapon = ma_weap
+                    for ma_weapon in multiattack_weapons:
+                        combatant.current_weapon = ma_weapon
                         attack(combatant)
                 else:
                     #Revert to normal attack/swap to range or reach weapon if required
@@ -748,9 +748,7 @@ def cast_spell(combatant,spell,crit):
             #Consume the spell slot from player's available slots
             print_output(combatant.name + ' is burning a ' + numbered_list(spellslot.level) + ' level spellslot to cast ' + spell.name)                            
             # Deduct one usage from the spellslot
-            spellslot.current -= 1 
-            if spellslot.current == 0:
-                print_output(combatant.name + ' has no ' + numbered_list(spellslot.level) + ' level spellslots remaining!')
+            spellslot.current -= 1             
             
             print_output(indent() + 'Rolling spell damage:')                        
             spell_damage = 0
@@ -790,6 +788,10 @@ def cast_spell(combatant,spell,crit):
             deal_damage(combatant.target,spell_damage,spell.damage_type,True)
             #Resolve spell damage immediately
             resolve_damage(combatant.target)
+
+            #Check if we have spellslots left
+            if spellslot.current == 0:
+                print_output(combatant.name + ' has no ' + numbered_list(spellslot.level) + ' level spellslots remaining!')
 
 def get_highest_spellslot(combatant,spell):
     # Sort spells by level (use highest slots first)
@@ -938,7 +940,8 @@ def resolve_fatality(combatant):
     if combatant.alive and combatant.conscious and combatant.current_health <= 0:
         # Default proposition - combatant goes unconscious
         combatant.conscious = False   
-        
+        print_output(combatant.name + ' is knocked unconscious by the force of the blow!')
+
         #Relentless rage
         if combatant.relentless_rage and combatant.raging:
             if savingthrow(combatant,saving_throw.Consitution,combatant.saves.con,False,combatant.relentless_rage_DC):
@@ -948,7 +951,7 @@ def resolve_fatality(combatant):
                 combatant.current_health = 1
                 combatant.relentless_rage_DC += 5
             else:                
-                print_output('The relentless fury within ' + combatant.name + '\'s eyes fades, and they slump to the ground.')
+                print_output('The fury within ' + combatant.name + '\'s eyes fades, and they slump to the ground, unable to sustain their Relentless Rage!')
                 combatant.conscious = False      
                 combatant.relentless_rage = False  
 
@@ -961,7 +964,7 @@ def resolve_fatality(combatant):
                 # Roll a death saving throw; only track failures, when we hit 3 they are dead at the end of rage
                 death_saving_throw(combatant)
                 if combatant.death_saving_throw_failure >= 3:
-                    print_output(combatant.name + ' fails their third death saving throw, but remains standingin their zealous rage beyond death!')       
+                    print_output(combatant.name + ' fails their third death saving throw, but remains standing in their zealous rage beyond death!')       
                     combatant.conscious = True
                     combatant.alive = True
         elif combatant.rage_beyond_death and not combatant.raging:
@@ -996,7 +999,7 @@ def death_saving_throw(combatant):
     print_output(' *** ' + combatant.name + ' makes a Death Saving Throw: they rolled a ' + repr(i) + ' *** ')
     if i <= 1:
         combatant.death_saving_throw_failure += 2
-    elif i <= 10:
+    elif i <= 9:
         combatant.death_saving_throw_failure += 1
     elif i <= 19:
         combatant.death_saving_throw_success += 1
