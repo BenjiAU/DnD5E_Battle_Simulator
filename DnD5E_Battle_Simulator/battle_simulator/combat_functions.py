@@ -74,7 +74,7 @@ def use_equipment(combatant):
         # Haste (i.e. from Boots of Haste)
         if eq.grants_equipment_spell == equipment_spells.Haste:
             if not combatant.hasted:
-                print_output(combatant.name + ' clicks the ' + eq.name + ' together and begins to move rapidly! This uses up their Bonus Action')            
+                print_output(combatant.name + ' clicks the ' + eq.name + ' together and begins to move rapidly! (+ Hasted Action, +2AC) This uses up their Bonus Action')            
                 combatant.hasted = True
                 combatant.hasted_bonus_armour = 2;
                 combatant.hasted_action = True;
