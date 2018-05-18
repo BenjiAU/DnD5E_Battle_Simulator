@@ -353,11 +353,16 @@ def breath_attack(combatant):
             die_damage = roll_die(combatant.breath_damage_die)
             print_output(indent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.breath_damage_die) + ' (Breath Damage)')
             breath_damage += die_damage
+    
     if savingthrow(combatant.target,saving_throw.Dexterity,dexmod(combatant.target),combatant.target.saves.dex_adv,23):
         #If target has evasion and saves, nothing happens
         if not combatant.target.evasion:
             deal_damage(combatant,combatant.target,breath_damage/2,breath_damage_type,True)
+            #statistics, count this as a hit attack
+            combatant.attacks_hit += 1
     else:
+        #statistics, count this as a hit attack
+        combatant.attacks_hit += 1
         #If target has evasion and fails, half damage
         if combatant.target.evasion:
             deal_damage(combatant,combatant.target,breath_damage/2,breath_damage_type,True)
@@ -365,7 +370,7 @@ def breath_attack(combatant):
             deal_damage(combatant,combatant.target,breath_damage,breath_damage_type,True)
 
     combatant.breath_attack = False
-
+    
     #See if the damage droped target below 0 hp
     resolve_damage(combatant.target)
     resolve_fatality(combatant.target)
