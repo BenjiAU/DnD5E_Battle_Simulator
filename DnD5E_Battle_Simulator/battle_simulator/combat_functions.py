@@ -216,7 +216,7 @@ def bonus_action(combatant):
                 if combatant.lighting_reload:
                     if combatant.current_weapon.currentammo == 0:
                         combatant.current_weapon.currentammo = combatant.current_weapon.reload
-                        print_output(combatant.name + ' used a bonus action to reload.')
+                        print_output(combatant.name + ' used a bonus action to reload. ' + combatant.current_weapon.name + ' Ammo: ' + repr(combatant.current_weapon.currentammo) + '/' + repr(combatant.current_weapon.reload))
                         combatant.bonus_action_used = True
 
         #Vow of Enmity
@@ -429,13 +429,13 @@ def attack(combatant):
                             if combatant.current_weapon.currentammo == 0:
                                 # reload weapon # 
                                 if combatant.bonus_action_used:
-                                    print_output(combatant.name + ' used their attack to reload ' + combatant.current_weapon.name)
-                                    combatant.current_weapon.currentammo = combatant.current_weapon.reload
+                                    combatant.current_weapon.currentammo = combatant.current_weapon.reload                                    
+                                    print_output(combatant.name + ' used their attack to reload ' + combatant.current_weapon.name + '. Ammo: ' + repr(combatant.current_weapon.currentammo) + '/' + repr(combatant.current_weapon.reload))
                                     attackcomplete = True
                                 else:
                                     #Use Lightning Reflexes to bonus action reload
-                                    print_output(combatant.name + ' used their Bonus Action to reload ' + combatant.current_weapon.name)
-                                    combatant.current_weapon.currentammo = combatant.current_weapon.reload
+                                    combatant.current_weapon.currentammo = combatant.current_weapon.reload                                    
+                                    print_output(combatant.name + ' used their Bonus Action to reload ' + combatant.current_weapon.name + '. Ammo: ' + repr(combatant.current_weapon.currentammo) + '/' + repr(combatant.current_weapon.reload))
                                     combatant.bonus_action_used = True                                        
 
                     #Advantage/disadvantage conditions (not weapon specific)
@@ -734,6 +734,7 @@ def attack(combatant):
                         # consume ammo after shot #
                         if combatant.current_weapon.reload > 0:
                             combatant.current_weapon.currentammo = combatant.current_weapon.currentammo - 1            
+                            print_output(combatant.current_weapon.name + ' Ammo: ' + repr(combatant.current_weapon.currentammo) + '/' + repr(combatant.current_weapon.reload))
 
                         #Thrown weapons get automatically unequipped after being thrown
                         if combatant.current_weapon.was_thrown == True:                            
@@ -1004,9 +1005,11 @@ def resolve_fatality(combatant):
             print_output(combatant.name + '\'s breathing steadies, and they appear to no longer be in imminent risk of death, stabilised and unconscious')
             combatant.stabilised = True                
     
-    # Turn off rage if combatant unconscious after evaluating Rage features
+    # Knock target prone, set movement to 0, and turn off rage and if combatant unconscious after evaluating Rage features
     if not combatant.conscious:
         combatant.raging = False
+        combatant.prone = True
+        combatant.movement = 0
 
     #Resolve death
     if not combatant.alive and not combatant.conscious and combatant.current_health <=0:
@@ -1021,8 +1024,11 @@ def death_saving_throw(combatant):
         combatant.death_saving_throw_failure += 1
     elif i <= 19:
         combatant.death_saving_throw_success += 1
-    elif i == 20:
-        combatant.death_saving_throw_success = 3
+    elif i >= 20:
+        # On a natural 20 or higher (due to Bless spell etc.) automatically succeed all death saving throws and recover 1HP. Still prone
+        print_output(combatant.name + ' recovers 1 HP, and is back in the fight!')
+        heal_damage(combatant,1)        
+        return
     print_output(indent() + 'Death Saving Throw Successes: ' + repr(combatant.death_saving_throw_success) + ' Failures: ' + repr(combatant.death_saving_throw_failure))
 
 def calc_to_hit_modifier(combatant):
@@ -1243,7 +1249,7 @@ def move_grid(combatant,direction):
     
     evaluate_opportunity_attacks(combatant,new_xpos,new_ypos)
 
-    if combatant.movement > 0:        
+    if combatant.movement > 0 and not combatant.prone:        
         combatant.xpos = new_xpos;
         combatant.ypos = new_ypos;
         # Update movement
@@ -1309,7 +1315,7 @@ def move_to_target(combatant,target):
     final_distance = calc_distance(combatant,combatant.target)
     final_grid_distance = calc_no_of_grids(final_distance)
     used_movement = grids_moved*5
-    print_output(combatant.name + ' uses ' + repr(grids_moved) + ' grids, or ' + repr(used_movement) + ' feet of their movement to travel towards ' + combatant.target.name + ' (Distance to target: ' + repr(final_grid_distance) + ' grids, or ' + repr(final_distance) + ' feet)')
+    #print_output(combatant.name + ' uses ' + repr(grids_moved) + ' grids, or ' + repr(used_movement) + ' feet of their movement to travel towards ' + combatant.target.name + ' (Distance to target: ' + repr(final_grid_distance) + ' grids, or ' + repr(final_distance) + ' feet)')
 
 def move_from_target(combatant,target):
     # Goal - extend the distance between us and target
@@ -1373,7 +1379,7 @@ def move_from_target(combatant,target):
     final_distance = calc_distance(combatant,combatant.target)
     final_grid_distance = calc_no_of_grids(final_distance)
     used_movement = grids_moved*5
-    print_output(combatant.name + ' uses ' + repr(grids_moved) + ' grids, or ' + repr(used_movement) + ' feet of their movement to travel away from ' + combatant.target.name + ' (Distance to target: ' + repr(final_grid_distance) + ' grids, or ' + repr(final_distance) + ' feet)')
+    #print_output(combatant.name + ' uses ' + repr(grids_moved) + ' grids, or ' + repr(used_movement) + ' feet of their movement to travel away from ' + combatant.target.name + ' (Distance to target: ' + repr(final_grid_distance) + ' grids, or ' + repr(final_distance) + ' feet)')
     
 def calc_no_of_grids(distance):
     return(int(round(math.fabs(distance/5))))
