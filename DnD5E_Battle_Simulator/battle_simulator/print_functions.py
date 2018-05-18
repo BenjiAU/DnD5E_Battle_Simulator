@@ -3,8 +3,9 @@ from os import path
 import time
 import datetime
 import math
-
+from flask import Markup
 from battle_simulator import settings
+from battle_simulator import combatants
 
 def set_output_file():
     ts = time.time()
@@ -40,7 +41,42 @@ def print_output(string):
         print(string)
         settings.output.append(string)
 
-def print_details(combatant,position):
+def print_combatant_table(combatant):
+    string = ""
+    string += Markup('<div class=combatant>')    
+    string += Markup('<tr>')
+    string += Markup('<td>')
+    string += Markup('<input type=checkbox name="combatant_' + combatant.name + '" value="'+ combatant.fullname+ '">')
+    string += Markup('</td>')
+    string += Markup('<td>')
+    string += Markup(characterlevel(combatant))
+    string += Markup('</td>')
+    string += Markup('<td>')
+    string += Markup(combatant.fullname)
+    string += Markup('</td>')
+    string += Markup('<td>')
+    string += Markup(combatant.notes)
+    string += Markup('</td>')
+    string += Markup('<td>')    
+    string += Markup('<input type=text onkeypress="return isNumberKey(event)"  name="xpos_' + combatant.name + '" value="' + repr(combatant.starting_xpos) + '">')
+    string += Markup('</td>')
+    string += Markup('<td>')
+    string += Markup('<input type=text onkeypress="return isNumberKey(event)" name="ypos_' + combatant.name + '" value="' + repr(combatant.starting_ypos) + '">')
+    string += Markup('</td>')
+    string += Markup('<td>')    
+    string += Markup('<select name="team_' + combatant.name + '" class="selectpicker form-control">')
+    for team in combatants.teams:
+        if team.name == combatant.team.name:
+            string += Markup('<option selected="selected" value="' + team.name + '">' + team.name + '</option>')
+        else:
+            string += Markup('<option value="' + team.name + '">' + team.name + '</option>')
+    string += Markup('</select>')
+    string += Markup('</td>')
+    string += Markup('</tr>')
+    string += Markup('</div>')
+    return(string)
+
+def print_combatant_details(combatant,position):
     print_output('**************************')
     print_output('Position: ' + repr(position)) 
     print_output(' Name: '  + combatant.fullname)

@@ -94,7 +94,7 @@ def simulate_battle():
                     team.battling = True
 
             combatorder += 1
-            print_details(combatant,combatorder)
+            print_combatant_details(combatant,combatorder)
             find_target(combatant)
             print_output('</br>')
             print_output('</br>')
@@ -226,7 +226,13 @@ def simulate_battle():
 
                                 print_output('That finishes ' + combatant.name + '\'s turn.')
                             else:
+                                print_output('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+                                print_output('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+                                print_output('~~~~~~~~~~~~~')
                                 print_output(combatant.name + ' has no valid targets! ' + combatant.team.name + ' wins!')
+                                print_output('~~~~~~~~~~~~~')
+                                print_output('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+                                print_output('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
                                 
                                 for team in combatants.teams:
                                     if team.battling and team.name == combatant.team.name:

@@ -149,6 +149,7 @@ class feat(Enum):
     Sharpshooter = auto()
     Great_Weapon_Master = auto()
     Lucky = auto()
+    Sentinel = auto()
 
 #enumerable weapon attributes
 class weapon_type(Enum):
@@ -357,6 +358,7 @@ class creature():
     current_health = int()        
         
     speed = int()   
+    movement = int() #Distinct from speed, reflects movement per round and is consumed/reset at start of round
 
     stats = statistic_block()
     saves = saving_throw_block()

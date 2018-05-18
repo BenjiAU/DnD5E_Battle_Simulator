@@ -17,7 +17,7 @@ def index():
     
     simulate.load_combatants()
     for combatant in combatants.list:
-        html_combatants += print_details_html(combatant)                 
+        html_combatants += print_functions.print_combatant_table(combatant)                 
 
     if hasattr(settings,'output'):
         if settings.output != None:
@@ -66,41 +66,6 @@ def process_form():
             return redirect(url_for('index'))
         # redirect to end the POST handling
         # the redirect can be to the same route or somewhere else
-
-def print_details_html(combatant):
-    string = ""
-    string += Markup('<div class=combatant>')    
-    string += Markup('<tr>')
-    string += Markup('<td>')
-    string += Markup('<input type=checkbox name="combatant_' + combatant.name + '" value="'+ combatant.fullname+ '">')
-    string += Markup('</td>')
-    string += Markup('<td>')
-    string += Markup(print_functions.characterlevel(combatant))
-    string += Markup('</td>')
-    string += Markup('<td>')
-    string += Markup(combatant.fullname)
-    string += Markup('</td>')
-    string += Markup('<td>')
-    string += Markup(combatant.notes)
-    string += Markup('</td>')
-    string += Markup('<td>')    
-    string += Markup('<input type=text onkeypress="return isNumberKey(event)"  name="xpos_' + combatant.name + '" value="' + repr(combatant.starting_xpos) + '">')
-    string += Markup('</td>')
-    string += Markup('<td>')
-    string += Markup('<input type=text onkeypress="return isNumberKey(event)" name="ypos_' + combatant.name + '" value="' + repr(combatant.starting_ypos) + '">')
-    string += Markup('</td>')
-    string += Markup('<td>')    
-    string += Markup('<select name="team_' + combatant.name + '" class="selectpicker form-control">')
-    for team in combatants.teams:
-        if team.name == combatant.team.name:
-            string += Markup('<option selected="selected" value="' + team.name + '">' + team.name + '</option>')
-        else:
-            string += Markup('<option value="' + team.name + '">' + team.name + '</option>')
-    string += Markup('</select>')
-    string += Markup('</td>')
-    string += Markup('</tr>')
-    string += Markup('</div>')
-    return(string)
 
 if __name__ == '__main__':
     HOST = environ.get('SERVER_HOST', 'localhost')
