@@ -332,9 +332,13 @@ class weapon():
 class team():
     name = ""
     no_of_wins = int()
+    battling = bool()
 
 # Generic class for players and monster entities (called creature to be consistent with rulebook)
 class creature():
+    #Notes - brief description of current status of character
+    notes = ""
+
     #Creature type - broadly defines monster vs player behaviour
     creature_type = int()
 
@@ -530,6 +534,12 @@ class creature():
     dodging = bool() # Has taken the Dodge action and imparts disadvantage on inbound attacks
     
     target = None
+
+    #Summary fields - for output at end of simulation    
+    attacks_hit = int()
+    attacks_missed = int()
+    total_damage_dealt = int()    
+    rounds_fought = int()    
 
     #Tracks damage built up over an attack action (including weapon damage, bonus damage, crit damage)
     def pending_damage(self):

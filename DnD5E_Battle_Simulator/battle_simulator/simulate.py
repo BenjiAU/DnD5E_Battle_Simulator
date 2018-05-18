@@ -87,12 +87,17 @@ def simulate_battle():
         combatorder = 0                   
         
         #Print initiative order and initialise targets
-        for combatant in combatants.list:                     
+        for combatant in combatants.list:                   
+            #Determine teams for battle
+            for team in combatants.teams:
+                if team.name == combatant.team.name:
+                    team.battling = True
+
             combatorder += 1
             print_details(combatant,combatorder)
             find_target(combatant)
-            print_output('')
-            print_output('')
+            print_output('</br>')
+            print_output('</br>')
 
         #Begin combat rounds (up to a maximum to avoid overflow)
         round = 0              
@@ -108,7 +113,10 @@ def simulate_battle():
                     print_output("</br>")
                     print_output('It is now ' + combatant.name + '\'s turn. Current HP: ' + repr(combatant.current_health) + '/' + repr(combatant.max_health))
                     # Alive
-                    if combatant.alive:                        
+                    if combatant.alive:
+                        # update statistics
+                        combatant.rounds_fought += 1
+
                         # Conscious
                         if combatant.conscious:
                             # Re-evaluate targets
@@ -218,10 +226,10 @@ def simulate_battle():
 
                                 print_output('That finishes ' + combatant.name + '\'s turn.')
                             else:
-                                print_output(combatant.name + ' has no valid targets! Team ' + combatant.team.name + ' wins!')
+                                print_output(combatant.name + ' has no valid targets! ' + combatant.team.name + ' wins!')
                                 
                                 for team in combatants.teams:
-                                    if team.name == combatant.team.name:
+                                    if team.battling and team.name == combatant.team.name:
                                         team.no_of_wins += 1
 
                                 round_complete = True
@@ -253,10 +261,20 @@ def simulate_battle():
 
     print_output("</br>")
     print_output('------------------------')
-    print_output('Summary:')
+    print_output('<b>Simulation Complete</b>')
+    print_output('------------------------')
+    
+    # Summary
+    print_output('<b>Combatant Summary:</b>')
 
+    for combatant in combatants.list:
+        print_summary(combatant)            
+    
+    print_output('------------------------')
+    print_output('<b>Team Summary:</b>')
+    print_output('**************************')
     for team in combatants.teams:
-        if team.no_of_wins > 0:
+        if team.battling and team.no_of_wins > 0:
             print_output(team.name + ' ----- No. of wins: ' + repr(team.no_of_wins))
     
     #Close the output file if it is open    

@@ -2,6 +2,7 @@ import os
 from os import path    
 import time
 import datetime
+import math
 
 from battle_simulator import settings
 
@@ -43,6 +44,7 @@ def print_details(combatant,position):
     print_output('**************************')
     print_output('Position: ' + repr(position)) 
     print_output(' Name: '  + combatant.fullname)
+    print_output(' Team: '  + combatant.team.name)
     print_output(' Race: '  + combatant.race.name)
     print_output(' Character Level ' + repr(characterlevel(combatant)))
     print_output(' Class Breakdown: ')
@@ -87,6 +89,18 @@ def print_details(combatant,position):
         print_output(indent() + numbered_list(spellslot.level) + ' Level Spellslots: ' + repr(spellslot.current))        
     print_output('**************************')
 
+def print_summary(combatant):
+    print_output('**************************')
+    print_output(' Name: '  + combatant.fullname)
+    print_output(' Team: '  + combatant.team.name)
+    print_output(' Attacks Made: '  + repr(combatant.attacks_hit + combatant.attacks_missed))
+    print_output(' Attacks Hit: '  + repr(combatant.attacks_hit))
+    print_output(' Attacks Missed: '  + repr(combatant.attacks_missed))
+    print_output(' Hit Percentage: '  + repr(math.floor(combatant.attacks_hit/(combatant.attacks_hit + combatant.attacks_missed)*100)) + '%')    
+    print_output(' Total Rounds Fought: '  + repr(combatant.rounds_fought))
+    print_output(' Average Damage per Round: '  + repr(math.floor(combatant.total_damage_dealt/combatant.rounds_fought)))    
+    print_output(' Average Damage per Attempt: '  + repr(math.floor(combatant.total_damage_dealt/settings.max_attempts)))    
+    print_output(' Total Damage Dealt: '  + repr(combatant.total_damage_dealt))
 
 def indent():
     return '<div class="indent">'

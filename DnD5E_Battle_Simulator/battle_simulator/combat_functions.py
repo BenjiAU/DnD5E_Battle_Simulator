@@ -356,13 +356,13 @@ def breath_attack(combatant):
     if savingthrow(combatant.target,saving_throw.Dexterity,dexmod(combatant.target),combatant.target.saves.dex_adv,23):
         #If target has evasion and saves, nothing happens
         if not combatant.target.evasion:
-            deal_damage(combatant.target,breath_damage/2,breath_damage_type,True)
+            deal_damage(combatant,combatant.target,breath_damage/2,breath_damage_type,True)
     else:
         #If target has evasion and fails, half damage
         if combatant.target.evasion:
-            deal_damage(combatant.target,breath_damage/2,breath_damage_type,True)
+            deal_damage(combatant,combatant.target,breath_damage/2,breath_damage_type,True)
         else:
-            deal_damage(combatant.target,breath_damage,breath_damage_type,True)
+            deal_damage(combatant,combatant.target,breath_damage,breath_damage_type,True)
 
     combatant.breath_attack = False
 
@@ -553,6 +553,9 @@ def attack(combatant):
                         totalAC = combatant.target.armour_class + combatant.target.hasted_bonus_armour
 
                         if totalatk >= totalAC:
+                            #Update statistics
+                            combatant.attacks_hit += 1
+
                             if feat_penalty == 0:
                                 print_output(combatant.name + '\'s attack with ' + combatant.current_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' versus AC ' + repr(totalAC) + ')')            
                             else:
@@ -637,7 +640,7 @@ def attack(combatant):
                                 print_output(indent() + combatant.name + '\'s strike dealt a total of ' + repr(totaldamage) + ' points of ' + weapon_damage_type.name + ' damage (Dice: ' + repr(dice_damage) + ' Modifier: ' + repr(damage_modifier) + ')')
                             else:
                                 print_output(indent() + combatant.name + '\'s strike dealt a total of ' + repr(totaldamage) + ' points of ' + weapon_damage_type.name + ' damage (Dice: ' + repr(dice_damage) + ' Modifier: ' + repr(damage_modifier) + ' Bonus ' + repr(feat_bonus) + ')')
-                            deal_damage(combatant.target,totaldamage,weapon_damage_type,combatant.current_weapon.magic)
+                            deal_damage(combatant,combatant.target,totaldamage,weapon_damage_type,combatant.current_weapon.magic)
                 
                             if track_hemo:
                                 print_output(indent() + combatant.name + ' adds an extra ' + repr(int(totaldamage/2)) + ' damage via Hemorrhaging Critical, which will be dealt at the end of ' + combatant.target.name + '\'s turn.')
@@ -696,7 +699,7 @@ def attack(combatant):
                                                 print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(eq.damage_die) + ' (Cabal\'s Ruin damage)')
                                             eq.current_charges = 0                
                                             print_output(indent() + combatant.name + ' dealt an additional ' + repr(equipment_damage) + ' points of ' + equipment_damage_type.name + ' damage with ' + eq.name)
-                                            deal_damage(combatant.target,equipment_damage,equipment_damage_type,True)
+                                            deal_damage(combatant,combatant.target,equipment_damage,equipment_damage_type,True)
                 
                             #After all the damage from the attack action is resolved, check the fatality
                             #Do this sparingly or players wlil die multiple times from one attack 
@@ -716,6 +719,8 @@ def attack(combatant):
                             resolve_fatality(combatant.target)
                         else:
                             print_output(combatant.name + '\'s attack on ' + combatant.target.name + ' with ' + combatant.current_weapon.name + ' MISSED! (' + repr(totalatk) + ' versus AC ' + repr(totalAC) + ')')            
+                            #Update statistics
+                            combatant.attacks_missed += 1
 
                         # consume ammo after shot #
                         if combatant.current_weapon.reload > 0:
@@ -785,7 +790,7 @@ def cast_spell(combatant,spell,crit):
             # Add modifier
 
             print_output(indent() + combatant.name + ' cast ' + spell.name + ' and dealt a total of ' + repr(spell_damage) + ' points of ' + spell.damage_type.name + ' damage!')                    
-            deal_damage(combatant.target,spell_damage,spell.damage_type,True)
+            deal_damage(combatant,combatant.target,spell_damage,spell.damage_type,True)
             #Resolve spell damage immediately
             resolve_damage(combatant.target)
 
@@ -835,10 +840,10 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source)
                         
     if crit:
         print_output(indent() + combatant.name + ' dealt an additional ' + repr(crit_damage+flat) + ' (roll = ' + repr(bonus_damage) + ') points of ' + type.name + ' damage with ' + source)
-        deal_damage(combatant.target,crit_damage+flat,type,combatant.current_weapon.magic)
+        deal_damage(combatant,combatant.target,crit_damage+flat,type,combatant.current_weapon.magic)
     else:
         print_output(indent() + combatant.name + ' dealt an additional ' + repr(bonus_damage+flat) + ' points of ' + type.name + ' damage with ' + source)
-        deal_damage(combatant.target,bonus_damage+flat,type,combatant.current_weapon.magic)
+        deal_damage(combatant,combatant.target,bonus_damage+flat,type,combatant.current_weapon.magic)
 
 def resolve_hemo_damage(combatant):        
     #Gunslinger - Hemorrhaging Shot; damage and type is stored against the target and resolved after the target takes its turn (treated as nonmagical always?)
@@ -847,31 +852,31 @@ def resolve_hemo_damage(combatant):
         #hack
         #combatant.hemo_damage_type = combatant.target.current_weapon.weapon_damage_type
         #deal damage to yourself
-        deal_damage(combatant,combatant.hemo_damage,combatant.hemo_damage_type,False)
+        deal_damage(combatant,combatant,combatant.hemo_damage,combatant.hemo_damage_type,False)
         combatant.hemo_damage = 0
         combatant.hemo_damage_type = 0     
         resolve_fatality(combatant)
 
-def deal_damage(combatant,damage,dealt_damage_type,magical):    
+def deal_damage(combatant,target,damage,dealt_damage_type,magical):    
     #Reduce bludgeoning/piercing/slashing if raging (and not wearing Heavy armour)
-    if combatant.raging and not combatant.armour_type == armour_type.Heavy:            
+    if target.raging and not target.armour_type == armour_type.Heavy:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing):
             damage = int(damage/2)              
-            print_output(doubleindent() + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage in their rage!')
-    if combatant.enlarged:
+            print_output(doubleindent() + target.name + ' shrugs off ' + repr(damage) + ' points of damage in their rage!')
+    if target.enlarged:
         if dealt_damage_type in (damage_type.Fire,damage_type.Cold,damage_type.Lightning):
             damage = int(damage/2)              
-            print_output(doubleindent() + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage due to the effects of Enlarge!')
+            print_output(doubleindent() + target.name + ' shrugs off ' + repr(damage) + ' points of damage due to the effects of Enlarge!')
 
     #Reduce bludgeoning/piercing/slashing if dealt by non-magical dealt_
-    if combatant.monster_type == monster_type.Ancient_Black_Dragon:            
+    if target.monster_type == monster_type.Ancient_Black_Dragon:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing) and not magical:
             damage = int(damage/2)              
-            print_output(doubleindent() + combatant.name + ' shrugs off ' + repr(damage) + ' points of damage from the non-magical attack!')
+            print_output(doubleindent() + target.name + ' shrugs off ' + repr(damage) + ' points of damage from the non-magical attack!')
 
     if damage > 0:
         #Check if creature already has a type of this damage pending to be deducted from hit points
-        for x in combatant.pending_damage():
+        for x in target.pending_damage():
             if x.pending_damage_type == dealt_damage_type:
                 x.damage += damage
                 damage = 0
@@ -880,7 +885,9 @@ def deal_damage(combatant,damage,dealt_damage_type,magical):
             pd = pending_damage()
             pd.pending_damage_type = dealt_damage_type
             pd.damage = damage
-            combatant.pending_damage().append(pd)        
+            target.pending_damage().append(pd)
+            # Update statistics for combatant
+            combatant.total_damage_dealt += damage
 
 def heal_damage(combatant,healing):        
     #Can't heal the dead

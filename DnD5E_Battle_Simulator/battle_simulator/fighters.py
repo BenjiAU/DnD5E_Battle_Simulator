@@ -116,6 +116,9 @@ def initialise_starting_positions(combatants):
 def init_percy(init_combatants):
 #Percival    
     percy = creature()
+    
+    percy.notes = "Burns Grit to Leg Shot opponents, will swap out broken weapons, dumps all Cabal's Ruin charges on crit"
+
     percy.creature_type = creature_type.Player
     percy.fullname = "Percival Fredrickstein Von Musel Klossowski De Rolo III"
     percy.name = "Percy"
@@ -248,6 +251,9 @@ def init_grog(init_combatants):
 
     #GROG
     grog = creature()
+    
+    grog.notes = "Always Enlarges/Rages on first turn. Will Reckless/Great Weapon Master every chance he gets!"
+
     grog.creature_type = creature_type.Player
     grog.fullname = "Grog Strongjaw"
     grog.name = "Grog"
@@ -345,6 +351,9 @@ def init_vax(init_combatants):
 
     #vax
     vax = creature()
+
+    vax.notes = "Missing Deathwalker's Ward. Prefers to throw his daggers from maximum range. Belt of Blade Returning triggers at start of turn"
+
     vax.creature_type = creature_type.Player
     vax.fullname = "Vax'ildan"
     vax.name = "Vax"
@@ -486,6 +495,9 @@ def init_yasha(init_combatants):
 
     #yasha
     yasha = creature()
+
+    yasha.notes = "Wearing Grog's gear, Rage Beyond Death is absurd!"
+
     yasha.fullname = "Yasha"
     yasha.name = "Yasha"
     yasha.race = race.Aasamir
@@ -577,6 +589,9 @@ def init_yasha_level4(init_combatants):
 
     #yasha
     yasha = creature()
+
+    yasha.notes = "A mini-Yasha set up for fighting the Hill Giant"
+
     yasha.fullname = "Yasha (level 4)"
     yasha.name = "Yasha lvl 4"
     yasha.race = race.Aasamir
@@ -655,6 +670,9 @@ def init_arkhan(init_combatants):
 
     #Arkhan
     arkhan = creature()
+
+    arkhan.notes = "Wields the Hand of Vecna; can't cast any spells out of it yet!"
+
     arkhan.creature_type = creature_type.Player
     arkhan.fullname = "Highlord Arkhan the Cruel"
     arkhan.name = "Arkhan"
@@ -751,6 +769,9 @@ def init_arkhan(init_combatants):
 def init_umbrasyl(init_combatants):
 
     umbrasyl = creature()
+
+    umbrasyl.notes = "Can't fly, but can deal some serious damage. Multiattack = bite/claw/claw"
+
     umbrasyl.creature_type = creature_type.Monster
     umbrasyl.fullname = "Umbrasyl"
     umbrasyl.name = "Umbrasyl"
@@ -847,6 +868,9 @@ def init_umbrasyl(init_combatants):
 def init_doty(init_combatants):
 
     doty = creature()
+
+    doty.notes = "The new and improved Doty featuring a single-use Arm Cannon"
+
     doty.creature_type = creature_type.Monster
     doty.fullname = "Doty 2.0"
     doty.name = "Doty"
@@ -934,6 +958,9 @@ def init_doty(init_combatants):
 def init_hill_giant(init_combatants):
 
     hillgiant = creature()
+
+    hillgiant.notes = "The formidable Hill Giant from C2E18, missing his Legendary Action, but still packs a wallop!"
+
     hillgiant.creature_type = creature_type.Monster
     hillgiant.fullname = "Hill Giant"
     hillgiant.name = "Hill Giant"
@@ -984,6 +1011,9 @@ def init_hill_giant(init_combatants):
 def init_trinket(init_combatants):
 
     trinket = creature()
+
+    trinket.notes = "Everyone's favourite bear. Lacks resistance to Bludgeoning damage granted by his special armour in the show"
+
     trinket.creature_type = creature_type.Monster
     trinket.fullname = "Trinket"
     trinket.name = "Trinket"
