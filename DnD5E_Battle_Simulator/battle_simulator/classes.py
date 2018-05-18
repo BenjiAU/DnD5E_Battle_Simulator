@@ -1,5 +1,14 @@
 from enum import Enum, auto
 
+class shape(Enum):
+    def __str__(self):
+        return str(self.value)    
+    Point = auto()
+    Line = auto()
+    Circle = auto()
+    Square = auto()
+    Cone = auto()
+
 class ability_check_block():
     str_adv = bool()
     dex_adv = bool()

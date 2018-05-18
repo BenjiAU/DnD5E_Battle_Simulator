@@ -356,6 +356,9 @@ def breath_attack(combatant):
             print_output(indent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.breath_damage_die) + ' (Breath Damage)')
             breath_damage += die_damage
     
+    #Center point of attack on current target
+    direction = derive_direction(combatant,target)
+    calculate_area_effect(combatant.target.xpos,combatant.target.ypos)
     if savingthrow(combatant.target,saving_throw.Dexterity,dexmod(combatant.target),combatant.target.saves.dex_adv,23):
         #If target has evasion and saves, nothing happens
         if not combatant.target.evasion:
@@ -1216,30 +1219,9 @@ def move_grid(combatant,direction):
 
         print_output(indent() + combatant.name + ' chooses to travel ' + direction.name)
 
-    if direction == cardinal_direction.SouthWest:
-        xpos = -5
-        ypos = -5
-    elif direction == cardinal_direction.South:
-        xpos = 0
-        ypos = -5
-    elif direction == cardinal_direction.SouthEast:
-        xpos = 5
-        ypos = -5
-    elif direction == cardinal_direction.East:
-        xpos = 5
-        ypos = 0
-    elif direction == cardinal_direction.NorthEast:
-        xpos = 5
-        ypos = 5
-    elif direction == cardinal_direction.North:
-        xpos = 0
-        ypos = 5
-    elif direction == cardinal_direction.NorthWest:
-        xpos = -5
-        ypos = 5
-    elif direction == cardinal_direction.West:
-        xpos = -5
-        ypos = 0
+    xpos = 0
+    ypos = 0
+    calc_grid_step(direction,xpos,ypos)    
 
     # Evaluate opportunity attacks
     new_xpos = combatant.xpos + xpos 
@@ -1263,6 +1245,52 @@ def calc_distance(combatant,target):
     ydistance = int(math.fabs(combatant.ypos-target.ypos))
     return int(math.sqrt((xdistance * xdistance) + (ydistance * ydistance)))
 
+def derive_direction(combatant,target):
+    direction = cardinal_direction.Stay
+    if combatant.xpos > target.xpos and combatant.ypos > target.ypos:
+        direction = cardinal_direction.SouthWest
+    elif combatant.xpos > target.xpos and combatant.ypos < target.ypos:
+        direction = cardinal_direction.NorthWest
+    elif combatant.xpos < target.xpos and combatant.ypos < target.ypos:
+        direction = cardinal_direction.NorthEast
+    elif combatant.xpos < target.xpos and combatant.ypos > target.ypos:
+        direction = cardinal_direction.SouthEast
+    elif combatant.xpos < target.xpos and combatant.ypos == target.ypos:
+        direction = cardinal_direction.East
+    elif combatant.xpos > target.xpos and combatant.ypos == target.ypos:
+        direction = cardinal_direction.West
+    elif combatant.xpos == target.xpos and combatant.ypos < target.ypos:
+        direction = cardinal_direction.North
+    elif combatant.xpos == target.xpos and combatant.ypos > target.ypos:
+        direction = cardinal_direction.South
+    return(direction)
+
+def calc_grid_step(direction,x,y):
+    if direction == cardinal_direction.SouthWest:
+        x = -5
+        y = -5
+    elif direction == cardinal_direction.South:
+        x = 0
+        y = -5
+    elif direction == cardinal_direction.SouthEast:
+        x = 5
+        y = -5
+    elif direction == cardinal_direction.East:
+        x = 5
+        ypos = 0
+    elif direction == cardinal_direction.NorthEast:
+        xpos = 5
+        ypos = 5
+    elif direction == cardinal_direction.North:
+        xpos = 0
+        ypos = 5
+    elif direction == cardinal_direction.NorthWest:
+        xpos = -5
+        ypos = 5
+    elif direction == cardinal_direction.West:
+        xpos = -5
+        ypos = 0
+
 def move_to_target(combatant,target):
     # Goal - decrease the distance between us and target
     print_output(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move towards ' + combatant.target.name + ' at (' + repr(combatant.target.xpos) + ',' + repr(combatant.target.ypos) + ')')    
@@ -1282,24 +1310,7 @@ def move_to_target(combatant,target):
         if settings.verbose_movement:
             print_output(indent() + combatant.name + ' is ' + repr(grids_to_move) + ' grids away from their destination and has ' + repr(grid_movement) + ' grids of movement remaining')
 
-        direction = cardinal_direction.Stay
-
-        if combatant.xpos > target.xpos and combatant.ypos > target.ypos:
-            direction = cardinal_direction.SouthWest
-        elif combatant.xpos > target.xpos and combatant.ypos < target.ypos:
-            direction = cardinal_direction.NorthWest
-        elif combatant.xpos < target.xpos and combatant.ypos < target.ypos:
-            direction = cardinal_direction.NorthEast
-        elif combatant.xpos < target.xpos and combatant.ypos > target.ypos:
-            direction = cardinal_direction.SouthEast
-        elif combatant.xpos < target.xpos and combatant.ypos == target.ypos:
-            direction = cardinal_direction.East
-        elif combatant.xpos > target.xpos and combatant.ypos == target.ypos:
-            direction = cardinal_direction.West
-        elif combatant.xpos == target.xpos and combatant.ypos < target.ypos:
-            direction = cardinal_direction.North
-        elif combatant.xpos == target.xpos and combatant.ypos > target.ypos:
-            direction = cardinal_direction.South
+        direction = derive_direction(combatant,target)
         
         move_grid(combatant,direction)  
         grids_moved += 1
@@ -1339,6 +1350,7 @@ def move_from_target(combatant,target):
 
         direction = cardinal_direction.Stay
 
+        #Note that this is the inverse of the derive_direction function and has to be replicated here 
         if combatant.xpos == target.xpos and combatant.ypos == target.ypos:
             #Choose a random direction to move in         
             direction = cardinal_direction.Random
@@ -1434,6 +1446,41 @@ def find_target(combatant):
     else:
         return False
 
+def calculate_area_effect(xorigin,yorigin,direction,shape,width,length):
+    #Determines area of effect of passed in parameters and returns a dict of affected x,y co-ords    
+    affected_grids = []
+    x = 0
+    y = 0
+    # Begin at point of origin
+    # Determine direction of ability
+    # Calculate perpendicular direction and go in each direction width/2
+    # For each grid along the perpendicular, cast forward to the length
+    if shape == area_of_effect_shape.Line:    
+        origin = (xorigin,yorigin)
+        length_cursor  = 0
+        length_x = xorigin
+        length_y = yorigin        
+        while length_cursor < length:            
+            calc_grid_step(direction,x,y)                                        
+            length_x += x
+            length_y += y
+            affected_grids.append(length_x,lengthy)
+            length_cursor += 5
+        # The final length_x and length_y points give us the 'target point' to calculate perpendicular width
+        destination = (length_x,length_y)
+        v = origin - destination
+        h = width/2
+        width_min = (-v.y, v.x) / Sqrt(v.x^2 + v.y^2) * h
+        width_max = (-v.y, v.x) / Sqrt(v.x^2 + v.y^2) * -h
+
+        width_cursor = 0                 
+        while width_cursor < width:            
+            calc_grid_step(direction,x,y)                
+            width_x += x
+            width_y += y
+            affected_grids.append(width_x,width_y)
+            width_cursor += 5
+            
 
 def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
     # Create a copy of the combatant to capture the new co-ordinate and compare to existing co-ordiantes (basically casting forward and simulating the movement)
