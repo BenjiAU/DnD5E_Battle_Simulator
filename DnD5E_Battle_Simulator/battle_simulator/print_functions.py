@@ -132,7 +132,8 @@ def print_summary(combatant):
     print_output(' Attacks Made: '  + repr(combatant.attacks_hit + combatant.attacks_missed))
     print_output(' Attacks Hit: '  + repr(combatant.attacks_hit))
     print_output(' Attacks Missed: '  + repr(combatant.attacks_missed))
-    print_output(' Hit Percentage: '  + repr(math.floor(combatant.attacks_hit/(combatant.attacks_hit + combatant.attacks_missed)*100)) + '%')    
+    if combatant.attacks_hit > 0:
+        print_output(' Hit Percentage: '  + repr(math.floor(combatant.attacks_hit/(combatant.attacks_hit + combatant.attacks_missed)*100)) + '%')    
     print_output(' Total Rounds Fought: '  + repr(combatant.rounds_fought))
     print_output(' Average Damage per Round: '  + repr(math.floor(combatant.total_damage_dealt/combatant.rounds_fought)))    
     print_output(' Average Damage per Attempt: '  + repr(math.floor(combatant.total_damage_dealt/settings.max_attempts)))    

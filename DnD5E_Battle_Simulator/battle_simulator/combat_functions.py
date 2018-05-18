@@ -10,6 +10,7 @@ import random
 import math
 import operator
 from operator import itemgetter, attrgetter
+from copy import copy
 
 ### Core Round functions ###
 def movement(combatant):
@@ -1235,16 +1236,21 @@ def move_grid(combatant,direction):
         ypos = 0
 
     # Evaluate opportunity attacks
-    evaluate_opportunity_attacks(combatant,xpos,ypos)
+    new_xpos = combatant.xpos + xpos 
+    new_ypos = combatant.ypos + ypos;
+    
+    print_output(indent() + combatant.name + ' attempts to move ' + direction.name + ' from (' + repr(initialxpos) + ',' + repr(initialypos) + ') to (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
+    
+    evaluate_opportunity_attacks(combatant,new_xpos,new_ypos)
 
     if combatant.movement > 0:        
-        combatant.xpos += xpos;
-        combatant.ypos += ypos;
+        combatant.xpos = new_xpos;
+        combatant.ypos = new_ypos;
         # Update movement
         combatant.movement -= 5
-        print_output(indent() + combatant.name + ' moves ' + direction.name + ' from (' + repr(initialxpos) + ',' + repr(initialypos) + ') to (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
+        print_output(indent() + combatant.name + ' successfully moved')
     else:
-        print_output(combatant.name + ' has no movement remaining!')            
+        print_output(indent() + combatant.name + ' failed to move - they have no movement remaining!')            
 
 def calc_distance(combatant,target):
     xdistance = int(math.fabs(combatant.xpos-target.xpos))
@@ -1424,10 +1430,11 @@ def find_target(combatant):
 
 
 def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
-    # Create a dummy combatant to capture the new co-ordinate and compare to existing co-ordiantes
-    combatant_after_move = combatant_before_move
-    combatant_after_move .xpos = new_xpos
-    combatant_after_move .ypos = new_ypos
+    # Create a copy of the combatant to capture the new co-ordinate and compare to existing co-ordiantes (basically casting forward and simulating the movement)
+    combatant_after_move = creature()
+    combatant_after_move = copy(combatant_before_move)
+    combatant_after_move.xpos = new_xpos
+    combatant_after_move.ypos = new_ypos
 
     #Evaluate for each enemy unit
     for opportunity_attacker in combatants.list:        
@@ -1436,7 +1443,8 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
                 # Evaluate only if reaction available
                 if not opportunity_attacker.reaction_used:
                     # If the enemy is currently in range, but would not be after movement, condition is fulfilled
-                    if target_in_weapon_range(opportunity_attacker,combatant_before_move) and not target_in_weapon_range(opportunity_attacker,combatant_after_move):                                            
+                    # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
+                    if target_in_weapon_range(opportunity_attacker,combatant_before_move,opportunity_attacker.current_weapon.range) and not target_in_weapon_range(opportunity_attacker,combatant_after_move,opportunity_attacker.current_weapon.range):                                            
                         #Swap targets if necessary
                         original_target = opportunity_attacker.target 
                         if opportunity_attacker.target != combatant_before_move:                            
@@ -1447,7 +1455,7 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
                         print_output(combatant_before_move.name + '\'s movement has triggered an Attack of Opportunity from ' + opportunity_attacker.name + ' !')                        
                         print_output('Resolving Attack of Opportunity!')                                                
                         if attack(opportunity_attacker):
-                            for feat in opportunity_attacker.creature_feats:
+                            for feat in opportunity_attacker.creature_feats():
                                 if feat == feat.Sentinel:
                                     #Successful opportunity attacks reduce creatures speed to 0
                                     combatant_before_move.movement = 0
