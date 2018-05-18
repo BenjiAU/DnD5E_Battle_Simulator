@@ -7,18 +7,18 @@ This all came about because of "Percy vs Grog" theorycrafting in Discord, where 
 This has now extended into simulating other characters from Critical Role, and is starting to become something that can be applied generically to DnD 5E combat encounters. Long term, it may be possible to throw a given PC or party into the simulation against your big bads, and simulate the battle a few hundred times before actually playing out combat. It works best in 1v1 situations, with more combatants adding levels of complexity (regarding targetting logic and action selection) that are probably beyond what I'm capable of implementing in a reasonable amount of time. It will never match the real thing, but if you're worried about the deadliness or threat an encounter poses, it could be pretty handy!
 
 Simulation Notes:
-* The core combat loop consists of:
-    * Evaluating targets
-        * Note that targets are only evaluated once, at the start of the creature's turn. This is currently a naive process, and means that the entire turns worth of actions will be executed against the single target. More sophisticated targetting logic is a possibility in the future.
-    * Resolving start-of-round activities (i.e. recharge Breath Attack, check if Assassinate condition is fulfilled)
-    * Using Equipment items (which may consume Action/Bonus Action)
-    * Using Movement (all movement is consumed here if it is available; this is the only place the actual Movement activity of the turn is evaluated (you can't use 10 feet of movement here, 10 feet there))
-    * Checking for Bonus Action use (i.e. Vow of Enmity, Hunters Mark should be used prior to Action)
-    * Checking for Action use (normally Dash or Attack)
-    * Checking for Bonus Action use (i.e. off-hand attack that can only fire after Attack)
-    * Checking for Hasted Action use (restricted to Dash/Attack)
-    * Checking for Action Surge and gaining benefit (currently Action Surges are burned straight away, meaning characters will waste them Dashing instead of saving them for when they can attack)
-    * Resolving damage that occurs 'at end of turn' (i.e. Gunslinger's Haemmorhaging Critical)
+The core combat loop consists of:
+* Evaluating targets
+   * Note that targets are only evaluated once, at the start of the creature's turn. This is currently a naive process, and means that the entire turns worth of actions will be executed against the single target. More sophisticated targetting logic is a possibility in the future.
+* Resolving start-of-round activities (i.e. recharge Breath Attack, check if Assassinate condition is fulfilled)
+* Using Equipment items (which may consume Action/Bonus Action)
+* Using Movement (all movement is consumed here if it is available; this is the only place the actual Movement activity of the turn is evaluated (you can't use 10 feet of movement here, 10 feet there))
+* Checking for Bonus Action use (i.e. Vow of Enmity, Hunters Mark should be used prior to Action)
+* Checking for Action use (normally Dash or Attack)
+* Checking for Bonus Action use (i.e. off-hand attack that can only fire after Attack)
+* Checking for Hasted Action use (restricted to Dash/Attack)
+* Checking for Action Surge and gaining benefit (currently Action Surges are burned straight away, meaning characters will waste them Dashing instead of saving them for when they can attack)
+* Resolving damage that occurs 'at end of turn' (i.e. Gunslinger's Haemmorhaging Critical)
 
 Missing Behaviour:
 
