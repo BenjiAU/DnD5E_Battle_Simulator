@@ -182,7 +182,7 @@ def bonus_action(combatant):
                 if combatant.current_health + 10 + fighter_level < combatant.max_health:
                     second_wind_heal = roll_die(10) + fighter_level
                     heal_damage(combatant,second_wind_heal)                    
-                    print_output(combatant.name + ' uses their Bonus Action to gain a Second Wind, and restores ' + repr(second_wind_heal) + ' hit points!')
+                    print_output(combatant.name + ' uses their Bonus Action to gain a Second Wind, and restores ' + healing_text(repr(second_wind_heal)) + ' hit points!')
                     combatant.second_wind = False
                     combatant.bonus_action_used = True
 
@@ -367,7 +367,7 @@ def breath_attack(combatant):
             print_output(indent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.breath_damage_die) + ' (Breath Damage)')
             breath_damage += die_damage
             
-    print_output(indent() + 'The breath attack deals a total of ' + repr(breath_damage) + ' points of ' + breath_damage_type.name + ' damage!')   
+    print_output(indent() + 'The breath attack deals a total of ' + damage_text(repr(breath_damage)) + ' points of ' + breath_damage_type.name + ' damage!')   
 
     # Retrieve the combatant list reference if it hasn't passed throuhg?
     for affected_target in affected_targets:    
@@ -665,9 +665,9 @@ def attack(combatant):
                             totaldamage = dice_damage + damage_modifier + feat_bonus            
 
                             if feat_bonus == 0:
-                                print_output(indent() + combatant.name + '\'s strike dealt a total of ' + repr(totaldamage) + ' points of ' + weapon_damage_type.name + ' damage (Dice: ' + repr(dice_damage) + ' Modifier: ' + repr(damage_modifier) + ')')
+                                print_output(indent() + combatant.name + '\'s strike dealt a total of ' + damage_text(repr(totaldamage)) + ' points of ' + weapon_damage_type.name + ' damage (Dice: ' + repr(dice_damage) + ' Modifier: ' + repr(damage_modifier) + ')')
                             else:
-                                print_output(indent() + combatant.name + '\'s strike dealt a total of ' + repr(totaldamage) + ' points of ' + weapon_damage_type.name + ' damage (Dice: ' + repr(dice_damage) + ' Modifier: ' + repr(damage_modifier) + ' Bonus ' + repr(feat_bonus) + ')')
+                                print_output(indent() + combatant.name + '\'s strike dealt a total of ' + damage_text(repr(totaldamage)) + ' points of ' + weapon_damage_type.name + ' damage (Dice: ' + repr(dice_damage) + ' Modifier: ' + repr(damage_modifier) + ' Bonus ' + repr(feat_bonus) + ')')
                             deal_damage(combatant,combatant.target,totaldamage,weapon_damage_type,combatant.current_weapon.magic)
                 
                             if track_hemo:
@@ -726,26 +726,13 @@ def attack(combatant):
                                                 equipment_damage += die_damage * 2         
                                                 print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(eq.damage_die) + ' (Cabal\'s Ruin damage)')
                                             eq.current_charges = 0                
-                                            print_output(indent() + combatant.name + ' dealt an additional ' + repr(equipment_damage) + ' points of ' + equipment_damage_type.name + ' damage with ' + eq.name)
+                                            print_output(indent() + combatant.name + ' dealt an additional ' + damage_text(repr(equipment_damage)) + ' points of ' + equipment_damage_type.name + ' damage with ' + eq.name)
                                             deal_damage(combatant,combatant.target,equipment_damage,equipment_damage_type,True)
                 
                             #After all the damage from the attack action is resolved, check the fatality
                             #Do this sparingly or players wlil die multiple times from one attack 
                             #i.e. activate relentless rage each time they drop below 0
-                            if combatant.target.conscious:
-
-                                # Resolve Uncanny Dodge (can only occur after being victim of an Attack you can see - reduce all the attack damage by half)
-                                if combatant.target.uncanny_dodge:
-                                    total_reduction = 0
-                                    for x in combatant.target.pending_damage():        
-                                        if x.damage > 0:
-                                            reduction = int(x.damage/2) 
-                                            x.damage -= reduction
-                                            total_reduction += reduction
-                                    print_output(combatant.target.name + ' uses their reaction, and uses Uncanny Dodge to reduce the damage of the attack by ' + repr(total_reduction) + '! ')                                    
-                                    combatant.target.reaction_used = True
-                                #End Uncanny dodge
-
+                            if combatant.target.conscious:                              
                                 resolve_damage(combatant.target)
                             else:                            
                                 if crit:
@@ -883,16 +870,16 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source)
             crit_damage = bonus_damage * 2           
                         
     if crit:
-        print_output(indent() + combatant.name + ' dealt an additional ' + repr(crit_damage+flat) + ' (roll = ' + repr(bonus_damage) + ') points of ' + type.name + ' damage with ' + source)
+        print_output(indent() + combatant.name + ' dealt an additional ' + crit_damage_text(repr(crit_damage+flat)) + ' (roll = ' + repr(bonus_damage) + ') points of ' + type.name + ' damage with ' + source)
         deal_damage(combatant,combatant.target,crit_damage+flat,type,combatant.current_weapon.magic)
     else:
-        print_output(indent() + combatant.name + ' dealt an additional ' + repr(bonus_damage+flat) + ' points of ' + type.name + ' damage with ' + source)
+        print_output(indent() + combatant.name + ' dealt an additional ' + damage_text(repr(bonus_damage+flat)) + ' points of ' + type.name + ' damage with ' + source)
         deal_damage(combatant,combatant.target,bonus_damage+flat,type,combatant.current_weapon.magic)
 
 def resolve_hemo_damage(combatant):        
     #Gunslinger - Hemorrhaging Shot; damage and type is stored against the target and resolved after the target takes its turn (treated as nonmagical always?)
     if combatant.hemo_damage > 0:
-        print_output(combatant.name + ' bleeds profusely from an earlier gunshot wound, suffering ' + repr(combatant.hemo_damage) + ' points of damage from Hemorrhaging Critical!')
+        print_output(combatant.name + ' bleeds profusely from an earlier gunshot wound, suffering ' + damage_text(repr(combatant.hemo_damage)) + ' points of damage from Hemorrhaging Critical!')
         #hack
         #combatant.hemo_damage_type = combatant.target.current_weapon.weapon_damage_type
         #deal damage to yourself
@@ -906,17 +893,17 @@ def deal_damage(combatant,target,damage,dealt_damage_type,magical):
     if target.raging and not target.armour_type == armour_type.Heavy:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing):
             damage = int(damage/2)              
-            print_output(doubleindent() + target.name + ' shrugs off ' + repr(damage) + ' points of damage in their rage!')
+            print_output(doubleindent() + target.name + ' shrugs off ' + dmgred_text(repr(damage)) + ' points of damage in their rage!')
     if target.enlarged:
         if dealt_damage_type in (damage_type.Fire,damage_type.Cold,damage_type.Lightning):
             damage = int(damage/2)              
-            print_output(doubleindent() + target.name + ' shrugs off ' + repr(damage) + ' points of damage due to the effects of Enlarge!')
+            print_output(doubleindent() + target.name + ' shrugs off ' + dmgred_text(repr(damage)) + ' points of damage due to the effects of Enlarge!')
 
     #Reduce bludgeoning/piercing/slashing if dealt by non-magical dealt_
     if target.monster_type == monster_type.Ancient_Black_Dragon:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing) and not magical:
             damage = int(damage/2)              
-            print_output(doubleindent() + target.name + ' shrugs off ' + repr(damage) + ' points of damage from the non-magical attack!')
+            print_output(doubleindent() + target.name + ' shrugs off ' + dmgred_text(repr(damage)) + ' points of damage from the non-magical attack!')
 
     if damage > 0:
         #Check if creature already has a type of this damage pending to be deducted from hit points
@@ -974,10 +961,19 @@ def resolve_damage(combatant):
                             combatant.stones_endurance_used = True
                             combatant.reaction_used = True
 
-            combatant.current_health = combatant.current_health - total_damage 
+                # Uncanny Dodge (can only occur after being victim of an Attack you can see - reduce all the attack damage by half)
+                if combatant.uncanny_dodge:
+                    # Don't waste dodge on small hits
+                    if total_damage > 20:
+                        reduction = int(total_damage/2)                        
+                        print_output(combatant.name + ' uses their reaction, and uses Uncanny Dodge to reduce the damage of the attack by ' + dmgred_text(repr(reduction)) + '! ')                                    
+                        total_damage = int(total_damage - reduction)
+                        combatant.reaction_used = True
+                        
+            combatant.current_health = max(combatant.current_health - total_damage,0)
                         
             print_output('Damage Summary: ' + damage_string)        
-            print_output(combatant.name + ' suffers a total of ' + repr(int(total_damage)) + ' points of damage. Current HP: ' + repr(int(combatant.current_health)) + '/' + repr(combatant.max_health))        
+            print_output(combatant.name + ' suffers a total of ' + damage_text(repr(int(total_damage))) + ' points of damage. ' + hp_text(combatant.current_health,combatant.max_health))        
 
 def resolve_fatality(combatant):
     if combatant.alive and combatant.conscious and combatant.current_health <= 0:
@@ -1037,7 +1033,7 @@ def resolve_fatality(combatant):
 
     #Resolve death
     if not combatant.alive and not combatant.conscious and combatant.current_health <=0:
-        print_output('********' + 'HOW DO YOU WANT TO DO THIS??' + '********')        
+        print_output(killing_blow_text('HOW DO YOU WANT TO DO THIS??'))        
 
 def death_saving_throw(combatant):
     i = roll_die(20)
@@ -1237,7 +1233,8 @@ def move_grid(combatant,direction):
         rand_direction = random.randint(1,8)
         direction = cardinal_direction(rand_direction)
 
-        print_output(indent() + combatant.name + ' chooses to travel ' + direction.name)
+        if settings.verbose_movement:
+            print_output(indent() + combatant.name + ' chooses to travel ' + direction.name)
     
     xpos = 0
     ypos = 0
@@ -1248,14 +1245,15 @@ def move_grid(combatant,direction):
     new_xpos = initialxpos + xpos 
     new_ypos = initialypos + ypos
     
-    print_output(indent() + combatant.name + ' attempts to move ' + direction.name + ' from (' + repr(initialxpos) + ',' + repr(initialypos) + ') to (' + repr(new_xpos) + ',' + repr(new_ypos) + ')')
+    if settings.verbose_movement:
+        print_output(indent() + combatant.name + ' attempts to move ' + direction.name + ' from (' + repr(initialxpos) + ',' + repr(initialypos) + ') to (' + repr(new_xpos) + ',' + repr(new_ypos) + ')')
 
     #Check that the grid is not occupied
     other_combatants = all_other_combatants(combatant)
     for other_combatant in other_combatants:
         if (other_combatant.xpos == new_xpos) and (other_combatant.ypos == new_ypos):
             #Force any other combatant in those positions to block movement through that square
-            print_output(indent() + combatant.name + ' failed to move - ' + other_combatant.name + ' is blocking that position!')
+            print_output(indent() + movement_text(combatant.name + ' failed to move - ' + other_combatant.name + ' is blocking them at (' + repr(new_xpos) + ',' + repr(new_ypos) + ')!'))
             return False
 
     #Check for opportunity attacks
@@ -1266,10 +1264,12 @@ def move_grid(combatant,direction):
         combatant.ypos = new_ypos
         # Update movement
         combatant.movement -= 5
-        print_output(indent() + combatant.name + ' successfully moved')
+        if settings.verbose_movement:
+            print_output(indent() + combatant.name + ' successfully moved, spending 5 points of movement (Remaining Movement: ' + repr(combatant.movement) + ' feet.)')
         return True
-    else:
-        print_output(indent() + combatant.name + ' failed to move - they have no movement remaining!')            
+    else:        
+        if settings.verbose_movement:
+            print_output(indent() + movement_text(combatant.name + ' failed to move - they have no movement remaining!'))            
         return False
 
 def calc_distance(combatant,target):
@@ -1345,14 +1345,16 @@ def calc_grid_step(direction,x,y):
 
 def move_to_target(combatant,target):
     # Goal - decrease the distance between us and target
-    print_output(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move towards ' + combatant.target.name + ' at (' + repr(combatant.target.xpos) + ',' + repr(combatant.target.ypos) + ')')    
+    print_output(movement_text(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move towards ' + combatant.target.name + ' at (' + repr(combatant.target.xpos) + ',' + repr(combatant.target.ypos) + ')'))    
+    print_output(movement_text(combatant.name + ' has ' + repr(combatant.movement) + ' feet of movement to spend.'))
     initial_distance = calc_distance(combatant,target)
     initial_grids = calc_no_of_grids(initial_distance)
     grids_to_move = calc_no_of_grids(initial_distance)
     initial_grid_movement = calc_no_of_grids(combatant.movement)
     grid_movement = calc_no_of_grids(combatant.movement)
     
-    print_output(combatant.name + ' has ' + repr(initial_grid_movement) + ' grids, or ' + repr(combatant.movement) + ' feet of movement to spend. (Distance to destination: ' + repr(initial_grids) + ' grids, or ' + repr(initial_distance) + ' feet)')
+    if settings.verbose_movement:
+        print_output(combatant.name + ' has ' + repr(initial_grid_movement) + ' grids, or ' + repr(combatant.movement) + ' feet of movement to spend. (Distance to destination: ' + repr(initial_grids) + ' grids, or ' + repr(initial_distance) + ' feet)')
 
     grids_moved = 0
     while grids_to_move > 0 and grid_movement > 0:      
@@ -1393,22 +1395,21 @@ def move_to_target(combatant,target):
         grids_to_move -= 1
         grid_movement -= 1
         
-    final_distance = calc_distance(combatant,combatant.target)
-    final_grid_distance = calc_no_of_grids(final_distance)
-    used_movement = grids_moved*5
-    #print_output(combatant.name + ' uses ' + repr(grids_moved) + ' grids, or ' + repr(used_movement) + ' feet of their movement to travel towards ' + combatant.target.name + ' (Distance to target: ' + repr(final_grid_distance) + ' grids, or ' + repr(final_distance) + ' feet)')
+    print_output(movement_text(combatant.name + ' is now located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')'))    
 
 def move_from_target(combatant,target):
     # Goal - extend the distance between us and target
     #Essentially figure out where we are in relation to the target, and keep travelling in that direction
-    print_output(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move away from ' + combatant.target.name + ' at (' + repr(combatant.target.xpos) + ',' + repr(combatant.target.ypos) + ')')
+    print_output(movement_text(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move away from ' + combatant.target.name + ' at (' + repr(combatant.target.xpos) + ',' + repr(combatant.target.ypos) + ')'))
+    print_output(movement_text(combatant.name + ' has ' + repr(combatant.movement) + ' feet of movement to spend.'))
     initial_distance = combatant.movement
     initial_grids = calc_no_of_grids(initial_distance)    
 
     grids_to_move = calc_no_of_grids(initial_distance)
     grid_movement = calc_no_of_grids(combatant.movement)
     
-    print_output(combatant.name + ' has ' + repr(grid_movement) + ' grids, or ' + repr(combatant.movement) + ' feet of movement to spend. (Distance to destination: ' + repr(initial_grids) + ' grids, or ' + repr(initial_distance) + ' feet)')
+    if settings.verbose_movement:
+        print_output(combatant.name + ' has ' + repr(grid_movement) + ' grids, or ' + repr(combatant.movement) + ' feet of movement to spend. (Distance to destination: ' + repr(initial_grids) + ' grids, or ' + repr(initial_distance) + ' feet)')
 
     grids_moved = 0
     while grids_to_move > 0 and grid_movement > 0:
@@ -1459,7 +1460,7 @@ def move_from_target(combatant,target):
                         if move_grid(combatant,direction):
                             grid_moved = True             
                         else:
-                            print_output('Could not move!')
+                            #Movement failed for some other reason
                             grid_moved = True             
         
         #If we haven't attacked yet, we don't want to run out of our weapon range
@@ -1475,15 +1476,12 @@ def move_from_target(combatant,target):
         grids_to_move -= 1
         grid_movement -= 1
 
-    final_distance = calc_distance(combatant,combatant.target)
-    final_grid_distance = calc_no_of_grids(final_distance)
-    used_movement = grids_moved*5
-    #print_output(combatant.name + ' uses ' + repr(grids_moved) + ' grids, or ' + repr(used_movement) + ' feet of their movement to travel away from ' + combatant.target.name + ' (Distance to target: ' + repr(final_grid_distance) + ' grids, or ' + repr(final_distance) + ' feet)')
+    print_output(movement_text(combatant.name + ' is now located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')'))    
     
 def calc_no_of_grids(distance):
     return(int(round(math.fabs(distance/5))))
 
-def enemies(combatant):
+def get_enemies(combatant):
     enemies = []
     for potential_enemy in combatants.list:
         if combatant.name != potential_enemy.name and combatant.team != potential_enemy.team:

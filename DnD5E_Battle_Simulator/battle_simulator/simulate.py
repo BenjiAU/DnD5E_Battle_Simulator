@@ -55,14 +55,20 @@ def simulate_battle():
     set_output_file()            
     
     # Error checking
-    if len(combatants.list) <= 1:
-        print_output('Error: you must select at least two combatants to simulate a battle')
-        error_occurred = True
-
-    #for combatant in combatants.list:
-        #if combatant.team
-    #    print_output('Error: there must be at least 2 competing teams to battle')
-    #    error_occurred = True
+    if len(combatants.list) > 1:
+        enemy_found = False        
+        first_team_name = ""
+        for combatant in combatants.list:       
+            if first_team_name == "":
+                first_team_name = combatant.team.name
+            if combatant.team.name != first_team_name:
+                enemy_found = True
+        if not enemy_found:
+            print_output('Error: there must be at least 2 competing teams to battle. Change the combatants, or change the Team that the combatant belongs to in order to simulate a battle.')
+            error_occurred = True
+    else:
+        print_output('Error: you must select at least two combatants to simulate a battle.')
+        error_occurred = True    
 
     attempt=0
     while attempt < settings.max_attempts and not error_occurred:
@@ -111,7 +117,7 @@ def simulate_battle():
             for combatant in combatants.list:        
                 if not round_complete:
                     print_output("</br>")
-                    print_output('It is now ' + combatant.name + '\'s turn. Current HP: ' + repr(combatant.current_health) + '/' + repr(combatant.max_health))
+                    print_output('It is now ' + combatant.name + '\'s turn. ' + hp_text(combatant.current_health,combatant.max_health) + '. Current Position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
                     turn_complete = False
                     while not turn_complete:
                         # Continuously evaluate this subloop only while combatant is alive/conscious; if these conditions change, skip out to death handling
@@ -204,7 +210,7 @@ def simulate_battle():
                                     bonus_action(combatant)            
 
                                 if not combatant.conscious or not combatant.alive:
-                                        break
+                                    break
 
                                 # hasted action #
                                 if combatant.hasted_action and not combatant.hasted_action_used:
@@ -247,14 +253,8 @@ def simulate_battle():
                                 print_output('That finishes ' + combatant.name + '\'s turn.')
                                 turn_complete = True
                             else:
-                                print_output('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-                                print_output('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-                                print_output('~~~~~~~~~~~~~')
-                                print_output(combatant.name + ' has no valid targets! ' + combatant.team.name + ' wins!')
-                                print_output('~~~~~~~~~~~~~')
-                                print_output('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-                                print_output('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-                                
+                                print_output(victory_text(combatant.name + ' has no valid targets! ' + combatant.team.name + ' wins!'))
+                                                                
                                 for team in combatants.teams:
                                     if team.battling and team.name == combatant.team.name:
                                         team.no_of_wins += 1
@@ -296,23 +296,24 @@ def simulate_battle():
         print_output('_____________________________________________________________________________')
         # End of battle
 
-    print_output("</br>")
-    print_output('------------------------')
-    print_output('<b>Simulation Complete</b>')
-    print_output('------------------------')
+    if not error_occurred:
+        print_output("</br>")
+        print_output('------------------------')
+        print_output('<b>Simulation Complete</b>')
+        print_output('------------------------')
     
-    # Summary
-    print_output('<b>Combatant Summary:</b>')
+        # Summary
+        print_output('<b>Combatant Summary:</b>')
 
-    for combatant in combatants.list:
-        print_summary(combatant)            
+        for combatant in combatants.list:
+            print_summary(combatant)            
     
-    print_output('------------------------')
-    print_output('<b>Team Summary:</b>')
-    print_output('**************************')
-    for team in combatants.teams:
-        if team.battling and team.no_of_wins > 0:
-            print_output(team.name + ' ----- No. of wins: ' + repr(team.no_of_wins))
+        print_output('------------------------')
+        print_output('<b>Team Summary:</b>')
+        print_output('**************************')
+        for team in combatants.teams:
+            if team.battling and team.no_of_wins > 0:
+                print_output(victory_text(team.name + ' ----- No. of wins: ' + repr(team.no_of_wins)))
     
     #Close the output file if it is open    
     close_file()    

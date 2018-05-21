@@ -12,6 +12,10 @@ body
     text-align: left;
 }
 
+.output {
+    background-color: #232B2B;
+    color: #FFFFFF;
+}
 .grid {
     font-family: 'Courier New';
 }
@@ -22,4 +26,61 @@ body
 
 .doubleindent {
     margin-left: 80px;
+}
+
+.movement
+{
+    color: lightblue;
+}
+
+.damage {
+    color: red;
+    font-weight: bold;
+}
+
+.crit_damage {
+    color: red;
+    font-weight: bolder;
+}
+
+.damage_reduction{
+    color: lightyellow;
+    font-weight: bolder;
+}
+
+.healing{
+    color: lawngreen;
+}
+
+.hpnormal{
+    color: lightgreen;
+}
+
+.hpmidrange{
+    color: lightyellow;
+}
+
+.hplow{
+    color: lightcoral;
+}
+
+.hpdead{
+    color: darkred;
+    font-weight: bold;
+}
+
+.hdywtdt{
+    color: gold;
+    font-weight: bold;
+    font-size: larger;
+}
+
+.victory_text{
+    color: chartreuse;
+    font-weight: bold;
+    font-size: x-large;
+}
+
+.death{
+
 }

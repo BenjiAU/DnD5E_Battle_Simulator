@@ -12,7 +12,7 @@ app=Flask(__name__)
 
 def index():
     filename = ""
-    html = Markup('<div>----Output----</div>')   
+    html = Markup('<div class="output">----Output----')   
     html_combatants = ""
     
     simulate.load_combatants()
@@ -27,6 +27,8 @@ def index():
                         html += Markup(i + '</div>')
                     else:
                         html += Markup('<div>' + i + '</div>')           
+    
+    html += Markup('</div>')
 
     data = {
         "title": 'Critical Role Battle Simulator V1.0',

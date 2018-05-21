@@ -168,16 +168,9 @@ def print_grid(xorigin,yorigin,highlight_grids,targets):
                 grid_line += ' . '        
             #grid_line += '(' + repr(x) + ',' + repr(y) + ')'        
             x -= 5        
-        grid_line += '</div>'
         print_output(grid_line)            
         grid_line = '<div class=grid>'
         y -= 5
-
-def indent():
-    return '<div class="indent">'
-
-def doubleindent():
-    return '<div class="doubleindent">'
 
 def numbered_list(counter):
     suffix = ""
@@ -197,3 +190,41 @@ def characterlevel(combatant):
     for class_instance in combatant.player_classes():
         player_level += class_instance.player_class_level
     return player_level
+
+#Style functions
+def indent():
+    return '<div class="indent">'
+
+def doubleindent():
+    return '<div class="doubleindent">'
+
+def movement_text(text):
+    return '<span class="movement">' + text + '</span>'
+
+def damage_text(text):
+    return '<span class="damage">' + text + '</span>'
+
+def crit_damage_text(text):
+    return '<span class="crit_damage">' + text + '</span>'
+
+def healing_text(text):
+    return '<span class="healing">' + text + '</span>'
+
+def dmgred_text(text):
+    return '<span class="damage_reduction">' + text + '</span>'
+
+def hp_text(currenthp,maxhp):
+    if currenthp/maxhp >= 0.75:
+        return '<span class="hpnormal">Current HP: ' + repr(currenthp) + '/' + repr(maxhp)+ '</span>'
+    elif currenthp/maxhp >= 0.5 and currenthp/maxhp < 0.75:
+        return '<span class="hpmidrange">Current HP: ' + repr(currenthp) + '/' + repr(maxhp)+ '</span>'
+    elif currenthp >= 1 and currenthp/maxhp < 0.5:
+        return '<span class="hplow">Current HP: ' + repr(currenthp) + '/' + repr(maxhp)+ '</span>'
+    elif currenthp <= 0:
+        return '<span class="hpdead">Current HP: ' + repr(currenthp) + '/' + repr(maxhp)+ '</span>'
+
+def victory_text(text):
+    return '<span class=victory_text>' + text + '</span>'
+
+def killing_blow_text(text):
+    return '<span class=hdywtdt>' + text + '</span>'
