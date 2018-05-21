@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-class shape(Enum):
+class area_of_effect_shape(Enum):
     def __str__(self):
         return str(self.value)    
     Point = auto()

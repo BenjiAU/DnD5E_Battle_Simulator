@@ -83,19 +83,19 @@ def initialise_teams(combatants,teams):
 def initialise_starting_positions(combatants):
     for combatant in combatants:
         if combatant.name == "Grog":
-            combatant.starting_xpos = 50
+            combatant.starting_xpos = 0
             combatant.starting_ypos = 50
         if combatant.name == "Vax":
-            combatant.starting_xpos = 25
+            combatant.starting_xpos = 0
             combatant.starting_ypos = 25
         if combatant.name == "Percy":
             combatant.starting_xpos = 25
             combatant.starting_ypos = 25
         if combatant.name == "Arkhan":
-            combatant.starting_xpos = 100
-            combatant.starting_ypos = 100
+            combatant.starting_xpos = 50
+            combatant.starting_ypos = 50
         if combatant.name == "Umbrasyl":
-            combatant.starting_xpos = 100
+            combatant.starting_xpos = 0
             combatant.starting_ypos = 100
                    
         #if combatant.name == "Yasha":

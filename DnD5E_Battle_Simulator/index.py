@@ -51,10 +51,10 @@ def process_form():
                     if selected_team == team.name and selected_team != combatant.team.name:
                         combatant.team = team
                 selected_xpos = int(request.form.get('xpos_' + combatant.name))
-                if selected_xpos != combatant.starting_xpos and selected_ypos != 0:
+                if selected_xpos != combatant.starting_xpos:
                     combatant.starting_xpos = selected_xpos
                 selected_ypos = int(request.form.get('ypos_' + combatant.name))
-                if selected_ypos != combatant.starting_ypos and selected_ypos != 0:
+                if selected_ypos != combatant.starting_ypos:
                     combatant.starting_ypos = selected_ypos
             #selected_combatants = request.form.getlist("combatant")
             #selected_teams = request.form.getlist('team_select')

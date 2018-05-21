@@ -34,7 +34,7 @@ def use_movement(combatant):
     # Melee weapon?
     if (combatant.current_weapon.range == 0) and not (combatant.current_weapon.thrown):                    
         if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):            
-            print_output(combatant.name + ' stays where they are, in melee range of ' + combatant.target.name)
+            print_output(combatant.name + ' stays where they are, in melee range of ' + combatant.target.name + '(' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
         else:
             move_to_target(combatant,combatant.target)
     else:
@@ -344,7 +344,18 @@ def attack_action(combatant):
                     attack(combatant)  
 
 def breath_attack(combatant):
-    print_output(combatant.name + ' rears back and unleashes a devastating breath attack!')   
+    print_output(combatant.name + ' rears back and unleashes a devastating breath attack! (10 feet width, 90 feet length)')   
+    
+    #Center point of attack on current target
+    direction = derive_direction(combatant,combatant.target)
+    print_output(' The breath attack is aimed to the ' + direction.name + '!')   
+
+    # Black dragon breath attack is a 10 ft wide 90 ft line (all dragons are different)
+    affected_targets = []
+
+    affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,direction,area_of_effect_shape.Line,10,90)   
+
+    # Calculate damage
     breath_damage = 0
     breath_damage_type = 0
     die_damage = 0
@@ -355,30 +366,35 @@ def breath_attack(combatant):
             die_damage = roll_die(combatant.breath_damage_die)
             print_output(indent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.breath_damage_die) + ' (Breath Damage)')
             breath_damage += die_damage
-    
-    #Center point of attack on current target
-    direction = derive_direction(combatant,target)
-    calculate_area_effect(combatant.target.xpos,combatant.target.ypos)
-    if savingthrow(combatant.target,saving_throw.Dexterity,dexmod(combatant.target),combatant.target.saves.dex_adv,23):
-        #If target has evasion and saves, nothing happens
-        if not combatant.target.evasion:
-            deal_damage(combatant,combatant.target,breath_damage/2,breath_damage_type,True)
+            
+    print_output(indent() + 'The breath attack deals a total of ' + repr(breath_damage) + ' points of ' + breath_damage_type.name + ' damage!')   
+
+    # Retrieve the combatant list reference if it hasn't passed throuhg?
+    for affected_target in affected_targets:    
+        print_output(affected_target.name + ' is in the affected area (located at (' + repr(affected_target.xpos) + ',' + repr(affected_target.ypos) + ')')   
+        if savingthrow(affected_target,saving_throw.Dexterity,dexmod(affected_target),affected_target.saves.dex_adv,23):
+            #If target has evasion and saves, nothing happens
+            if affected_target.evasion:
+                print_output(affected_target.name + ' avoids all damage from the attack thanks to Evasion!') 
+            else:                
+                deal_damage(combatant,affected_target,breath_damage/2,breath_damage_type,True)
+                #statistics, count this as a hit attack
+                combatant.attacks_hit += 1
+        else:
             #statistics, count this as a hit attack
             combatant.attacks_hit += 1
-    else:
-        #statistics, count this as a hit attack
-        combatant.attacks_hit += 1
-        #If target has evasion and fails, half damage
-        if combatant.target.evasion:
-            deal_damage(combatant,combatant.target,breath_damage/2,breath_damage_type,True)
-        else:
-            deal_damage(combatant,combatant.target,breath_damage,breath_damage_type,True)
+            #If target has evasion and fails, half damage
+            if affected_target.evasion:
+                print_output(affected_target.name + ' halves the damage of the attack thanks to Evasion!') 
+                deal_damage(combatant,affected_target,breath_damage/2,breath_damage_type,True)
+            else:
+                deal_damage(combatant,affected_target,breath_damage,breath_damage_type,True)
+                    
+        #See if the damage droped target below 0 hp
+        resolve_damage(affected_target)
+        resolve_fatality(affected_target)
 
     combatant.breath_attack = False
-    
-    #See if the damage droped target below 0 hp
-    resolve_damage(combatant.target)
-    resolve_fatality(combatant.target)
 
 def breath_recharge(combatant):    
     die = roll_die(6)
@@ -717,6 +733,19 @@ def attack(combatant):
                             #Do this sparingly or players wlil die multiple times from one attack 
                             #i.e. activate relentless rage each time they drop below 0
                             if combatant.target.conscious:
+
+                                # Resolve Uncanny Dodge (can only occur after being victim of an Attack you can see - reduce all the attack damage by half)
+                                if combatant.target.uncanny_dodge:
+                                    total_reduction = 0
+                                    for x in combatant.target.pending_damage():        
+                                        if x.damage > 0:
+                                            reduction = int(x.damage/2) 
+                                            x.damage -= reduction
+                                            total_reduction += reduction
+                                    print_output(combatant.target.name + ' uses their reaction, and uses Uncanny Dodge to reduce the damage of the attack by ' + repr(total_reduction) + '! ')                                    
+                                    combatant.target.reaction_used = True
+                                #End Uncanny dodge
+
                                 resolve_damage(combatant.target)
                             else:                            
                                 if crit:
@@ -944,14 +973,6 @@ def resolve_damage(combatant):
                             damage_string += 'reduced by ' + repr(int(reduction)) + ' (Stones Endurance)'
                             combatant.stones_endurance_used = True
                             combatant.reaction_used = True
-
-                # Uncanny Dodge
-                if combatant.uncanny_dodge:
-                    reduction = total_damage/2
-                    total_damage = int(total_damage - reduction)
-                    print_output(combatant.name + ' uses their reaction, and uses Uncanny Dodge to reduce the damage by ' + repr(reduction) + '! ')
-                    damage_string += 'reduced by ' + repr(int(reduction)) + ' (Uncanny Dodge)'
-                    combatant.reaction_used = True
 
             combatant.current_health = combatant.current_health - total_damage 
                         
@@ -1198,11 +1219,10 @@ def move_grid(combatant,direction):
     if direction == cardinal_direction.Stay:
         return 
 
-    xpos = 0
-    ypos = 0
-    initialxpos = combatant.xpos
-    initialypos = combatant.ypos    
-
+    # Round positions to the nearest 5 for simplicity
+    initialxpos = round_to_integer(combatant.xpos,5)
+    initialypos = round_to_integer(combatant.ypos,5)
+    
     #1 = Southwest
     #2 = South
     #3 = Southeast
@@ -1218,27 +1238,39 @@ def move_grid(combatant,direction):
         direction = cardinal_direction(rand_direction)
 
         print_output(indent() + combatant.name + ' chooses to travel ' + direction.name)
-
+    
     xpos = 0
     ypos = 0
-    calc_grid_step(direction,xpos,ypos)    
+
+    xpos,ypos = calc_grid_step(direction,xpos,ypos)    
 
     # Evaluate opportunity attacks
-    new_xpos = combatant.xpos + xpos 
-    new_ypos = combatant.ypos + ypos;
+    new_xpos = initialxpos + xpos 
+    new_ypos = initialypos + ypos
     
-    print_output(indent() + combatant.name + ' attempts to move ' + direction.name + ' from (' + repr(initialxpos) + ',' + repr(initialypos) + ') to (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
-    
-    evaluate_opportunity_attacks(combatant,new_xpos,new_ypos)
+    print_output(indent() + combatant.name + ' attempts to move ' + direction.name + ' from (' + repr(initialxpos) + ',' + repr(initialypos) + ') to (' + repr(new_xpos) + ',' + repr(new_ypos) + ')')
+
+    #Check that the grid is not occupied
+    other_combatants = all_other_combatants(combatant)
+    for other_combatant in other_combatants:
+        if (other_combatant.xpos == new_xpos) and (other_combatant.ypos == new_ypos):
+            #Force any other combatant in those positions to block movement through that square
+            print_output(indent() + combatant.name + ' failed to move - ' + other_combatant.name + ' is blocking that position!')
+            return False
+
+    #Check for opportunity attacks
+    evaluate_opportunity_attacks(combatant,new_xpos,new_ypos)    
 
     if combatant.movement > 0 and not combatant.prone:        
-        combatant.xpos = new_xpos;
-        combatant.ypos = new_ypos;
+        combatant.xpos = new_xpos
+        combatant.ypos = new_ypos
         # Update movement
         combatant.movement -= 5
         print_output(indent() + combatant.name + ' successfully moved')
+        return True
     else:
         print_output(indent() + combatant.name + ' failed to move - they have no movement remaining!')            
+        return False
 
 def calc_distance(combatant,target):
     xdistance = int(math.fabs(combatant.xpos-target.xpos))
@@ -1265,7 +1297,26 @@ def derive_direction(combatant,target):
         direction = cardinal_direction.South
     return(direction)
 
-def calc_grid_step(direction,x,y):
+def derive_perpendicular(direction):
+    if direction == cardinal_direction.North:
+        perpendicular = cardinal_direction.East        
+    elif direction == cardinal_direction.NorthEast:        
+        perpendicular = cardinal_direction.SouthEast
+    elif direction == cardinal_direction.East:
+        perpendicular = cardinal_direction.South        
+    elif direction == cardinal_direction.SouthEast:
+        perpendicular = cardinal_direction.SouthWest
+    elif direction == cardinal_direction.South:
+        perpendicular = cardinal_direction.West
+    elif direction == cardinal_direction.SouthWest:
+        perpendicular = cardinal_direction.NorthWest
+    elif direction == cardinal_direction.West:
+        perpendicular = cardinal_direction.North
+    elif direction == cardinal_direction.NorthWest:
+        perpendicular = cardinal_direction.NorthEast
+    return(perpendicular)
+        
+def calc_grid_step(direction,x,y):    
     if direction == cardinal_direction.SouthWest:
         x = -5
         y = -5
@@ -1277,19 +1328,20 @@ def calc_grid_step(direction,x,y):
         y = -5
     elif direction == cardinal_direction.East:
         x = 5
-        ypos = 0
+        y = 0
     elif direction == cardinal_direction.NorthEast:
-        xpos = 5
-        ypos = 5
+        x = 5
+        y = 5
     elif direction == cardinal_direction.North:
-        xpos = 0
-        ypos = 5
+        x = 0
+        y = 5
     elif direction == cardinal_direction.NorthWest:
-        xpos = -5
-        ypos = 5
+        x = -5
+        y = 5
     elif direction == cardinal_direction.West:
-        xpos = -5
-        ypos = 0
+        x = -5
+        y = 0
+    return(x,y)
 
 def move_to_target(combatant,target):
     # Goal - decrease the distance between us and target
@@ -1312,7 +1364,25 @@ def move_to_target(combatant,target):
 
         direction = derive_direction(combatant,target)
         
-        move_grid(combatant,direction)  
+        grid_moved = False
+        while not grid_moved:
+            if move_grid(combatant,direction):
+                grid_moved = True
+            else:
+                # The desired direction failed (because of prone, another character blocking square etc.)
+                # Try moving perpendicular to the desired direction (this should let us move around on the next tick)
+                direction = derive_perpendicular(direction)
+                if move_grid(combatant,direction):
+                    grid_moved = True
+                else:
+                    # Move in a random direction to see if that lets us get around the obstacle on the next tick (as we derive a new path to target0
+                    direction = cardinal_direction.Random
+                    if move_grid(combatant,direction):
+                        grid_moved = True             
+                    else:
+                        print_output('Could not move!')
+                        grid_moved = True             
+
         grids_moved += 1
         #Evaluate after each step if the target is in range of our weapon
         if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):                        
@@ -1370,10 +1440,27 @@ def move_from_target(combatant,target):
             direction = cardinal_direction.South
         elif combatant.xpos == target.xpos and combatant.ypos > target.ypos:
             direction = cardinal_direction.North
-                
-        if direction != 0:
-            move_grid(combatant,direction)         
-            grids_moved += 1
+                   
+        
+        if direction != cardinal_direction.Stay:
+            grid_moved = False
+            while not grid_moved:
+                if move_grid(combatant,direction):
+                    grid_moved = True
+                else:
+                    # The desired direction failed (because of prone, another character blocking square etc.)
+                    # Try moving perpendicular to the desired direction (this should let us move around on the next tick)
+                    direction = derive_perpendicular(direction)
+                    if move_grid(combatant,direction):
+                        grid_moved = True
+                    else:
+                        # Move in a random direction to see if that lets us get around the obstacle on the next tick (as we derive a new path to target0
+                        direction = cardinal_direction.Random
+                        if move_grid(combatant,direction):
+                            grid_moved = True             
+                        else:
+                            print_output('Could not move!')
+                            grid_moved = True             
         
         #If we haven't attacked yet, we don't want to run out of our weapon range
         #If combatant.movement would take us outside the maximum range of our weapon, stop here instead
@@ -1396,13 +1483,29 @@ def move_from_target(combatant,target):
 def calc_no_of_grids(distance):
     return(int(round(math.fabs(distance/5))))
 
-def enemy_in_range(combatant,range):
+def enemies(combatant):
     enemies = []
-    identify_enemies(combatant,enemies)        
-    for enemy in enemies:
-        if calc_distance(combatant,enemy) <= range:
-            return True                   
-    return False
+    for potential_enemy in combatants.list:
+        if combatant.name != potential_enemy.name and combatant.team != potential_enemy.team:
+            if potential_enemy.alive:                
+                enemies.add(potential_enemy)
+    return enemies
+
+def all_other_combatants(combatant):
+    targets = []
+    for target in combatants.list:
+        if combatant.name != target.name:
+            if target.alive:                
+                targets.append(target)
+    return targets
+
+def determine_enemy_positions(combatant):        
+    enemy_positions = []
+    for potential_enemy in combatants.list:
+        if combatant.name != potential_enemy.name and combatant.team != potential_enemy.team:
+            if potential_enemy.alive:                
+                enemy_positions.add((potential_enemy.xpos,potential_enemy.ypos))
+    return enemy_positions
 
 def target_in_weapon_range(combatant,target,range):
     if range == 0:        
@@ -1446,40 +1549,65 @@ def find_target(combatant):
     else:
         return False
 
-def calculate_area_effect(xorigin,yorigin,direction,shape,width,length):
+def calculate_area_effect(combatant,xorigin,yorigin,direction,shape,width,length):
     #Determines area of effect of passed in parameters and returns a dict of affected x,y co-ords    
-    affected_grids = []
+    #First round the values to the nearest 5 foot
+    width = round_to_integer(width,5)
+    length = round_to_integer(length,5)
+    affected_grids = []    
+    targets = []
     x = 0
     y = 0
     # Begin at point of origin
     # Determine direction of ability
-    # Calculate perpendicular direction and go in each direction width/2
-    # For each grid along the perpendicular, cast forward to the length
+    # Calculate perpendicular direction and go the inverse perpendicular by round(width/2,5) steps
+    # Cast forward to the length from this point
+    # Iterate through the remaining steps along the width and cast forward to length
     if shape == area_of_effect_shape.Line:    
-        origin = (xorigin,yorigin)
-        length_cursor  = 0
-        length_x = xorigin
-        length_y = yorigin        
-        while length_cursor < length:            
-            calc_grid_step(direction,x,y)                                        
-            length_x += x
-            length_y += y
-            affected_grids.append(length_x,lengthy)
-            length_cursor += 5
-        # The final length_x and length_y points give us the 'target point' to calculate perpendicular width
-        destination = (length_x,length_y)
-        v = origin - destination
-        h = width/2
-        width_min = (-v.y, v.x) / Sqrt(v.x^2 + v.y^2) * h
-        width_max = (-v.y, v.x) / Sqrt(v.x^2 + v.y^2) * -h
+        perpendicular = derive_perpendicular(direction)
+        if perpendicular != cardinal_direction.Stay:
+            #Step along the perpendicular direction for 1/2 width
+            #Again round to nearest 5 - we're assuming any ability that affects a portion of a grid affects that grid
+            width_step = round_to_integer(width/2,5)
+            width_origin_x = xorigin
+            width_origin_y = yorigin
+            while width_step < width:
+                x, y = calc_grid_step(perpendicular,x,y)
+                #Invert the steps to track back to the 'starting gpoint'
+                width_origin_x -= x
+                width_origin_y -= y
+                width_step += 5
+            # Here we should have the starting point of the line - inverting the steps along the widest point along the perpendicular axis
+            # Cast forward to length, then iterate through the width
+            width_step = 0
+            while width_step < width:
+                length_step  = 0
+                destination_x = width_origin_x
+                destination_y = width_origin_y 
+                while length_step < length:            
+                    # Step in the correct direction along the length
+                    x, y = calc_grid_step(direction,x,y)                                        
+                    destination_x += x
+                    destination_y += y
+                    affected_grids.append((destination_x,destination_y))
+                    length_step += 5
+                # After we've reached the end of the length, step along the perpendicular, update our width points for the next run through the loop
+                x, y = calc_grid_step(perpendicular,x,y)                          
+                width_origin_x += x
+                width_origin_y += y                
+                width_step += 5
+      
+    # Find enemy locations and see if targets are located within the grid set
+    affected_targets = []
+    potential_targets = all_other_combatants(combatant)
+    for potential_target in potential_targets:
+        if (potential_target.xpos,potential_target.ypos) in affected_grids:
+            affected_targets.append(potential_target)
 
-        width_cursor = 0                 
-        while width_cursor < width:            
-            calc_grid_step(direction,x,y)                
-            width_x += x
-            width_y += y
-            affected_grids.append(width_x,width_y)
-            width_cursor += 5
+    #Print out a grid (half debugging, may leave it in) - show all the targets so they can be rendered
+    print_grid(xorigin,yorigin,affected_grids,potential_targets)
+
+    return affected_targets
             
 
 def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
@@ -1530,3 +1658,6 @@ def get_combatant_class_level(combatant,combatant_class):
     for class_instance in combatant.player_classes():
         if class_instance.player_class == combatant_class:
             return class_instance.player_class_level
+
+def round_to_integer(x, base):
+    return int(base * round(float(x)/base))
