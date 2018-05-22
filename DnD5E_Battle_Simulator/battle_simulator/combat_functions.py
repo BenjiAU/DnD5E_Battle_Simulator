@@ -1620,6 +1620,15 @@ def find_target(combatant):
     else:
         return False
 
+def find_targets_in_area(combatant,affected_grids):    
+    affected_targets = []
+    potential_targets = []
+    potential_targets = all_other_combatants(combatant)
+    for potential_target in potential_targets:
+        if (potential_target.xpos,potential_target.ypos) in affected_grids:
+            affected_targets.append(potential_target)
+    return affected_targets
+
 def calculate_area_effect(combatant,xorigin,yorigin,direction,shape,width,length):
     #Determines area of effect of passed in parameters and returns a dict of affected x,y co-ords    
     #First round the values to the nearest 5 foot
@@ -1635,48 +1644,91 @@ def calculate_area_effect(combatant,xorigin,yorigin,direction,shape,width,length
     # Cast forward to the length from this point
     # Iterate through the remaining steps along the width and cast forward to length
     if shape == area_of_effect_shape.Line:    
+        # Calculate the maximum area of the ability - Rectangle
+        max_grids = round_to_integer((width * length) / 5,5)
+        width_in_grids = round_to_integer(width / 5,5)
+        length_in_grids = round_to_integer(length / 5,5) 
+
         perpendicular = derive_perpendicular(direction)
-        if perpendicular != cardinal_direction.Stay:
-            #Step along the perpendicular direction for 1/2 width
-            #Again round to nearest 5 - we're assuming any ability that affects a portion of a grid affects that grid
+        if perpendicular != cardinal_direction.Stay:                            
+            # Cast a line out from origin point
+            # Then, step along the perpendicular in a direction, and cast another line out
+            # Repeat until the maximum grids has been exceeded or we run out of width
             width_step = round_to_integer(width/2,5)
             width_origin_x = xorigin
             width_origin_y = yorigin
-            while width_step < width:
-                x, y = calc_grid_step(perpendicular,x,y)
-                #Invert the steps to track back to the 'starting gpoint'
+            while width_step < width:                    
+                line_grids = []
+
+                x, y = calc_grid_step(direction,x,y)                    
+                # Approximates the direction of the attack by multiplying the origin + length by the appropriate modifier - limited to 8 cardinal directions 
+                # Alternative is to:
+                #   calculate the vector of the origin versus the target point; 
+                #   measure the additional distance from target point to maximum length; 
+                #   find the closest center of the grid point to be the destination x,y co-ordinates
+                xdestination = (width_origin_x + length_in_grids) * (x/5)
+                ydestination = (width_origin_y + length_in_grids) * (y/5)
+                    
+                # Uses a variation of Brehenams algorithm to return the grids that are supercovered by a line drawn from origin -> destination
+                line_grids = evaluate_line(width_origin_y,width_origin_x,ydestination,xdestination)                
+
+                #Step along the width of the rectangle to shift the origin point for the next round
+                # Angular directions mean we shift one of the co-ordinates to avoid casting two lines that are not adjacent
+                x, y = calc_grid_step(perpendicular,x,y)    
+                #if perpendicular == cardinal_direction.NorthEast:
+                #    width_origin_y -= y
+                #elif perpendicular == cardinal_direction.NorthWest:
+                #    width_origin_y -= y
+                #elif perpendicular == cardinal_direction.SouthEast:
+                #    width_origin_y += y
+                #elif perpendicular == cardinal_direction.SouthWest:
+                #    width_origin_y += y
+                #else:
                 width_origin_x -= x
                 width_origin_y -= y
+
                 width_step += 5
+
+                i = 0
+                while i < len(line_grids):
+                    if line_grids[i] not in affected_grids:
+                        if len(affected_grids) + 1 < max_grids:
+                            affected_grids.append(line_grids[i])
+                    i += 1
+
+            affected_targets = find_targets_in_area(combatant,affected_grids)
+            print_grid(xorigin,yorigin,affected_grids,affected_targets)
+            print_output("End Bresenham Grid Testing")
+            
             # Here we should have the starting point of the line - inverting the steps along the widest point along the perpendicular axis
-            # Cast forward to length, then iterate through the width
-            width_step = 0
-            while width_step < width:
-                length_step  = 0
-                destination_x = width_origin_x
-                destination_y = width_origin_y 
-                while length_step < length:            
-                    # Step in the correct direction along the length
-                    x, y = calc_grid_step(direction,x,y)                                        
-                    destination_x += x
-                    destination_y += y
-                    affected_grids.append((destination_x,destination_y))
-                    length_step += 5
-                # After we've reached the end of the length, step along the perpendicular, update our width points for the next run through the loop
-                x, y = calc_grid_step(perpendicular,x,y)                          
-                width_origin_x += x
-                width_origin_y += y                
-                width_step += 5
+            # Cast forward to length, then iterate through the width            
+            #width_step = 0
+            #while width_step < width:
+            #    length_step  = 0
+            #    destination_x = width_origin_x
+            #    destination_y = width_origin_y 
+            #    while length_step < length:            
+            #        # Step in the correct direction along the length
+            #        x, y = calc_grid_step(direction,x,y)                                        
+            #        destination_x += x
+            #        destination_y += y
+            #        affected_grids.append((destination_x,destination_y))
+            #        max_grids -= 1
+            #        if max_grids == 0:
+            #            break
+            #        length_step += 5
+            #    if max_grids == 0:
+            #        break
+            #    # After we've reached the end of the length, step along the perpendicular, update our width points for the next run through the loop
+            #    x, y = calc_grid_step(perpendicular,x,y)                          
+            #    width_origin_x += x
+            #    width_origin_y += y                
+            #    width_step += 5
       
     # Find enemy locations and see if targets are located within the grid set
-    affected_targets = []
-    potential_targets = all_other_combatants(combatant)
-    for potential_target in potential_targets:
-        if (potential_target.xpos,potential_target.ypos) in affected_grids:
-            affected_targets.append(potential_target)
-
+    #affected_targets = find_targets_in_area(combatant,affected_grids)
     #Print out a grid (half debugging, may leave it in) - show all the targets so they can be rendered
-    print_grid(xorigin,yorigin,affected_grids,potential_targets)
+    #print_grid(xorigin,yorigin,affected_grids,affected_targets)
 
     return affected_targets
             
@@ -1738,3 +1790,85 @@ def get_combatant_class_level(combatant,combatant_class):
 
 def round_to_integer(x, base):
     return int(base * round(float(x)/base))
+
+
+def evaluate_line(y1,x1,y2,x2):
+    affected_grids = []
+# From http://eugen.dedu.free.fr/projects/bresenham/
+# use Bresenham-like algorithm to print a line from (y1,x1) to (y2,x2)
+# The difference with Bresenham is that ALL the points of the line are
+#   printed, not only one per x coordinate.
+# Principles of the Bresenham's algorithm (heavily modified) were taken from:
+#   http://www.intranet.ca/~sshah/waste/art7.html 
+    i = 0               # loop counter
+    ystep = 0           # the step on y and x axis
+    xstep = 0    
+    error = 0           # the error accumulated during the increment
+    errorprev = 0       # *vision the previous value of the error variable
+    y = y1              # the line points
+    x = x1;     
+    ddy = 0             # compulsory variables: the double values of dy and dx
+    ddx = 0        
+    dx = x2 - x1
+    dy = y2 - y1
+    affected_grids.append((x1,y1))  #first point
+  
+    if (dy < 0):
+        ystep = -5;
+        dy = -dy;
+    else:
+        ystep = 5;
+
+    if (dx < 0):
+        xstep = -5;
+        dx = -dx;
+    else:
+        xstep = 5;
+
+    ddy = float(2 * dy);  # work with double values for full precision
+    ddx = float(2 * dx);
+
+    if (ddx >= ddy):  # first octant (0 <= slope <= 1)
+        # compulsory initialization (even for errorprev, needed when dx==dy)
+        errorprev = error = dx  # start in the middle of the square
+        while i < dx:  # do not use the first point (already done)
+            x += xstep
+            error += ddy
+            if (error > ddx):  # increment y if AFTER the middle ( > )
+                y += ystep;
+                error -= ddx;
+                # three cases (octant == right->right-top for directions below):
+                if (error + errorprev < ddx):  #bottom square also
+                    affected_grids.append((x,y-ystep))
+                elif (error + errorprev > ddx):  # left square also
+                    affected_grids.append((x-xstep,y))
+                else: # corner: bottom and left squares also                
+                    affected_grids.append((x,y-ystep))
+                    affected_grids.append((x-xstep,y))
+            i += 5
+
+            affected_grids.append((x,y))      
+            errorprev = error;
+            
+    else: # the same as above
+        errorprev = error = dy
+        while i < dy:     
+            y += ystep;
+            error += ddx;
+            if (error > ddy):
+                x += xstep;
+                error -= ddy;
+                if (error + errorprev < ddy):
+                  affected_grids.append((x-xstep,y))
+                elif (error + errorprev > ddy):
+                  affected_grids.append((x,y-ystep))
+                else:
+                  affected_grids.append((x-xstep,y))
+            i += 5
+
+            affected_grids.append((x,y-ystep))
+            errorprev = error;
+
+    return affected_grids        
+  # assert ((y == y2) && (x == x2));  // the last point (y2,x2) has to be the same with the last point of the algorithm    
+ 
