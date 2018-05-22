@@ -183,6 +183,10 @@ def simulate_battle():
                                     print_output('<b>Use Equipment:</b>')                            
                                     use_equipment(combatant)
 
+                                # bonus action (pre-movement)#       
+                                if not combatant.bonus_action_used:                                    
+                                    bonus_action(combatant)      
+
                                 # use movement first #
                                 print_output('<b>Movement:</b>')
                                 movement(combatant)
@@ -191,8 +195,8 @@ def simulate_battle():
                                     break
 
                                 # bonus action (pre-action)#       
-                                print_output('<b>Bonus Action:</b>') 
-                                bonus_action(combatant)     
+                                if not combatant.bonus_action_used:                                    
+                                    bonus_action(combatant)     
 
                                 if not combatant.conscious or not combatant.alive:
                                     break
@@ -205,8 +209,7 @@ def simulate_battle():
                                     break
 
                                 # bonus action (post-action)#       
-                                if not combatant.bonus_action_used:
-                                    print_output('<b>Bonus Action:</b>') 
+                                if not combatant.bonus_action_used:                                    
                                     bonus_action(combatant)            
 
                                 if not combatant.conscious or not combatant.alive:
@@ -234,12 +237,20 @@ def simulate_battle():
                                     break
                                 #print_output(combatant.name + "s new position: " + repr(combatant.position))
                         
+                                # END OF TURN
+
                                 #Resolve events at the end of turn                                    
                                 print_output('<b>End of Turn:</b>')
                                     
                                 #Apply Hemorraging Critical damage
                                 resolve_hemo_damage(combatant)                   
                                 
+                                # Resolve Head Shot status
+                                if combatant.head_shotted:
+                                    print_output(combatant.name + ' shakes off the effects of the Head Shot, and no longer has disadvantage on attacks!')
+                                    combatant.head_shotted = False
+                                    combatant.has_disadvantage = False
+
                                 # Update rage counter
                                 if combatant.raging:
                                     combatant.rage_duration += 1
@@ -279,9 +290,9 @@ def simulate_battle():
                             print_output("</br>")
                             turn_complete = True                                                                       
 
-                    #End of Turn
+                    #Turn Over
                     turn_complete = True
-                    #End of Turn
+                    #Turn Over
             #End of Round
             round_complete = True
             #End of Round

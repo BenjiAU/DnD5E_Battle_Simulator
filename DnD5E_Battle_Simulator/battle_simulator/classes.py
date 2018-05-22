@@ -96,7 +96,7 @@ class saving_throw(Enum):
         return str(self.value)    
     Strength = auto()
     Dexterity = auto()
-    Consitution = auto()
+    Constitution = auto()
     Intelligence = auto()
     Wisdom = auto()
     Charisma = auto()
@@ -544,6 +544,14 @@ class creature():
     disengaged = bool() #Has taken the Disengage action and does not provoke opportunity attacks
     dodging = bool() # Has taken the Dodge action and imparts disadvantage on inbound attacks
     
+    # Tracks persistent advantage/disadvantage properties
+    has_advantage = bool()
+    has_disadvantage = bool() 
+
+    # Tracks other miscellaneous conditoins
+    head_shotted = bool() #Victim of Gunslinger Head Shot Trick Shot
+
+    # Generic target object, linked to another creature in the find_target function
     target = None
 
     #Summary fields - for output at end of simulation    

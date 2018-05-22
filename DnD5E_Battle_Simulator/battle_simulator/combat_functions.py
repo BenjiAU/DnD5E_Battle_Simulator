@@ -146,7 +146,8 @@ def action(combatant):
 
     combatant.action_used = True
 
-def bonus_action(combatant):    
+def bonus_action(combatant): 
+    print_output('<b>Bonus Action:</b>') 
     #Only do something if a target exists
     if combatant.target:
 
@@ -154,11 +155,24 @@ def bonus_action(combatant):
             print_output(combatant.name + ' has already used their Bonus Action this turn.')
         
         #Cunning Action
-        #if not combatant.bonus_action_used:
-        #    if combatant.cunning_action:
-                #Dodge
-                #Disengage
-         #       if enemy_in_melee_range(combatant):
+        if not combatant.bonus_action_used:
+            if combatant.cunning_action:
+                #Disengage if we're using ranged weapons and someone is in melee range
+                if enemy_in_melee_range(combatant) and combatant.current_weapon.range > 0:                                     
+                    print_output(combatant.name + ' is using their Cunning Action, and taking the Disengage bonus action!')
+                    combatant.disengaged = True
+                    combatant.bonus_action_used = True
+
+                #Dash if we've used our Action to increase the gap                 
+                if combatant.action_used:                    
+                    print_output(combatant.name + ' is using their Cunning Action, and taking the Dash bonus action!')
+                    combatant.movement = combatant.speed
+                    if combatant.hasted:
+                        combatant.movement = combatant.speed * 2                                                
+                    use_movement(combatant)
+                    combatant.bonus_action_used = True
+
+                #Dodge         
 
                 #Hide
         #Rage
@@ -182,14 +196,15 @@ def bonus_action(combatant):
                 if combatant.current_health + 10 + fighter_level < combatant.max_health:
                     second_wind_heal = roll_die(10) + fighter_level
                     heal_damage(combatant,second_wind_heal)                    
-                    print_output(combatant.name + ' uses their Bonus Action to gain a Second Wind, and restores ' + healing_text(repr(second_wind_heal)) + ' hit points!')
+                    print_output(combatant.name + ' uses their Bonus Action to gain a Second Wind, and restores ' + healing_text(repr(second_wind_heal)) + ' hit points! ' + hp_text(combatant.current_health,combatant.max_health))
                     combatant.second_wind = False
                     combatant.bonus_action_used = True
 
         #Frenzy
         if not combatant.bonus_action_used:
             if combatant.raging:
-                if combatant.frenzy:            
+                if combatant.frenzy:      
+                    #You can make a single melee weapon Attack as a Bonus Action on each of your turns after this one (does not have to be tied to Attack action)
                     if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):                    
                         print_output(combatant.name + ' uses their Bonus Action to make a frenzied weapon attack against ' + combatant.target.name)
                         attack(combatant)            
@@ -241,7 +256,7 @@ def hasted_action(combatant):
             attack(combatant)
             combatant.hasted_action_used = True
         else:
-            print_output(combatant.name + ' uses the Dash action as a Hasted action!')            
+            print_output(combatant.name + ' uses the Dash action as a Hasted action!')                        
             combatant.movement = combatant.speed * 2                        
             use_movement(combatant)
             combatant.hasted_action_used = True
@@ -265,13 +280,13 @@ def weapon_swap(combatant,current_range):
         for weapon in combatant.weapon_inventory():                            
             # Swap to range weapon if within range (preferring shorter range non-broken weapons), unless in melee, in which case only swap to melee                        
                 # swap out broken weapon, unless this is the better weapon
-            if ((weapon.range >= current_range and current_range != 0 and combatant.current_weapon.broken and not weapon.broken) or 
+            if ((weapon.range >= current_range and current_range > melee_range() and combatant.current_weapon.broken and not weapon.broken) or 
                 # prefer unbroken shorter range weapon
-            (weapon.range >= current_range and current_range != 0 and weapon.range < combatant.current_weapon.range) or 
+            (weapon.range >= current_range and current_range > melee_range() and weapon.range < combatant.current_weapon.range) or 
                 # prefer range weapon at range over melee weapon
-            (weapon.range >= current_range and current_range != 0 and weapon.range != 0 and combatant.current_weapon.range == 0) or
+            (weapon.range >= current_range and current_range > melee_range() and weapon.range != 0 and combatant.current_weapon.range == 0) or
                 # prefer melee weapon for melee range, but don't swap out for no reason
-            (weapon.range == 0 and current_range == 0 and combatant.current_weapon.range != 0)):         
+            (weapon.range == 0 and current_range <= melee_range() and combatant.current_weapon.range != 0)):         
                 # Don't swap if we're already using this weapon
                 if combatant.current_weapon != weapon:
                     # Draw ruined and cry if current weapon is ruined - making it here means there are no better options
@@ -419,7 +434,8 @@ def attack(combatant):
                 range_attack = False
                 while not attackcomplete:
                 
-                    calledshot = False
+                    trick_shot = False
+                    trick_shot_target = ""
                     advantage = False
                     disadvantage = False
         
@@ -457,59 +473,99 @@ def attack(combatant):
                                     print_output(combatant.name + ' used their Bonus Action to reload ' + combatant.current_weapon.name + '. Ammo: ' + repr(combatant.current_weapon.currentammo) + '/' + repr(combatant.current_weapon.reload))
                                     combatant.bonus_action_used = True                                        
 
-                    #Advantage/disadvantage conditions (not weapon specific)
-                
-                    #Check condition of target                
-                    if combatant.target.prone and range_attack:
-                        print_output(combatant.target.name + ' is prone on the ground, giving ' + combatant.name + ' disadvantage on the attack!')
-                        disadvantage = True
+                    #Advantage/disadvantage conditions (not weapon specific)                
+                    if not attackcomplete:
 
-                    #Check assassination flag
-                    if combatant.can_assassinate_target:
-                        print_output(combatant.name + ' reacts with supernatural speed, and can Assassinate ' + combatant.target.name + ', gaining advantage on the attack')
-                        advantage = True
+                        # Inter-round advantage/disadvantage conditions, which are managed by various status-es
+                        if combatant.has_advantage:
+                            advantage = True
 
-                    #Did the target use reckless attack last round?
-                    if combatant.target.use_reckless and not range_attack:
-                        print_output(combatant.name + ' has advantage on the strike, as ' + combatant.target.name + ' used Reckless Attack last round!')
-                        advantage = True
+                        if combatant.has_disadvantage:
+                            disadvantage = True
+                            if combatant.head_shotted:
+                                print_output(combatant.name + ' has disadvantage on the attack from an earlier Head Shot!')
 
-                    #Can we use reckless attack?
-                    if combatant.reckless and not advantage:
-                        combatant.use_reckless = True
-                        print_output(combatant.name + ' uses Reckless Attack, gaining advantage on the strike')
-                        advantage = True
+                        #Check condition of target                
+                        if combatant.target.prone and range_attack:
+                            print_output(combatant.target.name + ' is prone on the ground, giving ' + combatant.name + ' disadvantage on the attack!')
+                            disadvantage = True
 
-                    #Is Vow of Enmity up?
-                    if combatant.vow_of_enmity_target == combatant.target:
-                        print_output(combatant.name + ' has advantage on the strike from their Vow of Enmity!')
-                        advantage = True
+                        #Check assassination flag
+                        if combatant.can_assassinate_target:
+                            print_output(combatant.name + ' reacts with supernatural speed, and can Assassinate ' + combatant.target.name + ', gaining advantage on the attack')
+                            advantage = True
+
+                        #Did the target use reckless attack last round?
+                        #Should this apply only to melee attacks? Removed that condition for now
+                        if combatant.target.use_reckless:
+                            print_output(combatant.name + ' has advantage on the attack, as ' + combatant.target.name + ' used Reckless Attack last round!')
+                            advantage = True
+
+                        #Can we use reckless attack?
+                        if combatant.reckless and not advantage:
+                            combatant.use_reckless = True
+                            print_output(combatant.name + ' uses Reckless Attack, gaining advantage on the strike')
+                            advantage = True
+
+                        #Is Vow of Enmity up?
+                        if combatant.vow_of_enmity_target == combatant.target:
+                            print_output(combatant.name + ' has advantage on the strike from their Vow of Enmity!')
+                            advantage = True
                     
-                    #Modifier conditions (i.e. GWM, sharpshooter)        
-                    if combatant.sharpshooter and range_attack:
-                        if (combatant.target.armour_class < to_hit_modifier+5) and not disadvantage:
-                            print_output(combatant.name + ' uses Sharpshooter, taking a -5 penalty to the attack')
-                            combatant.use_sharpshooter = True           
-                        else:
-                            combatant.use_sharpshooter = False
+                        #Modifier conditions (i.e. GWM, sharpshooter)        
+                        if combatant.sharpshooter and range_attack:
+                            if (combatant.target.armour_class < to_hit_modifier+5) and not disadvantage:
+                                print_output(combatant.name + ' uses Sharpshooter, taking a -5 penalty to the attack')
+                                combatant.use_sharpshooter = True           
+                            else:
+                                combatant.use_sharpshooter = False
         
-                    #Great Weapon Master
-                    if combatant.current_weapon.heavy and combatant.great_weapon_master:
-                        if (combatant.target.armour_class < to_hit_modifier+5) and not disadvantage:
-                            print_output(combatant.name + ' uses Great Weapon Master, taking a -5 penalty to the attack')
-                            combatant.use_great_weapon_master = True           
+                        #Great Weapon Master
+                        if combatant.current_weapon.heavy and combatant.great_weapon_master:
+                            if (combatant.target.armour_class < to_hit_modifier+5) and not disadvantage:
+                                print_output(combatant.name + ' uses Great Weapon Master, taking a -5 penalty to the attack')
+                                combatant.use_great_weapon_master = True           
 
-                    # Other weapon pre-attack features
-                    # Called shot (Gunslinger)
-                    if combatant.current_weapon.weapon_type == weapon_type.Firearm and not attackcomplete:
-                        # check to spend grit for trick shot if available #
-                        if combatant.current_grit > 0:
-                            # legs trick shot #
-                            # don't bother if we have disadvantage on the shot
-                            if not disadvantage:
-                                print_output(combatant.name + ' spends 1 Grit Point to perform a Leg Trick Shot. Current Grit: ' + repr(combatant.current_grit-1))
-                                combatant.current_grit -= 1
-                                calledshot = True
+                        # Other weapon pre-attack features                    
+                        if combatant.current_weapon.weapon_type == weapon_type.Firearm and not attackcomplete:                            
+                            # Check to spend grit for trick shot if available #
+                            # Only trick shot if we don't have disadvantage
+                            # Trick Shot (including Deadeye Shot) (Gunslinger)
+                            if combatant.current_grit > 0 and not disadvantage:          
+                                grit_selector = roll_die(6)                                                
+
+                                print_output(combatant.name + ' is deciding whether to spend a Grit point...')
+                                curr_grit = combatant.current_grit
+                                if grit_selector <= 2:
+                                    # Head Shot #
+                                    # Don't bother if they already have disadvantage/were head-shotted
+                                    if not combatant.target.has_disadvantage or combatant.target.head_shotted:                                    
+                                        print_output(combatant.name + ' spends 1 Grit Point to perform a Head Trick Shot. Current Grit: ' + repr(combatant.current_grit-1))
+                                        combatant.current_grit -= 1
+                                        trick_shot_target = "Head"
+                                        trick_shot = True
+
+                                elif grit_selector <= 4:
+                                    # Leg Shot #
+                                    # Don't bother if target is already prone:
+                                    if not combatant.target.prone:
+                                        # Only leg shot melee attackers
+                                        if combatant.target.current_weapon.range == 0:
+                                            print_output(combatant.name + ' spends 1 Grit Point to perform a Leg Trick Shot. Current Grit: ' + repr(combatant.current_grit-1))
+                                            combatant.current_grit -= 1
+                                            trick_shot_target = "Legs"
+                                            trick_shot = True
+
+                                elif grit_selector <= 6:
+                                    # Deadeye Shot (Gunslinger)
+                                    if not advantage:
+                                        #Spend grit to gain advantage. Do nothing if we have advantage.
+                                        print_output(combatant.name + ' spends 1 Grit Point to perform a Deadeye Shot. They gain advantage on the next attack! Current Grit: ' + repr(combatant.current_grit-1))
+                                        combatant.current_grit -= 1
+                                        advantage = True              
+
+                                if curr_grit == combatant.current_grit:
+                                    print_output(combatant.name + ' decides to forego spending a Grit point on this attack.')
 
                     # Make attack roll # 
                     if not attackcomplete:
@@ -548,7 +604,7 @@ def attack(combatant):
                         if combatant.current_weapon.weapon_type == weapon_type.Firearm:
                             if combatant.current_weapon.misfire >= atkroll:
                                 # weapon misfire, attack fail #
-                                print_output(combatant.name + 's attack misfired with a natural ' + repr(atkroll) + '! ' + combatant.current_weapon.name + ' is now broken!')
+                                print_output(combatant.name + 's attack misfired with a natural ' + repr(atkroll) + '! ' + combatant.current_weapon.name + ' is now ' + damage_text('broken!'))
                                 combatant.current_weapon.broken = True
                                 attackcomplete = True
                 
@@ -593,13 +649,21 @@ def attack(combatant):
                                 crit = True       
                             
                             # resolve trick shot #
-                            if calledshot:
-                                # logic to choose the right kind of called shot? lol #
-                                if savingthrow(combatant.target,saving_throw.Strength,strmod(combatant.target),combatant.target.saves.str_adv,8+combatant.proficiency + dexmod(combatant)):
-                                    print_output(combatant.target.name + ' succeeded on the Leg Shot save, and remains standing')
-                                else:
-                                    print_output(combatant.target.name + ' failed the Leg Shot save - they are now prone!')
-                                    combatant.target.prone = True
+                            if trick_shot:
+                                if trick_shot_target == "Head":
+                                    if savingthrow(combatant.target,saving_throw.Constitution,conmod(combatant.target),combatant.target.saves.con_adv,8+combatant.proficiency + dexmod(combatant)):
+                                        print_output(doubleindent() + combatant.target.name + ' succeeded on the Head Shot save, and is immune to its effect.')
+                                    else:
+                                        print_output(doubleindent() + combatant.target.name + ' FAILED the Head Shot save - they now had disadvantage on attacks until the end of their next turn!')
+                                        combatant.target.has_disadvantage = True
+                                        combatant.target.head_shotted = True
+                                elif trick_shot_target == "Legs":
+                                    # logic to choose the right kind of called shot? lol #
+                                    if savingthrow(combatant.target,saving_throw.Strength,strmod(combatant.target),combatant.target.saves.str_adv,8+combatant.proficiency + dexmod(combatant)):
+                                        print_output(doubleindent() + combatant.target.name + ' succeeded on the Leg Shot save, and remains standing')
+                                    else:
+                                        print_output(doubleindent() + combatant.target.name + ' FAILED the Leg Shot save - they are now prone!')
+                                        combatant.target.prone = True
                                          
                             # Calculate damage modifier (adds strmod/dexmod to attack)
                             damage_modifier = calc_damage_modifier(combatant)
@@ -671,7 +735,7 @@ def attack(combatant):
                             deal_damage(combatant,combatant.target,totaldamage,weapon_damage_type,combatant.current_weapon.magic)
                 
                             if track_hemo:
-                                print_output(indent() + combatant.name + ' adds an extra ' + repr(int(totaldamage/2)) + ' damage via Hemorrhaging Critical, which will be dealt at the end of ' + combatant.target.name + '\'s turn.')
+                                print_output(indent() + combatant.name + ' adds an extra ' + damage_text(repr(int(totaldamage/2))) + ' damage via Hemorrhaging Critical, which will be dealt at the end of ' + combatant.target.name + '\'s turn.')
                                 combatant.target.hemo_damage += int(totaldamage/2)
                                 combatant.target.hemo_damage_type = weapon_damage_type
                                 track_hemo = False
@@ -864,7 +928,7 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source)
             if greatweaponfighting(combatant) and die_damage <= 2 and source == combatant.current_weapon.name:
                 print_output(doubleindent() + combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
                 die_damage = roll_die(die)
-                print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' (Bonus Damage)')
+                print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')
             bonus_damage += die_damage
         if crit:
             crit_damage = bonus_damage * 2           
@@ -968,6 +1032,7 @@ def resolve_damage(combatant):
                         reduction = int(total_damage/2)                        
                         print_output(combatant.name + ' uses their reaction, and uses Uncanny Dodge to reduce the damage of the attack by ' + dmgred_text(repr(reduction)) + '! ')                                    
                         total_damage = int(total_damage - reduction)
+                        damage_string += 'reduced by ' + repr(int(reduction)) + ' (Uncanny Dodge)'
                         combatant.reaction_used = True
                         
             combatant.current_health = max(combatant.current_health - total_damage,0)
@@ -983,7 +1048,7 @@ def resolve_fatality(combatant):
 
         #Relentless rage
         if combatant.relentless_rage and combatant.raging:
-            if savingthrow(combatant,saving_throw.Consitution,combatant.saves.con,False,combatant.relentless_rage_DC):
+            if savingthrow(combatant,saving_throw.Constitution,combatant.saves.con,False,combatant.relentless_rage_DC):
                 print_output(combatant.name + ' was dropped below 0 hit points, but recovers to 1 hit point due to their Relentless Rage!')
                 combatant.alive = True
                 combatant.conscious = True
@@ -1486,7 +1551,7 @@ def get_enemies(combatant):
     for potential_enemy in combatants.list:
         if combatant.name != potential_enemy.name and combatant.team != potential_enemy.team:
             if potential_enemy.alive:                
-                enemies.add(potential_enemy)
+                enemies.append(potential_enemy)
     return enemies
 
 def all_other_combatants(combatant):
@@ -1515,6 +1580,14 @@ def target_in_weapon_range(combatant,target,range):
     #Check that no grids are adjacent for melee attacks
     if is_adjacent(combatant,target):
         return True
+    return False
+
+def enemy_in_melee_range(combatant):
+    enemies = get_enemies(combatant)
+    for enemy in enemies:
+        if is_adjacent(combatant,enemy):
+            return True
+
     return False
 
 def melee_range():
@@ -1621,30 +1694,36 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
             if opportunity_attacker.team != combatant_before_move.team:
                 # Evaluate only if reaction available
                 if not opportunity_attacker.reaction_used:
-                    # If the enemy is currently in range, but would not be after movement, condition is fulfilled
-                    # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
-                    if target_in_weapon_range(opportunity_attacker,combatant_before_move,opportunity_attacker.current_weapon.range) and not target_in_weapon_range(opportunity_attacker,combatant_after_move,opportunity_attacker.current_weapon.range):                                            
-                        #Swap targets if necessary
-                        original_target = opportunity_attacker.target 
-                        if opportunity_attacker.target != combatant_before_move:                            
-                            opportunity_attacker.target = combatant_before_move
+                    # Only provoke opportunity attacks for melee weapons
+                    if opportunity_attacker.current_weapon.range == 0:
+                        # If the enemy is currently in range, but would not be after movement, condition is fulfilled
+                        # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
+                        if target_in_weapon_range(opportunity_attacker,combatant_before_move,opportunity_attacker.current_weapon.range) and not target_in_weapon_range(opportunity_attacker,combatant_after_move,opportunity_attacker.current_weapon.range):                                            
+                            #Swap targets if necessary
+                            original_target = opportunity_attacker.target 
+                            if opportunity_attacker.target != combatant_before_move:                            
+                                opportunity_attacker.target = combatant_before_move
 
-                        # Make the attack out of sequence
-                        print_output('-------------------------------------------------------------------------------------------------------------------------')
-                        print_output(combatant_before_move.name + '\'s movement has triggered an Attack of Opportunity from ' + opportunity_attacker.name + ' !')                        
-                        print_output('Resolving Attack of Opportunity!')                                                
-                        if attack(opportunity_attacker):
-                            for feat in opportunity_attacker.creature_feats():
-                                if feat == feat.Sentinel:
-                                    #Successful opportunity attacks reduce creatures speed to 0
-                                    combatant_before_move.movement = 0
-                                    print_output(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                        
-                        print_output('The Attack of Opportunity has been resolved! ' + opportunity_attacker.name + ' has spent their reaction')                        
-                        print_output('-------------------------------------------------------------------------------------------------------------------------')
-                        # Consume reaction
-                        opportunity_attacker.reaction_used = True
-                        # Reset target
-                        opportunity_attacker.target = original_target
+                            # Make the attack out of sequence
+                            print_output('-------------------------------------------------------------------------------------------------------------------------')
+                            print_output(combatant_before_move.name + '\'s movement has triggered an Attack of Opportunity from ' + opportunity_attacker.name + ' !')                        
+                            print_output('Resolving Attack of Opportunity!')                            
+                            if combatant_before_move.disengaged:
+                                print_output(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged!')
+                            else:
+                                if attack(opportunity_attacker):
+                                    for feat in opportunity_attacker.creature_feats():
+                                        if feat == feat.Sentinel:
+                                            #Successful opportunity attacks reduce creatures speed to 0
+                                            combatant_before_move.movement = 0
+                                            print_output(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                        
+                                print_output('The Attack of Opportunity has been resolved! ' + opportunity_attacker.name + ' has spent their reaction')                        
+                                print_output('-------------------------------------------------------------------------------------------------------------------------')
+                                # Consume reaction
+                                opportunity_attacker.reaction_used = True
+
+                            # Reset target
+                            opportunity_attacker.target = original_target
 
 # helper functions #
 def greatweaponfighting(combatant):
