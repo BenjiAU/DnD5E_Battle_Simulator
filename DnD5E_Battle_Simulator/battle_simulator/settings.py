@@ -24,3 +24,6 @@ def init():
     global verbose_movement
     verbose_movement = False
 
+    global start_time
+    
+    global end_time

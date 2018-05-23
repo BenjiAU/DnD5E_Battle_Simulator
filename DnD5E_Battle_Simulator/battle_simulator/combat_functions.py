@@ -25,40 +25,39 @@ def movement(combatant):
     combatant.movement_used = True
 
 def use_movement(combatant):
+    # Goal: make sure we're in range to use our attacks/abilities if we have available
+    # If we're a melee fighter, try to close the gap
+    # If we're a ranged fighter, try to keep at maximum range (but don't run off into the wilderness)
+
     if combatant.prone:
         # Spend half combatant.movement to get up #
         combatant.movement = math.floor(combatant.movement/2)
-        print_output(combatant.name + ' spends ' + repr(combatant.movement) + ' feet of combatant.movement to stand up from prone ')            
+        print_output(combatant.name + ' spends ' + repr(combatant.movement) + ' feet of movement to stand up from prone')            
         combatant.prone = False
 
-    # Melee weapon?
+    # Are we wielding a melee weapon that we cannot throw?
     if (combatant.current_weapon.range == 0) and not (combatant.current_weapon.thrown):                    
         if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):            
             print_output(combatant.name + ' stays where they are, in melee range of ' + combatant.target.name + '(' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
         else:
-            move_to_target(combatant,combatant.target)
+            move_to_target(combatant,combatant.target)    
     else:
-        # Range weapon
-        # Have we used our primary action yet? Naively increase distance if so, even if it means running out of range
-        if combatant.action_used:
-            move_from_target(combatant,combatant.target)
-        else:
-            #Otherwise use the range of thw eapon to determine where to move
-            if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):
-                # Don't move out of weapon range - figure out current gap, subtract it from weapon range, thats how far we can move
-                #if target_in_weapon_range(combatant,combatant.target,0):
-                    #use_bonus_action(combatant,"Disengage")
-            
-                if combatant.movement > combatant.current_weapon.range - calc_distance(combatant,combatant.target):
-                    combatant.movement = combatant.current_weapon.range - calc_distance(combatant,combatant.target)
-            
+        #Otherwise use the range of the weapon to determine where to move 
+        if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):               
+            # Don't move out of weapon range - figure out current gap, subtract it from weapon range, thats how far we can move           
+            if combatant.movement > combatant.current_weapon.range - calc_distance(combatant,combatant.target):
+                # Set our movement to the maximum range            
+                combatant.movement = combatant.current_weapon.range - calc_distance(combatant,combatant.target)                             
                 if combatant.movement > 0:
+                    print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to increase distance, but stay within weapon range of ' + combatant.target.name)
                     move_from_target(combatant,combatant.target)
-            else:
-                #Close the distance to be able to use weapon 
-                gap_to_close = calc_distance(combatant,combatant.target) - combatant.current_weapon.range;
-                if gap_to_close <= combatant.movement:
-                    combatant.movement = gap_to_close
+        else:
+            #Close the distance to be able to use weapon 
+            gap_to_close = calc_distance(combatant,combatant.target) - combatant.current_weapon.range;
+            if gap_to_close <= combatant.movement:
+                combatant.movement = gap_to_close
+            if combatant.movement > 0:
+                print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to get within weapon range of ' + combatant.target.name)
                 move_to_target(combatant,combatant.target)
 
 def use_equipment(combatant):
@@ -359,16 +358,12 @@ def attack_action(combatant):
                     attack(combatant)  
 
 def breath_attack(combatant):
-    print_output(combatant.name + ' rears back and unleashes a devastating breath attack! (10 feet width, 90 feet length)')   
-    
-    #Center point of attack on current target
-    direction = derive_direction(combatant,combatant.target)
-    print_output(' The breath attack is aimed to the ' + direction.name + '!')   
+    print_output(combatant.name + ' rears back and unleashes a devastating breath attack! (10 feet width, 90 feet length)')       
 
     # Black dragon breath attack is a 10 ft wide 90 ft line (all dragons are different)
     affected_targets = []
 
-    affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,direction,area_of_effect_shape.Line,10,90)   
+    affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,area_of_effect_shape.Line,10,90)   
 
     # Calculate damage
     breath_damage = 0
@@ -1342,23 +1337,23 @@ def calc_distance(combatant,target):
     ydistance = int(math.fabs(combatant.ypos-target.ypos))
     return int(math.sqrt((xdistance * xdistance) + (ydistance * ydistance)))
 
-def derive_direction(combatant,target):
+def derive_cardinal_direction(x1,x2,y1,y2):
     direction = cardinal_direction.Stay
-    if combatant.xpos > target.xpos and combatant.ypos > target.ypos:
+    if x1 > x2 and y1 > y2:
         direction = cardinal_direction.SouthWest
-    elif combatant.xpos > target.xpos and combatant.ypos < target.ypos:
+    elif x1 > x2 and y1 < y2:
         direction = cardinal_direction.NorthWest
-    elif combatant.xpos < target.xpos and combatant.ypos < target.ypos:
+    elif x1 < x2 and y1 < y2:
         direction = cardinal_direction.NorthEast
-    elif combatant.xpos < target.xpos and combatant.ypos > target.ypos:
+    elif x1 < x2 and y1 > y2:
         direction = cardinal_direction.SouthEast
-    elif combatant.xpos < target.xpos and combatant.ypos == target.ypos:
+    elif x1 < x2 and y1 == y2:
         direction = cardinal_direction.East
-    elif combatant.xpos > target.xpos and combatant.ypos == target.ypos:
+    elif x1 > x2 and y1 == y2:
         direction = cardinal_direction.West
-    elif combatant.xpos == target.xpos and combatant.ypos < target.ypos:
+    elif x1 == x2 and y1 < y2:
         direction = cardinal_direction.North
-    elif combatant.xpos == target.xpos and combatant.ypos > target.ypos:
+    elif x1 == x2 and y1 > y2:
         direction = cardinal_direction.South
     return(direction)
 
@@ -1429,7 +1424,8 @@ def move_to_target(combatant,target):
         if settings.verbose_movement:
             print_output(indent() + combatant.name + ' is ' + repr(grids_to_move) + ' grids away from their destination and has ' + repr(grid_movement) + ' grids of movement remaining')
 
-        direction = derive_direction(combatant,target)
+        #x1,x2,y1,y2
+        direction = derive_cardinal_direction(combatant.xpos,target.xpos,combatant.ypos,target.ypos)
         
         grid_moved = False
         while not grid_moved:
@@ -1546,7 +1542,7 @@ def move_from_target(combatant,target):
 def calc_no_of_grids(distance):
     return(int(round(math.fabs(distance/5))))
 
-def get_enemies(combatant):
+def get_living_enemies(combatant):
     enemies = []
     for potential_enemy in combatants.list:
         if combatant.name != potential_enemy.name and combatant.team != potential_enemy.team:
@@ -1583,7 +1579,7 @@ def target_in_weapon_range(combatant,target,range):
     return False
 
 def enemy_in_melee_range(combatant):
-    enemies = get_enemies(combatant)
+    enemies = get_living_enemies(combatant)
     for enemy in enemies:
         if is_adjacent(combatant,enemy):
             return True
@@ -1629,7 +1625,7 @@ def find_targets_in_area(combatant,affected_grids):
             affected_targets.append(potential_target)
     return affected_targets
 
-def calculate_area_effect(combatant,xorigin,yorigin,direction,shape,width,length):
+def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,length):
     #Determines area of effect of passed in parameters and returns a dict of affected x,y co-ords    
     #First round the values to the nearest 5 foot
     width = round_to_integer(width,5)
@@ -1646,59 +1642,57 @@ def calculate_area_effect(combatant,xorigin,yorigin,direction,shape,width,length
     if shape == area_of_effect_shape.Line:    
         # Calculate the maximum area of the ability - Rectangle
         max_grids = round_to_integer((width * length) / 5,5)
-        width_in_grids = round_to_integer(width / 5,5)
-        length_in_grids = round_to_integer(length / 5,5) 
+        length_in_grids = round_to_integer(length)
+        width_step = 0
+        width_origin_x = xorigin
+        width_origin_y = yorigin
+        while width_step < width:                    
+            line_grids = []         
+            #Calculate the vector of the origin versus the target point; 
+            #Measure the additional distance from target point to maximum length; 
+            #Find the closest center of the grid point to be the destination x,y co-ordinates
+                             
+            # Return operator (1/-1)
+            # Approximate the cardinal direction 
+            approx_cardinal = derive_cardinal_direction(width_origin_x,xtarget,width_origin_y,ytarget)
+            
 
-        perpendicular = derive_perpendicular(direction)
-        if perpendicular != cardinal_direction.Stay:                            
-            # Cast a line out from origin point
-            # Then, step along the perpendicular in a direction, and cast another line out
-            # Repeat until the maximum grids has been exceeded or we run out of width
-            width_step = round_to_integer(width/2,5)
-            width_origin_x = xorigin
-            width_origin_y = yorigin
-            while width_step < width:                    
-                line_grids = []
+            xvector = 1
+            yvector = 1
+            if (xtarget < width_origin_x):
+                xvector = -1
+            if (ytarget < width_origin_y):
+                yvector = -1
 
-                x, y = calc_grid_step(direction,x,y)                    
-                # Approximates the direction of the attack by multiplying the origin + length by the appropriate modifier - limited to 8 cardinal directions 
-                # Alternative is to:
-                #   calculate the vector of the origin versus the target point; 
-                #   measure the additional distance from target point to maximum length; 
-                #   find the closest center of the grid point to be the destination x,y co-ordinates
-                xdestination = (width_origin_x + length_in_grids) * (x/5)
-                ydestination = (width_origin_y + length_in_grids) * (y/5)
-                    
-                # Uses a variation of Brehenams algorithm to return the grids that are supercovered by a line drawn from origin -> destination
-                line_grids = evaluate_line(width_origin_y,width_origin_x,ydestination,xdestination)                
+            # Add/subtract the remaining length in grids to the x and y coord based on vector
+            xdestination = round_to_integer((width_origin_x + length) * xvector,5)
+            ydestination = round_to_integer((width_origin_y + length) * yvector,5)
+            #xdestination = round_to_integer((abs(xtarget) + (length - (abs(xtarget) - abs(xorigin))) * xvector),5)
+            #ydestination = round_to_integer((abs(ytarget) + (length - (abs(ytarget) - abs(yorigin))) * yvector),5)
+            print_output('Origin of attack: (' + repr(width_origin_x) + ',' + repr(width_origin_y) + ')' + ' Target location: (' + repr(xtarget) + ',' + repr(ytarget) + ')' + ' Cast-forward destination: (' + repr(xdestination) + ',' + repr(ydestination) + ')')
 
-                #Step along the width of the rectangle to shift the origin point for the next round
-                # Angular directions mean we shift one of the co-ordinates to avoid casting two lines that are not adjacent
-                x, y = calc_grid_step(perpendicular,x,y)    
-                #if perpendicular == cardinal_direction.NorthEast:
-                #    width_origin_y -= y
-                #elif perpendicular == cardinal_direction.NorthWest:
-                #    width_origin_y -= y
-                #elif perpendicular == cardinal_direction.SouthEast:
-                #    width_origin_y += y
-                #elif perpendicular == cardinal_direction.SouthWest:
-                #    width_origin_y += y
-                #else:
-                width_origin_x -= x
-                width_origin_y -= y
+            # Uses a variation of Brehenams algorithm to return the grids that are supercovered by a line drawn from origin -> destination
+            line_grids = evaluate_line(width_origin_y,width_origin_x,ydestination,xdestination)                
 
-                width_step += 5
+            #Append affected grids to master list if they're not present
+            i = 0
+            while i < len(line_grids):
+                if line_grids[i] not in affected_grids:
+                    if len(affected_grids) + 1 < max_grids:
+                        affected_grids.append(line_grids[i])
+                i += 1
+            
+            # Use approximate cardinal to determine which perpendicular to step in
+            perp = derive_perpendicular(approx_cardinal)
+            #Step along the width of the rectangle to shift the origin point for the next round            
+            x,y = calc_grid_step(perp,x,y)
+            width_origin_x -= x
+            width_origin_y -= y
 
-                i = 0
-                while i < len(line_grids):
-                    if line_grids[i] not in affected_grids:
-                        if len(affected_grids) + 1 < max_grids:
-                            affected_grids.append(line_grids[i])
-                    i += 1
+            width_step += 5
 
             affected_targets = find_targets_in_area(combatant,affected_grids)
             print_grid(xorigin,yorigin,affected_grids,affected_targets)
-            print_output("End Bresenham Grid Testing")
             
             # Here we should have the starting point of the line - inverting the steps along the widest point along the perpendicular axis
             # Cast forward to length, then iterate through the width            
@@ -1741,41 +1735,43 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
     combatant_after_move.ypos = new_ypos
 
     #Evaluate for each enemy unit
-    for opportunity_attacker in combatants.list:        
-        if opportunity_attacker != combatant_before_move:            
-            if opportunity_attacker.team != combatant_before_move.team:
-                # Evaluate only if reaction available
-                if not opportunity_attacker.reaction_used:
-                    # Only provoke opportunity attacks for melee weapons
-                    if opportunity_attacker.current_weapon.range == 0:
-                        # If the enemy is currently in range, but would not be after movement, condition is fulfilled
-                        # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
-                        if target_in_weapon_range(opportunity_attacker,combatant_before_move,opportunity_attacker.current_weapon.range) and not target_in_weapon_range(opportunity_attacker,combatant_after_move,opportunity_attacker.current_weapon.range):                                            
-                            #Swap targets if necessary
-                            original_target = opportunity_attacker.target 
-                            if opportunity_attacker.target != combatant_before_move:                            
-                                opportunity_attacker.target = combatant_before_move
+    enemies = get_living_enemies(combatant_before_move)
+    for opportunity_attacker in enemies:                
+        #Only conscious enemies can make an opportunity attack
+        if opportunity_attacker.conscious:
+            # Evaluate only if reaction available
+            if not opportunity_attacker.reaction_used:
+                # Only provoke opportunity attacks for melee weapons
+                if opportunity_attacker.current_weapon.range == 0:
+                    # If the enemy is currently adjacent, but would not be after movement, condition is fulfilled
+                    # Note - this will not work with Reach weapons, will need additional conditions to handle Reach
+                    # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
+                    if is_adjacent(opportunity_attacker,combatant_before_move) and not is_adjacent(opportunity_attacker,combatant_after_move):                    
+                        #Swap targets if necessary
+                        original_target = opportunity_attacker.target 
+                        if opportunity_attacker.target != combatant_before_move:                            
+                            opportunity_attacker.target = combatant_before_move
 
-                            # Make the attack out of sequence
+                        # Make the attack out of sequence
+                        print_output('-------------------------------------------------------------------------------------------------------------------------')
+                        print_output(combatant_before_move.name + '\'s movement has triggered an Attack of Opportunity from ' + opportunity_attacker.name + ' !')                        
+                        print_output('Resolving Attack of Opportunity!')                            
+                        if combatant_before_move.disengaged:
+                            print_output(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged!')
+                        else:
+                            if attack(opportunity_attacker):
+                                for feat in opportunity_attacker.creature_feats():
+                                    if feat == feat.Sentinel:
+                                        #Successful opportunity attacks reduce creatures speed to 0
+                                        combatant_before_move.movement = 0
+                                        print_output(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                        
+                            print_output('The Attack of Opportunity has been resolved! ' + opportunity_attacker.name + ' has spent their reaction')                        
                             print_output('-------------------------------------------------------------------------------------------------------------------------')
-                            print_output(combatant_before_move.name + '\'s movement has triggered an Attack of Opportunity from ' + opportunity_attacker.name + ' !')                        
-                            print_output('Resolving Attack of Opportunity!')                            
-                            if combatant_before_move.disengaged:
-                                print_output(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged!')
-                            else:
-                                if attack(opportunity_attacker):
-                                    for feat in opportunity_attacker.creature_feats():
-                                        if feat == feat.Sentinel:
-                                            #Successful opportunity attacks reduce creatures speed to 0
-                                            combatant_before_move.movement = 0
-                                            print_output(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                        
-                                print_output('The Attack of Opportunity has been resolved! ' + opportunity_attacker.name + ' has spent their reaction')                        
-                                print_output('-------------------------------------------------------------------------------------------------------------------------')
-                                # Consume reaction
-                                opportunity_attacker.reaction_used = True
+                            # Consume reaction
+                            opportunity_attacker.reaction_used = True
 
-                            # Reset target
-                            opportunity_attacker.target = original_target
+                        # Reset target
+                        opportunity_attacker.target = original_target
 
 # helper functions #
 def greatweaponfighting(combatant):

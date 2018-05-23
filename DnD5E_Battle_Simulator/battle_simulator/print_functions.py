@@ -2,6 +2,8 @@ import os
 from os import path    
 import time
 import datetime
+from datetime import timedelta 
+
 import math
 from flask import Markup
 from battle_simulator import settings
@@ -16,13 +18,14 @@ def set_output_file():
 
 def open_file():
     if settings.filename != "":
-        if not settings.file_open:
-            
+        if not settings.file_open:            
             settings.file = open(settings.filename,'a')
             settings.file_open = True
             print("File located at " + settings.file.name)
+            print_time_stamp(True,'Starting Time: ')
 
 def close_file():
+    print_time_stamp(False,'Ending Time: ')    
     if settings.filename != "":
         settings.file.close()
         settings.file_open = False
@@ -41,6 +44,22 @@ def print_output(string):
         print(string)
         settings.output.append(string)
 
+def print_time_stamp(start,string):
+    ts = time.time()
+    st = datetime.datetime.fromtimestamp(ts).strftime('%H:%M:%S') 
+    if start:
+        settings.start_time = ts
+    else:
+        settings.end_time = ts
+    string = string + st
+    print(string,file=settings.file)
+    settings.output.append(string)
+    if not start:        
+        elapsed = settings.end_time - settings.start_time
+        string = 'Total run time: ' + repr(elapsed) + ' seconds.'
+        print(string,file=settings.file)
+        settings.output.append(string)
+    
 def print_combatant_table(combatant):
     string = ""
     string += Markup('<div class=combatant>')    
@@ -145,17 +164,17 @@ def print_grid(xorigin,yorigin,highlight_grids,targets):
         target_grids.append((target.xpos,target.ypos))
     #print_output(' Affected Grids ' + repr(highlight_grids))
     #Drawing grid from top left corner
-    x = xorigin + 120
-    y = yorigin + 120    
+    x = xorigin + 40
+    y = yorigin + 40    
     #Initial line of grid showing starting co-ordinates
     grid_line = '<div class=grid>AoE Grid (centered on origin point: ' + repr(xorigin) + ',' + repr(yorigin) + ')'
     print_output(grid_line)
     grid_line = '<div class=grid>Legend: O = Origin, X = Affected Target, _ = Affected Area, T = Unaffected Target, . = Empty'
     print_output(grid_line)    
     grid_line = '<div class=grid>'
-    while y > yorigin - 121:
-        x = xorigin + 120        
-        while x > xorigin - 121:
+    while y > yorigin - 41:
+        x = xorigin + 40        
+        while x > xorigin - 41:
             if x == xorigin and y == yorigin:
                 grid_line += ' O '
             elif (x,y) in highlight_grids and (x,y) in target_grids:
