@@ -164,17 +164,17 @@ def print_grid(xorigin,yorigin,highlight_grids,targets):
         target_grids.append((target.xpos,target.ypos))
     #print_output(' Affected Grids ' + repr(highlight_grids))
     #Drawing grid from top left corner
-    x = xorigin + 40
-    y = yorigin + 40    
+    x = xorigin - 120
+    y = yorigin + 120    
     #Initial line of grid showing starting co-ordinates
     grid_line = '<div class=grid>AoE Grid (centered on origin point: ' + repr(xorigin) + ',' + repr(yorigin) + ')'
     print_output(grid_line)
-    grid_line = '<div class=grid>Legend: O = Origin, X = Affected Target, _ = Affected Area, T = Unaffected Target, . = Empty'
+    grid_line = '<div class=grid>Legend: O = Origin, X = Affected Target, A = Affected Area, T = Unaffected Target, . = Empty'
     print_output(grid_line)    
     grid_line = '<div class=grid>'
-    while y > yorigin - 41:
-        x = xorigin + 40        
-        while x > xorigin - 41:
+    while y > yorigin - 121:
+        x = xorigin - 120        
+        while x < xorigin + 121:
             if x == xorigin and y == yorigin:
                 grid_line += ' O '
             elif (x,y) in highlight_grids and (x,y) in target_grids:
@@ -182,11 +182,11 @@ def print_grid(xorigin,yorigin,highlight_grids,targets):
             elif (x,y) in target_grids:
                 grid_line += ' T '         
             elif (x,y) in highlight_grids:
-                grid_line += ' _ '                               
+                grid_line += ' A '                               
             else:
                 grid_line += ' . '        
             #grid_line += '(' + repr(x) + ',' + repr(y) + ')'        
-            x -= 5        
+            x += 5        
         print_output(grid_line)            
         grid_line = '<div class=grid>'
         y -= 5

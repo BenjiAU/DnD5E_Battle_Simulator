@@ -362,7 +362,40 @@ def breath_attack(combatant):
 
     # Black dragon breath attack is a 10 ft wide 90 ft line (all dragons are different)
     affected_targets = []
-
+    # Debug   
+    print_output("Testing area of effect")
+    origin_test_x = 15
+    origin_test_y = 15
+    widthtest = 20
+    print_output("Northwest diagonal")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x-50,origin_test_y+50,area_of_effect_shape.Line,widthtest,90)   
+    print_output("North")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x,origin_test_y+50,area_of_effect_shape.Line,widthtest,90)   
+    print_output("Northeast")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x+50,origin_test_y+50,area_of_effect_shape.Line,widthtest,90)   
+    print_output("Northeast - x offset")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x+35,origin_test_y+50,area_of_effect_shape.Line,widthtest,90)   
+    print_output("Northeast - y offset")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x+50,origin_test_y+35,area_of_effect_shape.Line,widthtest,90)   
+    print_output("Northeast - x and y offset")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x+20,origin_test_y+40,area_of_effect_shape.Line,widthtest,90)   
+    print_output("Northeast - x and y offset 2")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x+40,origin_test_y+20,area_of_effect_shape.Line,widthtest,90)   
+    print_output("Southeast diagonal")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x+50,origin_test_y-50,area_of_effect_shape.Line,widthtest,90)   
+    print_output("South")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x,origin_test_y-50,area_of_effect_shape.Line,widthtest,90)   
+    print_output("SouthWest")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x-50,origin_test_y-50,area_of_effect_shape.Line,widthtest,90)   
+    print_output("Southeast - x offset")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x+35,origin_test_y-50,area_of_effect_shape.Line,widthtest,90)   
+    print_output("Southeast - y offset")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x+50,origin_test_y-35,area_of_effect_shape.Line,widthtest,90)   
+    print_output("Southwest - x and y offset")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_y-20,origin_test_y-40,area_of_effect_shape.Line,widthtest,90)   
+    print_output("Southeast - x and y offset 2")
+    calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x+40,origin_test_y-20,area_of_effect_shape.Line,widthtest,90) 
+    # Debug
     affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,area_of_effect_shape.Line,10,90)   
 
     # Calculate damage
@@ -1630,99 +1663,151 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
     #First round the values to the nearest 5 foot
     width = round_to_integer(width,5)
     length = round_to_integer(length,5)
+    grid_width = int(width/5)
+    grid_length = int(length/5)
+    max_grids = grid_width * grid_length
+    grids_consumed = 0
+    total_affected_grids = 0    
+    line_grids = []                 
     affected_grids = []    
     targets = []
     x = 0
     y = 0
+    xdestination = 0
+    ydestination = 0
+
     # Begin at point of origin
     # Determine direction of ability
     # Calculate perpendicular direction and go the inverse perpendicular by round(width/2,5) steps
     # Cast forward to the length from this point
     # Iterate through the remaining steps along the width and cast forward to length
-    if shape == area_of_effect_shape.Line:    
-        # Calculate the maximum area of the ability - Rectangle
-        max_grids = round_to_integer((width * length) / 5,5)
-        length_in_grids = round_to_integer(length)
-        width_step = 0
-        width_origin_x = xorigin
-        width_origin_y = yorigin
-        while width_step < width:                    
-            line_grids = []         
-            #Calculate the vector of the origin versus the target point; 
-            #Measure the additional distance from target point to maximum length; 
-            #Find the closest center of the grid point to be the destination x,y co-ordinates
-                             
-            # Return operator (1/-1)
-            # Approximate the cardinal direction 
-            approx_cardinal = derive_cardinal_direction(width_origin_x,xtarget,width_origin_y,ytarget)
+    if shape == area_of_effect_shape.Line:            
+        width_remaining = True
+        width_limit = width
+        width_pointer = 0
+        width_step = 5
+        width_offset = 5
+        first_xorigin = xorigin
+        first_yorigin = yorigin
+        
+        ### Draw the first line ###
+        # From origin point -> Destination
+        # Ignore width
+        # Use algorithm to find grids supercovered by initial line
+        # Deduct these grids from 'max grid' pool
+
+        # Calculate the angle between the last origin point and target points in radians            
+        radians = math.atan2(ytarget-yorigin, xtarget-xorigin)    
             
+        # Calculate the length at least 5 feet in front of origin point
+        #origin_deltax = 10 * math.cos(radians)
+        #origin_deltay = 10 * math.sin(radians)
+        
+        # Step one square out in front of the origin in the direction of the target to draw our width line
+        #init_xorigin = round_to_integer(xorigin + origin_deltax,5)
+        #init_yorigin = round_to_integer(yorigin + origin_deltay,5)
 
-            xvector = 1
-            yvector = 1
-            if (xtarget < width_origin_x):
-                xvector = -1
-            if (ytarget < width_origin_y):
-                yvector = -1
+        # Calculate the length in feet from origin point - this determines the length delta to be added to our derived origin point
+        deltax = length * math.cos(radians)
+        deltay = length * math.sin(radians)
+        
+        # Find the perpendicular angle
+        perpendicular = radians/2
 
-            # Add/subtract the remaining length in grids to the x and y coord based on vector
-            xdestination = round_to_integer((width_origin_x + length) * xvector,5)
-            ydestination = round_to_integer((width_origin_y + length) * yvector,5)
-            #xdestination = round_to_integer((abs(xtarget) + (length - (abs(xtarget) - abs(xorigin))) * xvector),5)
-            #ydestination = round_to_integer((abs(ytarget) + (length - (abs(ytarget) - abs(yorigin))) * yvector),5)
-            print_output('Origin of attack: (' + repr(width_origin_x) + ',' + repr(width_origin_y) + ')' + ' Target location: (' + repr(xtarget) + ',' + repr(ytarget) + ')' + ' Cast-forward destination: (' + repr(xdestination) + ',' + repr(ydestination) + ')')
+        # Determine destination
+        xdestination = round_to_integer(xorigin + deltax,5)
+        ydestination = round_to_integer(yorigin + deltay,5)
+                        
+        # Debug output
+        print_output('Origin of this line: (' + repr(xorigin) + ',' + repr(yorigin) + ')' + ' Target of this line: (' + repr(xtarget) + ',' + repr(ytarget) + ')' + ' Cast-forward destination: (' + repr(xdestination) + ',' + repr(ydestination) + ')')
+        
+        # Uses a variation of Brehenams algorithm to return the grids that are supercovered by a line drawn from origin -> destination
+        line_grids = evaluate_line(yorigin,xorigin,ydestination,xdestination)                
+            
+        #Append affected grids to master list if they're not present
+        i = 0
+        while i < len(line_grids):
+            if line_grids[i] not in affected_grids:
+                if len(affected_grids) + 1 < max_grids:
+                    affected_grids.append(line_grids[i])
+                    grids_consumed += 1
+            i += 1
 
+        total_affected_grids += len(line_grids)
+
+        ### Draw subsequent lines ###
+        # After the first line is drawn, supplement it with casts stepping away from the center
+        # Alternate 5 feet positive, 5 feet negative
+        # Deduct any additional grids found from 'max grids'
+        # Eventually we will run out 
+        width_direction = 1
+        while width_pointer <= width_limit and grids_consumed <= max_grids:
+            #print_output('Width Pointer: ' + repr(width_pointer))
+            # Start at 1/2 the width negative from origin
+            # Cast a line forward
+                # Shift the origin point one square along the perpendicular           
+
+            # Debug output
+            #print_output('Angle in radians: ' + repr(radians))
+            #print_output('X Delta: + ' + repr(deltax) + 'Y Delta: ' + repr(deltay))
+
+            # Find the step along the perpendicular 
+            width_deltax = width_offset * width_direction * math.cos(perpendicular)
+            width_deltay = width_offset * width_direction * math.sin(perpendicular) 
+
+            # Set the origin point
+            newxorigin = round_to_integer(first_xorigin + width_deltax,5)
+            newyorigin = round_to_integer(first_yorigin + width_deltay,5)
+
+            if xorigin < 0 and newxorigin < xorigin:
+                xorigin = newxorigin
+            if yorigin < 0 and newyorigin < yorigin:
+                yorigin = newyorigin
+            #Debug output
+            #print_output('Width Step: Angle in radians: ' + repr(perpendicular))
+            #print_output('Width Step X Delta: ' + repr(width_deltax) + ' Width Step Y Delta: ' + repr(width_deltay))
+           # print_output('Derived X Origin point: ' + repr(xorigin) + ' Derived Y Origin point: ' + repr(yorigin))            
+                        
+            # The destination = the origin point plus delta, rounded to the nearest 5 feet
+            # This changes based on the origin point
+            xdestination = round_to_integer(xorigin + deltax,5)
+            ydestination = round_to_integer(yorigin + deltay,5)
+                        
+            # Debug output
+            print_output('New origin: (' + repr(newxorigin) + ',' + repr(newyorigin) + ')')
+        
             # Uses a variation of Brehenams algorithm to return the grids that are supercovered by a line drawn from origin -> destination
-            line_grids = evaluate_line(width_origin_y,width_origin_x,ydestination,xdestination)                
-
+            line_grids = evaluate_line(yorigin,xorigin,ydestination,xdestination)                
+            
             #Append affected grids to master list if they're not present
             i = 0
             while i < len(line_grids):
                 if line_grids[i] not in affected_grids:
                     if len(affected_grids) + 1 < max_grids:
                         affected_grids.append(line_grids[i])
+                        grids_consumed += 1
                 i += 1
-            
-            # Use approximate cardinal to determine which perpendicular to step in
-            perp = derive_perpendicular(approx_cardinal)
-            #Step along the width of the rectangle to shift the origin point for the next round            
-            x,y = calc_grid_step(perp,x,y)
-            width_origin_x -= x
-            width_origin_y -= y
 
-            width_step += 5
+            total_affected_grids += len(line_grids)              
+                        
+            #Swaps the sign so the next width increment happens on the opposite side of the primary line
+            width_direction = width_direction * - 1
 
-            affected_targets = find_targets_in_area(combatant,affected_grids)
-            print_grid(xorigin,yorigin,affected_grids,affected_targets)
-            
-            # Here we should have the starting point of the line - inverting the steps along the widest point along the perpendicular axis
-            # Cast forward to length, then iterate through the width            
-            #width_step = 0
-            #while width_step < width:
-            #    length_step  = 0
-            #    destination_x = width_origin_x
-            #    destination_y = width_origin_y 
-            #    while length_step < length:            
-            #        # Step in the correct direction along the length
-            #        x, y = calc_grid_step(direction,x,y)                                        
-            #        destination_x += x
-            #        destination_y += y
-            #        affected_grids.append((destination_x,destination_y))
-            #        max_grids -= 1
-            #        if max_grids == 0:
-            #            break
-            #        length_step += 5
-            #    if max_grids == 0:
-            #        break
-            #    # After we've reached the end of the length, step along the perpendicular, update our width points for the next run through the loop
-            #    x, y = calc_grid_step(perpendicular,x,y)                          
-            #    width_origin_x += x
-            #    width_origin_y += y                
-            #    width_step += 5
-      
+            if width_direction/1 == 1:
+                #Every 2 steps, increment the width offset (so we start looking at 5 feet from center, then 10 feet, etc.)
+                width_offset += width_step
+
+            # Increment the pointer, once we've exhausted the maximum width of the ability we're done (even if there are unallocated grids remaining due to rounding etc.)
+            width_pointer += width_step
+
+        affected_targets = find_targets_in_area(combatant,affected_grids)
+
     # Find enemy locations and see if targets are located within the grid set
     #affected_targets = find_targets_in_area(combatant,affected_grids)
     #Print out a grid (half debugging, may leave it in) - show all the targets so they can be rendered
-    #print_grid(xorigin,yorigin,affected_grids,affected_targets)
+    print_output('Total potential grids: ' + repr(total_affected_grids) + ' Max grids: ' + repr(max_grids) + ' Affected grids: ' + repr(len(affected_grids)))
+
+    print_grid(first_xorigin,first_yorigin,affected_grids,affected_targets)
 
     return affected_targets
             
@@ -1787,7 +1872,6 @@ def get_combatant_class_level(combatant,combatant_class):
 def round_to_integer(x, base):
     return int(base * round(float(x)/base))
 
-
 def evaluate_line(y1,x1,y2,x2):
     affected_grids = []
 # From http://eugen.dedu.free.fr/projects/bresenham/
@@ -1827,6 +1911,7 @@ def evaluate_line(y1,x1,y2,x2):
     if (ddx >= ddy):  # first octant (0 <= slope <= 1)
         # compulsory initialization (even for errorprev, needed when dx==dy)
         errorprev = error = dx  # start in the middle of the square
+        i = 0
         while i < dx:  # do not use the first point (already done)
             x += xstep
             error += ddy
@@ -1838,6 +1923,8 @@ def evaluate_line(y1,x1,y2,x2):
                     affected_grids.append((x,y-ystep))
                 elif (error + errorprev > ddx):  # left square also
                     affected_grids.append((x-xstep,y))
+                # Evaluating this condition will also return any grid that the line passes over the corner of
+                # This causes strange behaviour in DnD as clipping the square should not necessarily include the square in the AoE
                 else: # corner: bottom and left squares also                
                     affected_grids.append((x,y-ystep))
                     affected_grids.append((x-xstep,y))
@@ -1848,6 +1935,7 @@ def evaluate_line(y1,x1,y2,x2):
             
     else: # the same as above
         errorprev = error = dy
+        i = 0
         while i < dy:     
             y += ystep;
             error += ddx;
@@ -1858,11 +1946,15 @@ def evaluate_line(y1,x1,y2,x2):
                   affected_grids.append((x-xstep,y))
                 elif (error + errorprev > ddy):
                   affected_grids.append((x,y-ystep))
+                # Evaluating this condition will also return any grid that the line passes over the corner of
+                # This causes strange behaviour in DnD as clipping the square should not necessarily include the square in the AoE                
                 else:
                   affected_grids.append((x-xstep,y))
+                  affected_grids.append((x,y-ystep))
+
             i += 5
 
-            affected_grids.append((x,y-ystep))
+            affected_grids.append((x,y))
             errorprev = error;
 
     return affected_grids        
