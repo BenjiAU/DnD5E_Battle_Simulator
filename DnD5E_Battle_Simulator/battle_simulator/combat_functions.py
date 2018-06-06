@@ -368,12 +368,14 @@ def attack_action(combatant):
         # Flurry of Blows
         if not combatant.bonus_action_used and combatant.flurry_of_blows:                      
             if combatant.current_weapon.weapon_type == weapon_type.Unarmed or combatant.current_weapon.monk_weapon:
-                if combatant.ki_points > 0  
+                if combatant.ki_points > 0:
                     print_output(combatant.name + ' spends 1 Ki Point and unleashes a Flurry of Blows!')
                     combatant.ki_points -= 1
+                    orig_weapon = combatant.current_weapon
                     combatant.current_weapon = unarmed_strike(combatant)
                     attack(combatant)
                     attack(combatant)
+                    combatant.current_weapon = orig_weapon
                 else:
                     print_output(combatant.name + ' has no Ki Points remaining, and cannot use Flurry of Blows!')
 
@@ -390,7 +392,7 @@ def unarmed_strike(combatant):
     unarmed_strike.name = "Unarmed Strike"
     unarmed_strike.weapon_type = weapon_type.Unarmed
     unarmed_strike.monk_weapon = True    
-    unarmed_strike.weapon_damage_type = weapon_damage_type.Bludgeoning
+    unarmed_strike.weapon_damage_type = damage_type.Bludgeoning
     if combatant.martial_arts:
         unarmed_strike.damage_die = combatant.martial_arts_die
         unarmed_strike.damage_die_count = 1
@@ -1182,7 +1184,8 @@ def calc_damage_modifier(combatant):
     damage = 0
     
     # Add Dex modifier for finesse weapons, otherwise Str
-    if combatant.current_weapon.finesse:
+    # Monk weapons also have this property (which is actually independent of Finesse)
+    if combatant.current_weapon.finesse or combatant.current_weapon.monk_weapon:
         damage += dexmod(combatant)
     else:
         damage += strmod(combatant)
@@ -1645,14 +1648,24 @@ def is_adjacent(combatant,target):
     return False
 
 def find_target(combatant):    
-    #Always set the target as a reference to the master list of combatants (to avoid having to constantly refresht to pick up changes in the target)
+    #Always set the target as a reference to the master list of combatants (to avoid having to constantly refresh to pick up changes in the target)
     combatant.target = None    
-    for potential_enemy in combatants.list:
-        if combatant.name != potential_enemy.name and combatant.team != potential_enemy.team:
-            if potential_enemy.alive:
-                if combatant.target == None or calc_distance(combatant,potential_enemy) <= calc_distance(combatant,combatant.target):
-                    combatant.target = potential_enemy                
-  
+    best_target = None
+    for enemy in combatants.list:
+        if combatant.name != enemy.name and combatant.team != enemy.team:
+            if enemy.alive:
+                #Target selection priority:
+                # Do we have a target? If not, set it to this one                
+                if combatant.target == None:
+                    best_target = enemy 
+                # If our current target is healthy, and has more current HP than the potential target, swap to the weaker one
+                elif combatant.target.current_health == combatant.target.max_health and combatant.target.current_health > enemy.current_health:
+                    best_target = enemy
+                # If our current target is farther away than the enemy, swap to the closer target
+                elif calc_distance(combatant,enemy) <= calc_distance(combatant,combatant.target):
+                    best_target = enemy                
+                    
+    combatant.target = best_target
     if combatant.target:
         print_output(combatant.name + ' is now targetting ' + combatant.target.name)
         #Swap to an appropriate weapon as a free action

@@ -13,11 +13,12 @@ def initialise_combatants(init_combatants):
     init_arkhan(init_combatants)
     init_umbrasyl(init_combatants)
     
-    init_yasha(init_combatants)
-    
+    #init_yasha(init_combatants)
+    init_beau(init_combatants)
     init_doty(init_combatants)
     init_trinket(init_combatants)
-    init_yasha_level4(init_combatants)
+    #init_yasha_level4(init_combatants)
+    init_yasha_level5(init_combatants)
     init_hill_giant(init_combatants)
 
 def initialise_teams(combatants,teams):
@@ -96,10 +97,10 @@ def initialise_starting_positions(combatants):
             combatant.starting_ypos = 20
         if combatant.name == "Umbrasyl":
             combatant.starting_xpos = 50
-            combatant.starting_ypos = 50
-                   
-        #if combatant.name == "Yasha":
-        #    combatant.position = 1420
+            combatant.starting_ypos = 50           
+        if combatant.name == "Yasha":
+            combatant.starting_xpos = 25
+            combatant.starting_ypos = 25
         #if combatant.name == "Arkhan":
         #    combatant.position = 1410
         #if combatant.name == "Percy":
@@ -261,7 +262,7 @@ def init_grog(init_combatants):
     
     barbarian_class = player_class_block()
     barbarian_class.player_class = player_class.Barbarian
-    barbarian_class.player_subclass = player_subclass.Beserker
+    barbarian_class.player_subclass = player_subclass.PathOfTheBeserker
     barbarian_class.player_class_level = 17
     grog.player_classes().append(barbarian_class)
 
@@ -491,6 +492,7 @@ def init_vax(init_combatants):
 
     init_combatants.append(vax)    
 
+# The Mighty Nein
 def init_yasha(init_combatants):
 
     #yasha
@@ -504,7 +506,7 @@ def init_yasha(init_combatants):
     
     barbarian_class = player_class_block()
     barbarian_class.player_class = player_class.Barbarian
-    barbarian_class.player_subclass = player_subclass.Zealot
+    barbarian_class.player_subclass = player_subclass.PathOfTheZealot
     barbarian_class.player_class_level = 20
     yasha.player_classes().append(barbarian_class)
 
@@ -585,6 +587,79 @@ def init_yasha(init_combatants):
 
     init_combatants.append(yasha)    
 
+def init_beau(init_combatants):
+
+    #yasha
+    beau = creature()
+
+    beau.notes = "Beauregard, Monk of the Cobalt Soul"
+
+    beau.fullname = "Beauregard"
+    beau.name = "Beau"
+    beau.race = race.Human
+    
+    monk_class = player_class_block()
+    monk_class.player_class = player_class.Monk
+    monk_class.player_subclass = player_subclass.WayOfTheCobaltSoul
+    monk_class.player_class_level = 5
+    beau.player_classes().append(monk_class)
+
+    #beau.fighting_style = fighting_style.Great_Weapon_Fighting
+    beau.max_health = 44
+    beau.armour_class = 17
+    beau.speed = 40
+    beau.proficiency = math.floor(7+(characterlevel(beau)/4))
+    beau.weapon_proficiency().append(weapon_type.Unarmed)
+    
+
+    #Stats
+    beaustats = statistic_block()
+    beaustats.str = 10
+    beaustats.dex = 18
+    beaustats.con = 16
+    beaustats.intel = 14
+    beaustats.wis = 16
+    beaustats.cha = 12
+
+    beau.stats = beaustats
+    
+    #Saves
+    beausaves = saving_throw_block()    
+    beausaves.str = 3
+    beausaves.dex = 7
+    beausaves.con = 3
+    beausaves.intel = 2
+    beausaves.wis = 3
+    beausaves.cha = 1
+    
+    beau.saves = beausaves
+
+    #Ability Checks
+    beauchecks = ability_check_block()
+    
+    beau.checks = beauchecks    
+
+    #beau's weapons
+    # note that unarmed strikes are a property of the Monk class, and Flurry of Blows will kick in automagically
+    bostaff = weapon()
+    bostaff.name = "Bo Staff"
+    bostaff.weapon_type = weapon_type.Quarterstaff;
+    bostaff.range = 0
+    
+    bostaff.damage_die = 6
+    bostaff.damage_die_count = 1
+    bostaff.weapon_damage_type = damage_type.Bludgeoning
+    
+    bostaff.two_handed = True
+    bostaff.monk_weapon = True
+
+    beau.weapon_inventory().append(bostaff)
+
+    #beau's gear
+    # combat stats # 
+
+    init_combatants.append(beau)    
+
 def init_yasha_level4(init_combatants):
 
     #yasha
@@ -598,7 +673,7 @@ def init_yasha_level4(init_combatants):
     
     barbarian_class = player_class_block()
     barbarian_class.player_class = player_class.Barbarian
-    barbarian_class.player_subclass = player_subclass.Zealot
+    barbarian_class.player_subclass = player_subclass.PathOfTheZealot
     barbarian_class.player_class_level = 4
     yasha.player_classes().append(barbarian_class)
 
@@ -665,6 +740,85 @@ def init_yasha_level4(init_combatants):
 
     init_combatants.append(yasha)    
 
+def init_yasha_level5(init_combatants):
+
+    #yasha
+    yasha = creature()
+
+    yasha.notes = "Yasha, Path of the Zealot Barbarian"
+
+    yasha.fullname = "Yasha"
+    yasha.name = "Yasha"
+    yasha.race = race.Aasamir
+    
+    barbarian_class = player_class_block()
+    barbarian_class.player_class = player_class.Barbarian
+    barbarian_class.player_subclass = player_subclass.PathOfTheZealot
+    barbarian_class.player_class_level = 5
+    yasha.player_classes().append(barbarian_class)
+
+    #yasha.fighting_style = fighting_style.Great_Weapon_Fighting
+    yasha.max_health = 55
+    yasha.armour_class = 14
+    yasha.speed = 40
+    yasha.proficiency = math.floor(7+(characterlevel(yasha)/4))
+    yasha.weapon_proficiency().append(weapon_type.Greatsword)
+    
+
+    #Stats
+    yashastats = statistic_block()
+    yashastats.str = 17
+    yashastats.dex = 15
+    yashastats.con = 14
+    yashastats.intel = 12
+    yashastats.wis = 9
+    yashastats.cha = 7
+
+    yasha.stats = yashastats
+    
+    #Saves
+    yashasaves = saving_throw_block()    
+    yashasaves.str = 6
+    yashasaves.dex = 2
+    yashasaves.con = 5
+    yashasaves.intel = 1
+    yashasaves.wis = -1
+    yashasaves.cha = -2
+    
+    yasha.saves = yashasaves
+
+    #Ability Checks
+    yashachecks = ability_check_block()
+    
+    yasha.checks = yashachecks    
+
+    #yasha's weapons
+    magiciansjudge = weapon()
+    magiciansjudge.name = "Magician\'s Judge"
+    magiciansjudge.weapon_type = weapon_type.Greatsword;
+    magiciansjudge.range = 0
+    
+    magiciansjudge.damage_die = 6
+    magiciansjudge.damage_die_count = 2
+    magiciansjudge.weapon_damage_type = damage_type.Slashing
+    
+    magiciansjudge.bonus_damage_die = 0
+    magiciansjudge.bonus_damage_die_count = 0
+    magiciansjudge.bonus_damage_type = damage_type.Necrotic
+    
+    magiciansjudge.magic_to_hit_modifier = 1
+    magiciansjudge.magic_damage_modifier = 1
+
+    magiciansjudge.heavy = True
+    magiciansjudge.two_handed = True
+    magiciansjudge.magic = True
+
+    yasha.weapon_inventory().append(magiciansjudge)
+
+    #yasha's gear
+    # combat stats # 
+
+    init_combatants.append(yasha)    
     
 def init_arkhan(init_combatants):
 
@@ -686,7 +840,7 @@ def init_arkhan(init_combatants):
 
     barbarian_class = player_class_block()
     barbarian_class.player_class = player_class.Barbarian
-    barbarian_class.player_subclass = player_subclass.Beserker
+    barbarian_class.player_subclass = player_subclass.PathOfTheBeserker
     barbarian_class.player_class_level = 3
     arkhan.player_classes().append(barbarian_class)
 

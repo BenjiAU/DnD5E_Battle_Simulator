@@ -195,6 +195,7 @@ class weapon_type(Enum):
     Greataxe = auto()
     Sword = auto()
     Greatsword = auto()
+    Quarterstaff = auto()
     Natural = auto()
     Unarmed = auto()
 
