@@ -53,6 +53,7 @@ def use_movement(combatant):
                     move_from_target(combatant,combatant.target)
         else:
             #Close the distance to be able to use weapon 
+
             gap_to_close = calc_distance(combatant,combatant.target) - combatant.current_weapon.range;
             if gap_to_close <= combatant.movement:
                 combatant.movement = gap_to_close
@@ -1571,7 +1572,7 @@ def target_in_weapon_range(combatant,target,range):
         range = melee_range()
     #Calculate distance in feet
     distance_to_target = calc_distance(combatant,target)
-    if (distance_to_target < range) or (combatant.current_weapon.reach and distance_to_target < range + 5):
+    if (distance_to_target <= range) or (combatant.current_weapon.reach and distance_to_target < range + 5):
         return True
     #Check that no grids are adjacent for melee attacks
     if is_adjacent(combatant,target):
