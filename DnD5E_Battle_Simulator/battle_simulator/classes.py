@@ -196,6 +196,7 @@ class weapon_type(Enum):
     Sword = auto()
     Greatsword = auto()
     Natural = auto()
+    Unarmed = auto()
 
 #Armour Type
 class armour_type():
@@ -334,6 +335,9 @@ class weapon():
     two_handed = bool()
     versatile = bool()
     silvered = bool()
+
+    # Special property to track wheter weapon is a "Monk Weapon", and can thus be used with Flurry of Blows
+    monk_weapon = bool()
 
     # Main weapon damage 
     damage_die = int()
@@ -513,6 +517,7 @@ class creature():
     martial_arts_die = int()
 
     ki = bool()
+    ki_points = int()
     max_ki_points = int()
     flurry_of_blows = bool()
     patient_defense = bool()

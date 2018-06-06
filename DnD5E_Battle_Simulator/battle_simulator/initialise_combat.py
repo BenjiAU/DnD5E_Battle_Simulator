@@ -225,8 +225,9 @@ def initialise_class_features(combatant):
                 combatant.martial_arts_die = 4                
             if class_instance.player_class_level >= 2:
                 combatant.ki = True
-                # Max Ki Points = Monk level
+                # Max Ki Points = Monk level                
                 combatant.max_ki_points = class_instance.player_class_level
+                combatant.ki_points = comabtant.max_ki_points
                 combatant.flurry_of_blows = True
                 combatant.patient_defense = True
                 combatant.step_of_the_wind = True

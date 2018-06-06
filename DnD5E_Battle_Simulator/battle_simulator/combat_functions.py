@@ -153,7 +153,65 @@ def bonus_action(combatant):
 
         if combatant.bonus_action_used:
             print_output(combatant.name + ' has already used their Bonus Action this turn.')
-        
+                
+        # Barbarian bonus actions
+        #Rage
+        if not combatant.bonus_action_used:
+            if combatant.canrage and not combatant.raging:
+                print_output(combatant.name + ' uses their Bonus Action to go into a mindless rage! "I would like to RAAAGE!!!"')
+                combatant.raging = True;
+                # Reset duration of this rage
+                combatant.rage_duration = 0
+                combatant.bonus_action_used = True
+                # Rage grants advantage on strength checks/saving throws for its duration
+                if combatant.armour_type != armour_type.Heavy:
+                    combatant.saves.str_adv = True
+                    combatant.checks.str_adv = True
+
+        #Frenzy
+        if not combatant.bonus_action_used:
+            if combatant.raging:
+                if combatant.frenzy:      
+                    #You can make a single melee weapon Attack as a Bonus Action on each of your turns after this one (does not have to be tied to Attack action)
+                    if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):                    
+                        print_output(combatant.name + ' uses their Bonus Action to make a frenzied weapon attack against ' + combatant.target.name)
+                        attack(combatant)            
+                        combatant.bonus_action_used = True
+                        
+        # Fighter bonus actions
+        #Second Wind
+        if not combatant.bonus_action_used:
+            if combatant.second_wind:
+                #Don't use Second Wind unless current HP is more than 10+fighter level less than max
+                fighter_level = get_combatant_class_level(combatant,player_class.Fighter)                
+                if combatant.current_health + 10 + fighter_level < combatant.max_health:
+                    second_wind_heal = roll_die(10) + fighter_level
+                    heal_damage(combatant,second_wind_heal)                    
+                    print_output(combatant.name + ' uses their Bonus Action to gain a Second Wind, and restores ' + healing_text(repr(second_wind_heal)) + ' hit points! ' + hp_text(combatant.current_health,combatant.max_health))
+                    combatant.second_wind = False
+                    combatant.bonus_action_used = True
+
+        #Lightning Reload
+        if not combatant.bonus_action_used:
+            if combatant.current_weapon.weapon_type == weapon_type.Firearm:
+                if combatant.lighting_reload:
+                    if combatant.current_weapon.currentammo == 0:
+                        combatant.current_weapon.currentammo = combatant.current_weapon.reload
+                        print_output(combatant.name + ' used a bonus action to reload. ' + combatant.current_weapon.name + ' Ammo: ' + repr(combatant.current_weapon.currentammo) + '/' + repr(combatant.current_weapon.reload))
+                        combatant.bonus_action_used = True
+
+        # Monk bonus actions
+
+        # Paladin bonus actions
+        #Vow of Enmity
+        if not combatant.bonus_action_used:
+            if combatant.channel_divinity and combatant.vow_of_enmity:
+                combatant.vow_of_enmity_target = combatant.target
+                print_output(combatant.name + ' swears a Vow of Enmity against ' + combatant.target.name)
+                combatant.channel_divinity = False
+                combatant.bonus_action_used = True
+
+        # Rogue bonus actions
         #Cunning Action
         if not combatant.bonus_action_used:
             if combatant.cunning_action:
@@ -175,41 +233,8 @@ def bonus_action(combatant):
                 #Dodge         
 
                 #Hide
-        #Rage
-        if not combatant.bonus_action_used:
-            if combatant.canrage and not combatant.raging:
-                print_output(combatant.name + ' uses their Bonus Action to go into a mindless rage! "I would like to RAAAGE!!!"')
-                combatant.raging = True;
-                # Reset duration of this rage
-                combatant.rage_duration = 0
-                combatant.bonus_action_used = True
-                # Rage grants advantage on strength checks/saving throws for its duration
-                if combatant.armour_type != armour_type.Heavy:
-                    combatant.saves.str_adv = True
-                    combatant.checks.str_adv = True
 
-        #Second Wind
-        if not combatant.bonus_action_used:
-            if combatant.second_wind:
-                #Don't use Second Wind unless current HP is more than 10+fighter level less than max
-                fighter_level = get_combatant_class_level(combatant,player_class.Fighter)                
-                if combatant.current_health + 10 + fighter_level < combatant.max_health:
-                    second_wind_heal = roll_die(10) + fighter_level
-                    heal_damage(combatant,second_wind_heal)                    
-                    print_output(combatant.name + ' uses their Bonus Action to gain a Second Wind, and restores ' + healing_text(repr(second_wind_heal)) + ' hit points! ' + hp_text(combatant.current_health,combatant.max_health))
-                    combatant.second_wind = False
-                    combatant.bonus_action_used = True
-
-        #Frenzy
-        if not combatant.bonus_action_used:
-            if combatant.raging:
-                if combatant.frenzy:      
-                    #You can make a single melee weapon Attack as a Bonus Action on each of your turns after this one (does not have to be tied to Attack action)
-                    if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):                    
-                        print_output(combatant.name + ' uses their Bonus Action to make a frenzied weapon attack against ' + combatant.target.name)
-                        attack(combatant)            
-                        combatant.bonus_action_used = True
-                        
+        # Equipment bonus actions
         #Boots of Feral Leaping        
         if not combatant.bonus_action_used:
             for item in combatant.equipment_inventory():
@@ -223,24 +248,7 @@ def bonus_action(combatant):
                     else:
                         print_output(combatant.name + ' fell over where they stand!')
                         combatant.prone = True
-                    combatant.bonus_action_used = True
-
-        #Lightning Reload
-        if not combatant.bonus_action_used:
-            if combatant.current_weapon.weapon_type == weapon_type.Firearm:
-                if combatant.lighting_reload:
-                    if combatant.current_weapon.currentammo == 0:
-                        combatant.current_weapon.currentammo = combatant.current_weapon.reload
-                        print_output(combatant.name + ' used a bonus action to reload. ' + combatant.current_weapon.name + ' Ammo: ' + repr(combatant.current_weapon.currentammo) + '/' + repr(combatant.current_weapon.reload))
-                        combatant.bonus_action_used = True
-
-        #Vow of Enmity
-        if not combatant.bonus_action_used:
-            if combatant.channel_divinity and combatant.vow_of_enmity:
-                combatant.vow_of_enmity_target = combatant.target
-                print_output(combatant.name + ' swears a Vow of Enmity against ' + combatant.target.name)
-                combatant.channel_divinity = False
-                combatant.bonus_action_used = True
+                    combatant.bonus_action_used = True       
 
 def hasted_action(combatant):
     print_output('<b>Hasted Action:</b>')
@@ -318,6 +326,12 @@ def weapon_swap(combatant,current_range):
             print_output(combatant.name + ' draws ' + weapon.name + ' and prepares for battle!')
             combatant.current_weapon = weapon                   
             return True
+
+    if combatant.current_weapon.name == "":
+        # If no weapon has been equipped, and we haven't been able to draw one, equip a phantom 'Unarmed Strike' weapon
+        combatant.current_weapon = unarmed_strike(combatant)
+        return True
+
     return False
 
 #Attack action
@@ -351,12 +365,38 @@ def attack_action(combatant):
         print_output(combatant.name + ' uses the Attack action against ' + combatant.target.name)                
         attack(combatant)
 
+        # Flurry of Blows
+        if not combatant.bonus_action_used and combatant.flurry_of_blows:                      
+            if combatant.current_weapon.weapon_type == weapon_type.Unarmed or combatant.current_weapon.monk_weapon:
+                if combatant.ki_points > 0  
+                    print_output(combatant.name + ' spends 1 Ki Point and unleashes a Flurry of Blows!')
+                    combatant.ki_points -= 1
+                    combatant.current_weapon = unarmed_strike(combatant)
+                    attack(combatant)
+                    attack(combatant)
+                else:
+                    print_output(combatant.name + ' has no Ki Points remaining, and cannot use Flurry of Blows!')
+
         if combatant.extra_attack > 0:
             for x in range(0,combatant.extra_attack):
                 #Can't attack if weapon is broken, must spend next action to fix it
                 if not combatant.current_weapon.broken:
                     print_output('<i>' + combatant.name + ' uses an Extra Attack.</i>')
                     attack(combatant)  
+
+def unarmed_strike(combatant):    
+    # Create and equip a phantom 'unarmed strike' weapon to proceed with attack calculations
+    unarmed_strike = weapon()
+    unarmed_strike.name = "Unarmed Strike"
+    unarmed_strike.weapon_type = weapon_type.Unarmed
+    unarmed_strike.monk_weapon = True    
+    unarmed_strike.weapon_damage_type = weapon_damage_type.Bludgeoning
+    if combatant.martial_arts:
+        unarmed_strike.damage_die = combatant.martial_arts_die
+        unarmed_strike.damage_die_count = 1
+    if combatant.ki_empowered_strikes:
+        unarmed_strike.magic = True
+    return unarmed_strike
 
 def breath_attack(combatant):
     print_output(combatant.name + ' rears back and unleashes a devastating breath attack! (10 feet width, 90 feet length)')       
@@ -663,7 +703,7 @@ def attack(combatant):
                                          
                             # Calculate damage modifier (adds strmod/dexmod to attack)
                             damage_modifier = calc_damage_modifier(combatant)
-
+                            
                             # Calculate main attack dice
                             print_output(indent() + combatant.current_weapon.name + ' deals ' + repr(combatant.current_weapon.damage_die_count) + 'd' + repr(combatant.current_weapon.damage_die) + ' + ' + repr(damage_modifier) + ' '  + combatant.current_weapon.weapon_damage_type.name + ' damage: ')
                             weapon_damage_type = damage_type(combatant.current_weapon.weapon_damage_type)
@@ -677,6 +717,10 @@ def attack(combatant):
                                     print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Weapon Damage)')    
                                 dice_damage += die_damage                    
                             
+                            # Special rule for unarmed strike; if no damage has been calculated, we aren't a monk, so force the damage to be 1 + strmod
+                            if dice_damage == 0 and combatant.current_weapon.weapon_type == weapon_type.Unarmed:
+                                dice_damage = 1 + strmod(combatant)
+
                             # Sneak attack (if we had advantage on the strike)
                             if advantage and combatant.sneak_attack and not combatant.sneak_attack_used:
                                 print_output(indent() + combatant.name + ' deals Sneak Attack damage with their attack!')
