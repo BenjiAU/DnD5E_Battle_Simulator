@@ -49,9 +49,11 @@ class player_class(Enum):
         return str(self.value)    
     Barbarian = auto()
     Bard = auto()
+    BloodHunter = auto()
     Cleric = auto()
     Druid = auto()
     Fighter = auto()    
+    Monk = auto()
     Rogue = auto()
     Ranger = auto()
     Sorcerer = auto()
@@ -62,19 +64,38 @@ class player_class(Enum):
 class player_subclass(Enum):
     def __str__(self):
         return str(self.value)    
-    #Barbarian subclasses
-    Beserker = auto()
-    Zealot = auto()
+    #Barbarian subclasses (Paths)
+    PathOfTheBeserker = auto()
+    PathOfTheZealot = auto()
+    #BloodHunter subclasses
+    OrderOfTheProfaneSoul = auto()
+    OrderOfTheLycan = auto()
+    #Cleric subclasses (Domains)
+    LifeDomain = auto()
+    TrickeryDomain = auto()    
     #Fighter subclasses
+    Battlemaster = auto()
     Gunslinger = auto()
+    #Monk subclasses (Ways)
+    WayOfTheCobaltSoul = auto()
+    WayOfTheOpenHand = auto()
     #Paladin subclasses
     Oathbreaker = auto()   
     Vengeance = auto()    
     #Rogue subclasses
-    Thief = auto()
+    ArcaneTrickster = auto()
     Assassin = auto()    
+    Thief = auto()    
     #Ranger subclasses
     Beastmaster = auto()    
+    #Warlock subclasses (Pacts)
+    PactOfTheBlade = auto()
+    PactOfTheChain = auto()
+    #Wizard subclasses (Schools)
+    Divination = auto()
+    Evocation = auto() 
+    Necromancy = auto()
+    Transmutation = auto()
 
 class cardinal_direction(Enum):
     #integers matter for this one
@@ -122,12 +143,15 @@ class race(Enum):
     def __str__(self):
         return str(self.value)    
     #PC Races
-    Human = auto()
-    Half_Elf = auto()
-    Gnome = auto()
-    Goliath = auto()
     Aasamir = auto()
     Dragonborn = auto()
+    Human = auto()
+    Half_Elf = auto()
+    Half_Orc = auto()
+    Gnome = auto()
+    Goblin = auto()
+    Goliath = auto() 
+    Tiefling = auto()
     #Monster races
     Dragon = auto()
     Undead = auto()
@@ -420,6 +444,8 @@ class creature():
     # Class
     ## Generic
     extra_attack = int()            
+    
+    evasion = bool() # Can come from either Rogue or Monk class
 
     # Feat
     sharpshooter = bool()    
@@ -430,7 +456,10 @@ class creature():
     
     luck_uses = int()
     
-    ### Barbarian ###
+    #############
+    # Barbarian #
+    #############
+    barbarian_unarmored_defense = bool()
     canrage = bool()
     ragedamage = int()
     raging = bool()    
@@ -457,7 +486,10 @@ class creature():
     zealous_presence = bool()
     rage_beyond_death = bool()
     
-    ### Fighter ###
+    #############
+    ## Fighter ##
+    #############
+
     action_surge = int()
     second_wind = bool()
     fighting_style = int()
@@ -471,28 +503,43 @@ class creature():
     vicious_intent = bool()
     hemorrhaging_critical = bool()
     hemo_damage = int()
-    hemo_damage_type = int()
-    
-    ### Rogue ###
-    sneak_attack = bool()    
-    sneak_attack_damage_die = int()
-    sneak_attack_damage_die_count = int()    
-    sneak_attack_used = bool() #Only one sneak attack per round
+    hemo_damage_type = int()  
 
-    cunning_action = bool()
-    uncanny_dodge = bool()    
-    evasion = bool()
-    blindsense = bool()
-    slippery_mind = bool()
-    elusive = bool()
-    stroke_of_luck = bool()
+    #############
+    #### Monk ###
+    #############
+    monk_unarmored_defense = bool()
+    martial_arts = bool()
+    martial_arts_die = int()
 
-    ## Assassin
+    ki = bool()
+    max_ki_points = int()
+    flurry_of_blows = bool()
+    patient_defense = bool()
+    step_of_the_wind = bool()
+    unarmored_movement = bool()
+    unarmored_movement_bonus = int()
 
-    assassinate = bool()
-    can_assassinate_target = bool()
+    deflect_missiles = bool()
 
-    ### Paladin ###
+    slow_fall = bool()
+
+    stunning_strike = bool()
+
+    ki_empowered_strikes = bool()
+
+    stillness_of_mind = bool()
+
+    purity_of_body = bool()
+
+    diamond_soul = bool()
+    ## Open Hand
+
+    ## Cobalt Soul
+
+    #############
+    ## Paladin ##
+    #############
     channel_divinity = bool()
     divine_smite = bool()
     divine_health = bool()
@@ -504,6 +551,27 @@ class creature():
     ## Vengeance
     vow_of_enmity = bool()
     vow_of_enmity_target = None
+      
+    #############
+    ### Rogue ###
+    #############
+    sneak_attack = bool()    
+    sneak_attack_damage_die = int()
+    sneak_attack_damage_die_count = int()    
+    sneak_attack_used = bool() #Only one sneak attack per round
+
+    cunning_action = bool()
+    uncanny_dodge = bool()    
+
+    blindsense = bool()
+    slippery_mind = bool()
+    elusive = bool()
+    stroke_of_luck = bool()
+
+    ## Assassin
+
+    assassinate = bool()
+    can_assassinate_target = bool()
 
     # Race
     ## Goliath #    

@@ -99,6 +99,7 @@ def initialise_class_features(combatant):
         if class_instance.player_class == player_class.Barbarian:
             # Rage (1st level)
             if class_instance.player_class_level >= 1:
+                combatant.barbarian_unarmored_defense = True
                 combatant.canrage = True
                 combatant.raging = False
                 # Number of rounds rage has been up for
@@ -142,7 +143,7 @@ def initialise_class_features(combatant):
                             
             ## Barbarian Subclasses ##
             # Path of the Beserker
-            if class_instance.player_subclass == player_subclass.Beserker:
+            if class_instance.player_subclass == player_subclass.PathOfTheBeserker:
                 # Frenzy (3rd level)
                 if class_instance.player_class_level >= 3:
                     combatant.frenzy = True
@@ -151,7 +152,7 @@ def initialise_class_features(combatant):
                     combatant.retaliation = True
 
             # Path of the Zealot
-            if class_instance.player_subclass == player_subclass.Zealot:
+            if class_instance.player_subclass == player_subclass.PathOfTheZealot:
                 # Divine Fury (3rd level, 1d6+half barb level to first attack each turn while raging)
                 if class_instance.player_class_level >= 3:
                     combatant.divine_fury = True
@@ -165,7 +166,6 @@ def initialise_class_features(combatant):
                 # Rage Beyond death (14th level, while raging, fall below 0 you don't go unconscious - still make Death Saving Throws)
                 if class_instance.player_class_level >= 14:
                     combatant.rage_beyond_death = True
-
 
         #############
         ## Fighter ##
@@ -214,44 +214,52 @@ def initialise_class_features(combatant):
                 #Hemorrhaging Critical (20th level)
                 if class_instance.player_class_level >= 20:
                     combatant.hemorrhaging_critical = True
-            
+
         #############
-        ### Rogue ###
+        #### Monk ###
         #############
-        if class_instance.player_class == player_class.Rogue:
-            # Sneak Attack
+        if class_instance.player_class == player_class.Monk:
             if class_instance.player_class_level >= 1:
-                combatant.sneak_attack = True
-                combatant.sneak_attack_damage_die = 6
-                combatant.sneak_attack_damage_die_count = int(round(class_instance.player_class_level/2))
-
-            # Cunning Action (Dash/Hide/Disengage as Bonus)
+                combatant.monk_unarmored_defense = True
+                combatant.martial_arts = True
+                combatant.martial_arts_die = 4                
             if class_instance.player_class_level >= 2:
-                combatant.cunning_action = True
-            # Uncanny Dodge (Use reaction to halve damage from melee strike)
+                combatant.ki = True
+                # Max Ki Points = Monk level
+                combatant.max_ki_points = class_instance.player_class_level
+                combatant.flurry_of_blows = True
+                combatant.patient_defense = True
+                combatant.step_of_the_wind = True
+                combatant.unarmored_movement = True
+                combatant.unarmored_movement_bonus = 10
+            if class_instance.player_class_level >= 3:
+                combatant.deflect_missiles = True
+            if class_instance.player_class_level >= 4:
+                combatant.slow_fall = True
             if class_instance.player_class_level >= 5:
-                combatant.uncanny_dodge = True
-            # Evasion (Fail Dex save = half damage, succeed = 0)
+                combatant.martial_arts_die = 6       
+                if combatant.extra_attack <= 1:
+                    combatant.extra_attack = 1
+                combatant.stunning_strike = True
+            if class_instance.player_class_level >= 6:
+                combatant.unarmored_movement_bonus = 15
+                combatant.ki_empowered_strikes = True
             if class_instance.player_class_level >= 7:
+                combatant.stillness_of_mind = True
                 combatant.evasion = True
-            # Blindsense (always detect hidden/invis creatures in 10 feet)
+            if class_instance.player_class_level >= 10:
+                combatant.unarmored_movement_bonus = 20
+                combatant.purity_of_body = True
+            if class_instance.player_class_level >= 11:
+                combatant.martial_arts_die = 8                       
             if class_instance.player_class_level >= 14:
-                combatant.blindsense = True
-            # Slippery Mind (prof in Wisdom saving throws)
-            if class_instance.player_class_level >= 15:
-                combatant.slippery_mind = True
-            # Elusive (no attacks have advantage against you while not incapacitated)
+                combatant.unarmored_movement_bonus = 25
+                combatant.diamond_soul = True                
             if class_instance.player_class_level >= 18:
-                combatant.elusive = True
-            # Stroke of Luck (any miss can hit, any fail check can critically succeed, recharge short/long rest)
-            if class_instance.player_class_level >= 20:
-                combatant.elusive = True
+                combatant.unarmored_movement_bonus = 30
+            if class_instance.player_class_level >= 17:
+                combatant.martial_arts_die = 10       
 
-            ## Rogue Subclasses ##
-            # Assassin
-            if class_instance.player_subclass == player_subclass.Assassin:
-                if class_instance.player_class_level >= 3:
-                    combatant.assassinate = True
 
         #############
         ## Paladin ##
@@ -290,6 +298,44 @@ def initialise_class_features(combatant):
                 if class_instance.player_class_level >= 3:
                     combatant.vow_of_enmity = True
                     combatant.vow_of_enmity_target = None
+
+        #############
+        ### Rogue ###
+        #############
+        if class_instance.player_class == player_class.Rogue:
+            # Sneak Attack
+            if class_instance.player_class_level >= 1:
+                combatant.sneak_attack = True
+                combatant.sneak_attack_damage_die = 6
+                combatant.sneak_attack_damage_die_count = int(round(class_instance.player_class_level/2))
+
+            # Cunning Action (Dash/Hide/Disengage as Bonus)
+            if class_instance.player_class_level >= 2:
+                combatant.cunning_action = True
+            # Uncanny Dodge (Use reaction to halve damage from melee strike)
+            if class_instance.player_class_level >= 5:
+                combatant.uncanny_dodge = True
+            # Evasion (Fail Dex save = half damage, succeed = 0)
+            if class_instance.player_class_level >= 7:
+                combatant.evasion = True
+            # Blindsense (always detect hidden/invis creatures in 10 feet)
+            if class_instance.player_class_level >= 14:
+                combatant.blindsense = True
+            # Slippery Mind (prof in Wisdom saving throws)
+            if class_instance.player_class_level >= 15:
+                combatant.slippery_mind = True
+            # Elusive (no attacks have advantage against you while not incapacitated)
+            if class_instance.player_class_level >= 18:
+                combatant.elusive = True
+            # Stroke of Luck (any miss can hit, any fail check can critically succeed, recharge short/long rest)
+            if class_instance.player_class_level >= 20:
+                combatant.elusive = True
+
+            ## Rogue Subclasses ##
+            # Assassin
+            if class_instance.player_subclass == player_subclass.Assassin:
+                if class_instance.player_class_level >= 3:
+                    combatant.assassinate = True       
 
 def initialise_class_spellslots(combatant):
     reset_spellslots(combatant)
