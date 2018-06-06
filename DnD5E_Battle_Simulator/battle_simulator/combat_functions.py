@@ -366,7 +366,7 @@ def breath_attack(combatant):
     print_output("Testing area of effect")
     origin_test_x = 15
     origin_test_y = 15
-    widthtest = 20
+    widthtest = 25
     print_output("Northwest diagonal")
     calculate_area_effect(combatant,origin_test_x,origin_test_y,origin_test_x-50,origin_test_y+50,area_of_effect_shape.Line,widthtest,90)   
     print_output("North")
@@ -1684,6 +1684,7 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
         width_limit = width/5
         width_pointer = 0
         width_step = 5
+        width_direction = 1
         
         first_xorigin = xorigin
         first_yorigin = yorigin
@@ -1700,97 +1701,63 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
         # Initialise an origin point to this location - this is where all lines will be drawn from
         central_xorigin = round_to_integer(xorigin + length_origin_deltax,5)
         central_yorigin = round_to_integer(yorigin + length_origin_deltay,5)
-        
+               
         print_output('Central origin: (' + repr(central_xorigin) + ',' + repr(central_yorigin) + ')')
 
         # Recalculate the angle between the new origin point and target points in radians            
-        radians = math.atan2(ytarget-central_yorigin, xtarget-central_xorigin)    
+        radians2 = math.atan2(ytarget-central_yorigin, xtarget-central_xorigin)    
 
         # Calculate the length in feet from origin point - this determines the length delta to be added to our derived origin point
-        length_deltax = length * math.cos(radians)
-        length_deltay = length * math.sin(radians)    
+        length_deltax = length * math.cos(radians2)
+        length_deltay = length * math.sin(radians2)    
 
         # Find the perpendicular angle from the origin point
-        perpendicular = radians/2
-
-        # Calculate the distance 1/2 of the width from the origin point in the perpendicular
-        if abs(length_deltay) >= 5:
-            width_origin_deltax = width/2 * math.cos(perpendicular)
-        else:
-            width_origin_deltax = 0
-        if abs(length_deltax) >= 5:
-            width_origin_deltay = width/2 * math.sin(perpendicular)
-        else:
-            width_origin_deltay = 0
-
-        # Step along the length to find the starting point of the first line that we will cast        
-        init_xorigin = round_to_integer(central_xorigin - width_origin_deltax,5)
-        init_yorigin = round_to_integer(central_yorigin - width_origin_deltay,5)
-        
-        # Force line to shift on the target side of the initial origin point (the aoe effect cannot begin behind the caster)
-        x_check = False        
-        while not x_check:
-            if xtarget > first_xorigin and init_xorigin < first_xorigin:
-                init_xorigin = round_to_integer(init_xorigin + 5,5)                                                            
-            elif xtarget < first_xorigin and init_xorigin > first_xorigin:
-                init_xorigin = round_to_integer(init_xorigin - 5,5)                 
-            else:
-                x_check = True
-        y_check = False
-        while not y_check:
-            if ytarget > first_yorigin and init_yorigin < first_yorigin:
-                init_yorigin = round_to_integer(init_yorigin + 5,5)                                                            
-            elif ytarget < first_yorigin and init_yorigin > first_yorigin:
-                init_yorigin = round_to_integer(init_yorigin - 5,5)                 
-            else:
-                y_check = True
-
-        print_output('Initial origin point: (' + repr(init_xorigin) + ',' + repr(init_yorigin) + ')')
-
+        perpendicular = math.atan2(xtarget-central_xorigin, (ytarget-central_yorigin) * -1)    
+       
+        # Force line to shift on the target side of the initial origin point (the aoe effect cannot begin behind - or in line with - the caster)
+        # The line must also begin on the same plane as the origin point
         width_offset = 0
-        while width_pointer <= width_limit and len(affected_grids) < max_grids:
-            # Don't draw the line if the number of grids left is less than length?
-            if max_grids - len(affected_grids) >= grid_length:
-                # Find the step along the perpendicular        
-                # Width offset starts at zero (first width delta = 0 for first line to cast from init_origin)
-                # Width offset increments by 5 feet each loop, consuming 5 feet of width in the process                
-                # If the length delta is smaller than one grid, do not apply an offset and keep the same line
-                if abs(length_deltay) >= 5:
-                    width_deltax = width_offset * math.cos(perpendicular)
-                else:
-                    width_deltax = 0
-                if abs(length_deltax) >= 5:
-                    width_deltay = width_offset * math.sin(perpendicular) 
-                else:
-                    width_deltay = 0
+        while width_pointer <= width_limit:
+            # Find the step along the perpendicular        
+            # Width offset starts at zero (first width delta = 0 for first line to cast from init_origin)
+            # Width offset increments by 5 feet each loop, consuming 5 feet of width in the process                
+            # If the length delta is smaller than one grid, do not apply an offset and keep the same line
+            if abs(length_deltay) >= 5:
+                width_deltax = width_offset * math.cos(perpendicular) * width_direction
+            else:
+                width_deltax = 0
+            if abs(length_deltax) >= 5:
+                width_deltay = width_offset * math.sin(perpendicular) * width_direction 
+            else:
+                width_deltay = 0
 
-                # Set the origin point as a function of the initial line
-                xorigin = round_to_integer(init_xorigin + width_deltax,5)                                                            
-                yorigin = round_to_integer(init_yorigin + width_deltay,5)  
+            # Set the origin point as a function of the initial line
+            xorigin = round_to_integer(central_xorigin + width_deltax,5)                   
+            yorigin = round_to_integer(central_yorigin + width_deltay,5)  
 
-                # Determine destination
-                xdestination = round_to_integer(xorigin + length_deltax,5)
-                ydestination = round_to_integer(yorigin + length_deltay,5)
+            # Determine destination
+            xdestination = round_to_integer(xorigin + length_deltax,5)
+            ydestination = round_to_integer(yorigin + length_deltay,5)
                         
-                # Debug output
-                print_output('Line origin: (' + repr(xorigin) + ',' + repr(yorigin) + ')' + ' Target point: (' + repr(xtarget) + ',' + repr(ytarget) + ')' + ' Line destination: (' + repr(xdestination) + ',' + repr(ydestination) + ')')
+            # Debug output
+            print_output('Line origin: (' + repr(xorigin) + ',' + repr(yorigin) + ')' + ' Target point: (' + repr(xtarget) + ',' + repr(ytarget) + ')' + ' Line destination: (' + repr(xdestination) + ',' + repr(ydestination) + ')')
         
-                # Uses a variation of Brehenams algorithm to return the grids that are supercovered by a line drawn from origin -> destination
-                line_grids = evaluate_line(yorigin,xorigin,ydestination,xdestination)                
+            # Uses a variation of Brehenams algorithm to return the grids that are supercovered by a line drawn from origin -> destination
+            line_grids = evaluate_line(yorigin,xorigin,ydestination,xdestination)                
             
-                #Append affected grids to master list if they're not present
-                i = 0
-                while i < len(line_grids):
-                    if line_grids[i] not in affected_grids:
-                        if len(affected_grids) < max_grids:
-                            affected_grids.append(line_grids[i])
-                        else:
-                            break
-                    i += 1
+            #Append affected grids to master list if they're not present
+            i = 0
+            while i < len(line_grids):
+                if line_grids[i] not in affected_grids:
+                    affected_grids.append(line_grids[i])
+                i += 1
 
-                total_affected_grids += len(line_grids)
-            width_pointer += 1
-            width_offset += 5
+            total_affected_grids += len(line_grids)
+
+            width_pointer += 1            
+            width_direction *= -1
+            if width_direction == -1:
+                width_offset += 5
 
             ### Draw subsequent lines ###
             # After the first line is drawn, supplement it with casts stepping away from the center
