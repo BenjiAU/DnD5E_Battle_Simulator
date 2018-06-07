@@ -10,16 +10,17 @@ def initialise_combatants(init_combatants):
     init_percy(init_combatants)
     init_grog(init_combatants)
     init_vax(init_combatants)
+
+    init_yasha(init_combatants)
+    init_nott(init_combatants)
+    init_beau(init_combatants)
+    
+    init_hill_giant(init_combatants)
     init_arkhan(init_combatants)
     init_umbrasyl(init_combatants)
     
-    #init_yasha(init_combatants)    
     init_doty(init_combatants)
     init_trinket(init_combatants)
-    #init_yasha_level4(init_combatants)
-    init_yasha_level5(init_combatants)
-    init_beau(init_combatants)
-    init_hill_giant(init_combatants)
 
 def initialise_teams(combatants,teams):
     vm = team()
@@ -57,29 +58,19 @@ def initialise_teams(combatants,teams):
     red = team()
     red.name = "The Red Team"
     teams.append(red)
-
+    vmnames = ["Grog","Vax","Percy","Doty","Trinket"]
+    m9names = ["Yasha","Beau","Nott"]
+    monsternames = ["Umbrasyl","Hill Giant","Arkhan"]
     #Iterate through all combatants and initially assign them to team
     for combatant in combatants:
-        if combatant.name == "Grog":
-            combatant.team = vm
-        if combatant.name == "Vax":
-            combatant.team = vm
-        if combatant.name == "Doty":
-            combatant.team = vm
-        if combatant.name == "Trinket":
-            combatant.team = vm
-        if combatant.name == "Percy":
-            combatant.team = vm
-        
-        if combatant.name == "Yasha":
-            combatant.team = m9        
-        
-        if combatant.name == "Umbrasyl":
+        if combatant.name in vmnames:
+            combatant.team = vm      
+        elif combatant.name in m9names:
+            combatant.team = m9
+        elif combatant.name in monsternames:
             combatant.team = monster
-        if combatant.name == "Hill Giant":
-            combatant.team = monster        
-        if combatant.name == "Arkhan":
-            combatant.team = monster     
+        else:
+            combatant.team = blue
 
 def initialise_starting_positions(combatants):
     for combatant in combatants:
@@ -138,7 +129,7 @@ def init_percy(init_combatants):
     percy.speed = 30
     percy.proficiency = calc_proficiency(percy)
     percy.weapon_proficiency().append(weapon_type.Firearm)
-    percy.weapon_proficiency().append(weapon_type.Sword)
+    percy.weapon_proficiency().append(weapon_type.Longsword)
         
     percy.creature_feats().append(feat.Sharpshooter)
     
@@ -213,7 +204,7 @@ def init_percy(init_combatants):
     dragonslayer_longsword = weapon()
 
     dragonslayer_longsword.name = "Dragonslayer Longsword"
-    dragonslayer_longsword.weapon_type = weapon_type.Sword
+    dragonslayer_longsword.weapon_type = weapon_type.Longsword
     
     dragonslayer_longsword.range = 0
     dragonslayer_longsword.damage_die = 8
@@ -493,100 +484,6 @@ def init_vax(init_combatants):
     init_combatants.append(vax)    
 
 # The Mighty Nein
-def init_yasha(init_combatants):
-
-    #yasha
-    yasha = creature()
-
-    yasha.notes = "Wearing Grog's gear, Rage Beyond Death is absurd!"
-
-    yasha.fullname = "Yasha"
-    yasha.name = "Yasha"
-    yasha.race = race.Aasamir
-    
-    barbarian_class = player_class_block()
-    barbarian_class.player_class = player_class.Barbarian
-    barbarian_class.player_subclass = player_subclass.PathOfTheZealot
-    barbarian_class.player_class_level = 20
-    yasha.player_classes().append(barbarian_class)
-
-    yasha.fighting_style = fighting_style.Great_Weapon_Fighting
-    yasha.max_health = 248
-    yasha.armour_class = 17
-    yasha.speed = 50
-    yasha.proficiency = calc_proficiency(yasha)
-    yasha.weapon_proficiency().append(weapon_type.Axe)
-
-    yasha.creature_feats().append(feat.Great_Weapon_Master)
-
-    #Stats
-    yashastats = statistic_block()
-    yashastats.str = 26
-    yashastats.dex = 15
-    yashastats.con = 20
-    yashastats.intel = 6
-    yashastats.wis = 10
-    yashastats.cha = 13
-
-    yasha.stats = yashastats
-    
-    #Saves
-    yashasaves = saving_throw_block()    
-    yashasaves.str = 14
-    yashasaves.dex = 2
-    yashasaves.con = 11
-    yashasaves.intel = -2
-    yashasaves.wis = 0
-    yashasaves.cha = 1
-    
-    yasha.saves = yashasaves
-
-    #Ability Checks
-    yashachecks = ability_check_block()
-    
-    yasha.checks = yashachecks    
-
-    #yasha's weapons
-    bloodaxe = weapon()
-    bloodaxe.name = "Blood Axe"
-    bloodaxe.weapon_type = weapon_type.Axe;
-    bloodaxe.range = 0
-    
-    bloodaxe.damage_die = 12
-    bloodaxe.damage_die_count = 1
-    bloodaxe.weapon_damage_type = damage_type.Slashing
-    
-    bloodaxe.bonus_damage_die = 6
-    bloodaxe.bonus_damage_die_count = 1
-    bloodaxe.bonus_damage_type = damage_type.Necrotic
-    
-    bloodaxe.magic_to_hit_modifier = 2
-    bloodaxe.magic_damage_modifier = 2
-
-    bloodaxe.heavy = True
-    bloodaxe.two_handed = True
-    bloodaxe.magic = True
-
-    yasha.weapon_inventory().append(bloodaxe)
-
-    #yasha's gear
-    
-    titanstoneknuckles = equipment()
-    titanstoneknuckles.name = "Titanstone Knuckles"
-    titanstoneknuckles.grants_equipment_spell = equipment_spells.Enlarge    
-
-    yasha.equipment_inventory().append(titanstoneknuckles)
-
-    bootsofferalleaping = equipment()
-    bootsofferalleaping.name = "Boots of Feral Leaping"
-    bootsofferalleaping.grans_spell = equipment_spells.Leap
-
-    yasha.equipment_inventory().append(bootsofferalleaping)
-
-    # combat stats # 
-
-    init_combatants.append(yasha)    
-
 def init_beau(init_combatants):
 
     #yasha
@@ -660,87 +557,94 @@ def init_beau(init_combatants):
 
     init_combatants.append(beau)    
 
-def init_yasha_level4(init_combatants):
+def init_nott(init_combatants):
 
     #yasha
-    yasha = creature()
+    nott = creature()
 
-    yasha.notes = "A mini-Yasha set up for fighting the Hill Giant"
+    nott.notes = "There's no comma"
 
-    yasha.fullname = "Yasha (level 4)"
-    yasha.name = "Yasha lvl 4"
-    yasha.race = race.Aasamir
+    nott.fullname = "Nott the Brave"
+    nott.name = "Nott"
+    nott.race = race.Human
     
-    barbarian_class = player_class_block()
-    barbarian_class.player_class = player_class.Barbarian
-    barbarian_class.player_subclass = player_subclass.PathOfTheZealot
-    barbarian_class.player_class_level = 4
-    yasha.player_classes().append(barbarian_class)
+    rogue_class = player_class_block()
+    rogue_class.player_class = player_class.Rogue
+    rogue_class.player_subclass = player_subclass.ArcaneTrickster
+    rogue_class.player_class_level = 5
+    nott.player_classes().append(rogue_class)
 
-    #yasha.fighting_style = fighting_style.Great_Weapon_Fighting
-    yasha.max_health = 42
-    yasha.armour_class = 14
-    yasha.speed = 30
-    yasha.proficiency = calc_proficiency(yasha)
-    yasha.weapon_proficiency().append(weapon_type.Greatsword)
-    
+    #nott.fighting_style = fighting_style.Great_Weapon_Fighting
+    nott.max_health = 40
+    nott.armour_class = 16
+    nott.speed = 30
+    nott.proficiency = calc_proficiency(nott)
+    nott.weapon_proficiency().append(weapon_type.Crossbow)    
+    nott.weapon_proficiency().append(weapon_type.Shortsword)    
 
     #Stats
-    yashastats = statistic_block()
-    yashastats.str = 17
-    yashastats.dex = 15
-    yashastats.con = 14
-    yashastats.intel = 12
-    yashastats.wis = 9
-    yashastats.cha = 7
+    nottstats = statistic_block()
+    nottstats.str = 11
+    nottstats.dex = 19
+    nottstats.con = 14
+    nottstats.intel = 16
+    nottstats.wis = 11
+    nottstats.cha = 5
 
-    yasha.stats = yashastats
+    nott.stats = nottstats
     
     #Saves
-    yashasaves = saving_throw_block()    
-    yashasaves.str = 5
-    yashasaves.dex = 2
-    yashasaves.con = 4
-    yashasaves.intel = 1
-    yashasaves.wis = -1
-    yashasaves.cha = -2
+    nottsaves = saving_throw_block()    
+    nottsaves.str = 0
+    nottsaves.dex = 7
+    nottsaves.con = 2
+    nottsaves.intel = 6
+    nottsaves.wis = 0
+    nottsaves.cha = -3
     
-    yasha.saves = yashasaves
+    nott.saves = nottsaves
 
     #Ability Checks
-    yashachecks = ability_check_block()
+    nottchecks = ability_check_block()
     
-    yasha.checks = yashachecks    
+    nott.checks = nottchecks    
 
-    #yasha's weapons
-    magiciansjudge = weapon()
-    magiciansjudge.name = "Magician\'s Judge"
-    magiciansjudge.weapon_type = weapon_type.Greatsword;
-    magiciansjudge.range = 0
+    #nott's weapons
+    hand_crossbow = weapon()
+    hand_crossbow.name = "Hand Crossbow"
+    hand_crossbow.weapon_type = weapon_type.Crossbow;
+    hand_crossbow.range = 30
+    hand_crossbow.range_upper = 120
     
-    magiciansjudge.damage_die = 6
-    magiciansjudge.damage_die_count = 2
-    magiciansjudge.weapon_damage_type = damage_type.Slashing
+    hand_crossbow.damage_die = 6
+    hand_crossbow.damage_die_count = 1
+    hand_crossbow.weapon_damage_type = damage_type.Piercing
     
-    magiciansjudge.bonus_damage_die = 0
-    magiciansjudge.bonus_damage_die_count = 0
-    magiciansjudge.bonus_damage_type = damage_type.Necrotic
+    hand_crossbow.light = True
+    hand_crossbow.loading = True 
     
-    #magiciansjudge.magic_to_hit_modifier = 1
-    #magiciansjudge.magic_damage_modifier = 1
+    nott.weapon_inventory().append(hand_crossbow)
 
-    magiciansjudge.heavy = True
-    magiciansjudge.two_handed = True
-    magiciansjudge.magic = True
+    shortsword = weapon()
+    shortsword.name = "Shortsword"
+    shortsword.weapon_type = weapon_type.Shortsword
+    shortsword.range = 0    
+    
+    shortsword.damage_die = 6
+    shortsword.damage_die_count = 1
+    shortsword.weapon_damage_type = damage_type.Piercing
+    
+    shortsword.finesse = True
+    shortsword.light = True 
 
-    yasha.weapon_inventory().append(magiciansjudge)
+    nott.weapon_inventory().append(shortsword)
 
-    #yasha's gear
+    #nott's gear
     # combat stats # 
 
-    init_combatants.append(yasha)    
+    init_combatants.append(nott)    
 
-def init_yasha_level5(init_combatants):
+def init_yasha(init_combatants):
 
     #yasha
     yasha = creature()

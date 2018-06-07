@@ -193,7 +193,8 @@ class weapon_type(Enum):
     Crossbow = auto()
     Axe = auto()
     Greataxe = auto()
-    Sword = auto()
+    Shortsword = auto()
+    Longsword = auto()
     Greatsword = auto()
     Quarterstaff = auto()
     Natural = auto()
@@ -330,6 +331,7 @@ class weapon():
     light = bool()
     loading = bool()
     range = int()
+    long_range = int()
     reach = int()
     thrown = bool()
     was_thrown = bool()
@@ -618,6 +620,9 @@ class creature():
     disengaged = bool() #Has taken the Disengage action and does not provoke opportunity attacks
     dodging = bool() # Has taken the Dodge action and imparts disadvantage on inbound attacks
     
+    # Conditions
+    incapacitated = bool()
+
     # Tracks persistent advantage/disadvantage properties
     has_advantage = bool()
     has_disadvantage = bool() 

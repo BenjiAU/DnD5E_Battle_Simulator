@@ -48,7 +48,8 @@ def use_movement(combatant):
             if combatant.movement > combatant.current_weapon.range - calc_distance(combatant,combatant.target):
                 # Set our movement to the maximum range            
                 combatant.movement = combatant.current_weapon.range - calc_distance(combatant,combatant.target)                             
-                if combatant.movement > 0:
+                # Movement must be at least higher than one grid or its not worth using
+                if combatant.movement >= 5:
                     print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to increase distance, but stay within weapon range of ' + combatant.target.name)
                     move_from_target(combatant,combatant.target)
         else:
@@ -57,7 +58,7 @@ def use_movement(combatant):
             gap_to_close = calc_distance(combatant,combatant.target) - combatant.current_weapon.range;
             if gap_to_close <= combatant.movement:
                 combatant.movement = gap_to_close
-            if combatant.movement > 0:
+            if combatant.movement >= 5:
                 print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to get within weapon range of ' + combatant.target.name)
                 move_to_target(combatant,combatant.target)
 
@@ -119,13 +120,17 @@ def action(combatant):
                 if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):
                     attack_action(combatant)                        
                 else:
-                    # Dash Action
-                    print_output(combatant.name + ' is taking the Dash action!')
-                    combatant.movement = combatant.speed
-                    if combatant.hasted:
-                        combatant.movement = combatant.speed * 2                                                
-                    use_movement(combatant)
-                    combatant.action_used = True
+                    # Check the upper range increment (if the weapon has one) instead and potentially fire at disadvantage
+                    if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.long_range):
+                        attack_action(combatant)                        
+                    else:
+                        # Dash Action
+                        print_output(combatant.name + ' is taking the Dash action!')
+                        combatant.movement = combatant.speed
+                        if combatant.hasted:
+                            combatant.movement = combatant.speed * 2                                                
+                        use_movement(combatant)
+                        combatant.action_used = True
             else:
                 # If the weapon is Ruined, and we could not swap to a non-ruined weapon, we're out of luck
                 if combatant.current_weapon.ruined:
@@ -461,10 +466,18 @@ def breath_recharge(combatant):
 #Make an attack
 def attack(combatant):    
     attack_hit = False
+    in_range = False
+    in_long_range = False
     #Only attack with a weapon
-    if combatant.current_weapon.name != "":
-        # only resolve attack if target is within range
+    # Unarmed strikes or improvised weapons must create a phantom weapon object to use this function
+    if combatant.current_weapon.name != "":        
         if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):
+            in_range = True
+        elif target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.long_range):
+            in_long_range = True            
+
+        # only resolve attack if target is within one of the range increments
+        if in_range or in_long_range:
             # only resolve attack if target is alive
             if combatant.target.alive:
                 # Only continue with attack steps if we don't break out because of something else interfering
@@ -551,14 +564,21 @@ def attack(combatant):
                             print_output(combatant.name + ' has advantage on the strike from their Vow of Enmity!')
                             advantage = True
                     
-                        #Modifier conditions (i.e. GWM, sharpshooter)        
-                        if combatant.sharpshooter and range_attack:
-                            if (combatant.target.armour_class < to_hit_modifier+5) and not disadvantage:
-                                print_output(combatant.name + ' uses Sharpshooter, taking a -5 penalty to the attack')
-                                combatant.use_sharpshooter = True           
+                        #Modifier conditions (i.e. GWM, sharpshooter)       
+                        if range_attack:                            
+                            if combatant.sharpshooter:                            
+                                if in_long_range:
+                                    print_output(combatant.name + ' fires at long range with no penalty thanks to Sharpshooter!')
+                                if (combatant.target.armour_class < to_hit_modifier+5) and not disadvantage:
+                                    print_output(combatant.name + ' uses the Sharpshooter feat, taking a -5 penalty to the attack')
+                                    combatant.use_sharpshooter = True           
+                                else:
+                                    combatant.use_sharpshooter = False
                             else:
-                                combatant.use_sharpshooter = False
-        
+                                if in_long_range:
+                                    print_output(combatant.name + ' fires at long range with disadvantage!')
+                                    disadvantage = True
+
                         #Great Weapon Master
                         if combatant.current_weapon.heavy and combatant.great_weapon_master:
                             if (combatant.target.armour_class < to_hit_modifier+5) and not disadvantage:
@@ -725,13 +745,24 @@ def attack(combatant):
                                 dice_damage = 1 + strmod(combatant)
 
                             # Sneak attack (if we had advantage on the strike)
-                            if advantage and combatant.sneak_attack and not combatant.sneak_attack_used:
-                                print_output(indent() + combatant.name + ' deals Sneak Attack damage with their attack!')
-                                for x in range(0,combatant.sneak_attack_damage_die_count):                                    
-                                    die_damage = roll_die(combatant.sneak_attack_damage_die)
-                                    print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.sneak_attack_damage_die) + ' (Sneak Attack Damage)')
-                                    dice_damage += die_damage
-                                combatant.sneak_attack_used = True
+                            if combatant.sneak_attack:
+                                # Check if we have snuck attack this turn
+                                if not combatant.sneak_attack_used:
+                                    # Ensure weapon is appropriate for sneak attack
+                                    if (combatant.current_weapon.range != 0) or combatant.current_weapon.finesse:
+                                        can_sneak_attack = False
+                                        if advantage:
+                                            print_output(indent() + combatant.name + ' has advantage on the strike, and gains Sneak Attack!')
+                                            can_sneak_attack = True
+                                        elif enemy_in_melee_range(combatant.target) and not combatant.target.incapacitated: 
+                                            print_output(indent() + 'Another enemy is in melee range of ' + combatant.target.name + ' so ' + combatant.name + ' gains Sneak Attack!')
+                                            can_sneak_attack = True
+                                        if can_sneak_attack:
+                                            for x in range(0,combatant.sneak_attack_damage_die_count):                                    
+                                                die_damage = roll_die(combatant.sneak_attack_damage_die)
+                                                print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.sneak_attack_damage_die) + ' (Sneak Attack Damage)')
+                                                dice_damage += die_damage
+                                            combatant.sneak_attack_used = True
 
                             if crit:
                                 dice_damage = dice_damage * 2
@@ -1185,9 +1216,9 @@ def calc_to_hit_modifier(combatant):
 def calc_damage_modifier(combatant):
     damage = 0
     
-    # Add Dex modifier for finesse weapons, otherwise Str
+    # Add Dex modifier for finesse weapons and range weapons if it is higher than Str;, otherwise Str
     # Monk weapons also have this property (which is actually independent of Finesse)
-    if combatant.current_weapon.finesse or combatant.current_weapon.monk_weapon:
+    if dexmod(combatant) > strmod(combatant) and (combatant.current_weapon.finesse or combatant.current_weapon.monk_weapon or (combatant.current_weapon.range > 0 and not combatant.current_weapon.thrown)):        
         damage += dexmod(combatant)
     else:
         damage += strmod(combatant)

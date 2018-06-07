@@ -260,6 +260,12 @@ def simulate_battle():
                                     # Resolve fatality to see if the combatant dies because of Rage Beyond Death
                                     resolve_fatality(combatant)
 
+                                # Turn completion events
+                                # Reset sneak attack on anyone who used sneak attack (i.e. opportunity attacks)
+                                for combatant in combatants.list:
+                                    if combatant.sneak_attack:
+                                        combatant.sneak_attack_used = False
+
                                 #Mark the turn as complete
                                 print_output('That finishes ' + combatant.name + '\'s turn.')
                                 turn_complete = True
