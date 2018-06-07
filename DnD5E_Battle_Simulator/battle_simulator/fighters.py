@@ -608,9 +608,9 @@ def init_beau(init_combatants):
     beau.max_health = 44
     beau.armour_class = 17
     beau.speed = 40
-    beau.proficiency = math.floor(7+(characterlevel(beau)/4))
+    beau.proficiency = calc_proficiency(beau)
     beau.weapon_proficiency().append(weapon_type.Unarmed)
-    
+    beau.weapon_proficiency().append(weapon_type.Quarterstaff)
 
     #Stats
     beaustats = statistic_block()
@@ -681,7 +681,7 @@ def init_yasha_level4(init_combatants):
     yasha.max_health = 42
     yasha.armour_class = 14
     yasha.speed = 30
-    yasha.proficiency = math.floor(7+(characterlevel(yasha)/4))
+    yasha.proficiency = calc_proficiency(yasha)
     yasha.weapon_proficiency().append(weapon_type.Greatsword)
     
 
@@ -726,8 +726,8 @@ def init_yasha_level4(init_combatants):
     magiciansjudge.bonus_damage_die_count = 0
     magiciansjudge.bonus_damage_type = damage_type.Necrotic
     
-    magiciansjudge.magic_to_hit_modifier = 1
-    magiciansjudge.magic_damage_modifier = 1
+    #magiciansjudge.magic_to_hit_modifier = 1
+    #magiciansjudge.magic_damage_modifier = 1
 
     magiciansjudge.heavy = True
     magiciansjudge.two_handed = True
@@ -761,7 +761,7 @@ def init_yasha_level5(init_combatants):
     yasha.max_health = 55
     yasha.armour_class = 14
     yasha.speed = 40
-    yasha.proficiency = math.floor(7+(characterlevel(yasha)/4))
+    yasha.proficiency = calc_proficiency(yasha)
     yasha.weapon_proficiency().append(weapon_type.Greatsword)
     
 

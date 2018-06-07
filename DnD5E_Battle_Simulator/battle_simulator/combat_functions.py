@@ -159,6 +159,7 @@ def bonus_action(combatant):
         if not combatant.bonus_action_used:
             if combatant.canrage and not combatant.raging:
                 print_output(combatant.name + ' uses their Bonus Action to go into a mindless rage! "I would like to RAAAGE!!!"')
+                print_output(combatant.name + ' gains Resistance to Bludgeoning/Piercing/Slashing damage, Advantage on Strength Saving Throws and Ability Checks, and +' + repr(combatant.ragedamage) + ' to damage with melee attacks.)')
                 combatant.raging = True;
                 # Reset duration of this rage
                 combatant.rage_duration = 0
@@ -801,7 +802,7 @@ def attack(combatant):
                             # Bonus damage (from Zealot's Divine Fury - 1d6 + half barbairna level, damage type selected by player)
                             if combatant.divine_fury:
                                 if not combatant.divine_fury_used:
-                                    print_output(indent() + combatant.name + '\'s weapon crackles with the strength of their Divine Fury, dealing bonus damage!')
+                                    print_output(indent() + combatant.name + '\'s weapon crackles with the strength of their Divine Fury, dealing bonus damage (1d6 + half barbarian level)!')
 
                                     resolve_bonus_damage(combatant,0,combatant.divine_fury_damage_type,6,1,math.floor(get_combatant_class_level(combatant,player_class.Barbarian)/2),crit,"Divine Fury")
                                     combatant.divine_fury_used = True
@@ -1165,7 +1166,8 @@ def calc_to_hit_modifier(combatant):
         to_hit += 2;
 
     # Add Dex modifier for finesse weapons, otherwise Str
-    if combatant.current_weapon.finesse:
+    # Monk weapons also have this property (which is actually independent of Finesse)
+    if combatant.current_weapon.finesse or combatant.current_weapon.monk_weapon:
         to_hit += dexmod(combatant)
     else:
         to_hit += strmod(combatant)
