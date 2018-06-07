@@ -97,6 +97,11 @@ class player_subclass(Enum):
     Necromancy = auto()
     Transmutation = auto()
 
+class crimson_rite():
+    name = string()
+    damage_type = int()
+    primal = bool() #True if Primal Rite, False if Esoteric
+
 class cardinal_direction(Enum):
     #integers matter for this one
     def __str__(self):
@@ -492,7 +497,15 @@ class creature():
     fanatical_focus = bool()
     zealous_presence = bool()
     rage_beyond_death = bool()
-    
+
+    #############
+    #Blood Hunter
+    #############    
+    def crimson_rites(self):
+        if not hasattr(self, "_crimson_rites"):
+            self._crimson_rites = []
+        return self._crimson_rites
+
     #############
     ## Fighter ##
     #############

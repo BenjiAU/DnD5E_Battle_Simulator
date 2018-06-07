@@ -168,6 +168,34 @@ def initialise_class_features(combatant):
                     combatant.rage_beyond_death = True
 
         #############
+        #Blood Hunter
+        #############
+        if class_instance.player_class == player_class.BloodHunter:            
+            if class_instance.player_class_level >= 1:
+                combatant.crimson_rite = True          
+                #Crimson rites are normally constructed on the player object; add a generic rite here if none exist
+                if len(combatant.crimson_rites()) == 0:
+                    init_rite = crimson_rite()
+                    init_rite.name = "Rite of the Flame"
+                    init_rite.damage_type = damage_type.Fire
+                    init_rite.primal = True
+                    combatant.crimson_rites.add(init_rite)
+
+                combatant.crimson_rite_damage_die = 4
+            if class_instance.player_class_level >= 5:
+                combatant.crimson_rite_damage_die = 6
+                if combatant.extra_attack <= 1:
+                    combatant.extra_attack = 1
+            if class_instance.player_class_level >= 6:
+                combatant.blood_curse_limit = 2
+            if class_instance.player_class_level >= 11:
+                combatant.crimson_rite_damage_die = 8
+                combatant.blood_curse_limit = 3
+            if class_instance.player_class_level >= 17:
+                combatant.crimson_rite_damage_die = 10
+                combatant.blood_curse_limit = 4
+
+        #############
         ## Fighter ##
         #############
         if class_instance.player_class == player_class.Fighter:
