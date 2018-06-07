@@ -58,6 +58,10 @@ def process_form():
                 selected_ypos = int(request.form.get('ypos_' + combatant.name))
                 if selected_ypos != combatant.starting_ypos:
                     combatant.starting_ypos = selected_ypos
+                if len(combatant.player_classes()) == 1:
+                    selected_character_level = int(request.form.get('character_level_' + combatant.name))                    
+                    if selected_character_level != combatant.player_classes()[0].player_class_level:                        
+                        combatant.player_classes()[0].player_class_level = selected_character_level                
             #selected_combatants = request.form.getlist("combatant")
             #selected_teams = request.form.getlist('team_select')
             #simulate.set_combatants(selected_combatants,selected_teams)            

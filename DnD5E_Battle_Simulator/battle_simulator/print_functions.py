@@ -67,8 +67,11 @@ def print_combatant_table(combatant):
     string += Markup('<td>')
     string += Markup('<input type=checkbox name="combatant_' + combatant.name + '" value="'+ combatant.fullname+ '">')
     string += Markup('</td>')
-    string += Markup('<td>')
-    string += Markup(characterlevel(combatant))
+    string += Markup('<td>')    
+    if len(combatant.player_classes()) == 1:
+        string += Markup('<input type=text onkeypress="return isNumberKey(event)"  name="character_level_' + combatant.name + '" value="' + repr(characterlevel(combatant)) + '">')            
+    else:
+        string += Markup(characterlevel(combatant))    
     string += Markup('</td>')
     string += Markup('<td>')
     string += Markup(combatant.fullname)
