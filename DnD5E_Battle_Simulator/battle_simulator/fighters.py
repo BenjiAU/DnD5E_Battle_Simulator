@@ -806,8 +806,8 @@ def init_yasha_level5(init_combatants):
     magiciansjudge.bonus_damage_die_count = 0
     magiciansjudge.bonus_damage_type = damage_type.Necrotic
     
-    magiciansjudge.magic_to_hit_modifier = 1
-    magiciansjudge.magic_damage_modifier = 1
+    #magiciansjudge.magic_to_hit_modifier = 1
+    #magiciansjudge.magic_damage_modifier = 1
 
     magiciansjudge.heavy = True
     magiciansjudge.two_handed = True
