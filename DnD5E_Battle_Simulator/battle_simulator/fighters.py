@@ -13,12 +13,12 @@ def initialise_combatants(init_combatants):
     init_arkhan(init_combatants)
     init_umbrasyl(init_combatants)
     
-    #init_yasha(init_combatants)
-    init_beau(init_combatants)
+    #init_yasha(init_combatants)    
     init_doty(init_combatants)
     init_trinket(init_combatants)
     #init_yasha_level4(init_combatants)
     init_yasha_level5(init_combatants)
+    init_beau(init_combatants)
     init_hill_giant(init_combatants)
 
 def initialise_teams(combatants,teams):

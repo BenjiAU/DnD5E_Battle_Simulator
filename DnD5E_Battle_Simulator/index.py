@@ -48,20 +48,36 @@ def process_form():
         if request.form['simulate'] == 'Simulate':            
             combatants.list = [combatant for combatant in combatants.list if request.form.get('combatant_' + combatant.name)]
             for combatant in combatants.list:
+                # Team selection
                 selected_team = request.form.get('team_' + combatant.name)
                 for team in combatants.teams:
                     if selected_team == team.name and selected_team != combatant.team.name:
                         combatant.team = team
+                # Position selection
                 selected_xpos = int(request.form.get('xpos_' + combatant.name))
                 if selected_xpos != combatant.starting_xpos:
                     combatant.starting_xpos = selected_xpos
                 selected_ypos = int(request.form.get('ypos_' + combatant.name))
                 if selected_ypos != combatant.starting_ypos:
                     combatant.starting_ypos = selected_ypos
+                # Max HP selection
+                selected_max_hp = int(request.form.get('max_health_' + combatant.name))
+                if selected_max_hp != combatant.max_health:
+                    # Error checking
+                    if selected_max_hp > 0 and selected_max_hp <= 999:
+                        combatant.max_health = selected_max_hp
+                # AC selection
+                selected_armour_class = int(request.form.get('armour_class_' + combatant.name))
+                if selected_armour_class != combatant.armour_class:
+                    # Error checking
+                    if selected_armour_class > 0 and selected_armour_class <= 30:
+                        combatant.armour_class = selected_armour_class
+                # Level selection
                 if len(combatant.player_classes()) == 1:
-                    selected_character_level = int(request.form.get('character_level_' + combatant.name))                    
-                    if selected_character_level != combatant.player_classes()[0].player_class_level:                        
-                        combatant.player_classes()[0].player_class_level = selected_character_level                
+                    selected_character_level = int(request.form.get('character_level_' + combatant.name))        
+                    if selected_character_level != combatant.player_classes()[0].player_class_level:             
+                        if selected_character_level > 0 and selected_character_level <= 20:
+                            combatant.player_classes()[0].player_class_level = selected_character_level                
             #selected_combatants = request.form.getlist("combatant")
             #selected_teams = request.form.getlist('team_select')
             #simulate.set_combatants(selected_combatants,selected_teams)            
