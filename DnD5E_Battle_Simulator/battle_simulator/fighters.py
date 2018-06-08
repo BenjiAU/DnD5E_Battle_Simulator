@@ -14,7 +14,8 @@ def initialise_combatants(init_combatants):
     init_yasha(init_combatants)
     init_nott(init_combatants)
     init_beau(init_combatants)
-    
+    init_molly(init_combatants)
+
     init_hill_giant(init_combatants)
     init_arkhan(init_combatants)
     init_umbrasyl(init_combatants)
@@ -556,6 +557,77 @@ def init_beau(init_combatants):
     # combat stats # 
 
     init_combatants.append(beau)    
+
+def init_molly(init_combatants):
+
+    #yasha
+    molly = creature()
+
+    molly.notes = "Mollymauk, Ghostslayer Blood Hunter (based on version 2.1)"
+
+    molly.fullname = "Mollymauk"
+    molly.name = "Molly"
+    molly.race = race.Tiefling
+    
+    blood_hunter_class = player_class_block()
+    blood_hunter_class.player_class = player_class.BloodHunter
+    blood_hunter_class.player_subclass = player_subclass.OrderOfTheGhostslayer
+    blood_hunter_class.player_class_level = 5
+    molly.player_classes().append(blood_hunter_class)
+
+    #molly.fighting_style = fighting_style.Great_Weapon_Fighting
+    molly.max_health = 59
+    molly.armour_class = 15
+    molly.speed = 30
+    molly.proficiency = calc_proficiency(molly)
+    molly.weapon_proficiency().append(weapon_type.Shortsword)    
+
+    #Stats
+    mollystats = statistic_block()
+    mollystats.str = 10
+    mollystats.dex = 17
+    mollystats.con = 14
+    mollystats.intel = 11
+    mollystats.wis = 16
+    mollystats.cha = 11
+
+    molly.stats = mollystats
+    
+    #Saves
+    mollysaves = saving_throw_block()    
+    mollysaves.str = 3
+    mollysaves.dex = 3
+    mollysaves.con = 2
+    mollysaves.intel = 0
+    mollysaves.wis = 6
+    mollysaves.cha = 0
+    
+    molly.saves = mollysaves
+
+    #Ability Checks
+    mollychecks = ability_check_block()
+    
+    molly.checks = mollychecks    
+
+    #molly's weapons
+    # note that unarmed strikes are a property of the blood_hunter class, and Flurry of Blows will kick in automagically
+    scimitar = weapon()
+    scimitar.name = "Scimitar"
+    scimitar.weapon_type = weapon_type.Shortsword;
+    scimitar.range = 0
+    
+    scimitar.damage_die = 6
+    scimitar.damage_die_count = 1
+    scimitar.weapon_damage_type = damage_type.Bludgeoning
+    
+    scimitar.finesse = True
+
+    molly.weapon_inventory().append(scimitar)
+
+    #molly's gear
+    # combat stats # 
+
+    init_combatants.append(molly)   
 
 def init_nott(init_combatants):
 

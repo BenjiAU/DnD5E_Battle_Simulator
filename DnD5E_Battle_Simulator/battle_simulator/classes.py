@@ -68,6 +68,7 @@ class player_subclass(Enum):
     PathOfTheBeserker = auto()
     PathOfTheZealot = auto()
     #BloodHunter subclasses
+    OrderOfTheGhostslayer = auto()
     OrderOfTheProfaneSoul = auto()
     OrderOfTheLycan = auto()
     #Cleric subclasses (Domains)
@@ -98,9 +99,20 @@ class player_subclass(Enum):
     Transmutation = auto()
 
 class crimson_rite():
-    name = string()
+    name = str()    
     damage_type = int()
     primal = bool() #True if Primal Rite, False if Esoteric
+    activation_damage = int() #Normally = characterlevel, ghostslayer has it halved
+    bonus_damage = int()
+    bonus_damage_target = int()
+    colour = str() #Colour text for flavour
+
+class blood_curse():
+    name = str()
+    uses_bonus_action = bool()
+    uses_reaction = bool()
+    amplify_hit_die_cost = int()
+    duration = int() #(0 = reaction/instant, 1=until beginning of next turn, other values determined by wis mod etc)
 
 class cardinal_direction(Enum):
     #integers matter for this one
@@ -310,6 +322,7 @@ class damage_type(Enum):
     Poison = auto()
     Psychic = auto()
     Acid = auto()
+    Generic = auto() # Damage that is typeless and should never be subject to resistance/immunity/vulnerability, i.e. damage suffered by blood hunter for activating a crimson rite 
 
 # Generic equipment class - used to track item-granted spells and feats
 class equipment():
@@ -374,6 +387,9 @@ class weapon():
     misfire = int()
     broken = bool()
     ruined = bool()
+
+    # Crimson Rite - when activated, the weapon inherits the crimson rite object off the player for damage calculation and to persist between turns
+    active_crimson_rite = crimson_rite()
 
 class team():
     name = ""
@@ -501,10 +517,31 @@ class creature():
     #############
     #Blood Hunter
     #############    
+
+    # Structures for maintaining the selected crimson rites/blood curses for the creature
     def crimson_rites(self):
         if not hasattr(self, "_crimson_rites"):
             self._crimson_rites = []
         return self._crimson_rites
+
+    def blood_curses(self):
+        if not hasattr(self, "_blood_curses"):
+            self._blood_curses = []
+        return self._blood_curses
+
+    crimson_rite = bool()
+    crimson_rite_damage_die = int()
+    blood_maledict = bool()
+    blood_maledict_uses = int()
+    dark_velocity = bool()
+    hardened_soul = bool()
+    enduring_form = bool()
+    sanguine_mastery = bool()
+
+    ## Ghostslayer
+    hallowed_veins = bool()
+    supernal_flurry = bool()
+    vengeful_spirit = bool()
 
     #############
     ## Fighter ##

@@ -173,27 +173,70 @@ def initialise_class_features(combatant):
         if class_instance.player_class == player_class.BloodHunter:            
             if class_instance.player_class_level >= 1:
                 combatant.crimson_rite = True          
+                combatant.crimson_rite_damage_die = 4
                 #Crimson rites are normally constructed on the player object; add a generic rite here if none exist
                 if len(combatant.crimson_rites()) == 0:
                     init_rite = crimson_rite()
                     init_rite.name = "Rite of the Flame"
                     init_rite.damage_type = damage_type.Fire
                     init_rite.primal = True
-                    combatant.crimson_rites.add(init_rite)
-
-                combatant.crimson_rite_damage_die = 4
+                    init_rite.activation_damage = characterlevel(combatant)
+                    init_rite.colour = "red"
+                    combatant.crimson_rites().append(init_rite)                
+            if class_instance.player_class_level >= 2:
+                combatant.blood_maledict = True
+                combatant.blood_maledict_uses = 1            
+                #Blood Curses are normally constructed on the player object; add a generic curse here if none exist
+                if len(combatant.blood_curses()) == 0:
+                    init_curse = blood_curse()
+                    init_curse.name = "Blood Curse of the Marked"
+                    init_curse.uses_bonus_action = True
+                    init_curse.amplify_hit_die_cost = 1
+                    init_curse.duration = 1
+                    combatant.blood_curses().append(init_curse)
             if class_instance.player_class_level >= 5:
                 combatant.crimson_rite_damage_die = 6
                 if combatant.extra_attack <= 1:
                     combatant.extra_attack = 1
-            if class_instance.player_class_level >= 6:
-                combatant.blood_curse_limit = 2
+                combatant.blood_maledict_uses = 2                              
+            # Dark Velocity (+10 feet speed, AoO on you have disadvantge)
             if class_instance.player_class_level >= 11:
                 combatant.crimson_rite_damage_die = 8
-                combatant.blood_curse_limit = 3
+                combatant.blood_maledict_uses = 3
+                combatant.dark_velocity = True
+            # Hardened Soul (immune to Frightened, advantage on Charm saving throws)
+            if class_instance.player_class_level >= 14:
+                combatant.hardened_soul = True 
             if class_instance.player_class_level >= 17:
                 combatant.crimson_rite_damage_die = 10
-                combatant.blood_curse_limit = 4
+                combatant.blood_maledict_uses = 4
+            # Max crimson rite damage die on 1/4 hit points; regain blood maledict use on crit
+            if class_instance.player_class_level >= 20:
+                combatant.sanguine_mastery = True
+
+            ## Blood Hunter Subclasses ##
+            # Ghostslayer
+            if class_instance.player_subclass == player_subclass.OrderOfTheGhostslayer:
+                if class_instance.player_class_level >= 3:                                    
+                    init_rite = crimson_rite()
+                    init_rite.name = "Rite of the Dawn"
+                    init_rite.damage_type = damage_type.Radiant
+                    init_rite.primal = False
+                    init_rite.activation_damage = int(characterlevel(combatant)/2)
+                    init_rite.bonus_damage = wismod(combatant)
+                    init_rite.bonus_damage_target = race.Undead
+                    init_rite.colour = "white"
+                    combatant.crimson_rites().append(init_rite)
+                if class_instance.player_class_level >= 7:
+                    combatant.hallowed_veins = True
+                if class_instance.player_class_level >= 10:
+                    combatant.supernal_flurry = True
+                if class_instance.player_class_level >= 11:
+                    for rite in combatant.crimson_rites:
+                        if rite.name == "Rite of the Dawn":
+                            rite.bonus_damage_target = None
+                if class_instance.player_class_level >= 18:
+                    combatant.vengeful_spirit = True
 
         #############
         ## Fighter ##

@@ -184,6 +184,24 @@ def bonus_action(combatant):
                         attack(combatant)            
                         combatant.bonus_action_used = True
                         
+        # Blood Hunter bonus actions
+        if not combatant.bonus_action_used:
+            if combatant.crimson_rite:
+                # Check if our current weapon has a rite active
+                if combatant.current_weapon.active_crimson_rite.name == "":
+                    # Check current HP
+                    if combatant.current_health >= characterlevel(combatant):
+                        # Select the correct rite - this will need some sort of target analysis to choose rites based on potential weaknesses
+                        # For now, just forcing to Dawn for Molly
+                        selected_rite = None
+                        for rite in combatant.crimson_rites():
+                            if rite.name == "Rite of the Dawn":
+                                selected_rite = rite
+                        if selected_rite.name != "":
+                            print_output(combatant.name + ' drags the blade of their ' + combatant.current_weapon.name + ' across their skin, and ' + selected_rite.colour + ' light engulfs it as the Crimson ' + selected_rite.name + ' is activated! They suffer ' + repr(selected_rite.activation_damage) + ' points of damage.')
+                            deal_damage(combatant,combatant,selected_rite.activation_damage,damage_type.Generic,False)
+                            combatant.current_weapon.active_crimson_rite = selected_rite
+
         # Fighter bonus actions
         #Second Wind
         if not combatant.bonus_action_used:
@@ -818,19 +836,32 @@ def attack(combatant):
                             if combatant.current_weapon.bonus_damage_die > 0:
                                 print_output(indent() + 'The strike from ' + combatant.current_weapon.name + ' deals an additional ' + repr(combatant.current_weapon.bonus_damage_die_count) + 'd' + repr(combatant.current_weapon.bonus_damage_die) + ' ' + combatant.current_weapon.bonus_damage_type.name + ' damage!')
                                 resolve_bonus_damage(combatant,combatant.current_weapon.bonus_damage_target,combatant.current_weapon.bonus_damage_type,combatant.current_weapon.bonus_damage_die,combatant.current_weapon.bonus_damage_die_count,0,crit,combatant.current_weapon.name)
-                        
+
+                            # Bonus damage (from critical weapon effect, i.e. Arkhan's weapon)
+                            if crit and combatant.current_weapon.crit_bonus_damage_die > 0:
+                                print_output(indent() + combatant.current_weapon.name + ' surges with power, dealing bonus damage on a critical strike!')                            
+                                resolve_bonus_damage(combatant,0,combatant.current_weapon.crit_bonus_damage_type,combatant.current_weapon.crit_bonus_damage_die,combatant.current_weapon.crit_bonus_damage_die_count,0,crit,combatant.current_weapon.name)                        
+    
+                            # Bonus damage (from Blood Hunter's Crimson Rite)
+                            if combatant.crimson_rite:
+                                if combatant.current_weapon.active_crimson_rite.name != "":
+                                    print_output(indent() + 'The ' + combatant.current_weapon.active_crimson_rite.colour + ' light on ' + combatant.current_weapon.name + ' flares as the Crimson ' + combatant.current_weapon.active_crimson_rite.name + ' deals additional damage!')
+                                    crimson_rite_damage_type = combatant.current_weapon.active_crimson_rite.damage_type
+                                    crimson_rite_bonus = 0
+                                    # Add bonus damge (i.e. Ghostslayer gets +wismod on undead up to level 11, +wismod on everything after that)
+                                    if combatant.current_weapon.active_crimson_rite.bonus_damage != 0:
+                                        if combatant.current_weapon.active_crimson_rite.bonus_damage_target == None or combatant.target.race == combatant.current_weapon.active_crimson_rite.bonus_damage_target:
+                                            crimson_rite_bonus = combatant.current_weapon.active_crimson_rite.bonus_damage
+
+                                    resolve_bonus_damage(combatant,0,crimson_rite_damage_type,combatant.crimson_rite_damage_die,1,crimson_rite_bonus,crit,combatant.current_weapon.active_crimson_rite.name)                        
+
                             #Bonus damage (from hand of Vecna, 2d8 cold damage on melee hit)
                             for item in combatant.equipment_inventory():
                                 if item.grants_equipment_spell == equipment_spells.HandOfVecna and combatant.current_weapon.range == 0:
                                     print_output(indent() + combatant.name + '\'s left hand crackles with power! They dealt bonus damage with the ' + item.name)
                                     resolve_bonus_damage(combatant,0,item.damage_type,item.damage_die,item.damage_die_count,0,crit,item.name)
                         
-                            # Bonus damage (from critical weapon effect)
-                            if crit and combatant.current_weapon.crit_bonus_damage_die > 0:
-                                print_output(indent() + combatant.current_weapon.name + ' surges with power, dealing bonus damage on a critical strike!')                            
-                                resolve_bonus_damage(combatant,0,combatant.current_weapon.crit_bonus_damage_type,combatant.current_weapon.crit_bonus_damage_die,combatant.current_weapon.crit_bonus_damage_die_count,0,crit,combatant.current_weapon.name)                        
-
-                            # Bonus damage (from Zealot's Divine Fury - 1d6 + half barbairna level, damage type selected by player)
+                            # Bonus damage (from Barbarian Zealot's Divine Fury - 1d6 + half barbairna level, damage type selected by player)
                             if combatant.divine_fury:
                                 if not combatant.divine_fury_used:
                                     print_output(indent() + combatant.name + '\'s weapon crackles with the strength of their Divine Fury, dealing bonus damage (1d6 + half barbarian level)!')
