@@ -38,6 +38,9 @@ def reset_combatants(init_combatants):
         # Set currently equipped weapon to first weapon in inventory
         combatant.main_hand_weapon = combatant.weapon_inventory()[0]
 
+        # Clear any properties on the blade
+        combatant.main_hand_weapon.active_crimson_rite = None
+
         # Reset equipment
         for eq in combatant.equipment_inventory():
             eq.current_charges = eq.max_charges

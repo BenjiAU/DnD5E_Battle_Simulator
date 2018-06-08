@@ -188,7 +188,7 @@ def bonus_action(combatant):
         if not combatant.bonus_action_used:
             if combatant.crimson_rite:
                 # Check if our main hand weapon has a rite active
-                if combatant.main_hand_weapon.active_crimson_rite.name == "":
+                if combatant.main_hand_weapon.active_crimson_rite == None:
                     # Check current HP
                     if combatant.current_health >= characterlevel(combatant):
                         # Select the correct rite - this will need some sort of target analysis to choose rites based on potential weaknesses
@@ -198,8 +198,10 @@ def bonus_action(combatant):
                             if rite.name == "Rite of the Dawn":
                                 selected_rite = rite
                         if selected_rite.name != "":
+                            print_output(combatant.name + ' drags the blade of their ' + combatant.main_hand_weapon.name + ' across their skin, and ' + selected_rite.colour + ' light engulfs it as the Crimson ' + selected_rite.name + ' is activated!')
                             deal_damage(combatant,combatant,selected_rite.activation_damage,damage_type.Generic,False)
-                            print_output(combatant.name + ' drags the blade of their ' + combatant.main_hand_weapon.name + ' across their skin, and ' + selected_rite.colour + ' light engulfs it as the Crimson ' + selected_rite.name + ' is activated! They suffer ' + repr(selected_rite.activation_damage) + ' points of damage.' + hp_text(combatant.current_health,combatant.max_health))
+                            resolve_damage(combatant)
+                            
                             combatant.main_hand_weapon.active_crimson_rite = selected_rite
                 # Check if our offhand weapon has a rite active
                 if combatant.dual_wielding and combatant.offhand_weapon.active_crimson_rite.name == "":
@@ -862,7 +864,7 @@ def attack(combatant):
     
                             # Bonus damage (from Blood Hunter's Crimson Rite)
                             if combatant.crimson_rite:
-                                if combatant.main_hand_weapon.active_crimson_rite.name != "":
+                                if combatant.main_hand_weapon.active_crimson_rite != None:
                                     print_output(indent() + 'The ' + combatant.main_hand_weapon.active_crimson_rite.colour + ' light on ' + combatant.main_hand_weapon.name + ' flares as the Crimson ' + combatant.main_hand_weapon.active_crimson_rite.name + ' deals additional damage!')
                                     crimson_rite_damage_type = combatant.main_hand_weapon.active_crimson_rite.damage_type
                                     crimson_rite_bonus = 0
