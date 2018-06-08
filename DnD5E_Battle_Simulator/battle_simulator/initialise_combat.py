@@ -36,7 +36,7 @@ def reset_combatants(init_combatants):
             weap.current_ammo = weap.ammunition
         
         # Set currently equipped weapon to first weapon in inventory
-        combatant.current_Weapon = combatant.weapon_inventory()[0]
+        combatant.main_hand_weapon = combatant.weapon_inventory()[0]
 
         # Reset equipment
         for eq in combatant.equipment_inventory():
@@ -197,7 +197,7 @@ def initialise_class_features(combatant):
             if class_instance.player_class_level >= 5:
                 combatant.crimson_rite_damage_die = 6
                 if combatant.extra_attack <= 1:
-                    combatant.extra_attack = 1
+                    combatant.extra_attack = 2
                 combatant.blood_maledict_uses = 2                              
             # Dark Velocity (+10 feet speed, AoO on you have disadvantge)
             if class_instance.player_class_level >= 11:

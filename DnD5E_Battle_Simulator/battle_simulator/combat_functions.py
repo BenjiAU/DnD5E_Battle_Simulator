@@ -36,18 +36,18 @@ def use_movement(combatant):
         combatant.prone = False
 
     # Are we wielding a melee weapon that we cannot throw?
-    if (combatant.current_weapon.range == 0) and not (combatant.current_weapon.thrown):                    
-        if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):            
+    if (combatant.main_hand_weapon.range == 0) and not (combatant.main_hand_weapon.thrown):                    
+        if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):            
             print_output(combatant.name + ' stays where they are, in melee range of ' + combatant.target.name + '(' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
         else:
             move_to_target(combatant,combatant.target)    
     else:
         #Otherwise use the range of the weapon to determine where to move 
-        if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):               
+        if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):               
             # Don't move out of weapon range - figure out current gap, subtract it from weapon range, thats how far we can move           
-            if combatant.movement > combatant.current_weapon.range - calc_distance(combatant,combatant.target):
+            if combatant.movement > combatant.main_hand_weapon.range - calc_distance(combatant,combatant.target):
                 # Set our movement to the maximum range            
-                combatant.movement = combatant.current_weapon.range - calc_distance(combatant,combatant.target)                             
+                combatant.movement = combatant.main_hand_weapon.range - calc_distance(combatant,combatant.target)                             
                 # Movement must be at least higher than one grid or its not worth using
                 if combatant.movement >= 5:
                     print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to increase distance, but stay within weapon range of ' + combatant.target.name)
@@ -55,7 +55,7 @@ def use_movement(combatant):
         else:
             #Close the distance to be able to use weapon 
 
-            gap_to_close = calc_distance(combatant,combatant.target) - combatant.current_weapon.range;
+            gap_to_close = calc_distance(combatant,combatant.target) - combatant.main_hand_weapon.range;
             if gap_to_close <= combatant.movement:
                 combatant.movement = gap_to_close
             if combatant.movement >= 5:
@@ -93,8 +93,8 @@ def use_equipment(combatant):
 
             #Re-equip the first weapon on the list                                
             if reequip_thrown_weapon:
-                combatant.current_weapon = itemgetter(0)(combatant.weapon_inventory())     
-                print_output(combatant.name + ' draws ' + combatant.current_weapon.name + ' and prepares to fight once more!')                        
+                combatant.main_hand_weapon = itemgetter(0)(combatant.weapon_inventory())     
+                print_output(combatant.name + ' draws ' + combatant.main_hand_weapon.name + ' and prepares to fight once more!')                        
             
 def action(combatant):
     # Only perform an action if target exists
@@ -116,12 +116,12 @@ def action(combatant):
             # This will prefer to swap a non-broken or ruined weapon in
             weapon_swap(combatant,current_range)
 
-            if combatant.current_weapon.broken == False:
-                if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):
+            if combatant.main_hand_weapon.broken == False:
+                if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):
                     attack_action(combatant)                        
                 else:
                     # Check the upper range increment (if the weapon has one) instead and potentially fire at disadvantage
-                    if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.long_range):
+                    if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.long_range):
                         attack_action(combatant)                        
                     else:
                         # Dash Action
@@ -133,14 +133,14 @@ def action(combatant):
                         combatant.action_used = True
             else:
                 # If the weapon is Ruined, and we could not swap to a non-ruined weapon, we're out of luck
-                if combatant.current_weapon.ruined:
-                    print_output(combatant.name + ' can\'t do anything with ' + combatant.current_weapon.name + ', it is damaged beyond repair!')
+                if combatant.main_hand_weapon.ruined:
+                    print_output(combatant.name + ' can\'t do anything with ' + combatant.main_hand_weapon.name + ', it is damaged beyond repair!')
                     # Can't swap to a valid weapon - just have to sit this one out
                     combatant.action_used = True
 
                 # If the weapon is broken, and we could not swap to a non-broken weapon, must waste action reparing it
                 if not combatant.action_used:
-                    if combatant.current_weapon.broken:
+                    if combatant.main_hand_weapon.broken:
                         repair_weapon(combatant)            
                         combatant.action_used = True
                 
@@ -179,7 +179,7 @@ def bonus_action(combatant):
             if combatant.raging:
                 if combatant.frenzy:      
                     #You can make a single melee weapon Attack as a Bonus Action on each of your turns after this one (does not have to be tied to Attack action)
-                    if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):                    
+                    if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):                    
                         print_output(combatant.name + ' uses their Bonus Action to make a frenzied weapon attack against ' + combatant.target.name)
                         attack(combatant)            
                         combatant.bonus_action_used = True
@@ -187,8 +187,8 @@ def bonus_action(combatant):
         # Blood Hunter bonus actions
         if not combatant.bonus_action_used:
             if combatant.crimson_rite:
-                # Check if our current weapon has a rite active
-                if combatant.current_weapon.active_crimson_rite.name == "":
+                # Check if our main hand weapon has a rite active
+                if combatant.main_hand_weapon.active_crimson_rite.name == "":
                     # Check current HP
                     if combatant.current_health >= characterlevel(combatant):
                         # Select the correct rite - this will need some sort of target analysis to choose rites based on potential weaknesses
@@ -198,9 +198,23 @@ def bonus_action(combatant):
                             if rite.name == "Rite of the Dawn":
                                 selected_rite = rite
                         if selected_rite.name != "":
-                            print_output(combatant.name + ' drags the blade of their ' + combatant.current_weapon.name + ' across their skin, and ' + selected_rite.colour + ' light engulfs it as the Crimson ' + selected_rite.name + ' is activated! They suffer ' + repr(selected_rite.activation_damage) + ' points of damage.')
                             deal_damage(combatant,combatant,selected_rite.activation_damage,damage_type.Generic,False)
-                            combatant.current_weapon.active_crimson_rite = selected_rite
+                            print_output(combatant.name + ' drags the blade of their ' + combatant.main_hand_weapon.name + ' across their skin, and ' + selected_rite.colour + ' light engulfs it as the Crimson ' + selected_rite.name + ' is activated! They suffer ' + repr(selected_rite.activation_damage) + ' points of damage.' + hp_text(combatant.current_health,combatant.max_health))
+                            combatant.main_hand_weapon.active_crimson_rite = selected_rite
+                # Check if our offhand weapon has a rite active
+                if combatant.dual_wielding and combatant.offhand_weapon.active_crimson_rite.name == "":
+                    # Check current HP
+                    if combatant.current_health >= characterlevel(combatant):
+                        # Select the correct rite - this will need some sort of target analysis to choose rites based on potential weaknesses
+                        # For now, just forcing to Dawn for Molly
+                        selected_rite = None
+                        for rite in combatant.crimson_rites():
+                            if rite.name == "Rite of the Dawn":
+                                selected_rite = rite
+                        if selected_rite.name != "":
+                            print_output(combatant.name + ' drags the blade of their ' + combatant.main_hand_weapon.name + ' across their skin, and ' + selected_rite.colour + ' light engulfs it as the Crimson ' + selected_rite.name + ' is activated! They suffer ' + repr(selected_rite.activation_damage) + ' points of damage.')
+                            deal_damage(combatant,combatant,selected_rite.activation_damage,damage_type.Generic,False)
+                            combatant.offhand_weapon.active_crimson_rite = selected_rite
 
         # Fighter bonus actions
         #Second Wind
@@ -217,11 +231,11 @@ def bonus_action(combatant):
 
         #Lightning Reload
         if not combatant.bonus_action_used:
-            if combatant.current_weapon.weapon_type == weapon_type.Firearm:
+            if combatant.main_hand_weapon.weapon_type == weapon_type.Firearm:
                 if combatant.lighting_reload:
-                    if combatant.current_weapon.currentammo == 0:
-                        combatant.current_weapon.currentammo = combatant.current_weapon.reload
-                        print_output(combatant.name + ' used a bonus action to reload. ' + combatant.current_weapon.name + ' Ammo: ' + repr(combatant.current_weapon.currentammo) + '/' + repr(combatant.current_weapon.reload))
+                    if combatant.main_hand_weapon.currentammo == 0:
+                        combatant.main_hand_weapon.currentammo = combatant.main_hand_weapon.reload
+                        print_output(combatant.name + ' used a bonus action to reload. ' + combatant.main_hand_weapon.name + ' Ammo: ' + repr(combatant.main_hand_weapon.currentammo) + '/' + repr(combatant.main_hand_weapon.reload))
                         combatant.bonus_action_used = True
 
         # Monk bonus actions
@@ -240,7 +254,7 @@ def bonus_action(combatant):
         if not combatant.bonus_action_used:
             if combatant.cunning_action:
                 #Disengage if we're using ranged weapons and someone is in melee range
-                if enemy_in_melee_range(combatant) and combatant.current_weapon.range > 0:                                     
+                if enemy_in_melee_range(combatant) and combatant.main_hand_weapon.range > 0:                                     
                     print_output(combatant.name + ' is using their Cunning Action, and taking the Disengage bonus action!')
                     combatant.disengaged = True
                     combatant.bonus_action_used = True
@@ -284,7 +298,7 @@ def hasted_action(combatant):
         # This will prefer to swap a non-broken or ruined weapon in
         weapon_swap(combatant,current_range)
 
-        if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):
+        if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):
             attack(combatant)
             combatant.hasted_action_used = True
         else:
@@ -308,55 +322,59 @@ def use_bonus_action(combatant,action):
 #Weapon swap
 def weapon_swap(combatant,current_range):
     # A weapon is already equipped; equip a new one
-    if combatant.current_weapon.name != "":                    
+    if combatant.main_hand_weapon.name != "":
         for weapon in combatant.weapon_inventory():                            
             # Swap to range weapon if within range (preferring shorter range non-broken weapons), unless in melee, in which case only swap to melee                        
                 # swap out broken weapon, unless this is the better weapon
-            if ((weapon.range >= current_range and current_range > melee_range() and combatant.current_weapon.broken and not weapon.broken) or 
+            if ((weapon.range >= current_range and current_range > melee_range() and combatant.main_hand_weapon.broken and not weapon.broken) or 
                 # prefer unbroken shorter range weapon
-            (weapon.range >= current_range and current_range > melee_range() and weapon.range < combatant.current_weapon.range) or 
+            (weapon.range >= current_range and current_range > melee_range() and weapon.range < combatant.main_hand_weapon.range) or 
                 # prefer range weapon at range over melee weapon
-            (weapon.range >= current_range and current_range > melee_range() and weapon.range != 0 and combatant.current_weapon.range == 0) or
+            (weapon.range >= current_range and current_range > melee_range() and weapon.range != 0 and combatant.main_hand_weapon.range == 0) or
                 # prefer melee weapon for melee range, but don't swap out for no reason
-            (weapon.range == 0 and current_range <= melee_range() and combatant.current_weapon.range != 0)):         
+            (weapon.range == 0 and current_range <= melee_range() and combatant.main_hand_weapon.range != 0)):         
                 # Don't swap if we're already using this weapon
-                if combatant.current_weapon != weapon:
-                    # Draw ruined and cry if current weapon is ruined - making it here means there are no better options
-                    if weapon.ruined and (combatant.current_weapon.ruined):
-                        print_output(combatant.name + ' sadly puts away ' + combatant.current_weapon.name + ' and draws out the ruined ' + weapon.name)                        
-                        combatant.current_weapon = weapon                   
+                if combatant.main_hand_weapon != weapon:
+                    # Draw ruined and cry if main hand weapon is ruined - making it here means there are no better options
+                    if weapon.ruined and (combatant.main_hand_weapon.ruined):
+                        print_output(combatant.name + ' sadly puts away ' + combatant.main_hand_weapon.name + ' and draws out the ruined ' + weapon.name)                        
+                        wield(combatant,weapon)                   
                         return True
-                    # Draw broken if we have to (i.e. current weapon is broken/ruined, and we need to repair the better one)                    
-                    if weapon.broken and (combatant.current_weapon.broken or combatant.current_weapon.ruined):  
-                        print_output('Frustrated, ' + combatant.name + ' stows ' + combatant.current_weapon.name + ' and draws out the broken ' + weapon.name)                        
-                        combatant.current_weapon = weapon                   
+                    # Draw broken if we have to (i.e. main hand weapon is broken/ruined, and we need to repair the better one)                    
+                    if weapon.broken and (combatant.main_hand_weapon.broken or combatant.main_hand_weapon.ruined):  
+                        print_output('Frustrated, ' + combatant.name + ' stows ' + combatant.main_hand_weapon.name + ' and draws out the broken ' + weapon.name)                        
+                        wield(combatant,weapon)                   
                         return True
                     # If the weapon is neither broken nor ruined, and it makes it here, it's the best choice
                     if not weapon.ruined and not weapon.broken:
-                        print_output(combatant.name + ' stows ' + combatant.current_weapon.name + ' and readies ' + weapon.name)                        
-                        combatant.current_weapon = weapon                   
+                        print_output(combatant.name + ' stows ' + combatant.main_hand_weapon.name + ' and readies ' + weapon.name + ' in their main hand.')                        
+                        wield(combatant,weapon)                   
                         return True
                     
             #Thrown weapon handling
-            if combatant.current_weapon.was_thrown:                    
+            if combatant.main_hand_weapon.was_thrown:                    
                 if not weapon.was_thrown:
                     print_output(combatant.name + ' draws  ' + weapon.name + ' after throwing their weapon')                        
-                    combatant.current_weapon = weapon
+                    wield(combatant,weapon)
                     return True
 
     # No weapon is equipped; draw one
     else:
         for weapon in combatant.weapon_inventory():    
-            print_output(combatant.name + ' draws ' + weapon.name + ' and prepares for battle!')
-            combatant.current_weapon = weapon                   
+            print_output(combatant.name + ' begins wielding ' + weapon.name + ' in their main hand.')
+            wield(combatant,weapon)                   
             return True
 
-    if combatant.current_weapon.name == "":
+    if combatant.main_hand_weapon.name == "":
         # If no weapon has been equipped, and we haven't been able to draw one, equip a phantom 'Unarmed Strike' weapon
-        combatant.current_weapon = unarmed_strike(combatant)
+        wield(combatant,unarmed_strike(combatant))
         return True
-
+        
     return False
+
+# Wield a weapon (check hands free and which weapon goes where)
+def wield(combatant,weapon):
+    combatant.main_hand_weapon = weapon
 
 #Attack action
 def attack_action(combatant):
@@ -376,7 +394,7 @@ def attack_action(combatant):
                 if len(multiattack_weapons) > 0:
                     print_output(combatant.name + ' unleashes a Multiattack against ' + combatant.target.name)                
                     for ma_weapon in multiattack_weapons:
-                        combatant.current_weapon = ma_weapon
+                        combatant.main_hand_weapon = ma_weapon
                         attack(combatant)
                 else:
                     #Revert to normal attack/swap to range or reach weapon if required
@@ -391,22 +409,22 @@ def attack_action(combatant):
 
         # Flurry of Blows
         if not combatant.bonus_action_used and combatant.flurry_of_blows:                      
-            if combatant.current_weapon.weapon_type == weapon_type.Unarmed or combatant.current_weapon.monk_weapon:
+            if combatant.main_hand_weapon.weapon_type == weapon_type.Unarmed or combatant.main_hand_weapon.monk_weapon:
                 if combatant.ki_points > 0:
                     print_output(combatant.name + ' spends 1 Ki Point and unleashes a Flurry of Blows!')
                     combatant.ki_points -= 1
-                    orig_weapon = combatant.current_weapon
-                    combatant.current_weapon = unarmed_strike(combatant)
+                    orig_weapon = combatant.main_hand_weapon
+                    combatant.main_hand_weapon = unarmed_strike(combatant)
                     attack(combatant)
                     attack(combatant)
-                    combatant.current_weapon = orig_weapon
+                    combatant.main_hand_weapon = orig_weapon
                 else:
                     print_output(combatant.name + ' has no Ki Points remaining, and cannot use Flurry of Blows!')
 
         if combatant.extra_attack > 0:
             for x in range(0,combatant.extra_attack):
                 #Can't attack if weapon is broken, must spend next action to fix it
-                if not combatant.current_weapon.broken:
+                if not combatant.main_hand_weapon.broken:
                     print_output('<i>' + combatant.name + ' uses an Extra Attack.</i>')
                     attack(combatant)  
 
@@ -488,10 +506,10 @@ def attack(combatant):
     in_long_range = False
     #Only attack with a weapon
     # Unarmed strikes or improvised weapons must create a phantom weapon object to use this function
-    if combatant.current_weapon.name != "":        
-        if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):
+    if combatant.main_hand_weapon.name != "":        
+        if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):
             in_range = True
-        elif target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.long_range):
+        elif target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.long_range):
             in_long_range = True            
 
         # only resolve attack if target is within one of the range increments
@@ -510,37 +528,37 @@ def attack(combatant):
                     disadvantage = False
         
                     combatant.use_sharpshooter = False
-                    # Recalculate all +hit modifiers (based on current weapon, fighting style, ability modifiers etc.)
+                    # Recalculate all +hit modifiers (based on main hand weapon, fighting style, ability modifiers etc.)
                     to_hit_modifier = calc_to_hit_modifier(combatant)
 
                     # Before-roll weapon features                    
 
                     # Determine if attack is ranged or not                    
                     # Decide whether to throw or stab with weapon
-                    if combatant.current_weapon.thrown and calc_distance(combatant,combatant.target) > melee_range():
-                        print_output(combatant.name + ' throws ' + combatant.current_weapon.name + ' at ' + combatant.target.name + '!')
+                    if combatant.main_hand_weapon.thrown and calc_distance(combatant,combatant.target) > melee_range():
+                        print_output(combatant.name + ' throws ' + combatant.main_hand_weapon.name + ' at ' + combatant.target.name + '!')
                         range_attack = True
-                        combatant.current_weapon.was_thrown = True                            
+                        combatant.main_hand_weapon.was_thrown = True                            
 
-                    if combatant.current_weapon.weapon_type == weapon_type.Firearm:
+                    if combatant.main_hand_weapon.weapon_type == weapon_type.Firearm:
                         # Check that the Firearm is not ruined - if it is ruined, no attacks can be made
                         if not attackcomplete:
-                            if combatant.current_weapon.broken and combatant.current_weapon.ruined:
-                                print_output(combatant.name + ' can\'t do anything with ' + combatant.current_weapon.name + ', it is damaged beyond repair!')
+                            if combatant.main_hand_weapon.broken and combatant.main_hand_weapon.ruined:
+                                print_output(combatant.name + ' can\'t do anything with ' + combatant.main_hand_weapon.name + ', it is damaged beyond repair!')
                                 attackcomplete = True
             
                         if not attackcomplete:
                             range_attack = True
-                            if combatant.current_weapon.currentammo == 0:
+                            if combatant.main_hand_weapon.currentammo == 0:
                                 # reload weapon # 
                                 if combatant.bonus_action_used:
-                                    combatant.current_weapon.currentammo = combatant.current_weapon.reload                                    
-                                    print_output(combatant.name + ' used their attack to reload ' + combatant.current_weapon.name + '. Ammo: ' + repr(combatant.current_weapon.currentammo) + '/' + repr(combatant.current_weapon.reload))
+                                    combatant.main_hand_weapon.currentammo = combatant.main_hand_weapon.reload                                    
+                                    print_output(combatant.name + ' used their attack to reload ' + combatant.main_hand_weapon.name + '. Ammo: ' + repr(combatant.main_hand_weapon.currentammo) + '/' + repr(combatant.main_hand_weapon.reload))
                                     attackcomplete = True
                                 else:
                                     #Use Lightning Reflexes to bonus action reload
-                                    combatant.current_weapon.currentammo = combatant.current_weapon.reload                                    
-                                    print_output(combatant.name + ' used their Bonus Action to reload ' + combatant.current_weapon.name + '. Ammo: ' + repr(combatant.current_weapon.currentammo) + '/' + repr(combatant.current_weapon.reload))
+                                    combatant.main_hand_weapon.currentammo = combatant.main_hand_weapon.reload                                    
+                                    print_output(combatant.name + ' used their Bonus Action to reload ' + combatant.main_hand_weapon.name + '. Ammo: ' + repr(combatant.main_hand_weapon.currentammo) + '/' + repr(combatant.main_hand_weapon.reload))
                                     combatant.bonus_action_used = True                                        
 
                     #Advantage/disadvantage conditions (not weapon specific)                
@@ -598,13 +616,13 @@ def attack(combatant):
                                     disadvantage = True
 
                         #Great Weapon Master
-                        if combatant.current_weapon.heavy and combatant.great_weapon_master:
+                        if combatant.main_hand_weapon.heavy and combatant.great_weapon_master:
                             if (combatant.target.armour_class < to_hit_modifier+5) and not disadvantage:
                                 print_output(combatant.name + ' uses Great Weapon Master, taking a -5 penalty to the attack')
                                 combatant.use_great_weapon_master = True           
 
                         # Other weapon pre-attack features                    
-                        if combatant.current_weapon.weapon_type == weapon_type.Firearm and not attackcomplete:                            
+                        if combatant.main_hand_weapon.weapon_type == weapon_type.Firearm and not attackcomplete:                            
                             # Check to spend grit for trick shot if available #
                             # Only trick shot if we don't have disadvantage
                             # Trick Shot (including Deadeye Shot) (Gunslinger)
@@ -627,7 +645,7 @@ def attack(combatant):
                                     # Don't bother if target is already prone:
                                     if not combatant.target.prone:
                                         # Only leg shot melee attackers
-                                        if combatant.target.current_weapon.range == 0:
+                                        if combatant.target.main_hand_weapon.range == 0:
                                             print_output(combatant.name + ' spends 1 Grit Point to perform a Leg Trick Shot. Current Grit: ' + repr(combatant.current_grit-1))
                                             combatant.current_grit -= 1
                                             trick_shot_target = "Legs"
@@ -678,11 +696,11 @@ def attack(combatant):
                             print_output('************************')
 
                         # After-roll weapon features
-                        if combatant.current_weapon.weapon_type == weapon_type.Firearm:
-                            if combatant.current_weapon.misfire >= atkroll:
+                        if combatant.main_hand_weapon.weapon_type == weapon_type.Firearm:
+                            if combatant.main_hand_weapon.misfire >= atkroll:
                                 # weapon misfire, attack fail #
-                                print_output(combatant.name + 's attack misfired with a natural ' + repr(atkroll) + '! ' + combatant.current_weapon.name + ' is now ' + damage_text('broken!'))
-                                combatant.current_weapon.broken = True
+                                print_output(combatant.name + 's attack misfired with a natural ' + repr(atkroll) + '! ' + combatant.main_hand_weapon.name + ' is now ' + damage_text('broken!'))
+                                combatant.main_hand_weapon.broken = True
                                 attackcomplete = True
                 
                     # Resolve attack
@@ -718,10 +736,10 @@ def attack(combatant):
                             combatant.attacks_hit += 1
 
                             if feat_penalty == 0:
-                                print_output(combatant.name + '\'s attack with ' + combatant.current_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' versus AC ' + repr(totalAC) + ')')            
+                                print_output(combatant.name + '\'s attack with ' + combatant.main_hand_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' versus AC ' + repr(totalAC) + ')')            
                             else:
-                                print_output(combatant.name + '\'s attack with ' + combatant.current_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' - ' + repr(feat_penalty) + ' = ' + repr(totalatk) + ' versus AC ' + repr(totalAC) + ')')            
-                            if combatant.target.conscious == False and not crit and combatant.current_weapon.range == 0:
+                                print_output(combatant.name + '\'s attack with ' + combatant.main_hand_weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' - ' + repr(feat_penalty) + ' = ' + repr(totalatk) + ' versus AC ' + repr(totalAC) + ')')            
+                            if combatant.target.conscious == False and not crit and combatant.main_hand_weapon.range == 0:
                                 print_output('The blow strikes the unconscious form of ' + combatant.target.name + ' and deals CRITICAL DAMAGE!')
                                 crit = True       
                             
@@ -746,20 +764,20 @@ def attack(combatant):
                             damage_modifier = calc_damage_modifier(combatant)
                             
                             # Calculate main attack dice
-                            print_output(indent() + combatant.current_weapon.name + ' deals ' + repr(combatant.current_weapon.damage_die_count) + 'd' + repr(combatant.current_weapon.damage_die) + ' + ' + repr(damage_modifier) + ' '  + combatant.current_weapon.weapon_damage_type.name + ' damage: ')
-                            weapon_damage_type = damage_type(combatant.current_weapon.weapon_damage_type)
-                            for x in range(0,combatant.current_weapon.damage_die_count):                                    
-                                die_damage = roll_die(combatant.current_weapon.damage_die)   
-                                print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Weapon Damage)')
+                            print_output(indent() + combatant.main_hand_weapon.name + ' deals ' + repr(combatant.main_hand_weapon.damage_die_count) + 'd' + repr(combatant.main_hand_weapon.damage_die) + ' + ' + repr(damage_modifier) + ' '  + combatant.main_hand_weapon.weapon_damage_type.name + ' damage: ')
+                            weapon_damage_type = damage_type(combatant.main_hand_weapon.weapon_damage_type)
+                            for x in range(0,combatant.main_hand_weapon.damage_die_count):                                    
+                                die_damage = roll_die(combatant.main_hand_weapon.damage_die)   
+                                print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.main_hand_weapon.damage_die) + ' (Weapon Damage)')
                                 #Great Weapon Fighting (reroll 1s and 2s)                                                
                                 if greatweaponfighting(combatant) and die_damage <= 2:
                                     print_output(doubleindent() + combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
-                                    die_damage = roll_die(combatant.current_weapon.damage_die)   
-                                    print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Weapon Damage)')    
+                                    die_damage = roll_die(combatant.main_hand_weapon.damage_die)   
+                                    print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.main_hand_weapon.damage_die) + ' (Weapon Damage)')    
                                 dice_damage += die_damage                    
                             
                             # Special rule for unarmed strike; if no damage has been calculated, we aren't a monk, so force the damage to be 1 + strmod
-                            if dice_damage == 0 and combatant.current_weapon.weapon_type == weapon_type.Unarmed:
+                            if dice_damage == 0 and combatant.main_hand_weapon.weapon_type == weapon_type.Unarmed:
                                 dice_damage = 1 + strmod(combatant)
 
                             # Sneak attack (if we had advantage on the strike)
@@ -767,7 +785,7 @@ def attack(combatant):
                                 # Check if we have snuck attack this turn
                                 if not combatant.sneak_attack_used:
                                     # Ensure weapon is appropriate for sneak attack
-                                    if (combatant.current_weapon.range != 0) or combatant.current_weapon.finesse:
+                                    if (combatant.main_hand_weapon.range != 0) or combatant.main_hand_weapon.finesse:
                                         can_sneak_attack = False
                                         if advantage:
                                             print_output(indent() + combatant.name + ' has advantage on the strike, and gains Sneak Attack!')
@@ -792,20 +810,20 @@ def attack(combatant):
                     
                                 #Brutal Critical feature
                                 if combatant.brutal_critical:
-                                    print_output(indent() + combatant.name + ' dealt massive damage with Brutal Critical! Rolling an additional ' + repr(combatant.brutal_critical_dice) + ' d' + repr(combatant.current_weapon.damage_die))
+                                    print_output(indent() + combatant.name + ' dealt massive damage with Brutal Critical! Rolling an additional ' + repr(combatant.brutal_critical_dice) + ' d' + repr(combatant.main_hand_weapon.damage_die))
                                     for x in range(0,combatant.brutal_critical_dice):                            
-                                        die_damage = roll_die(combatant.current_weapon.damage_die)            
-                                        print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Brutal Critical damage)')
+                                        die_damage = roll_die(combatant.main_hand_weapon.damage_die)            
+                                        print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.main_hand_weapon.damage_die) + ' (Brutal Critical damage)')
                                         #Per https://www.reddit.com/r/criticalrole/comments/823w9v/spoilers_c1_another_dnd_combat_simulation/dv7r55m/
                                         # Brutal Critical does not benefit from Great Weapon Fighting (only applies to the attack)
                                         #if greatweaponfighting and die_damage <= 2:
                                         #    print_output(combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')                                           
-                                        #    die_damage = roll_die(combatant.current_weapon.damage_die)            
-                                        #    print_output(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.current_weapon.damage_die) + ' (Brutal Critical damage)')
+                                        #    die_damage = roll_die(combatant.main_hand_weapon.damage_die)            
+                                        #    print_output(combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.main_hand_weapon.damage_die) + ' (Brutal Critical damage)')
                                         dice_damage += die_damage              
                             
                                 #Hemorraghing Critical feature
-                                if combatant.hemorrhaging_critical and combatant.current_weapon.weapon_type == weapon_type.Firearm:
+                                if combatant.hemorrhaging_critical and combatant.main_hand_weapon.weapon_type == weapon_type.Firearm:
                                     print_output(indent() + combatant.name + ' scored a Hemorraghing Critical!')
                                     #Set boolean to track and increase hemo damage (possible multiple crits per round)
                                     track_hemo = True                                                
@@ -824,7 +842,7 @@ def attack(combatant):
                                 print_output(indent() + combatant.name + '\'s strike dealt a total of ' + damage_text(repr(totaldamage)) + ' points of ' + weapon_damage_type.name + ' damage (Dice: ' + repr(dice_damage) + ' Modifier: ' + repr(damage_modifier) + ')')
                             else:
                                 print_output(indent() + combatant.name + '\'s strike dealt a total of ' + damage_text(repr(totaldamage)) + ' points of ' + weapon_damage_type.name + ' damage (Dice: ' + repr(dice_damage) + ' Modifier: ' + repr(damage_modifier) + ' Bonus ' + repr(feat_bonus) + ')')
-                            deal_damage(combatant,combatant.target,totaldamage,weapon_damage_type,combatant.current_weapon.magic)
+                            deal_damage(combatant,combatant.target,totaldamage,weapon_damage_type,combatant.main_hand_weapon.magic)
                 
                             if track_hemo:
                                 print_output(indent() + combatant.name + ' adds an extra ' + damage_text(repr(int(totaldamage/2))) + ' damage via Hemorrhaging Critical, which will be dealt at the end of ' + combatant.target.name + '\'s turn.')
@@ -833,31 +851,31 @@ def attack(combatant):
                                 track_hemo = False
 
                             #Bonus damage (from weapon)
-                            if combatant.current_weapon.bonus_damage_die > 0:
-                                print_output(indent() + 'The strike from ' + combatant.current_weapon.name + ' deals an additional ' + repr(combatant.current_weapon.bonus_damage_die_count) + 'd' + repr(combatant.current_weapon.bonus_damage_die) + ' ' + combatant.current_weapon.bonus_damage_type.name + ' damage!')
-                                resolve_bonus_damage(combatant,combatant.current_weapon.bonus_damage_target,combatant.current_weapon.bonus_damage_type,combatant.current_weapon.bonus_damage_die,combatant.current_weapon.bonus_damage_die_count,0,crit,combatant.current_weapon.name)
+                            if combatant.main_hand_weapon.bonus_damage_die > 0:
+                                print_output(indent() + 'The strike from ' + combatant.main_hand_weapon.name + ' deals an additional ' + repr(combatant.main_hand_weapon.bonus_damage_die_count) + 'd' + repr(combatant.main_hand_weapon.bonus_damage_die) + ' ' + combatant.main_hand_weapon.bonus_damage_type.name + ' damage!')
+                                resolve_bonus_damage(combatant,combatant.main_hand_weapon.bonus_damage_target,combatant.main_hand_weapon.bonus_damage_type,combatant.main_hand_weapon.bonus_damage_die,combatant.main_hand_weapon.bonus_damage_die_count,0,crit,combatant.main_hand_weapon.name)
 
                             # Bonus damage (from critical weapon effect, i.e. Arkhan's weapon)
-                            if crit and combatant.current_weapon.crit_bonus_damage_die > 0:
-                                print_output(indent() + combatant.current_weapon.name + ' surges with power, dealing bonus damage on a critical strike!')                            
-                                resolve_bonus_damage(combatant,0,combatant.current_weapon.crit_bonus_damage_type,combatant.current_weapon.crit_bonus_damage_die,combatant.current_weapon.crit_bonus_damage_die_count,0,crit,combatant.current_weapon.name)                        
+                            if crit and combatant.main_hand_weapon.crit_bonus_damage_die > 0:
+                                print_output(indent() + combatant.main_hand_weapon.name + ' surges with power, dealing bonus damage on a critical strike!')                            
+                                resolve_bonus_damage(combatant,0,combatant.main_hand_weapon.crit_bonus_damage_type,combatant.main_hand_weapon.crit_bonus_damage_die,combatant.main_hand_weapon.crit_bonus_damage_die_count,0,crit,combatant.main_hand_weapon.name)                        
     
                             # Bonus damage (from Blood Hunter's Crimson Rite)
                             if combatant.crimson_rite:
-                                if combatant.current_weapon.active_crimson_rite.name != "":
-                                    print_output(indent() + 'The ' + combatant.current_weapon.active_crimson_rite.colour + ' light on ' + combatant.current_weapon.name + ' flares as the Crimson ' + combatant.current_weapon.active_crimson_rite.name + ' deals additional damage!')
-                                    crimson_rite_damage_type = combatant.current_weapon.active_crimson_rite.damage_type
+                                if combatant.main_hand_weapon.active_crimson_rite.name != "":
+                                    print_output(indent() + 'The ' + combatant.main_hand_weapon.active_crimson_rite.colour + ' light on ' + combatant.main_hand_weapon.name + ' flares as the Crimson ' + combatant.main_hand_weapon.active_crimson_rite.name + ' deals additional damage!')
+                                    crimson_rite_damage_type = combatant.main_hand_weapon.active_crimson_rite.damage_type
                                     crimson_rite_bonus = 0
                                     # Add bonus damge (i.e. Ghostslayer gets +wismod on undead up to level 11, +wismod on everything after that)
-                                    if combatant.current_weapon.active_crimson_rite.bonus_damage != 0:
-                                        if combatant.current_weapon.active_crimson_rite.bonus_damage_target == None or combatant.target.race == combatant.current_weapon.active_crimson_rite.bonus_damage_target:
-                                            crimson_rite_bonus = combatant.current_weapon.active_crimson_rite.bonus_damage
+                                    if combatant.main_hand_weapon.active_crimson_rite.bonus_damage != 0:
+                                        if combatant.main_hand_weapon.active_crimson_rite.bonus_damage_target == None or combatant.target.race == combatant.main_hand_weapon.active_crimson_rite.bonus_damage_target:
+                                            crimson_rite_bonus = combatant.main_hand_weapon.active_crimson_rite.bonus_damage
 
-                                    resolve_bonus_damage(combatant,0,crimson_rite_damage_type,combatant.crimson_rite_damage_die,1,crimson_rite_bonus,crit,combatant.current_weapon.active_crimson_rite.name)                        
+                                    resolve_bonus_damage(combatant,0,crimson_rite_damage_type,combatant.crimson_rite_damage_die,1,crimson_rite_bonus,crit,combatant.main_hand_weapon.active_crimson_rite.name)                        
 
                             #Bonus damage (from hand of Vecna, 2d8 cold damage on melee hit)
                             for item in combatant.equipment_inventory():
-                                if item.grants_equipment_spell == equipment_spells.HandOfVecna and combatant.current_weapon.range == 0:
+                                if item.grants_equipment_spell == equipment_spells.HandOfVecna and combatant.main_hand_weapon.range == 0:
                                     print_output(indent() + combatant.name + '\'s left hand crackles with power! They dealt bonus damage with the ' + item.name)
                                     resolve_bonus_damage(combatant,0,item.damage_type,item.damage_die,item.damage_die_count,0,crit,item.name)
                         
@@ -915,24 +933,24 @@ def attack(combatant):
 
                             resolve_fatality(combatant.target)
                         else:
-                            print_output(combatant.name + '\'s attack on ' + combatant.target.name + ' with ' + combatant.current_weapon.name + ' MISSED! (' + repr(totalatk) + ' versus AC ' + repr(totalAC) + ')')            
+                            print_output(combatant.name + '\'s attack on ' + combatant.target.name + ' with ' + combatant.main_hand_weapon.name + ' MISSED! (' + repr(totalatk) + ' versus AC ' + repr(totalAC) + ')')            
                             #Update statistics
                             combatant.attacks_missed += 1
 
                         # consume ammo after shot #
-                        if combatant.current_weapon.reload > 0:
-                            combatant.current_weapon.currentammo = combatant.current_weapon.currentammo - 1            
-                            print_output(combatant.current_weapon.name + ' Ammo: ' + repr(combatant.current_weapon.currentammo) + '/' + repr(combatant.current_weapon.reload))
+                        if combatant.main_hand_weapon.reload > 0:
+                            combatant.main_hand_weapon.currentammo = combatant.main_hand_weapon.currentammo - 1            
+                            print_output(combatant.main_hand_weapon.name + ' Ammo: ' + repr(combatant.main_hand_weapon.currentammo) + '/' + repr(combatant.main_hand_weapon.reload))
 
                         #Thrown weapons get automatically unequipped after being thrown
-                        if combatant.current_weapon.was_thrown == True:                            
+                        if combatant.main_hand_weapon.was_thrown == True:                            
                             weapon_swap(combatant,calc_distance(combatant,combatant.target))
                         
                         attackcomplete = True
             else:
                 print_output(combatant.target.name + ' is dead on the ground, and not worthy of an attack.')
         else:
-            print_output(combatant.target.name + ' is out of range of ' + combatant.current_weapon.name + '!')
+            print_output(combatant.target.name + ' is out of range of ' + combatant.main_hand_weapon.name + '!')
 
     return(attack_hit)
 
@@ -1008,14 +1026,14 @@ def get_highest_spellslot(combatant,spell):
             return spellslot             
     
 def repair_weapon(combatant):
-    print_output(combatant.name + ' attempts to repair ' + combatant.current_weapon.name)    
-    if abilitycheck(combatant,ability_check.Dexterity,dexmod(combatant)+combatant.proficiency,False,10+combatant.current_weapon.misfire):  
-        print_output(combatant.name + ' successfully repaired ' + combatant.current_weapon.name)
-        combatant.current_weapon.broken = False
+    print_output(combatant.name + ' attempts to repair ' + combatant.main_hand_weapon.name)    
+    if abilitycheck(combatant,ability_check.Dexterity,dexmod(combatant)+combatant.proficiency,False,10+combatant.main_hand_weapon.misfire):  
+        print_output(combatant.name + ' successfully repaired ' + combatant.main_hand_weapon.name)
+        combatant.main_hand_weapon.broken = False
     else:
-        combatant.current_weapon.broken = True
-        combatant.current_weapon.ruined = True
-        print_output(combatant.current_weapon.name + ' has been ruined in the repair attempt! ' + combatant.name + ' needs to go back to their workshop to fix it! ')
+        combatant.main_hand_weapon.broken = True
+        combatant.main_hand_weapon.ruined = True
+        print_output(combatant.main_hand_weapon.name + ' has been ruined in the repair attempt! ' + combatant.name + ' needs to go back to their workshop to fix it! ')
 
 def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source):
     bonus_damage = 0
@@ -1030,7 +1048,7 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source)
         for x in range(0,count):
             die_damage = roll_die(die)
             print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')
-            if greatweaponfighting(combatant) and die_damage <= 2 and source == combatant.current_weapon.name:
+            if greatweaponfighting(combatant) and die_damage <= 2 and source == combatant.main_hand_weapon.name:
                 print_output(doubleindent() + combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
                 die_damage = roll_die(die)
                 print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')
@@ -1040,17 +1058,17 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source)
                         
     if crit:
         print_output(indent() + combatant.name + ' dealt an additional ' + crit_damage_text(repr(crit_damage+flat)) + ' (roll = ' + repr(bonus_damage) + ') points of ' + type.name + ' damage with ' + source)
-        deal_damage(combatant,combatant.target,crit_damage+flat,type,combatant.current_weapon.magic)
+        deal_damage(combatant,combatant.target,crit_damage+flat,type,combatant.main_hand_weapon.magic)
     else:
         print_output(indent() + combatant.name + ' dealt an additional ' + damage_text(repr(bonus_damage+flat)) + ' points of ' + type.name + ' damage with ' + source)
-        deal_damage(combatant,combatant.target,bonus_damage+flat,type,combatant.current_weapon.magic)
+        deal_damage(combatant,combatant.target,bonus_damage+flat,type,combatant.main_hand_weapon.magic)
 
 def resolve_hemo_damage(combatant):        
     #Gunslinger - Hemorrhaging Shot; damage and type is stored against the target and resolved after the target takes its turn (treated as nonmagical always?)
     if combatant.hemo_damage > 0:
         print_output(combatant.name + ' bleeds profusely from an earlier gunshot wound, suffering ' + damage_text(repr(combatant.hemo_damage)) + ' points of damage from Hemorrhaging Critical!')
         #hack
-        #combatant.hemo_damage_type = combatant.target.current_weapon.weapon_damage_type
+        #combatant.hemo_damage_type = combatant.target.main_hand_weapon.weapon_damage_type
         #deal damage to yourself
         deal_damage(combatant,combatant,combatant.hemo_damage,combatant.hemo_damage_type,False)
         combatant.hemo_damage = 0
@@ -1224,23 +1242,23 @@ def death_saving_throw(combatant):
 def calc_to_hit_modifier(combatant):
     to_hit = 0
     # Add 2 for fighting style when using ranged weapon with Archery
-    if combatant.fighting_style == fighting_style.Archery and combatant.current_weapon.range > 0:
+    if combatant.fighting_style == fighting_style.Archery and combatant.main_hand_weapon.range > 0:
         to_hit += 2;
 
     # Add Dex modifier for finesse weapons, otherwise Str
     # Monk weapons also have this property (which is actually independent of Finesse)
-    if combatant.current_weapon.finesse or combatant.current_weapon.monk_weapon:
+    if combatant.main_hand_weapon.finesse or combatant.main_hand_weapon.monk_weapon:
         to_hit += dexmod(combatant)
     else:
         to_hit += strmod(combatant)
 
     # Add proficiency bonus if proficiency in weapon
     for combatant_weapon_proficiency in combatant.weapon_proficiency():
-        if combatant.current_weapon.weapon_type != 0 and combatant.current_weapon.weapon_type == combatant_weapon_proficiency:
+        if combatant.main_hand_weapon.weapon_type != 0 and combatant.main_hand_weapon.weapon_type == combatant_weapon_proficiency:
             to_hit += combatant.proficiency
 
     # Add weapon bonus (i.e. +3 weapon)
-    to_hit += combatant.current_weapon.magic_to_hit_modifier
+    to_hit += combatant.main_hand_weapon.magic_to_hit_modifier
         
     return to_hit
 
@@ -1249,7 +1267,7 @@ def calc_damage_modifier(combatant):
     
     # Add Dex modifier for finesse weapons and range weapons if it is higher than Str;, otherwise Str
     # Monk weapons also have this property (which is actually independent of Finesse)
-    if dexmod(combatant) > strmod(combatant) and (combatant.current_weapon.finesse or combatant.current_weapon.monk_weapon or (combatant.current_weapon.range > 0 and not combatant.current_weapon.thrown)):        
+    if dexmod(combatant) > strmod(combatant) and (combatant.main_hand_weapon.finesse or combatant.main_hand_weapon.monk_weapon or (combatant.main_hand_weapon.range > 0 and not combatant.main_hand_weapon.thrown)):        
         damage += dexmod(combatant)
     else:
         damage += strmod(combatant)
@@ -1259,7 +1277,7 @@ def calc_damage_modifier(combatant):
         damage += combatant.ragedamage
     
     # Add weapon bonus (i.e. +3 weapon)
-    damage += combatant.current_weapon.magic_damage_modifier
+    damage += combatant.main_hand_weapon.magic_damage_modifier
         
     return damage
 
@@ -1267,7 +1285,7 @@ def calc_damage_modifier(combatant):
 def calc_min_crit(combatant):
     min_crit = 20
     # Vicious Intent, crit on a 19
-    if combatant.vicious_intent and combatant.current_weapon.weapon_type == weapon_type.Firearm:
+    if combatant.vicious_intent and combatant.main_hand_weapon.weapon_type == weapon_type.Firearm:
         min_crit = 19
     return min_crit
 
@@ -1560,7 +1578,7 @@ def move_to_target(combatant,target):
 
         grids_moved += 1
         #Evaluate after each step if the target is in range of our weapon
-        if target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):                        
+        if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):                        
             print_output(indent() + combatant.name + ' skids to a halt at at (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), now in range of ' + combatant.target.name)
             grids_to_move = 0
             grid_movement = 0
@@ -1639,7 +1657,7 @@ def move_from_target(combatant,target):
         #If we haven't attacked yet, we don't want to run out of our weapon range
         #If combatant.movement would take us outside the maximum range of our weapon, stop here instead
         if not combatant.action_used: 
-            if not target_in_weapon_range(combatant,combatant.target,combatant.current_weapon.range):                        
+            if not target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):                        
                 print_output(indent() + combatant.name + ' changes their mind at the last second, moving back to (' + repr(initial_xpos) + ',' + repr(initial_ypos) + ') to stay in weapon range of ' + combatant.target.name)
                 combatant.xpos = initial_xpos;
                 combatant.ypos = initial_ypos;
@@ -1683,7 +1701,7 @@ def target_in_weapon_range(combatant,target,range):
         range = melee_range()
     #Calculate distance in feet
     distance_to_target = calc_distance(combatant,target)
-    if (distance_to_target <= range) or (combatant.current_weapon.reach and distance_to_target < range + 5):
+    if (distance_to_target <= range) or (combatant.main_hand_weapon.reach and distance_to_target < range + 5):
         return True
     #Check that no grids are adjacent for melee attacks
     if is_adjacent(combatant,target):
@@ -1886,7 +1904,7 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
             # Evaluate only if reaction available
             if not opportunity_attacker.reaction_used:
                 # Only provoke opportunity attacks for melee weapons
-                if opportunity_attacker.current_weapon.range == 0:
+                if opportunity_attacker.main_hand_weapon.range == 0:
                     # If the enemy is currently adjacent, but would not be after movement, condition is fulfilled
                     # Note - this will not work with Reach weapons, will need additional conditions to handle Reach
                     # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
@@ -1919,7 +1937,7 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
 
 # helper functions #
 def greatweaponfighting(combatant):
-    if combatant.fighting_style == fighting_style.Great_Weapon_Fighting and (combatant.current_weapon.two_handed or combatant.current_weapon.versatile):
+    if combatant.fighting_style == fighting_style.Great_Weapon_Fighting and (combatant.main_hand_weapon.two_handed or combatant.main_hand_weapon.versatile):
         return True
     return False
 

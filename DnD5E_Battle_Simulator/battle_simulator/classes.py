@@ -425,7 +425,9 @@ class creature():
     saves = saving_throw_block()
     checks = ability_check_block()    
 
-    current_weapon = weapon()
+    main_hand_weapon = weapon()
+    dual_wielding = bool() # True if combatant is dual wielding
+    offhand_weapon = weapon() # Only populated if combatant is dual wielding and holding a different weapon in the off hand
 
     armour_class = int()
     armour_type = armour_type()

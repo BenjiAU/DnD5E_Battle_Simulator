@@ -574,8 +574,8 @@ def init_molly(init_combatants):
     blood_hunter_class.player_subclass = player_subclass.OrderOfTheGhostslayer
     blood_hunter_class.player_class_level = 5
     molly.player_classes().append(blood_hunter_class)
-
-    #molly.fighting_style = fighting_style.Great_Weapon_Fighting
+    
+    molly.fighting_style = fighting_style.Two_Weapon_Fighting
     molly.max_health = 59
     molly.armour_class = 15
     molly.speed = 30
@@ -624,6 +624,19 @@ def init_molly(init_combatants):
 
     molly.weapon_inventory().append(scimitar)
 
+    scimitar = weapon()
+    scimitar.name = "Scimitar"
+    scimitar.weapon_type = weapon_type.Shortsword;
+    scimitar.range = 0
+    
+    scimitar.damage_die = 6
+    scimitar.damage_die_count = 1
+    scimitar.weapon_damage_type = damage_type.Bludgeoning
+    
+    scimitar.finesse = True
+
+    molly.weapon_inventory().append(scimitar)
+    
     #molly's gear
     # combat stats # 
 
