@@ -1,10 +1,5 @@
-#Explicit imports
-
 #Implicit imports
-from .classes import *
-
-#Other imports
-import math
+from battle_simulator.classes import *
 
 def initialise_combatants(init_combatants):
     init_percy(init_combatants)
@@ -618,24 +613,25 @@ def init_molly(init_combatants):
     
     scimitar.damage_die = 6
     scimitar.damage_die_count = 1
-    scimitar.weapon_damage_type = damage_type.Bludgeoning
+    scimitar.weapon_damage_type = damage_type.Slashing
     
     scimitar.finesse = True
-
+    scimitar.light = True
     molly.weapon_inventory().append(scimitar)
 
-    scimitar = weapon()
-    scimitar.name = "Scimitar"
-    scimitar.weapon_type = weapon_type.Shortsword;
-    scimitar.range = 0
+    scimitar2 = weapon()
+    scimitar2.name = "Scimitar"
+    scimitar2.weapon_type = weapon_type.Shortsword;
+    scimitar2.range = 0
     
-    scimitar.damage_die = 6
-    scimitar.damage_die_count = 1
-    scimitar.weapon_damage_type = damage_type.Bludgeoning
+    scimitar2.damage_die = 6
+    scimitar2.damage_die_count = 1
+    scimitar2.weapon_damage_type = damage_type.Slashing
     
-    scimitar.finesse = True
+    scimitar2.finesse = True
+    scimitar2.light = True
 
-    molly.weapon_inventory().append(scimitar)
+    molly.weapon_inventory().append(scimitar2)
     
     #molly's gear
     # combat stats # 
@@ -1216,13 +1212,3 @@ def init_trinket(init_combatants):
     trinket.weapon_inventory().append(claw)
 
     init_combatants.append(trinket)    
-
-def characterlevel(combatant):
-    player_level = 0
-    for class_instance in combatant.player_classes():
-        player_level += class_instance.player_class_level
-    return player_level
-
-def calc_proficiency(combatant):
-    prof_calc = 7+characterlevel(combatant)
-    return math.floor(prof_calc/4)

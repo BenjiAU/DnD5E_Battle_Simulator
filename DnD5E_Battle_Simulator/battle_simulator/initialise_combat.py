@@ -1,11 +1,10 @@
 #Explicit imports
 
 #Implicit imports
-from .classes import *
-from .combat_functions import *
+from battle_simulator.classes import *
+from battle_simulator.combat_functions.inventory import * 
 
 #Other imports
-
 
 def reset_combatants(init_combatants):
     #Initialise Battle
@@ -35,8 +34,12 @@ def reset_combatants(init_combatants):
             weap.broken = False
             weap.current_ammo = weap.ammunition
         
-        # Set currently equipped weapon to first weapon in inventory
-        combatant.main_hand_weapon = combatant.weapon_inventory()[0]
+        # Wield the first weapon in inventory
+        wield(combatant,combatant.weapon_inventory()[0],True)
+        # If the combatant has two weapon fighting, wield the next weapon in inventory as well
+        if combatant.fighting_style == fighting_style.Two_Weapon_Fighting:
+            if combatant.weapon_inventory()[1] != None:
+                wield(combatant,combatant.weapon_inventory()[1],False)
 
         # Clear any properties on the blade
         combatant.main_hand_weapon.active_crimson_rite = None

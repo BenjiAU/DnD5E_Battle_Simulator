@@ -1,4 +1,6 @@
 from enum import Enum, auto
+import math
+import random
 
 class area_of_effect_shape(Enum):
     def __str__(self):
@@ -426,7 +428,6 @@ class creature():
     checks = ability_check_block()    
 
     main_hand_weapon = weapon()
-    dual_wielding = bool() # True if combatant is dual wielding
     offhand_weapon = weapon() # Only populated if combatant is dual wielding and holding a different weapon in the off hand
 
     armour_class = int()
@@ -700,3 +701,63 @@ class creature():
 class pending_damage():
     pending_damage_type = int()
     pending_damage = int()
+
+# Helper Functions
+# Keep functions that need to be accessed from around the program here, as long as they don't require any outside knowledge (i.e. are constructed just from the nature of classes)
+
+def melee_range():
+    #Treating default melee weapon range as 5 feet, upped to 8 to avoid clipping issues on corners of grid
+    return 8
+
+# Check if Great Weapon Fighting is allowed - must have Fighting Style, and appopriate weapon with the correct properties in both hands
+def greatweaponfighting(combatant):
+    if (combatant.fighting_style == fighting_style.Great_Weapon_Fighting and 
+    ((combatant.main_hand_weapon.two_handed or combatant.main_hand_weapon.versatile) and combatant.off_hand_weapon == combatant.main_hand_wepaon)) :
+        return True
+    return False
+
+# Return the class level for a given class attached to the player
+def get_combatant_class_level(combatant,combatant_class):
+    for class_instance in combatant.player_classes():
+        if class_instance.player_class == combatant_class:
+            return class_instance.player_class_level
+
+# Returns the total character level for all classes attached to the player (necessary for calculating proficiency and some class features)
+def characterlevel(combatant):
+    player_level = 0
+    for class_instance in combatant.player_classes():
+        player_level += class_instance.player_class_level
+    return player_level
+
+# Returns the proficiency bonus of the player
+def calc_proficiency(combatant):
+    prof_calc = 7+characterlevel(combatant)
+    return math.floor(prof_calc/4)
+
+# Custom rounding function to ensure we can reliably round values to the nearest 5 feet (for grid calculations)
+def round_to_integer(x, base):
+    return int(base * round(float(x)/base))
+
+# Return the weighted statistic modifiers 
+def strmod(combatant):
+    return math.floor((combatant.stats.str-10)/2)
+
+def dexmod(combatant):
+    return math.floor((combatant.stats.dex-10)/2)
+
+def intmod(combatant):
+    return math.floor((combatant.stats.intel-10)/2)
+
+def wismod(combatant):
+    return math.floor((combatant.stats.wis-10)/2)
+
+def conmod(combatant):
+    return math.floor((combatant.stats.con-10)/2)
+
+def chamod(combatant):
+    return math.floor((combatant.stats.cha-10)/2)
+
+# Rolls a dice (initiates a new random seed on each call) #
+def roll_die(die):
+    random.seed
+    return random.randint(1,die)

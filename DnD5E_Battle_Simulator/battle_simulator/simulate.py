@@ -11,13 +11,13 @@ from battle_simulator import fighters
 #The master list of combatants, shared between modules
 from battle_simulator import combatants
 
-# Combat functions
-from battle_simulator import combat_functions
-
 #Implicit imports
-from .print_functions import *
-from .combat_functions import *
-from .classes import *
+from battle_simulator.print_functions import *
+from battle_simulator.combat_functions.action import *
+from battle_simulator.combat_functions.target import *
+from battle_simulator.combat_functions.inventory import *
+from battle_simulator.combat_functions.movement import *
+from battle_simulator.classes import *
 
 #System imports
 import operator
@@ -101,7 +101,8 @@ def simulate_battle():
 
             combatorder += 1
             print_combatant_details(combatant,combatorder)
-            find_target(combatant)
+            if find_target(combatant):                
+                weapon_swap(combatant,calc_distance(combatant,combatant.target))   
             print_output('</br>')
             print_output('</br>')
 
@@ -133,9 +134,11 @@ def simulate_battle():
                                 if not combatant.target.alive:
                                     #Aim for a new target as the current one is dead
                                     print_output(combatant.name + '\'s target is dead! Choosing new target...')
-                                    find_target(combatant)
+                                    if find_target(combatant):                
+                                        weapon_swap(combatant,calc_distance(combatant,combatant.target))   
                             else:
-                                find_target(combatant)
+                                if find_target(combatant):                
+                                    weapon_swap(combatant,calc_distance(combatant,combatant.target))   
                                 
                             #If we have not retrieved a target from the function, victory is declared for this team
                             if combatant.target:
@@ -350,7 +353,7 @@ def set_initiative_order():
             namestring += combatant.name
         else:
             namestring += ', ' + combatant.name
-        combat_functions.roll_initiative(combatant)            
+        roll_initiative(combatant)            
                             
     initkey = operator.attrgetter("initiative_roll")
     combatants.list = sorted(unsorted_combatants, key=initkey,reverse=True)    

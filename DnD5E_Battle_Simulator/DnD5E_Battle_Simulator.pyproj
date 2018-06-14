@@ -32,10 +32,16 @@
     <Compile Include="battle_simulator\classes.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="battle_simulator\combat_functions\damage.py" />
+    <Compile Include="battle_simulator\combat_functions\inventory.py" />
     <Compile Include="battle_simulator\combatants.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="battle_simulator\combat_functions.py">
+    <Compile Include="battle_simulator\combat_functions\combat.py" />
+    <Compile Include="battle_simulator\combat_functions\__init__.py" />
+    <Compile Include="battle_simulator\combat_functions\target.py" />
+    <Compile Include="battle_simulator\combat_functions\movement.py" />
+    <Compile Include="battle_simulator\combat_functions\action.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="battle_simulator\fighters.py" />
@@ -61,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="battle_simulator\" />
+    <Folder Include="battle_simulator\combat_functions\" />
     <Folder Include="static\" />
     <Folder Include="templates\" />
   </ItemGroup>
