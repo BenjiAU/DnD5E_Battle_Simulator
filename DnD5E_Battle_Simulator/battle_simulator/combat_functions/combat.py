@@ -4,15 +4,8 @@ from battle_simulator import combatants
 #Implicit imports
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
-from battle_simulator.combat_functions.movement import *
+from battle_simulator.combat_functions.position import *
 from battle_simulator.combat_functions.damage import *
-
-#Other imports
-import random
-import math
-import operator
-from operator import itemgetter, attrgetter
-from copy import copy
 
 #Attack action
 def attack_action(combatant):
@@ -48,22 +41,23 @@ def attack_action(combatant):
         # Bonus attack functions for players
         # Bonus Action offhand attack
         # Rules: both weapons must be Light, weapons must be different, off hand weapon must be equipped
-        if not combatant.bonus_action_used and combatant.off_hand_weapon != None and combatant.main_hand_weapon != combatant.off_hand_weapon and combatant.main_hand_weapon.light and combatant.off_hand_weapon.light:
+        if not combatant.bonus_action_used and combatant.offhand_weapon != None and combatant.main_hand_weapon != combatant.offhand_weapon and combatant.main_hand_weapon.light and combatant.offhand_weapon.light:
             print_output(combatant.name + ' uses their Bonus Action to make an offhand strike against ' + combatant.target.name)                
-            attack(combatant,combatant.off_hand_weapon)
+            attack(combatant,combatant.offhand_weapon)
             combatant.bonus_action_used = True
 
         # Flurry of Blows
         if not combatant.bonus_action_used and combatant.flurry_of_blows:                      
             if combatant.main_hand_weapon.weapon_type == weapon_type.Unarmed or combatant.main_hand_weapon.monk_weapon:
                 if combatant.ki_points > 0:
-                    print_output(combatant.name + ' spends 1 Ki Point and unleashes a Flurry of Blows!')
+                    print_output(combatant.name + ' spends 1 Ki Point and unleashes a Flurry of Blows! Current Ki Points: ' + repr(combatant.ki_points-1) + '/' + repr(combatant.max_ki_points))
                     combatant.ki_points -= 1
                     orig_weapon = combatant.main_hand_weapon
                     combatant.main_hand_weapon = unarmed_strike(combatant)
                     attack(combatant,combatant.main_hand_weapon)
                     attack(combatant,combatant.main_hand_weapon)
                     combatant.main_hand_weapon = orig_weapon
+                    combatant.bonus_action_used = True
                 else:
                     print_output(combatant.name + ' has no Ki Points remaining, and cannot use Flurry of Blows!')
 
@@ -73,6 +67,8 @@ def attack_action(combatant):
                 if not combatant.main_hand_weapon.broken:
                     print_output('<i>' + combatant.name + ' uses an Extra Attack.</i>')
                     attack(combatant,combatant.main_hand_weapon)  
+    else:
+        print_error(combatant.name + ' does not have a Creature Type defined. Unable to determine attack action.')
 
 def unarmed_strike(combatant):    
     # Create and equip a phantom 'unarmed strike' weapon to proceed with attack calculations
@@ -510,14 +506,13 @@ def attack(combatant,weapon):
                             if combatant.crimson_rite:
                                 if weapon.active_crimson_rite != None:
                                     print_output(indent() + 'The ' + weapon.active_crimson_rite.colour + ' light on ' + weapon.name + ' flares as the Crimson ' + weapon.active_crimson_rite.name + ' deals additional damage!')
-                                    crimson_rite_damage_type = weapon.active_crimson_rite.damage_type
                                     crimson_rite_bonus = 0
                                     # Add bonus damge (i.e. Ghostslayer gets +wismod on undead up to level 11, +wismod on everything after that)
                                     if weapon.active_crimson_rite.bonus_damage != 0:
                                         if weapon.active_crimson_rite.bonus_damage_target == None or combatant.target.race == weapon.active_crimson_rite.bonus_damage_target:
                                             crimson_rite_bonus = weapon.active_crimson_rite.bonus_damage
 
-                                    resolve_bonus_damage(combatant,0,crimson_rite_damage_type,combatant.crimson_rite_damage_die,1,crimson_rite_bonus,crit,weapon.active_crimson_rite.name)                        
+                                    resolve_bonus_damage(combatant,0,damage_type(weapon.active_crimson_rite.damage_type),combatant.crimson_rite_damage_die,1,crimson_rite_bonus,crit,weapon.active_crimson_rite.name)                        
 
                             #Bonus damage (from hand of Vecna, 2d8 cold damage on melee hit)
                             for item in combatant.equipment_inventory():
@@ -628,7 +623,7 @@ def calc_damage_modifier(combatant,weapon):
     
     # Do not add ability modifier to additional_damage on bonus action attacks (unless we have a feat or class feature)
     if ((weapon == combatant.main_hand_weapon) or 
-    (weapon == combatant.off_hand_weapon and combatant.fighting_style == fighting_style.Two_Weapon_Fighting)):
+    (weapon == combatant.offhand_weapon and combatant.fighting_style == fighting_style.Two_Weapon_Fighting)):
         # Add Dex modifier for finesse weapons and range weapons if it is higher than Str;, otherwise Str
         # Monk weapons also have this property (which is actually independent of Finesse)
         if (dexmod(combatant) > strmod(combatant) and 
@@ -650,53 +645,7 @@ def calc_damage_modifier(combatant,weapon):
 
 def calc_min_crit(combatant):
     min_crit = 20
-    # Vicious Intent, crit on a 19
+    # Fighter - Gunslinger - Vicious Intent, crit on a 19 with Firearm
     if combatant.vicious_intent and combatant.main_hand_weapon.weapon_type == weapon_type.Firearm:
         min_crit = 19
     return min_crit
-          
-def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
-    # Create a copy of the combatant to capture the new co-ordinate and compare to existing co-ordiantes (basically casting forward and simulating the movement)
-    combatant_after_move = creature()
-    combatant_after_move = copy(combatant_before_move)
-    combatant_after_move.xpos = new_xpos
-    combatant_after_move.ypos = new_ypos
-
-    #Evaluate for each enemy unit
-    enemies = get_living_enemies(combatant_before_move)
-    for opportunity_attacker in enemies:                
-        #Only conscious enemies can make an opportunity attack
-        if opportunity_attacker.conscious:
-            # Evaluate only if reaction available
-            if not opportunity_attacker.reaction_used:
-                # Only provoke opportunity attacks for melee weapons
-                if opportunity_attacker.main_hand_weapon.range == 0:
-                    # If the enemy is currently adjacent, but would not be after movement, condition is fulfilled
-                    # Note - this will not work with Reach weapons, will need additional conditions to handle Reach
-                    # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
-                    if is_adjacent(opportunity_attacker,combatant_before_move) and not is_adjacent(opportunity_attacker,combatant_after_move):                    
-                        #Swap targets if necessary
-                        original_target = opportunity_attacker.target 
-                        if opportunity_attacker.target != combatant_before_move:                            
-                            opportunity_attacker.target = combatant_before_move
-
-                        # Make the attack out of sequence
-                        print_output('-------------------------------------------------------------------------------------------------------------------------')
-                        print_output(combatant_before_move.name + '\'s movement has triggered an Attack of Opportunity from ' + opportunity_attacker.name + ' !')                        
-                        print_output('Resolving Attack of Opportunity!')                            
-                        if combatant_before_move.disengaged:
-                            print_output(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged!')
-                        else:
-                            if attack(opportunity_attacker):
-                                for feat in opportunity_attacker.creature_feats():
-                                    if feat == feat.Sentinel:
-                                        #Successful opportunity attacks reduce creatures speed to 0
-                                        combatant_before_move.movement = 0
-                                        print_output(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                        
-                            print_output('The Attack of Opportunity has been resolved! ' + opportunity_attacker.name + ' has spent their reaction')                        
-                            print_output('-------------------------------------------------------------------------------------------------------------------------')
-                            # Consume reaction
-                            opportunity_attacker.reaction_used = True
-
-                        # Reset target
-                        opportunity_attacker.target = original_target

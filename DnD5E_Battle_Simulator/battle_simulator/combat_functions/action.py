@@ -7,14 +7,8 @@ from battle_simulator.print_functions import *
 from battle_simulator.combat_functions.combat import *
 from battle_simulator.combat_functions.damage import *
 from battle_simulator.combat_functions.inventory import *
-from battle_simulator.combat_functions.movement import *
+from battle_simulator.combat_functions.position import *
 from battle_simulator.combat_functions.target import *
-
-#Other imports
-import math
-import operator
-from operator import itemgetter, attrgetter
-from copy import copy
             
 def action(combatant):
     # Only perform an action if target exists
@@ -84,7 +78,7 @@ def bonus_action(combatant):
         if not combatant.bonus_action_used:
             if combatant.canrage and not combatant.raging:
                 print_output(combatant.name + ' uses their Bonus Action to go into a mindless rage! "I would like to RAAAGE!!!"')
-                print_output(combatant.name + ' gains Resistance to Bludgeoning/Piercing/Slashing damage, Advantage on Strength Saving Throws and Ability Checks, and +' + repr(combatant.ragedamage) + ' to damage with melee attacks.)')
+                print_output(combatant.name + ' gains Resistance to Bludgeoning/Piercing/Slashing damage, Advantage on Strength Saving Throws and Ability Checks, and +' + repr(combatant.rage_damage) + ' to damage with melee attacks.)')
                 combatant.raging = True;
                 # Reset duration of this rage
                 combatant.rage_duration = 0
@@ -113,30 +107,17 @@ def bonus_action(combatant):
                     if combatant.current_health >= characterlevel(combatant):
                         # Select the correct rite - this will need some sort of target analysis to choose rites based on potential weaknesses
                         # For now, just forcing to Dawn for Molly
-                        selected_rite = None
-                        for rite in combatant.crimson_rites():
-                            if rite.name == "Rite of the Dawn":
-                                selected_rite = rite
-                        if selected_rite.name != "":
-                            print_output(combatant.name + ' drags the blade of their ' + combatant.main_hand_weapon.name + ' across their skin, and ' + selected_rite.colour + ' light engulfs it as the Crimson ' + selected_rite.name + ' is activated!')
-                            deal_damage(combatant,combatant,selected_rite.activation_damage,damage_type.Generic,False)
-                            resolve_damage(combatant)
-                            
-                            combatant.main_hand_weapon.active_crimson_rite = selected_rite
-                # Check if our offhand weapon has a rite active
-                if combatant.offhand_weapon != None and combatant.offhand_weapon != combatant.main_hand_weapon and combatant.offhand_weapon.active_crimson_rite == None:
-                    # Check current HP
-                    if combatant.current_health >= characterlevel(combatant):
-                        # Select the correct rite - this will need some sort of target analysis to choose rites based on potential weaknesses
-                        # For now, just forcing to Dawn for Molly
-                        selected_rite = None
-                        for rite in combatant.crimson_rites():
-                            if rite.name == "Rite of the Dawn":
-                                selected_rite = rite
-                        if selected_rite.name != "":
-                            print_output(combatant.name + ' drags the blade of their ' + combatant.main_hand_weapon.name + ' across their skin, and ' + selected_rite.colour + ' light engulfs it as the Crimson ' + selected_rite.name + ' is activated! They suffer ' + repr(selected_rite.activation_damage) + ' points of damage.')
-                            deal_damage(combatant,combatant,selected_rite.activation_damage,damage_type.Generic,False)
-                            combatant.offhand_weapon.active_crimson_rite = selected_rite
+                        rite = select_crimson_rite(combatant)
+                        activate_crimson_rite(combatant,combatant.main_hand_weapon,rite)
+                        
+                        # Check if our offhand weapon has a rite active
+                        if combatant.offhand_weapon != None and combatant.offhand_weapon != combatant.main_hand_weapon and combatant.offhand_weapon.active_crimson_rite == None:
+                            # Check current HP
+                            if combatant.current_health >= characterlevel(combatant):
+                                rite = select_crimson_rite(combatant)
+                                activate_crimson_rite(combatant,combatant.offhand_weapon,rite)
+                                # Select the correct rite - this will need some sort of target analysis to choose rites based on potential weaknesses
+                                # For now, just forcing to Dawn for Molly
 
         # Fighter bonus actions
         #Second Wind
@@ -323,6 +304,18 @@ def repair_weapon(combatant):
         combatant.main_hand_weapon.ruined = True
         print_output(combatant.main_hand_weapon.name + ' has been ruined in the repair attempt! ' + combatant.name + ' needs to go back to their workshop to fix it! ')
 
+def select_crimson_rite(combatant):
+    selected_rite = None
+    for rite in combatant.crimson_rites():
+        if rite.name == "Rite of the Dawn":
+            selected_rite = rite
+    return(selected_rite)
+
+def activate_crimson_rite(combatant,weapon,rite):
+    print_output(combatant.name + ' drags the blade of their ' + weapon.name + ' across their skin, and ' + rite.colour + ' light engulfs it as the Crimson ' + rite.name + ' is activated!')
+    deal_damage(combatant,combatant,rite.activation_damage,damage_type.Generic,False)
+    resolve_damage(combatant)                            
+    weapon.active_crimson_rite = rite
 
 def use_luck(combatant):
     if combatant.luck_uses > 0:        

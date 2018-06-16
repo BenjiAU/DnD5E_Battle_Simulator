@@ -8,9 +8,6 @@ from battle_simulator.print_functions import *
 #Other imports
 import random
 import math
-import operator
-from operator import itemgetter, attrgetter
-from copy import copy
 
 def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source):
     bonus_damage = 0
@@ -137,7 +134,8 @@ def resolve_damage(combatant):
                         
             combatant.current_health = max(combatant.current_health - total_damage,0)
                         
-            print_output('Damage Summary: ' + damage_string)        
+            if settings.show_damage_summary:
+                print_output('Damage Summary: ' + damage_string)        
             print_output(combatant.name + ' suffers a total of ' + damage_text(repr(int(total_damage))) + ' points of damage. ' + hp_text(combatant.current_health,combatant.max_health))        
 
 def resolve_fatality(combatant):

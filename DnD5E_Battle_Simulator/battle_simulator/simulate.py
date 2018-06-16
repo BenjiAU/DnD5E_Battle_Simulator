@@ -12,12 +12,12 @@ from battle_simulator import fighters
 from battle_simulator import combatants
 
 #Implicit imports
+from battle_simulator.classes import *
 from battle_simulator.print_functions import *
 from battle_simulator.combat_functions.action import *
 from battle_simulator.combat_functions.target import *
 from battle_simulator.combat_functions.inventory import *
-from battle_simulator.combat_functions.movement import *
-from battle_simulator.classes import *
+from battle_simulator.combat_functions.position import *
 
 #System imports
 import operator
@@ -79,17 +79,19 @@ def simulate_battle():
         print_output(' ')      
         
         #Reset values on the global module list of combatants
+        print_output('<bResetting Combatants...</b>')
         initialise_combat.reset_combatants(combatants.list)
 
         #Re-initialise position for new round
         initialise_combat.set_starting_positions(combatants.list)
             
         # roll initiative #        
+        print_output('<b>Rolling Initiative...</b>')
         set_initiative_order()
         
         #print_output out combat order at top of attempt
         print_output("</br>")
-        print_output('Combat order: ')
+        print_output('Combat order established: ')
         combatorder = 0                   
         
         #Print initiative order and initialise targets
@@ -118,7 +120,7 @@ def simulate_battle():
             for combatant in combatants.list:        
                 if not round_complete:
                     print_output("</br>")
-                    print_output('It is now ' + combatant.name + '\'s turn. ' + hp_text(combatant.current_health,combatant.max_health) + '. Current Position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
+                    print_output('It is now ' + combatant.name + '\'s turn. ' + hp_text(combatant.current_health,combatant.max_health) + '. ' + position_text(combatant.xpos,combatant.ypos))
                     turn_complete = False
                     while not turn_complete:
                         # Continuously evaluate this subloop only while combatant is alive/conscious; if these conditions change, skip out to death handling

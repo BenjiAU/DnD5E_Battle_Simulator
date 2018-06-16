@@ -113,7 +113,7 @@ def initialise_class_features(combatant):
                 # Number of rounds rage can be sustained for
                 combatant.max_rage_duration = 10 
                 #+2 Rage Damage (1st through 8th)
-                combatant.ragedamage = 2
+                combatant.rage_damage = 2
             # Reckless Attack (2nd level)
             if class_instance.player_class_level >= 2:
                 combatant.reckless = True        
@@ -132,7 +132,7 @@ def initialise_class_features(combatant):
                 combatant.brutal_critical = True
                 combatant.brutal_critical_dice = 1
                 #+3 Rage Damage (9th through 16th)
-                combatant.ragedamage = 3
+                combatant.rage_damage = 3
             # Relentless (11th level)
             if class_instance.player_class_level >= 11:
                 combatant.relentless_rage = True
@@ -142,7 +142,7 @@ def initialise_class_features(combatant):
                 combatant.brutal_critical_dice = 2
             if class_instance.player_class_level >= 16:
                 #+3 Rage Damage (9th through 16th)
-                combatant.ragedamage = 4
+                combatant.rage_damage = 4
             # Brutal Critical (3 die, 17th level)
             if class_instance.player_class_level >= 17:
                 combatant.brutal_critical_dice = 3
@@ -203,7 +203,7 @@ def initialise_class_features(combatant):
             if class_instance.player_class_level >= 5:
                 combatant.crimson_rite_damage_die = 6
                 if combatant.extra_attack <= 1:
-                    combatant.extra_attack = 2
+                    combatant.extra_attack = 1
                 combatant.blood_maledict_uses = 2                              
             # Dark Velocity (+10 feet speed, AoO on you have disadvantge)
             if class_instance.player_class_level >= 11:

@@ -5,13 +5,6 @@ from battle_simulator import combatants
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
 
-#Other imports
-import random
-import math
-import operator
-from operator import itemgetter, attrgetter
-from copy import copy
-
 def find_target(combatant):    
     #Always set the target as a reference to the master list of combatants (to avoid having to constantly refresh to pick up changes in the target)
     combatant.target = None    

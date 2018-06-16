@@ -391,7 +391,7 @@ class weapon():
     ruined = bool()
 
     # Crimson Rite - when activated, the weapon inherits the crimson rite object off the player for damage calculation and to persist between turns
-    active_crimson_rite = crimson_rite()
+    active_crimson_rite = None
 
 class team():
     name = ""
@@ -427,8 +427,8 @@ class creature():
     saves = saving_throw_block()
     checks = ability_check_block()    
 
-    main_hand_weapon = weapon()
-    offhand_weapon = weapon() # Only populated if combatant is dual wielding and holding a different weapon in the off hand
+    main_hand_weapon = None # Weapon object
+    offhand_weapon = None # Only populated if combatant is dual wielding and holding a different weapon in the off hand
 
     armour_class = int()
     armour_type = armour_type()
@@ -492,7 +492,7 @@ class creature():
     #############
     barbarian_unarmored_defense = bool()
     canrage = bool()
-    ragedamage = int()
+    rage_damage = int()
     raging = bool()    
     rage_duration = int()
     max_rage_duration = int()

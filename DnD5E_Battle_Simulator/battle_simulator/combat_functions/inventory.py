@@ -5,13 +5,6 @@ from battle_simulator import combatants
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
 
-#Other imports
-import random
-import math
-import operator
-from operator import itemgetter, attrgetter
-from copy import copy
-
 def use_equipment(combatant):
     # Iterate through equipment and use any available spells (if possible)
     for eq in combatant.equipment_inventory():
@@ -98,7 +91,8 @@ def weapon_swap(combatant,current_range):
             print_output(combatant.name + ' raises their fist and prepares to strike!')
             return True
     
-    print_output(combatant.name + ' considered swapping their weapon, but decided against it. Main Hand: ' + combatant.main_hand_weapon.name + ' Off Hand: ' + combatant.offhand_weapon.name)
+    # Debug output - if characters aren't swapping weapons correctly, print this out
+    #print_output(combatant.name + ' considered swapping their weapon, but decided against it. Main Hand: ' + combatant.main_hand_weapon.name + ' Off Hand: ' + combatant.offhand_weapon.name)
     return False
 
 # Wield a weapon (check hands free and which weapon goes where)
