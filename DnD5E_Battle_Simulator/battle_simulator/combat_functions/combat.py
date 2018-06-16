@@ -378,9 +378,9 @@ def attack(combatant,weapon):
                             combatant.attacks_hit += 1
 
                             if feat_penalty == 0:
-                                print_output(combatant.name + '\'s attack with ' + weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' versus AC ' + repr(totalAC) + ')')            
+                                print_output(combatant.name + '\'s attack (' + repr(totalatk) + ') against '+ combatant.target.name + ' (AC ' + repr(totalAC) + ') with ' + weapon.name + ' HIT!!!')
                             else:
-                                print_output(combatant.name + '\'s attack with ' + weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' - ' + repr(feat_penalty) + ' = ' + repr(totalatk) + ' versus AC ' + repr(totalAC) + ')')            
+                                print_output(combatant.name + '\'s attack (' + repr(atkroll + to_hit_modifier) + '-' + repr(feat_penalty) + ') against '+ combatant.target.name + ' (AC ' + repr(totalAC) + ') with ' + weapon.name + ' HIT!!!')
                             if combatant.target.conscious == False and not crit and weapon.range == 0:
                                 print_output('The blow strikes the unconscious form of ' + combatant.target.name + ' and deals CRITICAL DAMAGE!')
                                 crit = True       
@@ -574,7 +574,7 @@ def attack(combatant,weapon):
 
                             resolve_fatality(combatant.target)
                         else:
-                            print_output(combatant.name + '\'s attack on ' + combatant.target.name + ' with ' + weapon.name + ' MISSED! (' + repr(totalatk) + ' versus AC ' + repr(totalAC) + ')')            
+                            print_output(combatant.name + '\'s attack (' + repr(totalatk) + ') against ' + combatant.target.name +  ' (AC ' + repr(totalAC) + ') with ' + weapon.name + ' MISSED!')        
                             #Update statistics
                             combatant.attacks_missed += 1
 

@@ -492,7 +492,7 @@ class creature():
     #############
     barbarian_unarmored_defense = bool()
     canrage = bool()
-    rage_damage = int()
+    ragedamage = int()
     raging = bool()    
     rage_duration = int()
     max_rage_duration = int()
