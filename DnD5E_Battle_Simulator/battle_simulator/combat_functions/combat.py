@@ -6,6 +6,8 @@ from battle_simulator.classes import *
 from battle_simulator.print_functions import *
 from battle_simulator.combat_functions.position import *
 from battle_simulator.combat_functions.damage import *
+from battle_simulator.combat_functions.generics import *
+from battle_simulator.combat_functions.conditions import *
 
 #Attack action
 def attack_action(combatant):
@@ -50,8 +52,8 @@ def attack_action(combatant):
         if not combatant.bonus_action_used and combatant.flurry_of_blows:                      
             if combatant.main_hand_weapon.weapon_type == weapon_type.Unarmed or combatant.main_hand_weapon.monk_weapon:
                 if combatant.ki_points > 0:
-                    print_output(combatant.name + ' spends 1 Ki Point and unleashes a Flurry of Blows! Current Ki Points: ' + repr(combatant.ki_points-1) + '/' + repr(combatant.max_ki_points))
                     combatant.ki_points -= 1
+                    print_output(combatant.name + ' spends 1 Ki Point and unleashes a Flurry of Blows! Current Ki Points: ' + repr(combatant.ki_points) + '/' + repr(combatant.max_ki_points))                    
                     orig_weapon = combatant.main_hand_weapon
                     combatant.main_hand_weapon = unarmed_strike(combatant)
                     attack(combatant,combatant.main_hand_weapon)
@@ -215,6 +217,10 @@ def attack(combatant,weapon):
                             if combatant.head_shotted:
                                 print_output(combatant.name + ' has disadvantage on the attack from an earlier Head Shot!')
 
+                        if check_condition(combatant.target,condition.Stunned):
+                            print_output(combatant.target.name + ' is Stunned, giving all attacks against it advantage!')
+                            advantage = True
+
                         #Check condition of target                
                         if combatant.target.prone and range_attack:
                             print_output(combatant.target.name + ' is prone on the ground, giving ' + combatant.name + ' disadvantage on the attack!')
@@ -277,8 +283,8 @@ def attack(combatant,weapon):
                                     # Head Shot #
                                     # Don't bother if they already have disadvantage/were head-shotted
                                     if not combatant.target.has_disadvantage or combatant.target.head_shotted:                                    
-                                        print_output(combatant.name + ' spends 1 Grit Point to perform a Head Trick Shot. Current Grit: ' + repr(combatant.current_grit-1))
                                         combatant.current_grit -= 1
+                                        print_output(combatant.name + ' spends 1 Grit Point to perform a Head Trick Shot. Current Grit: ' + repr(combatant.current_grit))                                        
                                         trick_shot_target = "Head"
                                         trick_shot = True
 
@@ -288,8 +294,8 @@ def attack(combatant,weapon):
                                     if not combatant.target.prone:
                                         # Only leg shot melee attackers
                                         if combatant.target.main_hand_weapon.range == 0:
-                                            print_output(combatant.name + ' spends 1 Grit Point to perform a Leg Trick Shot. Current Grit: ' + repr(combatant.current_grit-1))
                                             combatant.current_grit -= 1
+                                            print_output(combatant.name + ' spends 1 Grit Point to perform a Leg Trick Shot. Current Grit: ' + repr(combatant.current_grit))                                            
                                             trick_shot_target = "Legs"
                                             trick_shot = True
 
@@ -297,8 +303,8 @@ def attack(combatant,weapon):
                                     # Deadeye Shot (Gunslinger)
                                     if not advantage:
                                         #Spend grit to gain advantage. Do nothing if we have advantage.
-                                        print_output(combatant.name + ' spends 1 Grit Point to perform a Deadeye Shot. They gain advantage on the next attack! Current Grit: ' + repr(combatant.current_grit-1))
                                         combatant.current_grit -= 1
+                                        print_output(combatant.name + ' spends 1 Grit Point to perform a Deadeye Shot. They gain advantage on the next attack! Current Grit: ' + repr(combatant.current_grit))                                        
                                         advantage = True              
 
                                 if curr_grit == combatant.current_grit:
@@ -442,6 +448,7 @@ def attack(combatant,weapon):
                                                 dice_damage += die_damage
                                             combatant.sneak_attack_used = True
 
+                            ### Critical Hit features ###
                             if crit:
                                 dice_damage = dice_damage * 2
                                                                         
@@ -469,7 +476,8 @@ def attack(combatant,weapon):
                                     print_output(indent() + combatant.name + ' scored a Hemorraghing Critical!')
                                     #Set boolean to track and increase hemo damage (possible multiple crits per round)
                                     track_hemo = True                                                
-                
+                            
+                            # Feat damage features:
                             if combatant.use_sharpshooter:
                                 feat_bonus = 10
                                 print_output(indent() + combatant.name + ' dealt an additional ' + repr(feat_bonus) + ' damage because of Sharpshooter')
@@ -478,6 +486,7 @@ def attack(combatant,weapon):
                                 feat_bonus = 10
                                 print_output(indent() + combatant.name + ' dealt an additional ' + repr(feat_bonus) + ' damage because of Great Weapon Master')
                 
+                            # Total initial damage of attack
                             totaldamage = dice_damage + damage_modifier + feat_bonus            
 
                             if feat_bonus == 0:
@@ -492,10 +501,11 @@ def attack(combatant,weapon):
                                 combatant.target.hemo_damage_type = weapon_damage_type
                                 track_hemo = False
 
+                            ### Bonus damage effects
                             #Bonus damage (from weapon)
                             if weapon.bonus_damage_die > 0:
                                 print_output(indent() + 'The strike from ' + weapon.name + ' deals an additional ' + repr(weapon.bonus_damage_die_count) + 'd' + repr(weapon.bonus_damage_die) + ' ' + weapon.bonus_damage_type.name + ' damage!')
-                                resolve_bonus_damage(combatant,weapon.bonus_damage_target,weapon.bonus_damage_type,weapon.bonus_damage_die,weapon.bonus_damage_die_count,0,crit,weapon.name)
+                                resolve_bonus_damage(combatant,weapon.bonus_damage_target,weapon.bonus_damage_type,weapon.bonus_damage_die,weapon.bonus_damage_die_count,0,crit,weapon.name,weapon.magic)
 
                             # Bonus damage (from critical weapon effect, i.e. Arkhan's weapon)
                             if crit and weapon.crit_bonus_damage_die > 0:
@@ -592,6 +602,21 @@ def attack(combatant,weapon):
                 print_output(combatant.target.name + ' is dead on the ground, and not worthy of an attack.')
         else:
             print_output(combatant.target.name + ' is out of range of ' + weapon.name + '!')
+
+    #Post-Attack features/decisions
+    if attack_hit:
+        # Stunning Strike - after a hit, spend 1 ki point to stun
+        if combatant.stunning_strike and combatant.ki_points > 0:
+            # Do not burn stunning strike if target already stunned
+            if not check_condition(combatant.target,condition.Incapacitated):
+                combatant.ki_points -= 1
+                print_output(combatant.name + ' focuses on the flow of Ki in ' + combatant.target.name + '\'s body, and attempts a Stunning Strike! Current Ki Points: ' + repr(combatant.ki_points) + '/' + repr(combatant.max_ki_points))            
+                if savingthrow(combatant.target,saving_throw.Dexterity,conmod(combatant.target),combatant.target.saves.con_adv,8+combatant.proficiency+wismod(combatant)):
+                    print_output(combatant.target.name + ' resists the attempt to manipulate the flow of ki in their body, and is unaffected by the Stunning Strike!')
+                else:
+                    print_output(combatant.target.name + ' seizes up as the flow of Ki through their body is disrupted by the Stunning Strike!')
+                    inflict_condition(combatant.target,combatant,condition.Incapacitated,1)
+                    inflict_condition(combatant.target,combatant,condition.Stunned,1)
 
     return(attack_hit)
 

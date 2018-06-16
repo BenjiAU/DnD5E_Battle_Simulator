@@ -41,6 +41,30 @@ class statistic_block():
     wis  = int()
     cha = int()
 
+class creature_condition():
+    condition = int()
+    source = None
+    duration = int()
+
+class condition(Enum):
+    def __str__(self):
+        return str(self.value)    
+    Blinded = auto()
+    Charmed = auto()
+    Deafened = auto()
+    Fatigued = auto()
+    Frightened = auto()
+    Grappled = auto()
+    Incapacitated = auto()
+    Invisible = auto()
+    Paralyzed = auto()
+    Posioned = auto()
+    Prone = auto()
+    Restrained = auto()
+    Stunned = auto()
+    Unconscious = auto()
+    Exhaustion = auto()
+
 class player_class_block():
     player_class = int()
     player_class_level = int()
@@ -440,6 +464,11 @@ class creature():
             self._player_classes = []
         return self._player_classes
 
+    def creature_conditions(self):
+        if not hasattr(self, "_creature_conditions"):
+            self._creature_conditions = []
+        return self._creature_conditions
+
     def spell_list(self):
         if not hasattr(self, "_spell_list"):
             self._spell_list = []
@@ -674,9 +703,6 @@ class creature():
     disengaged = bool() #Has taken the Disengage action and does not provoke opportunity attacks
     dodging = bool() # Has taken the Dodge action and imparts disadvantage on inbound attacks
     
-    # Conditions
-    incapacitated = bool()
-
     # Tracks persistent advantage/disadvantage properties
     has_advantage = bool()
     has_disadvantage = bool() 
@@ -713,7 +739,7 @@ def melee_range():
 # Check if Great Weapon Fighting is allowed - must have Fighting Style, and appopriate weapon with the correct properties in both hands
 def greatweaponfighting(combatant):
     if (combatant.fighting_style == fighting_style.Great_Weapon_Fighting and 
-    ((combatant.main_hand_weapon.two_handed or combatant.main_hand_weapon.versatile) and combatant.off_hand_weapon == combatant.main_hand_wepaon)) :
+    ((combatant.main_hand_weapon.two_handed or combatant.main_hand_weapon.versatile) and combatant.offhand_weapon == combatant.main_hand_weapon)) :
         return True
     return False
 

@@ -4,6 +4,7 @@ from battle_simulator import combatants
 #Implicit imports
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
+from battle_simulator.combat_functions.generics import * 
 
 #Other imports
 import random

@@ -165,6 +165,7 @@ def init_percy(init_combatants):
     badnews.currentammo = 1
     badnews.misfire = 3
     
+    badnews.two_handed = True
     badnews.finesse = True
     badnews.magic = False
 

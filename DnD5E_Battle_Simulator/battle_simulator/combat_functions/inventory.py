@@ -57,38 +57,38 @@ def weapon_swap(combatant,current_range):
                 if combatant.main_hand_weapon != weapon:
                     # Draw ruined and cry if main hand weapon is ruined - making it here means there are no better options
                     if weapon.ruined and (combatant.main_hand_weapon.ruined):                        
-                        if wield(combatant,weapon,True):
-                            print_output(combatant.name + ' sadly puts away ' + combatant.main_hand_weapon.name + ' and draws out the ruined ' + weapon.name)                        
+                        print_output(combatant.name + ' sadly puts away ' + combatant.main_hand_weapon.name + ' and draws out the ruined ' + weapon.name)                        
+                        if wield(combatant,weapon,True):                            
                             return True
                     # Draw broken if we have to (i.e. main hand weapon is broken/ruined, and we need to repair the better one)                    
                     if weapon.broken and (combatant.main_hand_weapon.broken or combatant.main_hand_weapon.ruined):                          
-                        if wield(combatant,weapon,True):
-                            print_output('Frustrated, ' + combatant.name + ' stows ' + combatant.main_hand_weapon.name + ' and draws out the broken ' + weapon.name)                        
+                        print_output('Frustrated, ' + combatant.name + ' stows ' + combatant.main_hand_weapon.name + ' and draws out the broken ' + weapon.name)                        
+                        if wield(combatant,weapon,True):                            
                             return True
                     # If the weapon is neither broken nor ruined, and it makes it here, it's the best choice
                     if not weapon.ruined and not weapon.broken:                        
-                        if wield(combatant,weapon,True):
-                            print_output(combatant.name + ' stows ' + combatant.main_hand_weapon.name + ' and readies ' + weapon.name + ' in their main hand.')                        
+                        print_output(combatant.name + ' stows ' + combatant.main_hand_weapon.name + ' and readies ' + weapon.name)                        
+                        if wield(combatant,weapon,True):                            
                             return True
                     
             #Thrown weapon handling
             if combatant.main_hand_weapon.was_thrown:                    
                 if not weapon.was_thrown:                    
+                    print_output(combatant.name + ' draws  ' + weapon.name + ' after throwing their weapon')                        
                     if wield(combatant,weapon,True):
-                        print_output(combatant.name + ' draws  ' + weapon.name + ' after throwing their weapon')                        
                         return True
 
     # No weapon is equipped; draw one
     else:
-        for weapon in combatant.weapon_inventory():                            
-            if wield(combatant,weapon,False):                
-                print_output(combatant.name + ' draws their first weapon!')
+        for weapon in combatant.weapon_inventory():          
+            print_output(combatant.name + ' draws their first weapon!')
+            if wield(combatant,weapon,False):                                
                 return True
 
     if combatant.main_hand_weapon.name == "":
         # If no weapon has been equipped, and we haven't been able to draw one, equip a phantom 'Unarmed Strike' weapon
-        if wield(combatant,unarmed_strike(combatant),True):            
-            print_output(combatant.name + ' raises their fist and prepares to strike!')
+        print_output(combatant.name + ' raises their fist and prepares to strike!')
+        if wield(combatant,unarmed_strike(combatant),True):                        
             return True
     
     # Debug output - if characters aren't swapping weapons correctly, print this out
@@ -100,24 +100,24 @@ def wield(combatant,weapon,replace_mainhand):
     #If our main hand is empty, equip the weapon automatically
     if combatant.main_hand_weapon == None:        
         combatant.main_hand_weapon = weapon
-        print_output(combatant.name + ' begins wielding ' + weapon.name + ' in their main hand.')
+        print_output(indent() + combatant.name + ' begins wielding ' + weapon.name + ' in their main hand.')
         if weapon.two_handed or weapon.versatile:
             if combatant.offhand_weapon == None:    
-                print_output(combatant.name + ' grasps their weapon with both hands!')
+                print_output(indent() + combatant.name + ' grasps their weapon with both hands!')
                 combatant.offhand_weapon = weapon            
         return True
     # If our main hand is not empty but the weapon swap is forced to the main hand, equip the weapon
     elif combatant.main_hand_weapon != None and replace_mainhand:            
         combatant.main_hand_weapon = weapon
-        print_output(combatant.name + ' begins wielding ' + weapon.name + ' in their main hand.')
+        print_output(indent() + combatant.name + ' begins wielding ' + weapon.name + ' in their main hand.')
         if weapon.two_handed or weapon.versatile:
             if combatant.offhand_weapon == None:    
-                print_output(combatant.name + ' grasps their weapon with both hands!')
+                print_output(indent() + combatant.name + ' grasps their weapon with both hands!')
                 combatant.offhand_weapon = weapon                    
         return True    
     # If we are holding something in the main hand and have not specified the new weapon to overwrite the mainhand, equip the weapon to the offhand
     else:
-        print_output(combatant.name + ' begins wielding ' + weapon.name + ' in their off hand.')
+        print_output(indent() + combatant.name + ' begins wielding ' + weapon.name + ' in their off hand.')
         combatant.offhand_weapon = weapon
         return True
 

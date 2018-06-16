@@ -4,7 +4,9 @@ from battle_simulator import combatants
 #Implicit imports
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
-from battle_simulator.combat_functions.combat import *
+from battle_simulator.combat_functions.conditions import *
+
+from . import combat 
 
 from copy import copy
 
@@ -44,10 +46,10 @@ def use_movement(combatant):
             if combatant.movement > combatant.main_hand_weapon.range - calc_distance(combatant,combatant.target):
                 # Set our movement to the maximum range            
                 combatant.movement = combatant.main_hand_weapon.range - calc_distance(combatant,combatant.target)                             
-                # Movement must be at least higher than one grid or its not worth using
-                if combatant.movement >= 5:
-                    print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to increase distance, but stay within weapon range of ' + combatant.target.name)
-                    move_from_target(combatant,combatant.target)
+            # Movement must be at least higher than one grid or its not worth using
+            if combatant.movement >= 5:
+                print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to increase distance, but stay within weapon range of ' + combatant.target.name)
+                move_from_target(combatant,combatant.target)
         else:
             #Close the distance to be able to use weapon 
 
@@ -405,8 +407,8 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
     #Evaluate for each enemy unit
     enemies = get_living_enemies(combatant_before_move)
     for opportunity_attacker in enemies:                
-        #Only conscious enemies can make an opportunity attack
-        if opportunity_attacker.conscious:
+        #Only conscious enemies with capacity can make an opportunity attack
+        if opportunity_attacker.conscious and not check_condition(opportunity_attacker,condition.Incapacitated):
             # Evaluate only if reaction available
             if not opportunity_attacker.reaction_used:
                 # Only provoke opportunity attacks for melee weapons
@@ -427,7 +429,7 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
                         if combatant_before_move.disengaged:
                             print_output(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged!')
                         else:
-                            if attack(opportunity_attacker):
+                            if combat.attack(opportunity_attacker,opportunity_attacker.main_hand_weapon):
                                 for feat in opportunity_attacker.creature_feats():
                                     if feat == feat.Sentinel:
                                         #Successful opportunity attacks reduce creatures speed to 0

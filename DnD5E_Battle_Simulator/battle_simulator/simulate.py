@@ -18,6 +18,7 @@ from battle_simulator.combat_functions.action import *
 from battle_simulator.combat_functions.target import *
 from battle_simulator.combat_functions.inventory import *
 from battle_simulator.combat_functions.position import *
+from battle_simulator.combat_functions.conditions import *
 
 #System imports
 import operator
@@ -183,70 +184,78 @@ def simulate_battle():
                                     else:
                                         combatant.can_assassinate_target = False
 
-                                # Is the combatant wearing equipment? Evaluate and use if appropriate
-                                if combatant.equipment_inventory():
-                                    print_output('<b>Use Equipment:</b>')                            
-                                    use_equipment(combatant)
 
-                                # bonus action (pre-movement)#       
-                                if not combatant.bonus_action_used:                                    
-                                    bonus_action(combatant)      
+                                ### Begin actual turn operations ###
+                                if check_condition(combatant,condition.Incapacitated):
+                                    print_output(combatant.name + ' is incapacitated, and incapable of any action this turn!')
+                                else:
+                                    # Is the combatant wearing equipment? Evaluate and use if appropriate
+                                    if combatant.equipment_inventory():
+                                        print_output('<b>Use Equipment:</b>')                            
+                                        use_equipment(combatant)
 
-                                # use movement first #
-                                print_output('<b>Movement:</b>')
-                                movement(combatant)
+                                    # bonus action (pre-movement)#       
+                                    if not combatant.bonus_action_used:                                    
+                                        bonus_action(combatant)      
 
-                                if not combatant.conscious or not combatant.alive:
-                                    break
+                                    # use movement first #
+                                    print_output('<b>Movement:</b>')
+                                    movement(combatant)
 
-                                # bonus action (pre-action)#       
-                                if not combatant.bonus_action_used:                                    
-                                    bonus_action(combatant)     
+                                    if not combatant.conscious or not combatant.alive:
+                                        break
 
-                                if not combatant.conscious or not combatant.alive:
-                                    break
+                                    # bonus action (pre-action)#       
+                                    if not combatant.bonus_action_used:                                    
+                                        bonus_action(combatant)     
 
-                                # action #
-                                print_output('<b>Action:</b>')
-                                action(combatant)              
+                                    if not combatant.conscious or not combatant.alive:
+                                        break
+
+                                    # action #
+                                    print_output('<b>Action:</b>')
+                                    action(combatant)              
                                 
-                                if not combatant.conscious or not combatant.alive:
-                                    break
+                                    if not combatant.conscious or not combatant.alive:
+                                        break
 
-                                # bonus action (post-action)#       
-                                if not combatant.bonus_action_used:                                    
-                                    bonus_action(combatant)            
+                                    # bonus action (post-action)#       
+                                    if not combatant.bonus_action_used:                                    
+                                        bonus_action(combatant)            
 
-                                if not combatant.conscious or not combatant.alive:
-                                    break
+                                    if not combatant.conscious or not combatant.alive:
+                                        break
 
-                                # hasted action #
-                                if combatant.hasted_action and not combatant.hasted_action_used:
-                                    hasted_action(combatant)
-                                    combatant.hasted_action_used = True
+                                    # hasted action #
+                                    if combatant.hasted_action and not combatant.hasted_action_used:
+                                        hasted_action(combatant)
+                                        combatant.hasted_action_used = True
                                 
-                                if not combatant.conscious or not combatant.alive:
-                                    break
+                                    if not combatant.conscious or not combatant.alive:
+                                        break
 
-                                # additional abilities (action surge etc.)
-                                if combatant.action_surge > 0: 
-                                    print_output('********************')
-                                    print_output(combatant.name + ' summons all their might, and uses an Action Surge!')
-                                    print_output('********************')
-                                    combatant.action_surge -= 1
-                                    combatant.action_used = False;
-                                    print_output('<b>Action Surge action:</b>')
-                                    action(combatant)                                
+                                    # additional abilities (action surge etc.)
+                                    if combatant.action_surge > 0: 
+                                        print_output('********************')
+                                        print_output(combatant.name + ' summons all their might, and uses an Action Surge!')
+                                        print_output('********************')
+                                        combatant.action_surge -= 1
+                                        combatant.action_used = False;
+                                        print_output('<b>Action Surge action:</b>')
+                                        action(combatant)                                
                                 
-                                if not combatant.conscious or not combatant.alive:
-                                    break
-                                #print_output(combatant.name + "s new position: " + repr(combatant.position))
+                                    if not combatant.conscious or not combatant.alive:
+                                        break
+                                    #print_output(combatant.name + "s new position: " + repr(combatant.position))
                         
-                                # END OF TURN
+                                ### END OF TURN ACTIONS ###
 
                                 #Resolve events at the end of turn                                    
                                 print_output('<b>End of Turn:</b>')
-                                    
+                                
+                                # Update the duration counter on any conditions currently suffered by the combatant
+                                update_conditions(combatant)
+
                                 #Apply Hemorraging Critical damage
                                 resolve_hemo_damage(combatant)                   
                                 
@@ -273,6 +282,7 @@ def simulate_battle():
 
                                 #Mark the turn as complete
                                 print_output('That finishes ' + combatant.name + '\'s turn.')
+
                                 turn_complete = True
                             else:
                                 print_output(victory_text(combatant.name + ' has no valid targets! ' + combatant.team.name + ' wins!'))
