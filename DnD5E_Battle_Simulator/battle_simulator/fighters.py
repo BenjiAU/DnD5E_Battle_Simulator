@@ -607,10 +607,28 @@ def init_molly(init_combatants):
     molly.checks = mollychecks    
 
     #molly's weapons
-    # note that unarmed strikes are a property of the blood_hunter class, and Flurry of Blows will kick in automagically
+    # note that crimson rites are a property of the blood_hunter class and will be applied to weapons during combat
+    summersdance = weapon()
+    summersdance.name = "Summer's Dance"
+    summersdance.weapon_type = weapon_type.Scimitar;
+    summersdance.range = 0
+    
+    summersdance.damage_die = 6
+    summersdance.damage_die_count = 1
+    summersdance.weapon_damage_type = damage_type.Slashing
+    
+    summersdance.magic_to_hit_modifier = 1
+    summersdance.magic_damage_modifier = 1
+
+    summersdance.magic = True
+    summersdance.finesse = True
+    summersdance.light = True
+
+    molly.weapon_inventory().append(summersdance)
+
     scimitar = weapon()
     scimitar.name = "Scimitar"
-    scimitar.weapon_type = weapon_type.Shortsword;
+    scimitar.weapon_type = weapon_type.Scimitar;
     scimitar.range = 0
     
     scimitar.damage_die = 6
@@ -619,21 +637,7 @@ def init_molly(init_combatants):
     
     scimitar.finesse = True
     scimitar.light = True
-    molly.weapon_inventory().append(scimitar)
-
-    scimitar2 = weapon()
-    scimitar2.name = "Scimitar"
-    scimitar2.weapon_type = weapon_type.Shortsword;
-    scimitar2.range = 0
-    
-    scimitar2.damage_die = 6
-    scimitar2.damage_die_count = 1
-    scimitar2.weapon_damage_type = damage_type.Slashing
-    
-    scimitar2.finesse = True
-    scimitar2.light = True
-
-    molly.weapon_inventory().append(scimitar2)
+    molly.weapon_inventory().append(scimitar)        
     
     #molly's gear
     # combat stats # 

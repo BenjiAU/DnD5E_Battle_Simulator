@@ -213,6 +213,7 @@ class weapon_type(Enum):
     Axe = auto()
     Greataxe = auto()
     Shortsword = auto()
+    Scimitar = auto()
     Longsword = auto()
     Greatsword = auto()
     Quarterstaff = auto()

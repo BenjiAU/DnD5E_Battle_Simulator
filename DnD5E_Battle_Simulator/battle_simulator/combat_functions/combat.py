@@ -171,7 +171,7 @@ def attack(combatant,weapon):
         
                     combatant.use_sharpshooter = False
                     # Recalculate all +hit modifiers (based on main hand weapon, fighting style, ability modifiers etc.)
-                    to_hit_modifier = calc_to_hit_modifier(combatant)
+                    to_hit_modifier = calc_to_hit_modifier(combatant,weapon)
 
                     # Before-roll weapon features                    
 
@@ -331,7 +331,7 @@ def attack(combatant,weapon):
 
                         #Track critical 
                         crit = False
-                        if atkroll >= calc_min_crit(combatant):
+                        if atkroll >= calc_min_crit(combatant,weapon):
                             crit = True
                             print_output('************************')
                             print_output('It\'s a CRITICAL ROLE!!!')
@@ -406,7 +406,7 @@ def attack(combatant,weapon):
                             damage_modifier = calc_damage_modifier(combatant,weapon)
                             
                             # Calculate main attack dice
-                            print_output(indent() + weapon.name + ' deals ' + repr(weapon.damage_die_count) + 'd' + repr(weapon.damage_die) + ' + ' + repr(damage_modifier) + ' '  + weapon.weapon_damage_type.name + ' damage: ')
+                            print_output(indent() + 'The blow from ' + weapon.name + ' strikes true (' + repr(weapon.damage_die_count) + 'd' + repr(weapon.damage_die) + ' + ' + repr(damage_modifier) + ' '  + weapon.weapon_damage_type.name + ' damage)!')
                             weapon_damage_type = damage_type(weapon.weapon_damage_type)
                             for x in range(0,weapon.damage_die_count):                                    
                                 die_damage = roll_die(weapon.damage_die)   
@@ -500,7 +500,7 @@ def attack(combatant,weapon):
                             # Bonus damage (from critical weapon effect, i.e. Arkhan's weapon)
                             if crit and weapon.crit_bonus_damage_die > 0:
                                 print_output(indent() + weapon.name + ' surges with power, dealing bonus damage on a critical strike!')                            
-                                resolve_bonus_damage(combatant,0,weapon.crit_bonus_damage_type,weapon.crit_bonus_damage_die,weapon.crit_bonus_damage_die_count,0,crit,weapon.name)                        
+                                resolve_bonus_damage(combatant,0,weapon.crit_bonus_damage_type,weapon.crit_bonus_damage_die,weapon.crit_bonus_damage_die_count,0,crit,weapon.name,weapon.magic)                        
     
                             # Bonus damage (from Blood Hunter's Crimson Rite)
                             if combatant.crimson_rite:
@@ -512,26 +512,26 @@ def attack(combatant,weapon):
                                         if weapon.active_crimson_rite.bonus_damage_target == None or combatant.target.race == weapon.active_crimson_rite.bonus_damage_target:
                                             crimson_rite_bonus = weapon.active_crimson_rite.bonus_damage
 
-                                    resolve_bonus_damage(combatant,0,damage_type(weapon.active_crimson_rite.damage_type),combatant.crimson_rite_damage_die,1,crimson_rite_bonus,crit,weapon.active_crimson_rite.name)                        
+                                    resolve_bonus_damage(combatant,0,damage_type(weapon.active_crimson_rite.damage_type),combatant.crimson_rite_damage_die,1,crimson_rite_bonus,crit,weapon.active_crimson_rite.name,True)                        
 
                             #Bonus damage (from hand of Vecna, 2d8 cold damage on melee hit)
                             for item in combatant.equipment_inventory():
                                 if item.grants_equipment_spell == equipment_spells.HandOfVecna and weapon.range == 0:
                                     print_output(indent() + combatant.name + '\'s left hand crackles with power! They dealt bonus damage with the ' + item.name)
-                                    resolve_bonus_damage(combatant,0,item.damage_type,item.damage_die,item.damage_die_count,0,crit,item.name)
+                                    resolve_bonus_damage(combatant,0,item.damage_type,item.damage_die,item.damage_die_count,0,crit,item.name,True)
                         
                             # Bonus damage (from Barbarian Zealot's Divine Fury - 1d6 + half barbairna level, damage type selected by player)
                             if combatant.divine_fury:
                                 if not combatant.divine_fury_used:
                                     print_output(indent() + combatant.name + '\'s weapon crackles with the strength of their Divine Fury, dealing bonus damage (1d6 + half barbarian level)!')
 
-                                    resolve_bonus_damage(combatant,0,combatant.divine_fury_damage_type,6,1,math.floor(get_combatant_class_level(combatant,player_class.Barbarian)/2),crit,"Divine Fury")
+                                    resolve_bonus_damage(combatant,0,combatant.divine_fury_damage_type,6,1,math.floor(get_combatant_class_level(combatant,player_class.Barbarian)/2),crit,"Divine Fury",True)
                                     combatant.divine_fury_used = True
 
                             # Bonus damage (from Improved Divine Smite)
                             if combatant.improved_divine_smite:
                                 print_output(indent() + combatant.name + '\'s eyes glow, as their attacks are infused with radiant energy from Improved Divine Smite!')                                                    
-                                resolve_bonus_damage(combatant,0,damage_type.Radiant,8,1,0,crit,"Improved Divine Smite")
+                                resolve_bonus_damage(combatant,0,damage_type.Radiant,8,1,0,crit,"Improved Divine Smite",True)
 
                             #Conditionally cast spells/use items on crit after initial damage resolved
                             #Smite (ideally you would only do this on crit)
@@ -595,26 +595,26 @@ def attack(combatant,weapon):
 
     return(attack_hit)
 
-def calc_to_hit_modifier(combatant):
+def calc_to_hit_modifier(combatant,weapon):
     to_hit = 0
     # Add 2 for fighting style when using ranged weapon with Archery
-    if combatant.fighting_style == fighting_style.Archery and combatant.main_hand_weapon.range > 0:
+    if combatant.fighting_style == fighting_style.Archery and weapon.range > 0:
         to_hit += 2;
 
     # Add Dex modifier for finesse weapons, otherwise Str
     # Monk weapons also have this property (which is actually independent of Finesse)
-    if combatant.main_hand_weapon.finesse or combatant.main_hand_weapon.monk_weapon:
+    if weapon.finesse or weapon.monk_weapon:
         to_hit += dexmod(combatant)
     else:
         to_hit += strmod(combatant)
 
     # Add proficiency bonus if proficiency in weapon
     for combatant_weapon_proficiency in combatant.weapon_proficiency():
-        if combatant.main_hand_weapon.weapon_type != 0 and combatant.main_hand_weapon.weapon_type == combatant_weapon_proficiency:
+        if weapon.weapon_type != 0 and weapon.weapon_type == combatant_weapon_proficiency:
             to_hit += combatant.proficiency
 
     # Add weapon bonus (i.e. +3 weapon)
-    to_hit += combatant.main_hand_weapon.magic_to_hit_modifier
+    to_hit += weapon.magic_to_hit_modifier
         
     return to_hit
 
@@ -622,14 +622,14 @@ def calc_damage_modifier(combatant,weapon):
     additional_damage = 0
     
     # Do not add ability modifier to additional_damage on bonus action attacks (unless we have a feat or class feature)
-    if ((weapon == combatant.main_hand_weapon) or 
+    if ((weapon == weapon) or 
     (weapon == combatant.offhand_weapon and combatant.fighting_style == fighting_style.Two_Weapon_Fighting)):
         # Add Dex modifier for finesse weapons and range weapons if it is higher than Str;, otherwise Str
         # Monk weapons also have this property (which is actually independent of Finesse)
         if (dexmod(combatant) > strmod(combatant) and 
-        (combatant.main_hand_weapon.finesse or 
-        combatant.main_hand_weapon.monk_weapon or       
-        (combatant.main_hand_weapon.range > 0 and not combatant.main_hand_weapon.thrown))):        
+        (weapon.finesse or 
+        weapon.monk_weapon or       
+        (weapon.range > 0 and not weapon.thrown))):        
             additional_damage += dexmod(combatant)
         else:
             additional_damage += strmod(combatant)
@@ -639,13 +639,13 @@ def calc_damage_modifier(combatant,weapon):
         additional_damage += combatant.rage_damage
     
     # Add weapon bonus (i.e. +3 weapon)
-    additional_damage += combatant.main_hand_weapon.magic_damage_modifier
+    additional_damage += weapon.magic_damage_modifier
         
     return additional_damage
 
-def calc_min_crit(combatant):
+def calc_min_crit(combatant,weapon):
     min_crit = 20
     # Fighter - Gunslinger - Vicious Intent, crit on a 19 with Firearm
-    if combatant.vicious_intent and combatant.main_hand_weapon.weapon_type == weapon_type.Firearm:
+    if combatant.vicious_intent and weapon.weapon_type == weapon_type.Firearm:
         min_crit = 19
     return min_crit

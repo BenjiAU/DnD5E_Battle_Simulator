@@ -9,7 +9,7 @@ from battle_simulator.print_functions import *
 import random
 import math
 
-def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source):
+def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source,magic):
     bonus_damage = 0
     crit_damage = 0
     if (bonus_target == 0) or (bonus_target == combatant.target.race):
@@ -32,10 +32,10 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source)
                         
     if crit:
         print_output(indent() + combatant.name + ' dealt an additional ' + crit_damage_text(repr(crit_damage+flat)) + ' (roll = ' + repr(bonus_damage) + ') points of ' + type.name + ' damage with ' + source)
-        deal_damage(combatant,combatant.target,crit_damage+flat,type,combatant.main_hand_weapon.magic)
+        deal_damage(combatant,combatant.target,crit_damage+flat,type,magic)
     else:
         print_output(indent() + combatant.name + ' dealt an additional ' + damage_text(repr(bonus_damage+flat)) + ' points of ' + type.name + ' damage with ' + source)
-        deal_damage(combatant,combatant.target,bonus_damage+flat,type,combatant.main_hand_weapon.magic)
+        deal_damage(combatant,combatant.target,bonus_damage+flat,type,magic)
 
 def resolve_hemo_damage(combatant):        
     #Gunslinger - Hemorrhaging Shot; damage and type is stored against the target and resolved after the target takes its turn (treated as nonmagical always?)

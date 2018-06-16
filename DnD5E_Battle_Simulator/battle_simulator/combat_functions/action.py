@@ -78,7 +78,7 @@ def bonus_action(combatant):
         if not combatant.bonus_action_used:
             if combatant.canrage and not combatant.raging:
                 print_output(combatant.name + ' uses their Bonus Action to go into a mindless rage! "I would like to RAAAGE!!!"')
-                print_output(combatant.name + ' gains Resistance to Bludgeoning/Piercing/Slashing damage, Advantage on Strength Saving Throws and Ability Checks, and +' + repr(combatant.rage_damage) + ' to damage with melee attacks.)')
+                print_output(indent() + '(' + combatant.name + ' gains Resistance to Bludgeoning/Piercing/Slashing damage, Advantage on Strength Saving Throws and Ability Checks, and +' + repr(combatant.rage_damage) + ' to damage with melee attacks.)')
                 combatant.raging = True;
                 # Reset duration of this rage
                 combatant.rage_duration = 0
@@ -101,23 +101,19 @@ def bonus_action(combatant):
         # Blood Hunter bonus actions
         if not combatant.bonus_action_used:
             if combatant.crimson_rite:
-                # Check if our main hand weapon has a rite active
-                if combatant.main_hand_weapon.active_crimson_rite == None:
-                    # Check current HP
-                    if combatant.current_health >= characterlevel(combatant):
-                        # Select the correct rite - this will need some sort of target analysis to choose rites based on potential weaknesses
-                        # For now, just forcing to Dawn for Molly
+                # Check current HP
+                if combatant.current_health >= characterlevel(combatant):                    
+                    # Check if our main hand weapon has a rite active
+                    if combatant.main_hand_weapon.active_crimson_rite == None:
+                        # Select the correct rite - this will need some sort of target analysis to choose rites based on potential weaknesses                        
                         rite = select_crimson_rite(combatant)
                         activate_crimson_rite(combatant,combatant.main_hand_weapon,rite)
                         
-                        # Check if our offhand weapon has a rite active
-                        if combatant.offhand_weapon != None and combatant.offhand_weapon != combatant.main_hand_weapon and combatant.offhand_weapon.active_crimson_rite == None:
-                            # Check current HP
-                            if combatant.current_health >= characterlevel(combatant):
-                                rite = select_crimson_rite(combatant)
-                                activate_crimson_rite(combatant,combatant.offhand_weapon,rite)
-                                # Select the correct rite - this will need some sort of target analysis to choose rites based on potential weaknesses
-                                # For now, just forcing to Dawn for Molly
+                    # Check if our offhand weapon has a rite active
+                    if combatant.offhand_weapon != None and combatant.offhand_weapon != combatant.main_hand_weapon:
+                        if combatant.offhand_weapon.active_crimson_rite == None:
+                            rite = select_crimson_rite(combatant)
+                            activate_crimson_rite(combatant,combatant.offhand_weapon,rite)                        
 
         # Fighter bonus actions
         #Second Wind
@@ -312,10 +308,12 @@ def select_crimson_rite(combatant):
     return(selected_rite)
 
 def activate_crimson_rite(combatant,weapon,rite):
-    print_output(combatant.name + ' drags the blade of their ' + weapon.name + ' across their skin, and ' + rite.colour + ' light engulfs it as the Crimson ' + rite.name + ' is activated!')
-    deal_damage(combatant,combatant,rite.activation_damage,damage_type.Generic,False)
-    resolve_damage(combatant)                            
-    weapon.active_crimson_rite = rite
+    if not combatant.bonus_action_used:
+        print_output(combatant.name + ' drags the blade of their ' + weapon.name + ' across their skin, and ' + rite.colour + ' light engulfs it as the Crimson ' + rite.name + ' is activated!')
+        deal_damage(combatant,combatant,rite.activation_damage,damage_type.Generic,False)
+        resolve_damage(combatant)                            
+        weapon.active_crimson_rite = rite
+        combatant.bonus_action_used = True
 
 def use_luck(combatant):
     if combatant.luck_uses > 0:        
