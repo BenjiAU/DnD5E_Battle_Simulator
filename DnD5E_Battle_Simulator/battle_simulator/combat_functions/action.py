@@ -1,8 +1,9 @@
 #Explicit imports
 from battle_simulator import combatants
-
-from battle_simulator.print_functions import *
+from battle_simulator import classes
+from battle_simulator import print_functions
 from battle_simulator.combat_functions.combat import *
+from battle_simulator.combat_functions.damage import * 
 from battle_simulator.combat_functions.inventory import *
 from battle_simulator.combat_functions.position import *
 from battle_simulator.combat_functions.target import *

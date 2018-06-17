@@ -236,13 +236,18 @@ def simulate_battle():
 
                                     # additional abilities (action surge etc.)
                                     if combatant.action_surge > 0: 
-                                        print_output('********************')
-                                        print_output(combatant.name + ' summons all their might, and uses an Action Surge!')
-                                        print_output('********************')
-                                        combatant.action_surge -= 1
-                                        combatant.action_used = False;
-                                        print_output('<b>Action Surge action:</b>')
-                                        action(combatant)                                
+                                        # Don't blow action surge if current target is down; find a new target instead
+                                        if not combatant.target.alive or not combatant.target.conscious:
+                                            find_target(combatant)
+                                        # If we still have a target, use our action surge
+                                        if combatant.target:
+                                            print_output('********************')
+                                            print_output(combatant.name + ' summons all their might, and uses an Action Surge!')
+                                            print_output('********************')
+                                            combatant.action_surge -= 1
+                                            combatant.action_used = False;
+                                            print_output('<b>Action Surge action:</b>')
+                                            action(combatant)                                
                                 
                                     if not combatant.conscious or not combatant.alive:
                                         break
