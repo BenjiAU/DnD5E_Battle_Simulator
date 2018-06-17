@@ -5,6 +5,9 @@ from battle_simulator import combatants
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
 
+import operator
+from operator import itemgetter
+
 def use_equipment(combatant):
     # Iterate through equipment and use any available spells (if possible)
     for eq in combatant.equipment_inventory():
@@ -36,7 +39,7 @@ def use_equipment(combatant):
 
             #Re-equip the first weapon on the list                                
             if reequip_thrown_weapon:
-                wield(combatant,itemgetter(0)(combatant.weapon_inventory()))     
+                wield(combatant,itemgetter(0)(combatant.weapon_inventory()),False)     
                 print_output(combatant.name + ' draws ' + combatant.main_hand_weapon.name + ' and prepares to fight once more!')                        
 
 #Weapon swap

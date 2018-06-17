@@ -68,7 +68,7 @@ def print_combatant_table(combatant):
     string += Markup('<div class=combatant>')    
     string += Markup('<tr>')
     string += Markup('<td>')
-    string += Markup('<input type=checkbox name="combatant_' + combatant.name + '" value="'+ combatant.fullname+ '">')
+    string += Markup('<input type=checkbox checked="true" name="combatant_' + combatant.name + '" value="'+ combatant.fullname+ '">')
     string += Markup('</td>')
     string += Markup('<td>')
     string += Markup(combatant.fullname)

@@ -8,8 +8,10 @@ from battle_simulator.combat_functions.position import *
 from battle_simulator.combat_functions.damage import *
 from battle_simulator.combat_functions.generics import *
 from battle_simulator.combat_functions.conditions import *
+from battle_simulator.combat_functions.spells import cast_spell
+from battle_simulator.combat_functions.inventory import weapon_swap
+from battle_simulator.combat_functions.target import calculate_area_effect
 
-#Attack action
 def attack_action(combatant):
     #one set of rules for monsters
     if combatant.creature_type == creature_type.Monster:
@@ -434,11 +436,11 @@ def attack(combatant,weapon):
                                 if not combatant.sneak_attack_used:
                                     # Ensure weapon is appropriate for sneak attack
                                     if (weapon.range != 0) or weapon.finesse:
-                                        can_sneak_attack = False
+                                        can_sneak_attack = False                                        
                                         if advantage:
                                             print_output(indent() + combatant.name + ' has advantage on the strike, and gains Sneak Attack!')
                                             can_sneak_attack = True
-                                        elif enemy_in_melee_range(combatant.target,combatant) and not combatant.target.incapacitated: 
+                                        elif enemy_in_melee_range(combatant.target,combatant) and not check_condition(combatant,condition.Incapacitated): 
                                             print_output(indent() + 'Another enemy is in melee range of ' + combatant.target.name + ' so ' + combatant.name + ' gains Sneak Attack!')
                                             can_sneak_attack = True
                                         if can_sneak_attack:
@@ -446,7 +448,7 @@ def attack(combatant,weapon):
                                                 die_damage = roll_die(combatant.sneak_attack_damage_die)
                                                 print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.sneak_attack_damage_die) + ' (Sneak Attack Damage)')
                                                 dice_damage += die_damage
-                                            combatant.sneak_attack_used = True
+                                            combatant.sneak_attack_used = True                                            
 
                             ### Critical Hit features ###
                             if crit:
@@ -480,11 +482,11 @@ def attack(combatant,weapon):
                             # Feat damage features:
                             if combatant.use_sharpshooter:
                                 feat_bonus = 10
-                                print_output(indent() + combatant.name + ' dealt an additional ' + repr(feat_bonus) + ' damage because of Sharpshooter')
+                                print_output(doubleindent() + combatant.name + ' dealt an additional ' + repr(feat_bonus) + ' damage because of Sharpshooter')
 
                             if combatant.use_great_weapon_master:
                                 feat_bonus = 10
-                                print_output(indent() + combatant.name + ' dealt an additional ' + repr(feat_bonus) + ' damage because of Great Weapon Master')
+                                print_output(doubleindent() + combatant.name + ' dealt an additional ' + repr(feat_bonus) + ' damage because of Great Weapon Master')
                 
                             # Total initial damage of attack
                             totaldamage = dice_damage + damage_modifier + feat_bonus            

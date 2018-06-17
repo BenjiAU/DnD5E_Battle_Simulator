@@ -32,6 +32,7 @@
     <Compile Include="battle_simulator\classes.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="battle_simulator\combat_functions\spells.py" />
     <Compile Include="battle_simulator\combat_functions\generics.py" />
     <Compile Include="battle_simulator\combat_functions\conditions.py" />
     <Compile Include="battle_simulator\combat_functions\damage.py" />
@@ -45,6 +46,7 @@
     <Compile Include="battle_simulator\combat_functions\action.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="battle_simulator\combat_functions\__init__.py" />
     <Compile Include="battle_simulator\fighters.py" />
     <Compile Include="battle_simulator\initialise_combat.py">
       <SubType>Code</SubType>
