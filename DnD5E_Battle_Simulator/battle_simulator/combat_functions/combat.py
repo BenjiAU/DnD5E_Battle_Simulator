@@ -441,7 +441,7 @@ def attack(combatant,weapon):
                                             print_output(indent() + combatant.name + ' has advantage on the strike, and gains Sneak Attack!')
                                             can_sneak_attack = True
                                         elif enemy_in_melee_range(combatant.target,combatant) and not check_condition(combatant,condition.Incapacitated): 
-                                            print_output(indent() + 'Another enemy is in melee range of ' + combatant.target.name + ' so ' + combatant.name + ' gains Sneak Attack!')
+                                            print_output(indent() + 'Another enemy is in melee range of ' + combatant.target.name + ', granting ' + combatant.name + ' Sneak Attack!')
                                             can_sneak_attack = True
                                         if can_sneak_attack:
                                             for x in range(0,combatant.sneak_attack_damage_die_count):                                    
