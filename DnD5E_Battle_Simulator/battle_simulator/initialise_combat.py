@@ -35,14 +35,17 @@ def reset_combatants(init_combatants):
             weap.current_ammo = weap.ammunition
         
         # Wield the first weapon in inventory
-        wield(combatant,combatant.weapon_inventory()[0],True)
+        if len(combatant.weapon_inventory()) > 0:
+            wield(combatant,combatant.weapon_inventory()[0],True)
+
         # If the combatant has two weapon fighting, wield the next weapon in inventory as well
         if combatant.fighting_style == fighting_style.Two_Weapon_Fighting:
             if combatant.weapon_inventory()[1] != None:
                 wield(combatant,combatant.weapon_inventory()[1],False)
 
         # Clear any properties on the blade
-        combatant.main_hand_weapon.active_crimson_rite = None
+        if combatant.main_hand_weapon != None:
+            combatant.main_hand_weapon.active_crimson_rite = None
 
         # Reset equipment
         for eq in combatant.equipment_inventory():
@@ -346,14 +349,29 @@ def initialise_class_features(combatant):
             # Divine Smite (2nd level)
             if class_instance.player_class_level >= 2:
                 combatant.divine_smite = True
-                # Add Divine Smite to combatants spell-book
+                # Add Divine Smite to combatants spell-book if it doesn't exist (This is unique for spells as it's a class property, not a selected spell)
                 add_divine_smite = True
                 for existing_spell in combatant.spell_list():
                     if existing_spell.name == "Divine Smite":
                         add_divine_smite = False
                 if add_divine_smite: 
                     divine_smite = spell()
-                    init_spell(divine_smite,"Divine Smite",1,6,8,2,damage_type.Radiant,8,1,8,1,race.Undead,0)
+                    divine_smite.name == "Divine Smite"
+                    divine_smite.school = spell_school.Evocation
+                    divine_smite.min_spellslot_level = 1
+                    divine_smite.max_spellslot_level = 6
+                    divine_smite.casting_time = spell_casting_time.Instant
+                    divine_smite.range = 0
+                    divine_smite.origin = origin_point.Self
+
+                    divine_smite.damage_die = 8
+                    divine_smite.damage_die_count = 2
+                    divine_smite.damage_type = damage_type.Radiant
+                    divine_smite.bonus_damage_die = 8
+                    divine_smite.bonus_damage_die_count = 1
+                    divine_smite.bonus_damage_target = race.Undead
+                    divine_smite.damage_die_per_spell_slot = 8
+                    divine_smite.damage_die_count_per_spell_slot = 1
                     combatant.spell_list().append(divine_smite)
 
             # Channel Divinity
@@ -415,11 +433,83 @@ def initialise_class_features(combatant):
                 if class_instance.player_class_level >= 3:
                     combatant.assassinate = True       
 
+        #############
+        ## Warlock ##
+        #############
+        if class_instance.player_class == player_class.Warlock:
+            # Set up class features
+            # Set up spells
+            for spell in combatant.spell_list():
+                if spell.name == "Eldritch Blast":                    
+                    spell.school = spell_school.Evocation
+                    spell.min_spellslot_level = 0
+                    spell.max_spellslot_level = 0
+                    spell.spell_attack = True
+                    spell.casting_time = spell_casting_time.Action
+
+                    spell.range = 120
+                    spell.origin = origin_point.Self                    
+                    
+                    spell.damage_die = 10
+                    spell.damage_die_count = 1
+                    spell.damage_type = damage_type.Force
+
+                    spell.player_classes().append(player_class.Warlock)
+                    if class_instance.player_class_level >= 1:
+                        spell.instance = 1
+                        spell.description = "A crackling beam of energy leaps forward at the target!"
+                    if class_instance.player_class_level >= 5:
+                        spell.instance = 2
+                        spell.description = "Two crackling beams of energy leap forward at the target!"
+                    if class_instance.player_class_level >= 11:
+                        spell.instance = 3
+                        spell.description = "Three crackling beams of energy leap forward at the target!"
+                    if class_instance.player_class_level >= 17:
+                        spell.instance = 4
+                        spell.description = "Four crackling beams of energy leap forward at the target!"
+            
+        #############
+        ## Wizard ###
+        #############
+        if class_instance.player_class == player_class.Wizard:
+            # Set up class features
+            # Set up spells
+            for spell in combatant.spell_list():
+                if spell.name == "Firebolt":                    
+                    spell.school = spell_school.Evocation
+                    spell.min_spellslot_level = 0
+                    spell.max_spellslot_level = 0
+                    spell.spell_attack = True
+                    spell.spell_instance = 1
+                    spell.casting_time = spell_casting_time.Action
+                    spell.range = 120
+                    spell.origin = origin_point.Self                    
+                    
+                    spell.damage_die = 10
+                    
+                    spell.damage_type = damage_type.Fire
+                    spell.player_classes().append(player_class.Wizard)
+
+                    if class_instance.player_class_level >= 1:
+                        spell.damage_die_count = 1
+                        spell.description = "A mote of fire hurls towards the target!"
+                    if class_instance.player_class_level >= 5:
+                        spell.damage_die_count = 2
+                        spell.description = "A small globe of flame hurls towards the target!"
+                    if class_instance.player_class_level >= 11:
+                        spell.damage_die_count = 3
+                        spell.description = "A searing bolt of flame hurls towards the target!"
+                    if class_instance.player_class_level >= 17:
+                        spell.damage_die_count = 4
+                        spell.description = "A great roaring inferno hurls towards the target!"
+
 def initialise_class_spellslots(combatant):
     reset_spellslots(combatant)
+    # Add a 0 count level 0 spellslot to every player for cantrips
+    add_spellslot(combatant,0,0)
+
     ### Set maximum number of spellslots based on spells available to classes ###        
-    for class_instance in combatant.player_classes():
-        
+    for class_instance in combatant.player_classes():        
         ### Paladin Spellslots ###
         if class_instance.player_class == player_class.Paladin:
             #if class_instance.player_class_level = 1:
@@ -479,22 +569,7 @@ def add_spellslot(combatant,spell_level,spellslot_count):
 def reset_spellslots(combatant):
     combatant.spellslots().clear()
         
-
 def set_starting_positions(combatants):
     for combatant in combatants:
         combatant.xpos = combatant.starting_xpos
-        combatant.ypos = combatant.starting_ypos
-        
-def init_spell(new_spell,name,min_spellslot_level,max_spellslot_level,damage_die,damage_die_count,damage_type,damage_die_per_spell_slot,damage_die_count_per_spell_slot,bonus_damage_die,bonus_damage_die_count,bonus_damage_target,range):
-    new_spell.name = name
-    new_spell.min_spellslot_level = min_spellslot_level
-    new_spell.max_spellslot_level = max_spellslot_level
-    new_spell.damage_die = damage_die 
-    new_spell.damage_die_count = damage_die_count 
-    new_spell.damage_type = damage_type 
-    new_spell.damage_die_per_spell_slot = damage_die_per_spell_slot 
-    new_spell.damage_die_count_per_spell_slot = damage_die_count_per_spell_slot 
-    new_spell.bonus_damage_die = bonus_damage_die 
-    new_spell.bonus_damage_die_count = bonus_damage_die_count 
-    new_spell.bonus_damage_target = bonus_damage_target 
-    new_spell.range = range
+        combatant.ypos = combatant.starting_ypos        

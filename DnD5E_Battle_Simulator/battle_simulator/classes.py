@@ -11,6 +11,23 @@ class area_of_effect_shape(Enum):
     Square = auto()
     Cone = auto()
 
+class origin_point(Enum):
+    def __str__(self):
+        return str(self.value)    
+    Self = auto()
+    Target = auto()
+    PointInRange = auto()
+
+class attribute(Enum):
+   def __str__(self):
+       return str(self.value)   
+   Strength = auto()
+   Dexterity = auto()
+   Constitution = auto()
+   Intelligence = auto()
+   Wisdom = auto()
+   Charisma = auto()
+
 class ability_check_block():
     str_adv = bool()
     dex_adv = bool()
@@ -69,6 +86,7 @@ class player_class_block():
     player_class = int()
     player_class_level = int()
     player_subclass = int()
+    spellcasting_attribute = int()
     
 class player_class(Enum):
     def __str__(self):
@@ -201,6 +219,7 @@ class race(Enum):
     Construct = auto()
     Giant = auto()
     Beast = auto()
+    Monstrosity = auto()
 
 class subrace(Enum):
     def __str__(self):
@@ -234,7 +253,7 @@ class weapon_type(Enum):
     Firearm = auto()
     Dagger = auto()
     Crossbow = auto()
-    Axe = auto()
+    Handaxe = auto()
     Greataxe = auto()
     Shortsword = auto()
     Scimitar = auto()
@@ -281,6 +300,14 @@ class spell_school(Enum):
     Transmutation = auto()
     Necromancy = auto()
     Evocation = auto()
+
+class spell_casting_time(Enum):
+    def __str__(self):
+        return str(self.value)    
+    Action = auto()
+    Bonus_Action = auto()
+    Reaction = auto()
+    Instance = auto() # Instant spells apply basically automatically, i.e. Divine Smite
     
 #Spell slots
 # Generic object for tracking min/max spells and level
@@ -293,9 +320,30 @@ class spellslot():
 class spell():
    name = str()
    
+   description = str()
    #Spell school
    school = int()
    
+   #Player Class types that can cast this spell
+   def player_classes(self):
+        if not hasattr(self, "_player_classes"):
+            self._player_classes = []
+        return self._player_classes
+
+   #Minimum spell slot to be expended to cast spell (0 = cantrip)
+   min_spellslot_level = int()
+   
+   #Maximum spell slot to be expended with additional effect 
+   #(i.e. divine smite at 8th level has 5th level properties)
+   max_spellslot_level = int()
+
+   # Casting Time - normally action/bonus action
+   casting_time = int()
+
+   # True if this spell is a spell attack, false if it's a DC save (range attribute determines range or touch)
+   spell_attack = bool()   
+   # Instances of damage; i.e. Eldritch blast gains additional beams at 5th, 11th, 17th level
+   instance = int()
    # Castable range of spell to origin (i..e fireball = 150ft)
    range = int()
    # Spells' origin (point at which spell originates (i.e. fireball erupts from point you choose in range)
@@ -311,13 +359,7 @@ class spell():
    # Cost in GP for material (as if we'll ever get to that point)
    material_cost = int()
 
-   #Minimum spell slot to be expended to cast spell (0 = cantrip)
-   min_spellslot_level = int()
-   
-   #Maximum spell slot to be expended with additional effect 
-   #(i.e. divine smite at 8th level has 5th level properties)
-   max_spellslot_level = int()
-
+   #Damage information
    damage_die = int()
    damage_die_count = int()
    damage_type = int()
@@ -325,14 +367,19 @@ class spell():
    #Additional damage to deal per spell slot gap between min_spell_slot (up to max)
    damage_die_per_spell_slot = int()
    damage_die_count_per_spell_slot = int()
-
+   
+   #Additional damage to deal based on class level
+   damage_die_per_class_level = int()
+   damage_die_count_per_class_level = int()
+   
    #Bonus damage based on target
    bonus_damage_die = int()
    bonus_damage_die_count = int()
    bonus_damage_target = int()
-
+       
+   #Saving throw information; DC is set on the spell object 
    saving_throw = int()
-   saving_throw_dc = int()
+   saving_throw_dc = int()   
 
 #various damage types
 class damage_type(Enum):
@@ -341,6 +388,7 @@ class damage_type(Enum):
     Piercing = auto()
     Slashing = auto()
     Bludgeoning = auto()
+    Force = auto()
     Fire = auto()
     Cold = auto()
     Lightning = auto()
@@ -418,6 +466,8 @@ class weapon():
     # Crimson Rite - when activated, the weapon inherits the crimson rite object off the player for damage calculation and to persist between turns
     active_crimson_rite = None
 
+    # Warlock Pact of the Blade weapon toggle (flavour mainly)
+    pact_weapon = bool()
 class team():
     name = ""
     no_of_wins = int()
@@ -454,6 +504,7 @@ class creature():
 
     main_hand_weapon = None # Weapon object
     offhand_weapon = None # Only populated if combatant is dual wielding and holding a different weapon in the off hand
+    spellcaster = bool() #Simple boolean value to describe whether this character should focus on casting spells, or using weapons
 
     armour_class = int()
     armour_type = armour_type()

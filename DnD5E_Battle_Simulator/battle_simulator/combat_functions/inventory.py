@@ -88,7 +88,7 @@ def weapon_swap(combatant,current_range):
             if wield(combatant,weapon,False):                                
                 return True
 
-    if combatant.main_hand_weapon.name == "":
+    if combatant.main_hand_weapon == None:
         # If no weapon has been equipped, and we haven't been able to draw one, equip a phantom 'Unarmed Strike' weapon
         print_output(combatant.name + ' raises their fist and prepares to strike!')
         if wield(combatant,unarmed_strike(combatant),True):                        

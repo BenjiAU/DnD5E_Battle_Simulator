@@ -2,78 +2,118 @@ from battle_simulator import combatants
 from battle_simulator.classes import * 
 from battle_simulator.print_functions import * 
 from battle_simulator.combat_functions.damage import * 
+from battle_simulator.combat_functions.generics import *
+from battle_simulator.combat_functions.position import *
 import operator
 from operator import attrgetter
 
-#Cast a spell  
-def cast_spell(combatant,spell,crit):
+def select_spell(combatant,casttime):
+    best_spell = None
+    #Check that the target is in a condition to warrant casting the spell on?
+    if combatant.target.conscious:    
+        for spell in combatant.spell_list():
+            if spell.casting_time == casttime:
+                #Check that components (V,S,M) are available for spell?
+                #Evaluate if spell is targetted or self (i.e. buff?)?
+
+                #Check that target is in range of spell (spells with range 0 always satisfy this condition - i.e. Divine Smite is tied to attack)
+                if (spell.range == 0) or calc_distance(combatant,combatant.target) <= spell.range:
+                    # Only select spells we have a spellslot for
+                    spellslot = get_highest_spellslot(combatant,spell)
+                    #See if a spellslot was returned by the function
+                    if spellslot:                               
+                        # Choose the first spell we find, or check the total potential damage of the spell to decide which one to use
+                        if best_spell == None or (spell.instance*(spell.damage_die_count*spell.damage_die)) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
+                            best_spell = spell
+
+    return best_spell
+
+#Cast a spell  - if Crit is forced use it
+def cast_spell(combatant,spell,crit = None):
     #Check if a spell slot is available to be used
     #Always use highest level spellslot to cast spell (for now...)
     spellslot = get_highest_spellslot(combatant,spell)
     #See if a spellslot was returned by the function
     if spellslot:               
-        #Check that components (V,S,M) are available for spell?
-        #Evaluate if spell is targetted or self (i.e. buff?)?
-        #Check that the target is in a condition to warrant casting the spell on?
-        if combatant.target.conscious:
-            #Check that target is in range of spell (spells with range 0 always satisfy this condition - i.e. Divine Smite is tied to attack)
-            if (spell.range == 0) or calc_distance(combatant,combatant.target) <= spell.range:
-                #Resolve saving throw
-                #if spell.saving_throw:
-                    #Resolve saving throw to see if damage/condition is applied
-                #Consume the spell slot from player's available slots
-                print_output(combatant.name + ' is burning a ' + numbered_list(spellslot.level) + ' level spellslot to cast ' + spell.name)                            
-                # Deduct one usage from the spellslot
-                spellslot.current -= 1             
-            
-                print_output(indent() + 'Rolling spell damage:')                        
-                spell_damage = 0
-                if spell.damage_die > 0:
-                    # Start with base damage of spell
-                    for x in range(0,spell.damage_die_count):
-                        die_damage = roll_die(spell.damage_die)
-                        print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die) + ' (Spell Damage)')
-                        spell_damage += die_damage
+        # Deduct one usage from the spellslot (not cantrips)
+        if spellslot.level == 0:
+            print_output(combatant.name + ' is casting the Cantrip ' + spell.name + ': ' + spell.description)
+        else:
+            #Consume the spell slot from player's available slots
+            print_output(combatant.name + ' is burning a ' + numbered_list(spellslot.level) + ' level spellslot to cast ' + spell.name)                            
+            spellslot.current -= 1     
 
-                    #Add additional damage for levels of expended spell slot
-                    if spellslot.level > spell.min_spellslot_level:
-                        # If the spell gains no benefit for spells higher than the maximum, we still burn the higher slot, but only get benefit from the maximum against the spell                
-                        if spell.max_spellslot_level < spellslot.level:
-                            spellslot_bonus = spell.max_spellslot_level
-                        else:
-                            spellslot_bonus = spellslot.level                
-                
-                        for x in range(spell.min_spellslot_level,spellslot_bonus):
-                            for y in range(0,spell.damage_die_count_per_spell_slot):
-                                die_damage = roll_die(spell.damage_die_per_spell_slot)
-                                print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die_per_spell_slot) + ' (Additional Spell Damage from Spell Slot)')
-                                spell_damage += die_damage
+        # Make spell attack (if spell is an attack)
+        if spell.spell_attack:            
+            # Make one attack per instance
+            i = 0
+            while i <= spell.instance:
+                spell_attack(combatant,combatant.target,spell,spellslot)
+                i += 1                     
+        else:
+            # Automatically resolve spell damage on spells i.e. Divine Smite
+            resolve_spell_damage(combatant,combatant.target,spell,crit)
+        #Resolve saving throw
+        #if spell.saving_throw:
+            #Resolve saving throw to see if damage/condition is applied                                                                                   
 
-                    #Add bonus damage
-                    if combatant.target.race == spell.bonus_damage_target:
-                        for x in range(0,spell.bonus_damage_die_count):
-                            die_damage = roll_die(spell.bonus_damage_die)
-                            spell_damage += die_damage
-            
-                #Double dice if crit
-                if crit:
-                    spell_damage = spell_damage * 2
-                # Add modifier
+        #Resolve spell damage after attacks landed/saving throws failed and all instances are accounted for
+        resolve_damage(combatant.target)
 
-                print_output(indent() + combatant.name + ' cast ' + spell.name + ' and dealt a total of ' + repr(spell_damage) + ' points of ' + spell.damage_type.name + ' damage!')                    
-                deal_damage(combatant,combatant.target,spell_damage,spell.damage_type,True)
-                #Resolve spell damage immediately
-                resolve_damage(combatant.target)
+        #Check if we have spellslots left (except cantrips)
+        if spellslot.level != 0 and spellslot.current == 0:
+            print_output(combatant.name + ' has no ' + numbered_list(spellslot.level) + ' level spellslots remaining!')
 
-                #Check if we have spellslots left
-                if spellslot.current == 0:
-                    print_output(combatant.name + ' has no ' + numbered_list(spellslot.level) + ' level spellslots remaining!')
+def spell_attack(combatant,target,spell,spellslot):
+    advantage = False
+    disadvantage = False    
+    crit = False
 
-def get_highest_spellslot(combatant,spell):
+    determine_advantage(combatant,spell.range > 0,advantage,disadvantage)
+    spell_hit_modifier = calc_spell_hit_modifier(combatant,spell)
+    atkroll = attack_roll(combatant,advantage,disadvantage,spell_hit_modifier)    
+    if atkroll == 20:
+        crit = True
+        print_output('************************')
+        print_output('It\'s a CRITICAL ROLE!!!')
+        print_output('************************')
+    
+    totalatk = atkroll + spell_hit_modifier;
+    totalAC = calc_total_AC(target)
+    if totalatk >= calc_total_AC(target):
+        print_output(combatant.name + '\'s spell attack (' + repr(totalatk) + ') against '+ combatant.target.name + ' (AC ' + repr(totalAC) + ') with ' + spell.name + ' HIT!!!')
+        resolve_spell_damage(combatant,combatant.target,spell,spellslot,crit)
+        combatant.attacks_hit += 1
+    else:        
+        print_output(combatant.name + '\'s spell attack (' + repr(totalatk) + ') against ' + combatant.target.name +  ' (AC ' + repr(totalAC) + ') with ' + spell.name + ' MISSED!')        
+        #Update statistics
+        combatant.attacks_missed += 1
+
+
+def calc_spell_hit_modifier(combatant,spell):
+    to_hit_modifier = 0
+
+    for spell_player_class in spell.player_classes():
+        for player_class_block in combatant.player_classes():            
+            if spell_player_class == player_class_block.player_class:
+                player_spellcasting_attribute = player_class_block.spellcasting_attribute
+    if player_spellcasting_attribute == attribute.Intelligence:
+        to_hit_modifier = intmod(combatant)
+    elif player_spellcasting_attribute == attribute.Wisdom:
+        to_hit_modifier = wismod(combatant)
+    elif player_spellcasting_attribute == attribute.Charisma:
+        to_hit_modifier = chamod(combatant)
+
+    to_hit_modifier += combatant.proficiency
+    return (to_hit_modifier)
+
+def get_highest_spellslot(combatant,spell):    
     # Sort spells by level (use highest slots first)
     initkey = operator.attrgetter("level")
     sorted_spells = sorted(combatant.spellslots(), key=initkey,reverse=True)    
 
     for spellslot in sorted_spells:
-        if spellslot.level >= spell.min_spellslot_level and spellslot.current > 0:
-            return spellslot             
+        if spellslot.level >= spell.min_spellslot_level:
+            # 0 level spellslots are cantrips, and always returned. Otherwise we must have enough spells remaining
+            if spellslot.level == 0 or spellslot.current > 0:
+                return spellslot             

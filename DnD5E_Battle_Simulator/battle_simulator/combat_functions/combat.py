@@ -210,45 +210,7 @@ def attack(combatant,weapon):
                     #Advantage/disadvantage conditions (not weapon specific)                
                     if not attackcomplete:
 
-                        # Inter-round advantage/disadvantage conditions, which are managed by various status-es
-                        if combatant.has_advantage:
-                            advantage = True
-
-                        if combatant.has_disadvantage:
-                            disadvantage = True
-                            if combatant.head_shotted:
-                                print_output(combatant.name + ' has disadvantage on the attack from an earlier Head Shot!')
-
-                        if check_condition(combatant.target,condition.Stunned):
-                            print_output(combatant.target.name + ' is Stunned, giving all attacks against it advantage!')
-                            advantage = True
-
-                        #Check condition of target                
-                        if combatant.target.prone and range_attack:
-                            print_output(combatant.target.name + ' is prone on the ground, giving ' + combatant.name + ' disadvantage on the attack!')
-                            disadvantage = True
-
-                        #Check assassination flag
-                        if combatant.can_assassinate_target:
-                            print_output(combatant.name + ' reacts with supernatural speed, and can Assassinate ' + combatant.target.name + ', gaining advantage on the attack')
-                            advantage = True
-
-                        #Did the target use reckless attack last round?
-                        #Should this apply only to melee attacks? Removed that condition for now
-                        if combatant.target.use_reckless:
-                            print_output(combatant.name + ' has advantage on the attack, as ' + combatant.target.name + ' used Reckless Attack last round!')
-                            advantage = True
-
-                        #Can we use reckless attack?
-                        if combatant.reckless and not advantage:
-                            combatant.use_reckless = True
-                            print_output(combatant.name + ' uses Reckless Attack, gaining advantage on the strike')
-                            advantage = True
-
-                        #Is Vow of Enmity up?
-                        if combatant.vow_of_enmity_target == combatant.target:
-                            print_output(combatant.name + ' has advantage on the strike from their Vow of Enmity!')
-                            advantage = True
+                        determine_advantage(combatant,range_attack,advantage,disadvantage)                        
                     
                         #Modifier conditions (i.e. GWM, sharpshooter)       
                         if range_attack:                            
@@ -312,30 +274,16 @@ def attack(combatant,weapon):
                                 if curr_grit == combatant.current_grit:
                                     print_output(combatant.name + ' decides to forego spending a Grit point on this attack.')
 
-                    # Make attack roll # 
-                    if not attackcomplete:
-                        initroll = roll_die(20)                    
-                        if advantage and disadvantage:
-                            print_output(combatant.name + ' has both advantage and disadvantage on the attack, and rolled a ' + repr(initroll) + ' on a d20 with a +' + repr(to_hit_modifier) + ' to hit')
-                            atkroll = initroll
-                        if advantage and not disadvantage:
-                            advroll = roll_die(20)
-                            print_output(combatant.name + ' has advantage on the attack, and rolled a ' + repr(initroll) + ' and a ' + repr(advroll) + ' on a d20 with a +' + repr(to_hit_modifier) + ' to hit')
-                            atkroll = max(initroll,advroll)
-                        if disadvantage and not advantage:
-                            disadvroll = roll_die(20)
-                            print_output(combatant.name + ' has disadvantage on the attack, and rolled a ' + repr(initroll) + ' and a ' + repr(disadvroll) + ' on a d20 with a +' + repr(to_hit_modifier) + ' to hit')
-                            atkroll = min(initroll,disadvroll)
-                        if not advantage and not disadvantage:
-                            atkroll = initroll
-                            print_output(combatant.name + ' rolled a ' + repr(initroll) + ' on a d20 for the attack with a +' + repr(to_hit_modifier) + ' to hit')                               
+                    # Make attack roll #                     
+                    if not attackcomplete:                        
+                        atkroll = attack_roll(combatant,advantage,disadvantage,to_hit_modifier)
                         
                         #Decide if we need to use luck to reroll
-                            #If the savingthrow fails, and we could make it with a decent roll (say higher than 15), and we have luck, spend luck to reroll the d20
+                        #If the attack misses, see if we can hit with Luck
                         if combatant.luck_uses > 0 and (atkroll + to_hit_modifier < combatant.target.armour_class):
                             luck_roll = use_luck(combatant)
                             if luck_roll > atkroll:                                
-                                atkroll = luck_roll                                                                
+                                atkroll = luck_roll          
 
                         #Track critical 
                         crit = False
@@ -378,7 +326,7 @@ def attack(combatant,weapon):
                             feat_penalty = 5
                             totalatk = totalatk-feat_penalty
                 
-                        totalAC = combatant.target.armour_class + combatant.target.hasted_bonus_armour
+                        totalAC = calc_total_AC(combatant.target)
 
                         if totalatk >= totalAC:
                             attack_hit = True

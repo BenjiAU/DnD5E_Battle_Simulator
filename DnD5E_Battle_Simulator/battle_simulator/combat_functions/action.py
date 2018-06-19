@@ -3,6 +3,7 @@ from battle_simulator import combatants
 from battle_simulator import classes
 from battle_simulator import print_functions
 from battle_simulator.combat_functions.combat import *
+from battle_simulator.combat_functions.spells import *
 from battle_simulator.combat_functions.damage import * 
 from battle_simulator.combat_functions.inventory import *
 from battle_simulator.combat_functions.position import *
@@ -21,6 +22,17 @@ def action(combatant):
                     breath_attack(combatant)
                     combatant.action_used = True
 
+        # Cast a Spell
+        if not combatant.action_used:
+            # See if we have any action-cost spells to use
+            if combatant.spellcaster:
+                # Select an appropriate action-cost spell
+                selected_spell = select_spell(combatant,spell_casting_time.Action)                
+                if selected_spell != None:                    
+                    cast_spell(combatant,selected_spell)
+                    combatant.action_used = True
+
+        # If we get to this point, use our default attack if available
         if not combatant.action_used:
             # Swap to a different weapon if it makes sense due to range                    
             current_range = calc_distance(combatant,combatant.target)

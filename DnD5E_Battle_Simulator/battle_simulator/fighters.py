@@ -6,11 +6,14 @@ def initialise_combatants(init_combatants):
     init_grog(init_combatants)
     init_vax(init_combatants)
 
-    init_yasha(init_combatants)
-    init_nott(init_combatants)
+    init_fjord(init_combatants)
     init_beau(init_combatants)
+    init_caleb(init_combatants)
+    init_nott(init_combatants)
+    init_jester(init_combatants)
     init_molly(init_combatants)
-
+    init_yasha(init_combatants)
+    
     init_hill_giant(init_combatants)
     init_arkhan(init_combatants)
     init_umbrasyl(init_combatants)
@@ -264,7 +267,7 @@ def init_grog(init_combatants):
     grog.armour_class = 17
     grog.speed = 50
     grog.proficiency = calc_proficiency(grog)
-    grog.weapon_proficiency().append(weapon_type.Axe)
+    grog.weapon_proficiency().append(weapon_type.Greataxe)
 
     grog.creature_feats().append(feat.Great_Weapon_Master)
 
@@ -298,7 +301,7 @@ def init_grog(init_combatants):
     #Grog's weapons
     bloodaxe = weapon()
     bloodaxe.name = "Blood Axe"
-    bloodaxe.weapon_type = weapon_type.Axe;
+    bloodaxe.weapon_type = weapon_type.Greataxe;
     bloodaxe.range = 0
     
     bloodaxe.damage_die = 12
@@ -481,6 +484,90 @@ def init_vax(init_combatants):
     init_combatants.append(vax)    
 
 # The Mighty Nein
+def init_fjord(init_combatants):
+
+    #yasha
+    fjord = creature()
+
+    fjord.notes = "Pact of the Blade Warlock"
+
+    fjord.fullname = "Fjord Falcon"
+    fjord.name = "Fjord"
+    fjord.race = race.Half_Orc
+    fjord.creature_type = creature_type.Player
+
+    warlock_class = player_class_block()
+    warlock_class.player_class = player_class.Warlock
+    warlock_class.player_subclass = player_subclass.PactOfTheBlade
+    warlock_class.player_class_level = 5
+    warlock_class.spellcasting_attribute = attribute.Charisma
+    fjord.player_classes().append(warlock_class)
+
+    #fjord.fighting_style = fighting_style.Great_Weapon_Fighting
+    fjord.max_health = 41
+    fjord.armour_class = 17 #Shield?
+    fjord.speed = 30
+    fjord.proficiency = calc_proficiency(fjord)
+    fjord.weapon_proficiency().append(weapon_type.Longsword)       
+    fjord.spellcaster = True
+    
+    #Stats
+    fjordstats = statistic_block()
+    fjordstats.str = 11
+    fjordstats.dex = 11
+    fjordstats.con = 18
+    fjordstats.intel = 14
+    fjordstats.wis = 7
+    fjordstats.cha = 18
+
+    fjord.stats = fjordstats
+    
+    #Saves
+    fjordsaves = saving_throw_block()    
+    fjordsaves.str = 1
+    fjordsaves.dex = 1
+    fjordsaves.con = 5
+    fjordsaves.intel = 3
+    fjordsaves.wis = 2
+    fjordsaves.cha = 8
+    
+    fjord.saves = fjordsaves
+
+    #Ability Checks
+    fjordchecks = ability_check_block()
+    
+    fjord.checks = fjordchecks    
+
+    #fjord's weapons
+    wastehunter_falchion = weapon()
+    wastehunter_falchion.name = "Wastehunter Falchion"
+    wastehunter_falchion.weapon_type = weapon_type.Longsword;
+    wastehunter_falchion.range = 0    
+    
+    wastehunter_falchion.damage_die = 8
+    wastehunter_falchion.damage_die_count = 1
+    wastehunter_falchion.weapon_damage_type = damage_type.Slashing
+    
+    wastehunter_falchion.bonus_damage_die = 6
+    wastehunter_falchion.bonus_damage_die_count = 1
+    wastehunter_falchion.bonus_damage_type = damage_type.Necrotic
+    wastehunter_falchion.bonus_damage_target = race.Monstrosity
+    
+    wastehunter_falchion.versatile = True
+    wastehunter_falchion.magic = True
+    wastehunter_falchion.pact_weapon = True
+    
+    fjord.weapon_inventory().append(wastehunter_falchion)
+    
+    # Fjord's spells - spells are initialised/damage dice calculated during initialisation 
+    eldritch_blast = spell()
+    eldritch_blast.name = "Eldritch Blast"
+    fjord.spell_list().append(eldritch_blast)
+
+
+
+    init_combatants.append(fjord)    
+
 def init_beau(init_combatants):
 
     #yasha
@@ -554,6 +641,228 @@ def init_beau(init_combatants):
     # combat stats # 
 
     init_combatants.append(beau)    
+
+def init_caleb(init_combatants):
+
+    #yasha
+    caleb = creature()
+
+    caleb.notes = "Transmutation Wizard"
+
+    caleb.fullname = "Caleb Widowgast"
+    caleb.name = "Caleb"
+    caleb.race = race.Human
+    caleb.creature_type = creature_type.Player
+
+    wizard_class = player_class_block()
+    wizard_class.player_class = player_class.Wizard
+    wizard_class.player_subclass = player_subclass.Transmutation
+    wizard_class.player_class_level = 5
+    wizard_class.spellcasting_attribute = attribute.Intelligence
+    caleb.player_classes().append(wizard_class)
+
+    #caleb.fighting_style = fighting_style.Great_Weapon_Fighting
+    caleb.max_health = 31
+    caleb.armour_class = 11
+    caleb.speed = 30
+    caleb.proficiency = calc_proficiency(caleb)
+    caleb.spellcaster = True
+    #Stats
+    calebstats = statistic_block()
+    calebstats.str = 10
+    calebstats.dex = 12
+    calebstats.con = 14
+    calebstats.intel = 20
+    calebstats.wis = 16
+    calebstats.cha = 16
+
+    caleb.stats = calebstats
+    
+    #Saves
+    calebsaves = saving_throw_block()    
+    calebsaves.str = 0
+    calebsaves.dex = 1
+    calebsaves.con = 2
+    calebsaves.intel = 8
+    calebsaves.wis = 6
+    calebsaves.cha = 3
+    
+    caleb.saves = calebsaves
+
+    #Ability Checks
+    calebchecks = ability_check_block()
+    
+    caleb.checks = calebchecks    
+    
+    #caleb's gear
+    # combat stats # 
+    # Calebs's spells - spells are initialised/damage dice calculated during initialisation 
+    firebolt = spell()
+    firebolt.name = "Firebolt"
+    caleb.spell_list().append(firebolt)
+
+    init_combatants.append(caleb)    
+
+def init_nott(init_combatants):
+
+    #yasha
+    nott = creature()
+
+    nott.notes = "There's no comma"
+
+    nott.fullname = "Nott the Brave"
+    nott.name = "Nott"
+    nott.race = race.Goblin
+    nott.creature_type = creature_type.Player
+
+    rogue_class = player_class_block()
+    rogue_class.player_class = player_class.Rogue
+    rogue_class.player_subclass = player_subclass.ArcaneTrickster
+    rogue_class.spellcasting_attribute = attribute.Intelligence
+    rogue_class.player_class_level = 5
+    nott.player_classes().append(rogue_class)
+
+    #nott.fighting_style = fighting_style.Great_Weapon_Fighting
+    nott.max_health = 40
+    nott.armour_class = 16
+    nott.speed = 30
+    nott.proficiency = calc_proficiency(nott)
+    nott.weapon_proficiency().append(weapon_type.Crossbow)    
+    nott.weapon_proficiency().append(weapon_type.Shortsword)    
+
+    #Stats
+    nottstats = statistic_block()
+    nottstats.str = 11
+    nottstats.dex = 19
+    nottstats.con = 14
+    nottstats.intel = 16
+    nottstats.wis = 11
+    nottstats.cha = 5
+
+    nott.stats = nottstats
+    
+    #Saves
+    nottsaves = saving_throw_block()    
+    nottsaves.str = 0
+    nottsaves.dex = 7
+    nottsaves.con = 2
+    nottsaves.intel = 6
+    nottsaves.wis = 0
+    nottsaves.cha = -3
+    
+    nott.saves = nottsaves
+
+    #Ability Checks
+    nottchecks = ability_check_block()
+    
+    nott.checks = nottchecks    
+
+    #nott's weapons
+    hand_crossbow = weapon()
+    hand_crossbow.name = "Hand Crossbow"
+    hand_crossbow.weapon_type = weapon_type.Crossbow;
+    hand_crossbow.range = 30
+    hand_crossbow.range_upper = 120
+    
+    hand_crossbow.damage_die = 6
+    hand_crossbow.damage_die_count = 1
+    hand_crossbow.weapon_damage_type = damage_type.Piercing
+    
+    hand_crossbow.light = True
+    hand_crossbow.loading = True 
+    
+    nott.weapon_inventory().append(hand_crossbow)
+
+    shortsword = weapon()
+    shortsword.name = "Shortsword"
+    shortsword.weapon_type = weapon_type.Shortsword
+    shortsword.range = 0    
+    
+    shortsword.damage_die = 6
+    shortsword.damage_die_count = 1
+    shortsword.weapon_damage_type = damage_type.Piercing
+    
+    shortsword.finesse = True
+    shortsword.light = True 
+
+    nott.weapon_inventory().append(shortsword)
+
+    #nott's gear
+    # combat stats # 
+
+    init_combatants.append(nott)    
+
+def init_jester(init_combatants):
+
+    #yasha
+    jester = creature()
+
+    jester.notes = "Trickery Domain Cleric"
+
+    jester.fullname = "Jester"
+    jester.name = "Jester"
+    jester.race = race.Tiefling
+    jester.creature_type = creature_type.Player
+
+    cleric_class = player_class_block()
+    cleric_class.player_class = player_class.Cleric
+    cleric_class.player_subclass = player_subclass.TrickeryDomain
+    cleric_class.spellcasting_attribute = attribute.Wisdom
+    cleric_class.player_class_level = 5
+    jester.player_classes().append(cleric_class)
+
+    #jester.fighting_style = fighting_style.Great_Weapon_Fighting
+    jester.max_health = 38
+    jester.armour_class = 18
+    jester.speed = 30
+    jester.proficiency = calc_proficiency(jester)
+    jester.weapon_proficiency().append(weapon_type.Handaxe)        
+    jester.spellcaster = True
+    #Stats
+    jesterstats = statistic_block()
+    jesterstats.str = 16
+    jesterstats.dex = 18
+    jesterstats.con = 15
+    jesterstats.intel = 12
+    jesterstats.wis = 18
+    jesterstats.cha = 12
+
+    jester.stats = jesterstats
+    
+    #Saves
+    jestersaves = saving_throw_block()    
+    jestersaves.str = 3
+    jestersaves.dex = 4
+    jestersaves.con = 2
+    jestersaves.intel = 1
+    jestersaves.wis = 7
+    jestersaves.cha = 4
+    
+    jester.saves = jestersaves
+
+    #Ability Checks
+    jesterchecks = ability_check_block()
+    
+    jester.checks = jesterchecks    
+
+    #jester's weapons
+    handaxe = weapon()
+    handaxe.name = "Handaxe"
+    handaxe.weapon_type = weapon_type.Handaxe;
+    handaxe.range = 0
+    
+    handaxe.damage_die = 6
+    handaxe.damage_die_count = 1
+    handaxe.weapon_damage_type = damage_type.Piercing
+    
+    handaxe.light = True    
+    
+    jester.weapon_inventory().append(handaxe)
+
+    #jester's gear
+    # combat stats # 
+
+    init_combatants.append(jester)    
 
 def init_molly(init_combatants):
 
@@ -644,94 +953,6 @@ def init_molly(init_combatants):
     # combat stats # 
 
     init_combatants.append(molly)   
-
-def init_nott(init_combatants):
-
-    #yasha
-    nott = creature()
-
-    nott.notes = "There's no comma"
-
-    nott.fullname = "Nott the Brave"
-    nott.name = "Nott"
-    nott.race = race.Goblin
-    nott.creature_type = creature_type.Player
-
-    rogue_class = player_class_block()
-    rogue_class.player_class = player_class.Rogue
-    rogue_class.player_subclass = player_subclass.ArcaneTrickster
-    rogue_class.player_class_level = 5
-    nott.player_classes().append(rogue_class)
-
-    #nott.fighting_style = fighting_style.Great_Weapon_Fighting
-    nott.max_health = 40
-    nott.armour_class = 16
-    nott.speed = 30
-    nott.proficiency = calc_proficiency(nott)
-    nott.weapon_proficiency().append(weapon_type.Crossbow)    
-    nott.weapon_proficiency().append(weapon_type.Shortsword)    
-
-    #Stats
-    nottstats = statistic_block()
-    nottstats.str = 11
-    nottstats.dex = 19
-    nottstats.con = 14
-    nottstats.intel = 16
-    nottstats.wis = 11
-    nottstats.cha = 5
-
-    nott.stats = nottstats
-    
-    #Saves
-    nottsaves = saving_throw_block()    
-    nottsaves.str = 0
-    nottsaves.dex = 7
-    nottsaves.con = 2
-    nottsaves.intel = 6
-    nottsaves.wis = 0
-    nottsaves.cha = -3
-    
-    nott.saves = nottsaves
-
-    #Ability Checks
-    nottchecks = ability_check_block()
-    
-    nott.checks = nottchecks    
-
-    #nott's weapons
-    hand_crossbow = weapon()
-    hand_crossbow.name = "Hand Crossbow"
-    hand_crossbow.weapon_type = weapon_type.Crossbow;
-    hand_crossbow.range = 30
-    hand_crossbow.range_upper = 120
-    
-    hand_crossbow.damage_die = 6
-    hand_crossbow.damage_die_count = 1
-    hand_crossbow.weapon_damage_type = damage_type.Piercing
-    
-    hand_crossbow.light = True
-    hand_crossbow.loading = True 
-    
-    nott.weapon_inventory().append(hand_crossbow)
-
-    shortsword = weapon()
-    shortsword.name = "Shortsword"
-    shortsword.weapon_type = weapon_type.Shortsword
-    shortsword.range = 0    
-    
-    shortsword.damage_die = 6
-    shortsword.damage_die_count = 1
-    shortsword.weapon_damage_type = damage_type.Piercing
-    
-    shortsword.finesse = True
-    shortsword.light = True 
-
-    nott.weapon_inventory().append(shortsword)
-
-    #nott's gear
-    # combat stats # 
-
-    init_combatants.append(nott)    
 
 def init_yasha(init_combatants):
 
@@ -847,7 +1068,7 @@ def init_arkhan(init_combatants):
 
     arkhan.speed = 40
     arkhan.proficiency = calc_proficiency(arkhan)
-    arkhan.weapon_proficiency().append(weapon_type.Axe)
+    arkhan.weapon_proficiency().append(weapon_type.Greataxe)
 
     #arkhan.creature_feats().append(feat.Great_Weapon_Master)
 
@@ -881,7 +1102,7 @@ def init_arkhan(init_combatants):
     #arkhan's weapons
     fane_eater = weapon()
     fane_eater.name = "Fane-Eater Battleaxe"
-    fane_eater.weapon_type = weapon_type.Axe;
+    fane_eater.weapon_type = weapon_type.Greataxe;
     fane_eater.range = 0
     
     fane_eater.damage_die = 8
