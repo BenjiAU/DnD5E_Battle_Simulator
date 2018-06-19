@@ -15,17 +15,21 @@ def select_spell(combatant,casttime):
             if spell.casting_time == casttime:
                 #Check that components (V,S,M) are available for spell?
                 #Evaluate if spell is targetted or self (i.e. buff?)?
-
-                #Check that target is in range of spell (spells with range 0 always satisfy this condition - i.e. Divine Smite is tied to attack)
-                if (spell.range == 0) or calc_distance(combatant,combatant.target) <= spell.range:
-                    # Only select spells we have a spellslot for
-                    spellslot = get_highest_spellslot(combatant,spell)
-                    #See if a spellslot was returned by the function
-                    if spellslot:                               
+                # Only select spells we have a spellslot for
+                spellslot = get_highest_spellslot(combatant,spell)
+                #See if a spellslot was returned by the function
+                if spellslot:    
+                    #Check that target is in range of spell (spells with range 0 always satisfy this condition - i.e. Divine Smite is tied to attack)
+                    if (spell.range == 0) or calc_distance(combatant,combatant.target) <= spell.range:                           
                         # Choose the first spell we find, or check the total potential damage of the spell to decide which one to use
                         if best_spell == None or (spell.instance*(spell.damage_die_count*spell.damage_die)) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
                             best_spell = spell
-    
+                    # It may be that the spell is currently out of range, but it could still be beneficial to close the gap and use that spell
+                    # Apply a penalty to out-of-range spells to make us choose between a weaker, closer spell and a stronger one that forces us to close the gap
+                    elif calc_distance(combatant,combatant.target) > spell.range:                    
+                        range_penalty = 0.75
+                        if ((spell.instance*(spell.damage_die_count*spell.damage_die))*range_penalty) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
+                            best_spell = spell
     return best_spell
 
 #Cast a spell  - if Crit is forced use it

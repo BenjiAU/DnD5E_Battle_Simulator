@@ -156,3 +156,8 @@ def attack_roll(combatant,advantage,disadvantage,to_hit_modifier):
 
 def calc_total_AC(combatant):
     return combatant.armour_class + combatant.hasted_bonus_armour
+
+def calc_distance(combatant,target):
+    xdistance = int(math.fabs(combatant.xpos-target.xpos))
+    ydistance = int(math.fabs(combatant.ypos-target.ypos))
+    return int(math.sqrt((xdistance * xdistance) + (ydistance * ydistance)))

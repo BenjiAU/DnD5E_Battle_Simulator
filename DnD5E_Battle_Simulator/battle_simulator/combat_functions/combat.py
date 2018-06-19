@@ -23,7 +23,7 @@ def attack_action(combatant):
                 multiattack_weapons = []
                 for ma in combatant.multiattack:
                     for weapon in combatant.weapon_inventory():
-                        if target_in_weapon_range(combatant,combatant.target,weapon.range) and ma == weapon.name:                        
+                        if target_in_range(combatant,combatant.target,weapon.range) and ma == weapon.name:                        
                             multiattack_weapons.append(weapon)
 
                 if len(multiattack_weapons) > 0:
@@ -153,9 +153,9 @@ def attack(combatant,weapon):
     #Only attack with a weapon
     # Unarmed strikes or improvised weapons must create a phantom weapon object to use this function
     if weapon.name != "":        
-        if target_in_weapon_range(combatant,combatant.target,weapon.range):
+        if target_in_range(combatant,combatant.target,weapon.range):
             in_range = True
-        elif target_in_weapon_range(combatant,combatant.target,weapon.long_range):
+        elif target_in_range(combatant,combatant.target,weapon.long_range):
             in_long_range = True            
 
         # only resolve attack if target is within one of the range increments

@@ -5,7 +5,7 @@ from battle_simulator import combatants
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
 from battle_simulator.combat_functions.conditions import *
-
+from battle_simulator.combat_functions.spells import *
 from . import combat 
 
 from copy import copy
@@ -32,32 +32,53 @@ def use_movement(combatant):
         combatant.movement = math.floor(combatant.movement/2)
         print_output(combatant.name + ' spends ' + repr(combatant.movement) + ' feet of movement to stand up from prone')            
         combatant.prone = False
+    
+    # One set of rules for spellcasters
+    if combatant.spellcaster:
+        # Default position for spellcasters is to keep at least 100 feet of distance between them and target
+        max_range = 100
+        # If we haven't used our action yet, decide where to be based on the best spell's distance
+        if not combatant.action_used:
+            selected_spell = select_spell(combatant,spell_casting_time.Action)
+        elif not combatant.bonus_action_used:
+            selected_spell = select_spell(combatant,spell_casting_time.Bonus_Action)
 
-    # Are we wielding a melee weapon that we cannot throw?
-    if (combatant.main_hand_weapon.range == 0) and not (combatant.main_hand_weapon.thrown):                    
-        if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):            
+        if selected_spell != None:
+            max_range = selected_spell.range                        
+    else:        
+        if combatant.main_hand_weapon.range == 0 and not (combatant.main_hand_weapon.thrown):    
+            max_range = 0
+        else:
+            if combatant.main_hand_weapon.range_upper > 0:            
+                max_range = combatant.main_hand_weapon.range_upper
+            else:
+                max_range = combatant.main_hand_weapon.range
+
+    # Use the maximum range of the selected spell/weapon to determine where we should go
+    if max_range == 0:
+        if target_in_range(combatant,combatant.target,max_range):            
             print_output(combatant.name + ' stays where they are, in melee range of ' + combatant.target.name + '. ' + position_text(combatant.xpos,combatant.ypos))
         else:
             move_to_target(combatant,combatant.target)    
     else:
         #Otherwise use the range of the weapon to determine where to move 
-        if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):               
+        if target_in_range(combatant,combatant.target,max_range):               
             # Don't move out of weapon range - figure out current gap, subtract it from weapon range, thats how far we can move           
-            if combatant.movement > combatant.main_hand_weapon.range - calc_distance(combatant,combatant.target):
+            if combatant.movement > max_range - calc_distance(combatant,combatant.target):
                 # Set our movement to the maximum range            
-                combatant.movement = combatant.main_hand_weapon.range - calc_distance(combatant,combatant.target)                             
+                combatant.movement = max_range - calc_distance(combatant,combatant.target)                             
             # Movement must be at least higher than one grid or its not worth using
             if combatant.movement >= 5:
-                print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to increase distance, but stay within weapon range of ' + combatant.target.name)
+                print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to increase distance, but stay within range of ' + combatant.target.name)
                 move_from_target(combatant,combatant.target)
         else:
             #Close the distance to be able to use weapon 
 
-            gap_to_close = calc_distance(combatant,combatant.target) - combatant.main_hand_weapon.range;
+            gap_to_close = calc_distance(combatant,combatant.target) - max_range;
             if gap_to_close <= combatant.movement:
                 combatant.movement = gap_to_close
             if combatant.movement >= 5:
-                print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to get within weapon range of ' + combatant.target.name)
+                print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to get within range of ' + combatant.target.name)
                 move_to_target(combatant,combatant.target)
 
 # Position/movement functions
@@ -124,11 +145,6 @@ def move_grid(combatant,direction):
         if settings.verbose_movement:
             print_output(indent() + movement_text(combatant.name + ' failed to move - they have no movement remaining!'))            
         return False
-
-def calc_distance(combatant,target):
-    xdistance = int(math.fabs(combatant.xpos-target.xpos))
-    ydistance = int(math.fabs(combatant.ypos-target.ypos))
-    return int(math.sqrt((xdistance * xdistance) + (ydistance * ydistance)))
 
 def derive_cardinal_direction(x1,x2,y1,y2):
     direction = cardinal_direction.Stay
@@ -242,7 +258,7 @@ def move_to_target(combatant,target):
 
         grids_moved += 1
         #Evaluate after each step if the target is in range of our weapon
-        if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):                        
+        if target_in_range(combatant,combatant.target,combatant.main_hand_weapon.range):                        
             print_output(movement_text(combatant.name + ' skids to a halt, now in range of ' + combatant.target.name + '. ') + position_text(combatant.xpos,combatant.ypos))
             movement_complete = True
 
@@ -325,7 +341,7 @@ def move_from_target(combatant,target):
         #If we haven't attacked yet, we don't want to run out of our weapon range
         #If combatant.movement would take us outside the maximum range of our weapon, stop here instead
         if not combatant.action_used: 
-            if not target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):                        
+            if not target_in_range(combatant,combatant.target,combatant.main_hand_weapon.range):                        
                 print_output(indent() + combatant.name + ' changes their mind at the last second, moving back to (' + repr(initial_xpos) + ',' + repr(initial_ypos) + ') to stay in weapon range of ' + combatant.target.name)
                 combatant.xpos = initial_xpos;
                 combatant.ypos = initial_ypos;
@@ -364,7 +380,7 @@ def determine_enemy_positions(combatant):
                 enemy_positions.add((potential_enemy.xpos,potential_enemy.ypos))
     return enemy_positions
 
-def target_in_weapon_range(combatant,target,range):
+def target_in_range(combatant,target,range):
     if range == 0:        
         range = melee_range()
     #Calculate distance in feet

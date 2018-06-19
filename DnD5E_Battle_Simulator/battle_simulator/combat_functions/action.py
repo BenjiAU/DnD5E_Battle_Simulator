@@ -42,11 +42,11 @@ def action(combatant):
             weapon_swap(combatant,current_range)
 
             if combatant.main_hand_weapon.broken == False:
-                if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):
+                if target_in_range(combatant,combatant.target,combatant.main_hand_weapon.range):
                     attack_action(combatant)                        
                 else:
                     # Check the upper range increment (if the weapon has one) instead and potentially fire at disadvantage
-                    if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.long_range):
+                    if target_in_range(combatant,combatant.target,combatant.main_hand_weapon.long_range):
                         attack_action(combatant)                        
                     else:
                         # Dash Action
@@ -104,7 +104,7 @@ def bonus_action(combatant):
             if combatant.raging:
                 if combatant.frenzy:      
                     #You can make a single melee weapon Attack as a Bonus Action on each of your turns after this one (does not have to be tied to Attack action)
-                    if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):                    
+                    if target_in_range(combatant,combatant.target,combatant.main_hand_weapon.range):                    
                         print_output(combatant.name + ' uses their Bonus Action to make a frenzied weapon attack against ' + combatant.target.name)
                         attack(combatant,combatant.main_hand_weapon)            
                         combatant.bonus_action_used = True
@@ -208,7 +208,7 @@ def hasted_action(combatant):
         # This will prefer to swap a non-broken or ruined weapon in
         weapon_swap(combatant,current_range)
 
-        if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):
+        if target_in_range(combatant,combatant.target,combatant.main_hand_weapon.range):
             attack(combatant,combatant.main_hand_weapon)
             combatant.hasted_action_used = True
         else:
