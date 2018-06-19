@@ -263,6 +263,8 @@ def simulate_battle():
 
                                 #Apply Hemorraging Critical damage
                                 resolve_hemo_damage(combatant)                   
+                                if not combatant.conscious or not combatant.alive:
+                                    break
                                 
                                 # Resolve Head Shot status
                                 if combatant.head_shotted:
