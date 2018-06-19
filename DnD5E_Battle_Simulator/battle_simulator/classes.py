@@ -307,7 +307,7 @@ class spell_casting_time(Enum):
     Action = auto()
     Bonus_Action = auto()
     Reaction = auto()
-    Instance = auto() # Instant spells apply basically automatically, i.e. Divine Smite
+    Instant = auto() # Instant spells apply basically automatically, i.e. Divine Smite
     
 #Spell slots
 # Generic object for tracking min/max spells and level
@@ -369,8 +369,8 @@ class spell():
    damage_die_count_per_spell_slot = int()
    
    #Additional damage to deal based on class level
-   damage_die_per_class_level = int()
-   damage_die_count_per_class_level = int()
+   #damage_die_per_class_level = int()
+   #damage_die_count_per_class_level = int()
    
    #Bonus damage based on target
    bonus_damage_die = int()

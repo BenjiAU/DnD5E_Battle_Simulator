@@ -32,7 +32,7 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source,
             crit_damage = bonus_damage * 2           
                         
     if crit:
-        print_output(indent() + combatant.name + ' dealt an additional ' + crit_damage_text(repr(crit_damage+flat)) + ' (roll = ' + repr(bonus_damage) + ') points of ' + type.name + ' damage with ' + source)
+        print_output(indent() + combatant.name + ' dealt an additional ' + crit_damage_text(repr(crit_damage+flat)) + ' points of ' + type.name + ' damage with ' + source)
         deal_damage(combatant,combatant.target,crit_damage+flat,type,magic)
     else:
         print_output(indent() + combatant.name + ' dealt an additional ' + damage_text(repr(bonus_damage+flat)) + ' points of ' + type.name + ' damage with ' + source)

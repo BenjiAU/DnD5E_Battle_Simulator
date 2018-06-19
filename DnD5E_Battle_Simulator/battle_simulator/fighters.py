@@ -480,6 +480,9 @@ def init_vax(init_combatants):
     vax.equipment_inventory().append(beltofbladereturning)
     
     # combat stats # 
+    divine_smite = spell()
+    divine_smite.name = "Divine Smite"
+    vax.spell_list().append(divine_smite)
 
     init_combatants.append(vax)    
 
@@ -1132,6 +1135,10 @@ def init_arkhan(init_combatants):
     arkhan.equipment_inventory().append(handofvecna)
        
     # combat stats # 
+
+    divine_smite = spell()
+    divine_smite.name = "Divine Smite"
+    arkhan.spell_list().append(divine_smite)
 
     init_combatants.append(arkhan)    
 

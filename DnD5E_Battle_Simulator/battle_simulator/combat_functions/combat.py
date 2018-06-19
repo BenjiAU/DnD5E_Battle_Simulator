@@ -494,12 +494,14 @@ def attack(combatant,weapon):
                                 resolve_bonus_damage(combatant,0,damage_type.Radiant,8,1,0,crit,"Improved Divine Smite",True)
 
                             #Conditionally cast spells/use items on crit after initial damage resolved
-                            #Smite (ideally you would only do this on crit)
-                            for spell in combatant.spell_list():
-                                if spell.name == "Divine Smite":
-                                    #Casting Divine Smite should be the last resolution of any attack action
-                                    #Casting a spell calls its own 'resolve_damage' function
-                                    cast_spell(combatant,spell,crit)
+                            # Do some preliminary checking to make sure we do not inadvertantly burn a spell slot
+                            if combatant.target.conscious:    
+                                #Divine Smite
+                                for spell in combatant.spell_list():
+                                    if spell.name == "Divine Smite":
+                                        #Casting Divine Smite should be the last resolution of any attack action
+                                        #Casting a spell calls its own 'resolve_damage' function                                                                        
+                                        cast_spell(combatant,spell,crit)
 
                             if crit:                            
                                 #Cabal's Ruin

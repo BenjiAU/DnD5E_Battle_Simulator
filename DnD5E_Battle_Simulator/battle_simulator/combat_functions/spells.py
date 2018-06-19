@@ -52,7 +52,7 @@ def cast_spell(combatant,spell,crit = None):
                 i += 1                     
         else:
             # Automatically resolve spell damage on spells i.e. Divine Smite
-            resolve_spell_damage(combatant,combatant.target,spell,crit)
+            resolve_spell_damage(combatant,combatant.target,spell,spellslot,crit)
         #Resolve saving throw
         #if spell.saving_throw:
             #Resolve saving throw to see if damage/condition is applied                                                                                   
