@@ -35,23 +35,7 @@ def initialise_teams(combatants,teams):
     monster = team()
     monster.name = "Monsters"
     teams.append(monster)
-
-    beserker = team()
-    beserker.name = "Path of the Beserker"
-    teams.append(beserker)
-    
-    zealot = team()
-    zealot.name = "Path of the Zealot"
-    teams.append(zealot)
-
-    assassin = team()
-    assassin.name = "The Raven's Revenant"
-    teams.append(assassin)
-
-    gunslinger = team()
-    gunslinger.name = "The Lord of Whitestone"
-    teams.append(gunslinger)
-
+  
     blue = team()
     blue.name = "The Blue Team"
     teams.append(blue)
@@ -59,6 +43,15 @@ def initialise_teams(combatants,teams):
     red = team()
     red.name = "The Red Team"
     teams.append(red)
+
+    green = team()
+    green.name = "The Green Team"
+    teams.append(green)
+
+    yellow = team()
+    yellow.name = "The Yellow Team"
+    teams.append(yellow)
+
     vmnames = ["Grog","Vax","Percy","Doty","Trinket"]
     m9names = ["Fjord","Beau","Caleb","Nott","Jester","Molly","Yasha"]
     monsternames = ["Umbrasyl","Hill Giant","Arkhan"]
