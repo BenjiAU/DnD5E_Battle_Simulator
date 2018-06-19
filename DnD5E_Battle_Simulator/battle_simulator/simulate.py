@@ -96,18 +96,18 @@ def simulate_battle():
         combatorder = 0                   
         
         #Print initiative order and initialise targets
+        begin_combatant_details()
         for combatant in combatants.list:                   
-            #Determine teams for battle
+            #Determine teams for battle            
             for team in combatants.teams:
                 if team.name == combatant.team.name:
                     team.battling = True
 
-            combatorder += 1
+            combatorder += 1            
             print_combatant_details(combatant,combatorder)
             if find_target(combatant):                
-                weapon_swap(combatant,calc_distance(combatant,combatant.target))   
-            print_output('</br>')
-            print_output('</br>')
+                weapon_swap(combatant,calc_distance(combatant,combatant.target))               
+        end_combatant_details()
 
         #Begin combat rounds (up to a maximum to avoid overflow)
         round = 0              

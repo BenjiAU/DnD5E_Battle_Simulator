@@ -107,7 +107,20 @@ def print_combatant_table(combatant):
     string += Markup('</div>')
     return(string)
 
+def begin_combatant_details():
+    string = ""
+    string += '<table>'
+    string += '<tr>'
+    print_output(string)
+
+def end_combatant_details():    
+    string = ""    
+    string += '</tr>'
+    string += '</table>'
+    print_output(string)
+
 def print_combatant_details(combatant,position):
+    print_output('<td valign=top>')
     print_output('**************************')
     print_output('Position: ' + repr(position)) 
     print_output(' Name: '  + combatant.fullname)
@@ -155,6 +168,7 @@ def print_combatant_details(combatant,position):
     for spellslot in combatant.spellslots():                               
         print_output(indent() + numbered_list(spellslot.level) + ' Level Spellslots: ' + repr(spellslot.current))        
     print_output('**************************')
+    print_output('</td>')
 
 def print_summary(combatant):
     print_output('**************************')

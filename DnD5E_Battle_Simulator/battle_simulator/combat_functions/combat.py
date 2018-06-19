@@ -149,7 +149,7 @@ def breath_recharge(combatant):
 def attack(combatant,weapon):    
     attack_hit = False
     in_range = False
-    in_long_range = False
+    in_long_range = False        
     #Only attack with a weapon
     # Unarmed strikes or improvised weapons must create a phantom weapon object to use this function
     if weapon.name != "":        
