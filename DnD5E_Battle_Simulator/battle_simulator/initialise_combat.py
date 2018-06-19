@@ -473,7 +473,7 @@ def initialise_class_features(combatant):
                     spell.min_spellslot_level = 0
                     spell.max_spellslot_level = 0
                     spell.spell_attack = True
-                    spell.spell_instance = 1
+                    spell.instance = 1
                     spell.casting_time = spell_casting_time.Action
                     spell.range = 120
                     spell.origin = origin_point.Self                    
