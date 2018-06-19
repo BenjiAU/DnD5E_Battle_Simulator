@@ -252,6 +252,7 @@ class weapon_type(Enum):
         return str(self.value)
     Firearm = auto()
     Dagger = auto()
+    Longbow = auto()
     Crossbow = auto()
     Handaxe = auto()
     Greataxe = auto()
@@ -497,6 +498,7 @@ class creature():
         
     speed = int()   
     movement = int() #Distinct from speed, reflects movement per round and is consumed/reset at start of round
+    desired_range = int() # Set by movement functions, determines the desired range that the combatant wants tok eep between them and target
 
     stats = statistic_block()
     saves = saving_throw_block()

@@ -184,7 +184,13 @@ def attack(combatant,weapon):
                     if weapon.thrown and calc_distance(combatant,combatant.target) > melee_range():
                         print_output(combatant.name + ' throws ' + weapon.name + ' at ' + combatant.target.name + '!')
                         range_attack = True
-                        weapon.was_thrown = True                            
+                        weapon.was_thrown = True                   
+                        
+                    if weapon.weapon_type == weapon_type.Crossbow:
+                        range_attack = True
+
+                    if weapon.weapon_type == weapon_type.Longbow:
+                        range_attack = True
 
                     if weapon.weapon_type == weapon_type.Firearm:
                         # Check that the Firearm is not ruined - if it is ruined, no attacks can be made

@@ -28,7 +28,7 @@ def select_spell(combatant,casttime):
                     # Apply a penalty to out-of-range spells to make us choose between a weaker, closer spell and a stronger one that forces us to close the gap
                     elif calc_distance(combatant,combatant.target) > spell.range:                    
                         range_penalty = 0.75
-                        if ((spell.instance*(spell.damage_die_count*spell.damage_die))*range_penalty) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
+                        if best_spell == None or ((spell.instance*(spell.damage_die_count*spell.damage_die))*range_penalty) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
                             best_spell = spell
     return best_spell
 

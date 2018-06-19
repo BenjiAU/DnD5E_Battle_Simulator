@@ -734,7 +734,7 @@ def init_nott(init_combatants):
     hand_crossbow.name = "Hand Crossbow"
     hand_crossbow.weapon_type = weapon_type.Crossbow;
     hand_crossbow.range = 30
-    hand_crossbow.range_upper = 120
+    hand_crossbow.long_range = 120
     
     hand_crossbow.damage_die = 6
     hand_crossbow.damage_die_count = 1
