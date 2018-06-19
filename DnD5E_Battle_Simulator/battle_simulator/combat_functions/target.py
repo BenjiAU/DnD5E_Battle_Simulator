@@ -5,33 +5,37 @@ from battle_simulator import combatants
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
 from battle_simulator.combat_functions.position import all_other_combatants
+from battle_simulator.combat_functions.generics import calc_distance
 
 def find_target(combatant):    
     #Always set the target as a reference to the master list of combatants (to avoid having to constantly refresh to pick up changes in the target)
+    original_target = combatant.target
     combatant.target = None    
     best_target = None
     for enemy in combatants.list:
         if combatant.name != enemy.name and combatant.team != enemy.team:
-            if enemy.alive:
-                #Target selection priority:
-                # Don't target unconscious opponents unless we have to
-                if enemy.conscious:
-                    # Do we have a target? If not, set it to this one                
-                    if combatant.target == None:
-                        best_target = enemy 
-                    # If our current target is healthy, and has more current HP than the potential target, swap to the weaker one
-                    elif combatant.target.current_health == combatant.target.max_health and combatant.target.current_health > enemy.current_health:
+            if enemy.alive:                
+                #Target selection priority:                     
+                if enemy.conscious:                
+                # If our current target is healthy, and has more current HP than the potential target, swap to the weaker one
+                    if best_target == None:
+                        best_target = enemy
+                    elif best_target.current_health == best_target.max_health and best_target.current_health > enemy.current_health:
                         best_target = enemy
                     # If our current target is farther away than the enemy, swap to the closer target
-                    elif calc_distance(combatant,enemy) <= calc_distance(combatant,combatant.target):
-                        best_target = enemy                
-                else:
-                    best_target = enemy
+                    elif calc_distance(combatant,enemy) <= calc_distance(combatant,best_target):
+                        best_target = enemy                                    
+                elif best_target == None:
+                    # Only choose an unconscious target if we have no other target defined
+                    best_target = enemy 
                     
     combatant.target = best_target
     if combatant.target:
-        print_output(combatant.name + ' is now targetting ' + combatant.target.name)                     
-        return True
+        if combatant.target == original_target:
+            return True
+        else:
+            print_output(combatant.name + ' is now targetting ' + combatant.target.name)                     
+            return True
     else:
         return False
 

@@ -10,7 +10,7 @@ from battle_simulator.combat_functions.generics import *
 from battle_simulator.combat_functions.conditions import *
 from battle_simulator.combat_functions.spells import cast_spell
 from battle_simulator.combat_functions.inventory import weapon_swap
-from battle_simulator.combat_functions.target import calculate_area_effect
+from battle_simulator.combat_functions.target import find_target,calculate_area_effect
 
 def attack_action(combatant):
     #one set of rules for monsters
@@ -152,6 +152,12 @@ def attack(combatant,weapon):
     in_long_range = False        
     #Only attack with a weapon
     # Unarmed strikes or improvised weapons must create a phantom weapon object to use this function
+    
+    # Call to Find Target here to re-prioritise if our current target goes down mid-round
+    if not find_target(combatant):
+        print_output('No targets remain!')
+        return
+
     if weapon.name != "":        
         if target_in_range(combatant,combatant.target,weapon.range):
             in_range = True
