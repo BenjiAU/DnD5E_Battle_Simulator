@@ -435,10 +435,11 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
                                         #Successful opportunity attacks reduce creatures speed to 0
                                         combatant_before_move.movement = 0
                                         print_output(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                        
-                            print_output('The Attack of Opportunity has been resolved! ' + opportunity_attacker.name + ' has spent their reaction')                        
-                            print_output('-------------------------------------------------------------------------------------------------------------------------')
+                            print_output(opportunity_attacker.name + ' has spent their reaction')                                                    
                             # Consume reaction
                             opportunity_attacker.reaction_used = True
-
+                        print_output('The Attack of Opportunity has been resolved!')
+                        print_output('-------------------------------------------------------------------------------------------------------------------------')
+                            
                         # Reset target
                         opportunity_attacker.target = original_target
