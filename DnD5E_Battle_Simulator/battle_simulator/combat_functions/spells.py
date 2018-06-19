@@ -50,7 +50,7 @@ def cast_spell(combatant,spell,crit = None):
         # Make spell attack (if spell is an attack)
         if spell.spell_attack:            
             # Make one attack per instance
-            i = 0
+            i = 1
             while i <= spell.instance:
                 spell_attack(combatant,combatant.target,spell,spellslot)
                 i += 1                     
