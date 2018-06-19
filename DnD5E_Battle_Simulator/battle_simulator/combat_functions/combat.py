@@ -27,26 +27,26 @@ def attack_action(combatant):
                             multiattack_weapons.append(weapon)
 
                 if len(multiattack_weapons) > 0:
-                    print_output(combatant.name + ' unleashes a Multiattack against ' + combatant.target.name)                
+                    print_output(combatant.name + ' unleashes a Multiattack!')                
                     for weapon in multiattack_weapons:                        
                         attack(combatant,weapon)
                 else:
                     #Revert to normal attack/swap to range or reach weapon if required
-                    print_output(combatant.name + ' uses the Attack action against ' + combatant.target.name)                
+                    print_output(combatant.name + ' uses the Attack action')                
                     attack(combatant,combatant.main_hand_weapon)    
             else:
-                print_output(combatant.name + ' uses the Attack action against ' + combatant.target.name)                
+                print_output(combatant.name + ' uses the Attack action')                
                 attack(combatant,combatant.main_hand_weapon)    
     elif combatant.creature_type == creature_type.Player:
         # Primary attack call for players
-        print_output(combatant.name + ' uses the Attack action against ' + combatant.target.name)                
+        print_output(combatant.name + ' uses the Attack action against')                
         attack(combatant,combatant.main_hand_weapon)
         
         # Bonus attack functions for players
         # Bonus Action offhand attack
         # Rules: both weapons must be Light, weapons must be different, off hand weapon must be equipped
         if not combatant.bonus_action_used and combatant.offhand_weapon != None and combatant.main_hand_weapon != combatant.offhand_weapon and combatant.main_hand_weapon.light and combatant.offhand_weapon.light:
-            print_output(combatant.name + ' uses their Bonus Action to make an offhand strike against ' + combatant.target.name)                
+            print_output(combatant.name + ' uses their Bonus Action to make an offhand strike!')                
             attack(combatant,combatant.offhand_weapon)
             combatant.bonus_action_used = True
 
