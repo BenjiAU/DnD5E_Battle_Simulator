@@ -44,6 +44,9 @@ def print_output(string):
         print(string)
         settings.output.append(string)
 
+def print_error(string):
+    print_output('<div class="error"' + string + '</div>')
+
 def print_time_stamp(start,string):
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%H:%M:%S') 
@@ -250,6 +253,9 @@ def hp_text(currenthp,maxhp):
         return '<span class="hplow">Current HP: ' + repr(currenthp) + '/' + repr(maxhp)+ '</span>'
     elif currenthp <= 0:
         return '<span class="hpdead">Current HP: ' + repr(currenthp) + '/' + repr(maxhp)+ '</span>'
+
+def position_text(xpos,ypos):
+    return movement_text('Current Position: (' + repr(xpos) + ',' + repr(ypos) + ')')
 
 def victory_text(text):
     return '<span class=victory_text>' + text + '</span>'

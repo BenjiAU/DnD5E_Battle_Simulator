@@ -4,13 +4,7 @@ from battle_simulator import combatants
 #Implicit imports
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
-
-#Other imports
-import random
-import math
-import operator
-from operator import itemgetter, attrgetter
-from copy import copy
+from battle_simulator.combat_functions.position import all_other_combatants
 
 def find_target(combatant):    
     #Always set the target as a reference to the master list of combatants (to avoid having to constantly refresh to pick up changes in the target)
@@ -20,15 +14,19 @@ def find_target(combatant):
         if combatant.name != enemy.name and combatant.team != enemy.team:
             if enemy.alive:
                 #Target selection priority:
-                # Do we have a target? If not, set it to this one                
-                if combatant.target == None:
-                    best_target = enemy 
-                # If our current target is healthy, and has more current HP than the potential target, swap to the weaker one
-                elif combatant.target.current_health == combatant.target.max_health and combatant.target.current_health > enemy.current_health:
+                # Don't target unconscious opponents unless we have to
+                if enemy.conscious:
+                    # Do we have a target? If not, set it to this one                
+                    if combatant.target == None:
+                        best_target = enemy 
+                    # If our current target is healthy, and has more current HP than the potential target, swap to the weaker one
+                    elif combatant.target.current_health == combatant.target.max_health and combatant.target.current_health > enemy.current_health:
+                        best_target = enemy
+                    # If our current target is farther away than the enemy, swap to the closer target
+                    elif calc_distance(combatant,enemy) <= calc_distance(combatant,combatant.target):
+                        best_target = enemy                
+                else:
                     best_target = enemy
-                # If our current target is farther away than the enemy, swap to the closer target
-                elif calc_distance(combatant,enemy) <= calc_distance(combatant,combatant.target):
-                    best_target = enemy                
                     
     combatant.target = best_target
     if combatant.target:

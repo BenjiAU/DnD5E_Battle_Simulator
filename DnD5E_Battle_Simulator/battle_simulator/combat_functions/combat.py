@@ -4,17 +4,14 @@ from battle_simulator import combatants
 #Implicit imports
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
-from battle_simulator.combat_functions.movement import *
+from battle_simulator.combat_functions.position import *
 from battle_simulator.combat_functions.damage import *
+from battle_simulator.combat_functions.generics import *
+from battle_simulator.combat_functions.conditions import *
+from battle_simulator.combat_functions.spells import cast_spell
+from battle_simulator.combat_functions.inventory import weapon_swap
+from battle_simulator.combat_functions.target import calculate_area_effect
 
-#Other imports
-import random
-import math
-import operator
-from operator import itemgetter, attrgetter
-from copy import copy
-
-#Attack action
 def attack_action(combatant):
     #one set of rules for monsters
     if combatant.creature_type == creature_type.Monster:
@@ -48,22 +45,23 @@ def attack_action(combatant):
         # Bonus attack functions for players
         # Bonus Action offhand attack
         # Rules: both weapons must be Light, weapons must be different, off hand weapon must be equipped
-        if not combatant.bonus_action_used and combatant.off_hand_weapon != None and combatant.main_hand_weapon != combatant.off_hand_weapon and combatant.main_hand_weapon.light and combatant.off_hand_weapon.light:
+        if not combatant.bonus_action_used and combatant.offhand_weapon != None and combatant.main_hand_weapon != combatant.offhand_weapon and combatant.main_hand_weapon.light and combatant.offhand_weapon.light:
             print_output(combatant.name + ' uses their Bonus Action to make an offhand strike against ' + combatant.target.name)                
-            attack(combatant,combatant.off_hand_weapon)
+            attack(combatant,combatant.offhand_weapon)
             combatant.bonus_action_used = True
 
         # Flurry of Blows
         if not combatant.bonus_action_used and combatant.flurry_of_blows:                      
             if combatant.main_hand_weapon.weapon_type == weapon_type.Unarmed or combatant.main_hand_weapon.monk_weapon:
                 if combatant.ki_points > 0:
-                    print_output(combatant.name + ' spends 1 Ki Point and unleashes a Flurry of Blows!')
                     combatant.ki_points -= 1
+                    print_output(combatant.name + ' spends 1 Ki Point and unleashes a Flurry of Blows! Current Ki Points: ' + repr(combatant.ki_points) + '/' + repr(combatant.max_ki_points))                    
                     orig_weapon = combatant.main_hand_weapon
                     combatant.main_hand_weapon = unarmed_strike(combatant)
                     attack(combatant,combatant.main_hand_weapon)
                     attack(combatant,combatant.main_hand_weapon)
                     combatant.main_hand_weapon = orig_weapon
+                    combatant.bonus_action_used = True
                 else:
                     print_output(combatant.name + ' has no Ki Points remaining, and cannot use Flurry of Blows!')
 
@@ -73,6 +71,8 @@ def attack_action(combatant):
                 if not combatant.main_hand_weapon.broken:
                     print_output('<i>' + combatant.name + ' uses an Extra Attack.</i>')
                     attack(combatant,combatant.main_hand_weapon)  
+    else:
+        print_error(combatant.name + ' does not have a Creature Type defined. Unable to determine attack action.')
 
 def unarmed_strike(combatant):    
     # Create and equip a phantom 'unarmed strike' weapon to proceed with attack calculations
@@ -175,7 +175,7 @@ def attack(combatant,weapon):
         
                     combatant.use_sharpshooter = False
                     # Recalculate all +hit modifiers (based on main hand weapon, fighting style, ability modifiers etc.)
-                    to_hit_modifier = calc_to_hit_modifier(combatant)
+                    to_hit_modifier = calc_to_hit_modifier(combatant,weapon)
 
                     # Before-roll weapon features                    
 
@@ -218,6 +218,10 @@ def attack(combatant,weapon):
                             disadvantage = True
                             if combatant.head_shotted:
                                 print_output(combatant.name + ' has disadvantage on the attack from an earlier Head Shot!')
+
+                        if check_condition(combatant.target,condition.Stunned):
+                            print_output(combatant.target.name + ' is Stunned, giving all attacks against it advantage!')
+                            advantage = True
 
                         #Check condition of target                
                         if combatant.target.prone and range_attack:
@@ -281,8 +285,8 @@ def attack(combatant,weapon):
                                     # Head Shot #
                                     # Don't bother if they already have disadvantage/were head-shotted
                                     if not combatant.target.has_disadvantage or combatant.target.head_shotted:                                    
-                                        print_output(combatant.name + ' spends 1 Grit Point to perform a Head Trick Shot. Current Grit: ' + repr(combatant.current_grit-1))
                                         combatant.current_grit -= 1
+                                        print_output(combatant.name + ' spends 1 Grit Point to perform a Head Trick Shot. Current Grit: ' + repr(combatant.current_grit))                                        
                                         trick_shot_target = "Head"
                                         trick_shot = True
 
@@ -292,8 +296,8 @@ def attack(combatant,weapon):
                                     if not combatant.target.prone:
                                         # Only leg shot melee attackers
                                         if combatant.target.main_hand_weapon.range == 0:
-                                            print_output(combatant.name + ' spends 1 Grit Point to perform a Leg Trick Shot. Current Grit: ' + repr(combatant.current_grit-1))
                                             combatant.current_grit -= 1
+                                            print_output(combatant.name + ' spends 1 Grit Point to perform a Leg Trick Shot. Current Grit: ' + repr(combatant.current_grit))                                            
                                             trick_shot_target = "Legs"
                                             trick_shot = True
 
@@ -301,8 +305,8 @@ def attack(combatant,weapon):
                                     # Deadeye Shot (Gunslinger)
                                     if not advantage:
                                         #Spend grit to gain advantage. Do nothing if we have advantage.
-                                        print_output(combatant.name + ' spends 1 Grit Point to perform a Deadeye Shot. They gain advantage on the next attack! Current Grit: ' + repr(combatant.current_grit-1))
                                         combatant.current_grit -= 1
+                                        print_output(combatant.name + ' spends 1 Grit Point to perform a Deadeye Shot. They gain advantage on the next attack! Current Grit: ' + repr(combatant.current_grit))                                        
                                         advantage = True              
 
                                 if curr_grit == combatant.current_grit:
@@ -335,7 +339,7 @@ def attack(combatant,weapon):
 
                         #Track critical 
                         crit = False
-                        if atkroll >= calc_min_crit(combatant):
+                        if atkroll >= calc_min_crit(combatant,weapon):
                             crit = True
                             print_output('************************')
                             print_output('It\'s a CRITICAL ROLE!!!')
@@ -382,9 +386,9 @@ def attack(combatant,weapon):
                             combatant.attacks_hit += 1
 
                             if feat_penalty == 0:
-                                print_output(combatant.name + '\'s attack with ' + weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' versus AC ' + repr(totalAC) + ')')            
+                                print_output(combatant.name + '\'s attack (' + repr(totalatk) + ') against '+ combatant.target.name + ' (AC ' + repr(totalAC) + ') with ' + weapon.name + ' HIT!!!')
                             else:
-                                print_output(combatant.name + '\'s attack with ' + weapon.name + ' on ' + combatant.target.name + ' hit! (' + repr(atkroll) + ' + ' + repr(to_hit_modifier) + ' - ' + repr(feat_penalty) + ' = ' + repr(totalatk) + ' versus AC ' + repr(totalAC) + ')')            
+                                print_output(combatant.name + '\'s attack (' + repr(atkroll + to_hit_modifier) + '-' + repr(feat_penalty) + ') against '+ combatant.target.name + ' (AC ' + repr(totalAC) + ') with ' + weapon.name + ' HIT!!!')
                             if combatant.target.conscious == False and not crit and weapon.range == 0:
                                 print_output('The blow strikes the unconscious form of ' + combatant.target.name + ' and deals CRITICAL DAMAGE!')
                                 crit = True       
@@ -410,7 +414,7 @@ def attack(combatant,weapon):
                             damage_modifier = calc_damage_modifier(combatant,weapon)
                             
                             # Calculate main attack dice
-                            print_output(indent() + weapon.name + ' deals ' + repr(weapon.damage_die_count) + 'd' + repr(weapon.damage_die) + ' + ' + repr(damage_modifier) + ' '  + weapon.weapon_damage_type.name + ' damage: ')
+                            print_output(indent() + 'The blow from ' + weapon.name + ' strikes true (' + repr(weapon.damage_die_count) + 'd' + repr(weapon.damage_die) + ' + ' + repr(damage_modifier) + ' '  + weapon.weapon_damage_type.name + ' damage)!')
                             weapon_damage_type = damage_type(weapon.weapon_damage_type)
                             for x in range(0,weapon.damage_die_count):                                    
                                 die_damage = roll_die(weapon.damage_die)   
@@ -432,20 +436,21 @@ def attack(combatant,weapon):
                                 if not combatant.sneak_attack_used:
                                     # Ensure weapon is appropriate for sneak attack
                                     if (weapon.range != 0) or weapon.finesse:
-                                        can_sneak_attack = False
+                                        can_sneak_attack = False                                        
                                         if advantage:
                                             print_output(indent() + combatant.name + ' has advantage on the strike, and gains Sneak Attack!')
                                             can_sneak_attack = True
-                                        elif enemy_in_melee_range(combatant.target,combatant) and not combatant.target.incapacitated: 
-                                            print_output(indent() + 'Another enemy is in melee range of ' + combatant.target.name + ' so ' + combatant.name + ' gains Sneak Attack!')
+                                        elif enemy_in_melee_range(combatant.target,combatant) and not check_condition(combatant,condition.Incapacitated): 
+                                            print_output(indent() + 'Another enemy is in melee range of ' + combatant.target.name + ', granting ' + combatant.name + ' Sneak Attack!')
                                             can_sneak_attack = True
                                         if can_sneak_attack:
                                             for x in range(0,combatant.sneak_attack_damage_die_count):                                    
                                                 die_damage = roll_die(combatant.sneak_attack_damage_die)
                                                 print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(combatant.sneak_attack_damage_die) + ' (Sneak Attack Damage)')
                                                 dice_damage += die_damage
-                                            combatant.sneak_attack_used = True
+                                            combatant.sneak_attack_used = True                                            
 
+                            ### Critical Hit features ###
                             if crit:
                                 dice_damage = dice_damage * 2
                                                                         
@@ -473,15 +478,17 @@ def attack(combatant,weapon):
                                     print_output(indent() + combatant.name + ' scored a Hemorraghing Critical!')
                                     #Set boolean to track and increase hemo damage (possible multiple crits per round)
                                     track_hemo = True                                                
-                
+                            
+                            # Feat damage features:
                             if combatant.use_sharpshooter:
                                 feat_bonus = 10
-                                print_output(indent() + combatant.name + ' dealt an additional ' + repr(feat_bonus) + ' damage because of Sharpshooter')
+                                print_output(doubleindent() + combatant.name + ' dealt an additional ' + repr(feat_bonus) + ' damage because of Sharpshooter')
 
                             if combatant.use_great_weapon_master:
                                 feat_bonus = 10
-                                print_output(indent() + combatant.name + ' dealt an additional ' + repr(feat_bonus) + ' damage because of Great Weapon Master')
+                                print_output(doubleindent() + combatant.name + ' dealt an additional ' + repr(feat_bonus) + ' damage because of Great Weapon Master')
                 
+                            # Total initial damage of attack
                             totaldamage = dice_damage + damage_modifier + feat_bonus            
 
                             if feat_bonus == 0:
@@ -496,47 +503,47 @@ def attack(combatant,weapon):
                                 combatant.target.hemo_damage_type = weapon_damage_type
                                 track_hemo = False
 
+                            ### Bonus damage effects
                             #Bonus damage (from weapon)
                             if weapon.bonus_damage_die > 0:
                                 print_output(indent() + 'The strike from ' + weapon.name + ' deals an additional ' + repr(weapon.bonus_damage_die_count) + 'd' + repr(weapon.bonus_damage_die) + ' ' + weapon.bonus_damage_type.name + ' damage!')
-                                resolve_bonus_damage(combatant,weapon.bonus_damage_target,weapon.bonus_damage_type,weapon.bonus_damage_die,weapon.bonus_damage_die_count,0,crit,weapon.name)
+                                resolve_bonus_damage(combatant,weapon.bonus_damage_target,weapon.bonus_damage_type,weapon.bonus_damage_die,weapon.bonus_damage_die_count,0,crit,weapon.name,weapon.magic)
 
                             # Bonus damage (from critical weapon effect, i.e. Arkhan's weapon)
                             if crit and weapon.crit_bonus_damage_die > 0:
                                 print_output(indent() + weapon.name + ' surges with power, dealing bonus damage on a critical strike!')                            
-                                resolve_bonus_damage(combatant,0,weapon.crit_bonus_damage_type,weapon.crit_bonus_damage_die,weapon.crit_bonus_damage_die_count,0,crit,weapon.name)                        
+                                resolve_bonus_damage(combatant,0,weapon.crit_bonus_damage_type,weapon.crit_bonus_damage_die,weapon.crit_bonus_damage_die_count,0,crit,weapon.name,weapon.magic)                        
     
                             # Bonus damage (from Blood Hunter's Crimson Rite)
                             if combatant.crimson_rite:
                                 if weapon.active_crimson_rite != None:
                                     print_output(indent() + 'The ' + weapon.active_crimson_rite.colour + ' light on ' + weapon.name + ' flares as the Crimson ' + weapon.active_crimson_rite.name + ' deals additional damage!')
-                                    crimson_rite_damage_type = weapon.active_crimson_rite.damage_type
                                     crimson_rite_bonus = 0
                                     # Add bonus damge (i.e. Ghostslayer gets +wismod on undead up to level 11, +wismod on everything after that)
                                     if weapon.active_crimson_rite.bonus_damage != 0:
                                         if weapon.active_crimson_rite.bonus_damage_target == None or combatant.target.race == weapon.active_crimson_rite.bonus_damage_target:
                                             crimson_rite_bonus = weapon.active_crimson_rite.bonus_damage
 
-                                    resolve_bonus_damage(combatant,0,crimson_rite_damage_type,combatant.crimson_rite_damage_die,1,crimson_rite_bonus,crit,weapon.active_crimson_rite.name)                        
+                                    resolve_bonus_damage(combatant,0,damage_type(weapon.active_crimson_rite.damage_type),combatant.crimson_rite_damage_die,1,crimson_rite_bonus,crit,weapon.active_crimson_rite.name,True)                        
 
                             #Bonus damage (from hand of Vecna, 2d8 cold damage on melee hit)
                             for item in combatant.equipment_inventory():
                                 if item.grants_equipment_spell == equipment_spells.HandOfVecna and weapon.range == 0:
                                     print_output(indent() + combatant.name + '\'s left hand crackles with power! They dealt bonus damage with the ' + item.name)
-                                    resolve_bonus_damage(combatant,0,item.damage_type,item.damage_die,item.damage_die_count,0,crit,item.name)
+                                    resolve_bonus_damage(combatant,0,item.damage_type,item.damage_die,item.damage_die_count,0,crit,item.name,True)
                         
                             # Bonus damage (from Barbarian Zealot's Divine Fury - 1d6 + half barbairna level, damage type selected by player)
                             if combatant.divine_fury:
                                 if not combatant.divine_fury_used:
                                     print_output(indent() + combatant.name + '\'s weapon crackles with the strength of their Divine Fury, dealing bonus damage (1d6 + half barbarian level)!')
 
-                                    resolve_bonus_damage(combatant,0,combatant.divine_fury_damage_type,6,1,math.floor(get_combatant_class_level(combatant,player_class.Barbarian)/2),crit,"Divine Fury")
+                                    resolve_bonus_damage(combatant,0,combatant.divine_fury_damage_type,6,1,math.floor(get_combatant_class_level(combatant,player_class.Barbarian)/2),crit,"Divine Fury",True)
                                     combatant.divine_fury_used = True
 
                             # Bonus damage (from Improved Divine Smite)
                             if combatant.improved_divine_smite:
                                 print_output(indent() + combatant.name + '\'s eyes glow, as their attacks are infused with radiant energy from Improved Divine Smite!')                                                    
-                                resolve_bonus_damage(combatant,0,damage_type.Radiant,8,1,0,crit,"Improved Divine Smite")
+                                resolve_bonus_damage(combatant,0,damage_type.Radiant,8,1,0,crit,"Improved Divine Smite",True)
 
                             #Conditionally cast spells/use items on crit after initial damage resolved
                             #Smite (ideally you would only do this on crit)
@@ -579,7 +586,7 @@ def attack(combatant,weapon):
 
                             resolve_fatality(combatant.target)
                         else:
-                            print_output(combatant.name + '\'s attack on ' + combatant.target.name + ' with ' + weapon.name + ' MISSED! (' + repr(totalatk) + ' versus AC ' + repr(totalAC) + ')')            
+                            print_output(combatant.name + '\'s attack (' + repr(totalatk) + ') against ' + combatant.target.name +  ' (AC ' + repr(totalAC) + ') with ' + weapon.name + ' MISSED!')        
                             #Update statistics
                             combatant.attacks_missed += 1
 
@@ -598,28 +605,43 @@ def attack(combatant,weapon):
         else:
             print_output(combatant.target.name + ' is out of range of ' + weapon.name + '!')
 
+    #Post-Attack features/decisions
+    if attack_hit:
+        # Stunning Strike - after a hit, spend 1 ki point to stun
+        if combatant.stunning_strike and combatant.ki_points > 0:
+            # Do not burn stunning strike if target already stunned
+            if not check_condition(combatant.target,condition.Incapacitated):
+                combatant.ki_points -= 1
+                print_output(combatant.name + ' focuses on the flow of Ki in ' + combatant.target.name + '\'s body, and attempts a Stunning Strike! Current Ki Points: ' + repr(combatant.ki_points) + '/' + repr(combatant.max_ki_points))            
+                if savingthrow(combatant.target,saving_throw.Dexterity,conmod(combatant.target),combatant.target.saves.con_adv,8+combatant.proficiency+wismod(combatant)):
+                    print_output(combatant.target.name + ' resists the attempt to manipulate the flow of ki in their body, and is unaffected by the Stunning Strike!')
+                else:
+                    print_output(combatant.target.name + ' seizes up as the flow of Ki through their body is disrupted by the Stunning Strike!')
+                    inflict_condition(combatant.target,combatant,condition.Incapacitated,1)
+                    inflict_condition(combatant.target,combatant,condition.Stunned,1)
+
     return(attack_hit)
 
-def calc_to_hit_modifier(combatant):
+def calc_to_hit_modifier(combatant,weapon):
     to_hit = 0
     # Add 2 for fighting style when using ranged weapon with Archery
-    if combatant.fighting_style == fighting_style.Archery and combatant.main_hand_weapon.range > 0:
+    if combatant.fighting_style == fighting_style.Archery and weapon.range > 0:
         to_hit += 2;
 
     # Add Dex modifier for finesse weapons, otherwise Str
     # Monk weapons also have this property (which is actually independent of Finesse)
-    if combatant.main_hand_weapon.finesse or combatant.main_hand_weapon.monk_weapon:
+    if weapon.finesse or weapon.monk_weapon:
         to_hit += dexmod(combatant)
     else:
         to_hit += strmod(combatant)
 
     # Add proficiency bonus if proficiency in weapon
     for combatant_weapon_proficiency in combatant.weapon_proficiency():
-        if combatant.main_hand_weapon.weapon_type != 0 and combatant.main_hand_weapon.weapon_type == combatant_weapon_proficiency:
+        if weapon.weapon_type != 0 and weapon.weapon_type == combatant_weapon_proficiency:
             to_hit += combatant.proficiency
 
     # Add weapon bonus (i.e. +3 weapon)
-    to_hit += combatant.main_hand_weapon.magic_to_hit_modifier
+    to_hit += weapon.magic_to_hit_modifier
         
     return to_hit
 
@@ -627,14 +649,14 @@ def calc_damage_modifier(combatant,weapon):
     additional_damage = 0
     
     # Do not add ability modifier to additional_damage on bonus action attacks (unless we have a feat or class feature)
-    if ((weapon == combatant.main_hand_weapon) or 
-    (weapon == combatant.off_hand_weapon and combatant.fighting_style == fighting_style.Two_Weapon_Fighting)):
+    if ((weapon == weapon) or 
+    (weapon == combatant.offhand_weapon and combatant.fighting_style == fighting_style.Two_Weapon_Fighting)):
         # Add Dex modifier for finesse weapons and range weapons if it is higher than Str;, otherwise Str
         # Monk weapons also have this property (which is actually independent of Finesse)
         if (dexmod(combatant) > strmod(combatant) and 
-        (combatant.main_hand_weapon.finesse or 
-        combatant.main_hand_weapon.monk_weapon or       
-        (combatant.main_hand_weapon.range > 0 and not combatant.main_hand_weapon.thrown))):        
+        (weapon.finesse or 
+        weapon.monk_weapon or       
+        (weapon.range > 0 and not weapon.thrown))):        
             additional_damage += dexmod(combatant)
         else:
             additional_damage += strmod(combatant)
@@ -644,59 +666,13 @@ def calc_damage_modifier(combatant,weapon):
         additional_damage += combatant.rage_damage
     
     # Add weapon bonus (i.e. +3 weapon)
-    additional_damage += combatant.main_hand_weapon.magic_damage_modifier
+    additional_damage += weapon.magic_damage_modifier
         
     return additional_damage
 
-def calc_min_crit(combatant):
+def calc_min_crit(combatant,weapon):
     min_crit = 20
-    # Vicious Intent, crit on a 19
-    if combatant.vicious_intent and combatant.main_hand_weapon.weapon_type == weapon_type.Firearm:
+    # Fighter - Gunslinger - Vicious Intent, crit on a 19 with Firearm
+    if combatant.vicious_intent and weapon.weapon_type == weapon_type.Firearm:
         min_crit = 19
     return min_crit
-          
-def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
-    # Create a copy of the combatant to capture the new co-ordinate and compare to existing co-ordiantes (basically casting forward and simulating the movement)
-    combatant_after_move = creature()
-    combatant_after_move = copy(combatant_before_move)
-    combatant_after_move.xpos = new_xpos
-    combatant_after_move.ypos = new_ypos
-
-    #Evaluate for each enemy unit
-    enemies = get_living_enemies(combatant_before_move)
-    for opportunity_attacker in enemies:                
-        #Only conscious enemies can make an opportunity attack
-        if opportunity_attacker.conscious:
-            # Evaluate only if reaction available
-            if not opportunity_attacker.reaction_used:
-                # Only provoke opportunity attacks for melee weapons
-                if opportunity_attacker.main_hand_weapon.range == 0:
-                    # If the enemy is currently adjacent, but would not be after movement, condition is fulfilled
-                    # Note - this will not work with Reach weapons, will need additional conditions to handle Reach
-                    # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
-                    if is_adjacent(opportunity_attacker,combatant_before_move) and not is_adjacent(opportunity_attacker,combatant_after_move):                    
-                        #Swap targets if necessary
-                        original_target = opportunity_attacker.target 
-                        if opportunity_attacker.target != combatant_before_move:                            
-                            opportunity_attacker.target = combatant_before_move
-
-                        # Make the attack out of sequence
-                        print_output('-------------------------------------------------------------------------------------------------------------------------')
-                        print_output(combatant_before_move.name + '\'s movement has triggered an Attack of Opportunity from ' + opportunity_attacker.name + ' !')                        
-                        print_output('Resolving Attack of Opportunity!')                            
-                        if combatant_before_move.disengaged:
-                            print_output(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged!')
-                        else:
-                            if attack(opportunity_attacker):
-                                for feat in opportunity_attacker.creature_feats():
-                                    if feat == feat.Sentinel:
-                                        #Successful opportunity attacks reduce creatures speed to 0
-                                        combatant_before_move.movement = 0
-                                        print_output(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                        
-                            print_output('The Attack of Opportunity has been resolved! ' + opportunity_attacker.name + ' has spent their reaction')                        
-                            print_output('-------------------------------------------------------------------------------------------------------------------------')
-                            # Consume reaction
-                            opportunity_attacker.reaction_used = True
-
-                        # Reset target
-                        opportunity_attacker.target = original_target

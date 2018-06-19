@@ -4,15 +4,13 @@ from battle_simulator import combatants
 #Implicit imports
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
+from battle_simulator.combat_functions.generics import * 
 
 #Other imports
 import random
 import math
-import operator
-from operator import itemgetter, attrgetter
-from copy import copy
 
-def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source):
+def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source,magic):
     bonus_damage = 0
     crit_damage = 0
     if (bonus_target == 0) or (bonus_target == combatant.target.race):
@@ -35,10 +33,10 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source)
                         
     if crit:
         print_output(indent() + combatant.name + ' dealt an additional ' + crit_damage_text(repr(crit_damage+flat)) + ' (roll = ' + repr(bonus_damage) + ') points of ' + type.name + ' damage with ' + source)
-        deal_damage(combatant,combatant.target,crit_damage+flat,type,combatant.main_hand_weapon.magic)
+        deal_damage(combatant,combatant.target,crit_damage+flat,type,magic)
     else:
         print_output(indent() + combatant.name + ' dealt an additional ' + damage_text(repr(bonus_damage+flat)) + ' points of ' + type.name + ' damage with ' + source)
-        deal_damage(combatant,combatant.target,bonus_damage+flat,type,combatant.main_hand_weapon.magic)
+        deal_damage(combatant,combatant.target,bonus_damage+flat,type,magic)
 
 def resolve_hemo_damage(combatant):        
     #Gunslinger - Hemorrhaging Shot; damage and type is stored against the target and resolved after the target takes its turn (treated as nonmagical always?)
@@ -137,7 +135,8 @@ def resolve_damage(combatant):
                         
             combatant.current_health = max(combatant.current_health - total_damage,0)
                         
-            print_output('Damage Summary: ' + damage_string)        
+            if settings.show_damage_summary:
+                print_output('Damage Summary: ' + damage_string)        
             print_output(combatant.name + ' suffers a total of ' + damage_text(repr(int(total_damage))) + ' points of damage. ' + hp_text(combatant.current_health,combatant.max_health))        
 
 def resolve_fatality(combatant):

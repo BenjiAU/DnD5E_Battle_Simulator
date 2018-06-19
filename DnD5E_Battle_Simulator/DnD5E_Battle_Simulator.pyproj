@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -32,18 +32,21 @@
     <Compile Include="battle_simulator\classes.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="battle_simulator\combat_functions\spells.py" />
+    <Compile Include="battle_simulator\combat_functions\generics.py" />
+    <Compile Include="battle_simulator\combat_functions\conditions.py" />
     <Compile Include="battle_simulator\combat_functions\damage.py" />
     <Compile Include="battle_simulator\combat_functions\inventory.py" />
     <Compile Include="battle_simulator\combatants.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="battle_simulator\combat_functions\combat.py" />
-    <Compile Include="battle_simulator\combat_functions\__init__.py" />
     <Compile Include="battle_simulator\combat_functions\target.py" />
-    <Compile Include="battle_simulator\combat_functions\movement.py" />
+    <Compile Include="battle_simulator\combat_functions\position.py" />
     <Compile Include="battle_simulator\combat_functions\action.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="battle_simulator\combat_functions\__init__.py" />
     <Compile Include="battle_simulator\fighters.py" />
     <Compile Include="battle_simulator\initialise_combat.py">
       <SubType>Code</SubType>

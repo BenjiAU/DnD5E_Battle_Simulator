@@ -7,6 +7,12 @@ body
     text-align: center;
 }
 
+.error {
+    color: darkred;
+    font-weight: bold;
+    font-size: larger;
+}
+
 .content {
     margin: auto;
     text-align: left;
@@ -78,7 +84,7 @@ body
 .victory_text{
     color: chartreuse;
     font-weight: bold;
-    font-size: x-large;
+    font-size: larger;
 }
 
 .death{

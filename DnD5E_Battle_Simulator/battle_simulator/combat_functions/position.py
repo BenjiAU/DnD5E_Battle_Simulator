@@ -4,12 +4,10 @@ from battle_simulator import combatants
 #Implicit imports
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
+from battle_simulator.combat_functions.conditions import *
 
-#Other imports
-import random
-import math
-import operator
-from operator import itemgetter, attrgetter
+from . import combat 
+
 from copy import copy
 
 ### Core Round functions ###
@@ -38,7 +36,7 @@ def use_movement(combatant):
     # Are we wielding a melee weapon that we cannot throw?
     if (combatant.main_hand_weapon.range == 0) and not (combatant.main_hand_weapon.thrown):                    
         if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):            
-            print_output(combatant.name + ' stays where they are, in melee range of ' + combatant.target.name + '(' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')')
+            print_output(combatant.name + ' stays where they are, in melee range of ' + combatant.target.name + '. ' + position_text(combatant.xpos,combatant.ypos))
         else:
             move_to_target(combatant,combatant.target)    
     else:
@@ -48,10 +46,10 @@ def use_movement(combatant):
             if combatant.movement > combatant.main_hand_weapon.range - calc_distance(combatant,combatant.target):
                 # Set our movement to the maximum range            
                 combatant.movement = combatant.main_hand_weapon.range - calc_distance(combatant,combatant.target)                             
-                # Movement must be at least higher than one grid or its not worth using
-                if combatant.movement >= 5:
-                    print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to increase distance, but stay within weapon range of ' + combatant.target.name)
-                    move_from_target(combatant,combatant.target)
+            # Movement must be at least higher than one grid or its not worth using
+            if combatant.movement >= 5:
+                print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to increase distance, but stay within weapon range of ' + combatant.target.name)
+                move_from_target(combatant,combatant.target)
         else:
             #Close the distance to be able to use weapon 
 
@@ -201,17 +199,18 @@ def calc_grid_step(direction,x,y):
 def move_to_target(combatant,target):
     # Goal - decrease the distance between us and target
     print_output(movement_text(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move towards ' + combatant.target.name + ' at (' + repr(combatant.target.xpos) + ',' + repr(combatant.target.ypos) + ')'))    
-    print_output(movement_text(combatant.name + ' has ' + repr(combatant.movement) + ' feet of movement to spend.'))
+    print_output(movement_text(combatant.name + ' begins to use their ' + repr(combatant.movement) + ' feet of movement.'))
     initial_distance = calc_distance(combatant,target)
     initial_grids = calc_no_of_grids(initial_distance)
     grids_to_move = calc_no_of_grids(initial_distance)
     initial_grid_movement = calc_no_of_grids(combatant.movement)
     grid_movement = calc_no_of_grids(combatant.movement)
-    
+    movement_complete = False
+
     if settings.verbose_movement:
         print_output(combatant.name + ' has ' + repr(initial_grid_movement) + ' grids, or ' + repr(combatant.movement) + ' feet of movement to spend. (Distance to destination: ' + repr(initial_grids) + ' grids, or ' + repr(initial_distance) + ' feet)')
 
-    grids_moved = 0
+    grids_moved = 0    
     while grids_to_move > 0 and grid_movement > 0:      
         initial_xpos = combatant.xpos
         initial_ypos = combatant.ypos
@@ -244,14 +243,18 @@ def move_to_target(combatant,target):
         grids_moved += 1
         #Evaluate after each step if the target is in range of our weapon
         if target_in_weapon_range(combatant,combatant.target,combatant.main_hand_weapon.range):                        
-            print_output(indent() + combatant.name + ' skids to a halt at at (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), now in range of ' + combatant.target.name)
+            print_output(movement_text(combatant.name + ' skids to a halt, now in range of ' + combatant.target.name + '. ') + position_text(combatant.xpos,combatant.ypos))
+            movement_complete = True
+
             grids_to_move = 0
             grid_movement = 0
 
         grids_to_move -= 1
         grid_movement -= 1
-        
-    print_output(movement_text(combatant.name + ' is now located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + ')'))    
+    
+    if not movement_complete:
+        print_output(movement_text(combatant.name + ' has used all of their available movement. ') + position_text(combatant.xpos,combatant.ypos))
+        movement_complete = True
 
 def move_from_target(combatant,target):
     # Goal - extend the distance between us and target
@@ -394,3 +397,48 @@ def is_adjacent(combatant,target):
             return True
     return False
 
+def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
+    # Create a copy of the combatant to capture the new co-ordinate and compare to existing co-ordiantes (basically casting forward and simulating the movement)
+    combatant_after_move = creature()
+    combatant_after_move = copy(combatant_before_move)
+    combatant_after_move.xpos = new_xpos
+    combatant_after_move.ypos = new_ypos
+
+    #Evaluate for each enemy unit
+    enemies = get_living_enemies(combatant_before_move)
+    for opportunity_attacker in enemies:                
+        #Only conscious enemies with capacity can make an opportunity attack
+        if opportunity_attacker.conscious and not check_condition(opportunity_attacker,condition.Incapacitated):
+            # Evaluate only if reaction available
+            if not opportunity_attacker.reaction_used:
+                # Only provoke opportunity attacks for melee weapons
+                if opportunity_attacker.main_hand_weapon.range == 0:
+                    # If the enemy is currently adjacent, but would not be after movement, condition is fulfilled
+                    # Note - this will not work with Reach weapons, will need additional conditions to handle Reach
+                    # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
+                    if is_adjacent(opportunity_attacker,combatant_before_move) and not is_adjacent(opportunity_attacker,combatant_after_move):                    
+                        #Swap targets if necessary
+                        original_target = opportunity_attacker.target 
+                        if opportunity_attacker.target != combatant_before_move:                            
+                            opportunity_attacker.target = combatant_before_move
+
+                        # Make the attack out of sequence
+                        print_output('-------------------------------------------------------------------------------------------------------------------------')
+                        print_output(combatant_before_move.name + '\'s movement has triggered an Attack of Opportunity from ' + opportunity_attacker.name + ' !')                        
+                        print_output('Resolving Attack of Opportunity!')                            
+                        if combatant_before_move.disengaged:
+                            print_output(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged!')
+                        else:
+                            if combat.attack(opportunity_attacker,opportunity_attacker.main_hand_weapon):
+                                for feat in opportunity_attacker.creature_feats():
+                                    if feat == feat.Sentinel:
+                                        #Successful opportunity attacks reduce creatures speed to 0
+                                        combatant_before_move.movement = 0
+                                        print_output(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                        
+                            print_output('The Attack of Opportunity has been resolved! ' + opportunity_attacker.name + ' has spent their reaction')                        
+                            print_output('-------------------------------------------------------------------------------------------------------------------------')
+                            # Consume reaction
+                            opportunity_attacker.reaction_used = True
+
+                        # Reset target
+                        opportunity_attacker.target = original_target

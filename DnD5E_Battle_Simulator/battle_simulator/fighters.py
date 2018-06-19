@@ -165,6 +165,7 @@ def init_percy(init_combatants):
     badnews.currentammo = 1
     badnews.misfire = 3
     
+    badnews.two_handed = True
     badnews.finesse = True
     badnews.magic = False
 
@@ -490,7 +491,8 @@ def init_beau(init_combatants):
     beau.fullname = "Beauregard"
     beau.name = "Beau"
     beau.race = race.Human
-    
+    beau.creature_type = creature_type.Player
+
     monk_class = player_class_block()
     monk_class.player_class = player_class.Monk
     monk_class.player_subclass = player_subclass.WayOfTheCobaltSoul
@@ -563,7 +565,8 @@ def init_molly(init_combatants):
     molly.fullname = "Mollymauk"
     molly.name = "Molly"
     molly.race = race.Tiefling
-    
+    molly.creature_type = creature_type.Player
+
     blood_hunter_class = player_class_block()
     blood_hunter_class.player_class = player_class.BloodHunter
     blood_hunter_class.player_subclass = player_subclass.OrderOfTheGhostslayer
@@ -605,10 +608,28 @@ def init_molly(init_combatants):
     molly.checks = mollychecks    
 
     #molly's weapons
-    # note that unarmed strikes are a property of the blood_hunter class, and Flurry of Blows will kick in automagically
+    # note that crimson rites are a property of the blood_hunter class and will be applied to weapons during combat
+    summersdance = weapon()
+    summersdance.name = "Summer's Dance"
+    summersdance.weapon_type = weapon_type.Scimitar;
+    summersdance.range = 0
+    
+    summersdance.damage_die = 6
+    summersdance.damage_die_count = 1
+    summersdance.weapon_damage_type = damage_type.Slashing
+    
+    summersdance.magic_to_hit_modifier = 1
+    summersdance.magic_damage_modifier = 1
+
+    summersdance.magic = True
+    summersdance.finesse = True
+    summersdance.light = True
+
+    molly.weapon_inventory().append(summersdance)
+
     scimitar = weapon()
     scimitar.name = "Scimitar"
-    scimitar.weapon_type = weapon_type.Shortsword;
+    scimitar.weapon_type = weapon_type.Scimitar;
     scimitar.range = 0
     
     scimitar.damage_die = 6
@@ -617,21 +638,7 @@ def init_molly(init_combatants):
     
     scimitar.finesse = True
     scimitar.light = True
-    molly.weapon_inventory().append(scimitar)
-
-    scimitar2 = weapon()
-    scimitar2.name = "Scimitar"
-    scimitar2.weapon_type = weapon_type.Shortsword;
-    scimitar2.range = 0
-    
-    scimitar2.damage_die = 6
-    scimitar2.damage_die_count = 1
-    scimitar2.weapon_damage_type = damage_type.Slashing
-    
-    scimitar2.finesse = True
-    scimitar2.light = True
-
-    molly.weapon_inventory().append(scimitar2)
+    molly.weapon_inventory().append(scimitar)        
     
     #molly's gear
     # combat stats # 
@@ -647,8 +654,9 @@ def init_nott(init_combatants):
 
     nott.fullname = "Nott the Brave"
     nott.name = "Nott"
-    nott.race = race.Human
-    
+    nott.race = race.Goblin
+    nott.creature_type = creature_type.Player
+
     rogue_class = player_class_block()
     rogue_class.player_class = player_class.Rogue
     rogue_class.player_subclass = player_subclass.ArcaneTrickster
@@ -735,7 +743,8 @@ def init_yasha(init_combatants):
     yasha.fullname = "Yasha"
     yasha.name = "Yasha"
     yasha.race = race.Aasamir
-    
+    yasha.creature_type = creature_type.Player
+
     barbarian_class = player_class_block()
     barbarian_class.player_class = player_class.Barbarian
     barbarian_class.player_subclass = player_subclass.PathOfTheZealot
