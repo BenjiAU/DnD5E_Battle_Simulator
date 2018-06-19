@@ -1,5 +1,7 @@
 #Implicit imports
+from battle_simulator import settings
 from battle_simulator.classes import *
+import random
 
 def initialise_combatants(init_combatants):
     init_percy(init_combatants)
@@ -58,7 +60,7 @@ def initialise_teams(combatants,teams):
     red.name = "The Red Team"
     teams.append(red)
     vmnames = ["Grog","Vax","Percy","Doty","Trinket"]
-    m9names = ["Yasha","Beau","Nott"]
+    m9names = ["Fjord","Beau","Caleb","Nott","Jester","Molly","Yasha"]
     monsternames = ["Umbrasyl","Hill Giant","Arkhan"]
     #Iterate through all combatants and initially assign them to team
     for combatant in combatants:
@@ -71,38 +73,12 @@ def initialise_teams(combatants,teams):
         else:
             combatant.team = blue
 
-def initialise_starting_positions(combatants):
+# Randomise starting positions
+def randomise_starting_positions(combatants):
     for combatant in combatants:
-        if combatant.name == "Grog":
-            combatant.starting_xpos = 25
-            combatant.starting_ypos = 25
-        if combatant.name == "Vax":
-            combatant.starting_xpos = 0
-            combatant.starting_ypos = 10
-        if combatant.name == "Percy":
-            combatant.starting_xpos = 0
-            combatant.starting_ypos = 15
-        if combatant.name == "Arkhan":
-            combatant.starting_xpos = 0
-            combatant.starting_ypos = 20
-        if combatant.name == "Umbrasyl":
-            combatant.starting_xpos = 50
-            combatant.starting_ypos = 50           
-        if combatant.name == "Yasha":
-            combatant.starting_xpos = 25
-            combatant.starting_ypos = 25
-        #if combatant.name == "Arkhan":
-        #    combatant.position = 1410
-        #if combatant.name == "Percy":
-        #    combatant.position = 1400
-        #if combatant.name == "Umbrasyl":
-        #    combatant.position = 1450
-        #if combatant.name == "Hill Giant":
-        #    combatant.position = 1450
-        #if combatant.name == "Doty":
-        #    combatant.position = 1450
-        #if combatant.name == "Trinket":
-        #    combatant.position = 1500
+        random.seed
+        combatant.starting_xpos = round_to_integer(random.randint(-50,50),5)
+        combatant.starting_ypos = round_to_integer(random.randint(-50,50),5)
 
 def init_percy(init_combatants):
 #Percival    

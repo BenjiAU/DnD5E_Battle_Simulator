@@ -29,7 +29,7 @@ def load_combatants():
     combatants.teams = []
     fighters.initialise_combatants(combatants.list)
     fighters.initialise_teams(combatants.list,combatants.teams)    
-    fighters.initialise_starting_positions(combatants.list)
+    fighters.randomise_starting_positions(combatants.list)    
 
 def set_combatants(selected_combatants,selected_teams):
     for combatant in combatants.list:

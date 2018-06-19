@@ -450,16 +450,16 @@ def initialise_class_features(combatant):
                     spell.player_classes().append(player_class.Warlock)
                     if class_instance.player_class_level >= 1:
                         spell.instance = 1
-                        spell.description = "A crackling beam of energy leaps forward at the target!"
+                        spell.description = "A crackling beam of energy leaps toward"
                     if class_instance.player_class_level >= 5:
                         spell.instance = 2
-                        spell.description = "Two crackling beams of energy leap forward at the target!"
+                        spell.description = "Two crackling beams of energy leap toward"
                     if class_instance.player_class_level >= 11:
                         spell.instance = 3
-                        spell.description = "Three crackling beams of energy leap forward at the target!"
+                        spell.description = "Three crackling beams of energy leap toward"
                     if class_instance.player_class_level >= 17:
                         spell.instance = 4
-                        spell.description = "Four crackling beams of energy leap forward at the target!"
+                        spell.description = "Four crackling beams of energy leap toward"
             
         #############
         ## Wizard ###
@@ -485,16 +485,16 @@ def initialise_class_features(combatant):
 
                     if class_instance.player_class_level >= 1:
                         spell.damage_die_count = 1
-                        spell.description = "A mote of fire hurls towards the target!"
+                        spell.description = "A mote of fire hurls towards"
                     if class_instance.player_class_level >= 5:
                         spell.damage_die_count = 2
-                        spell.description = "A small globe of flame hurls towards the target!"
+                        spell.description = "A small globe of flame hurls towards"
                     if class_instance.player_class_level >= 11:
                         spell.damage_die_count = 3
-                        spell.description = "A searing bolt of flame hurls towards the target!"
+                        spell.description = "A searing bolt of flame hurls towards"
                     if class_instance.player_class_level >= 17:
                         spell.damage_die_count = 4
-                        spell.description = "A great roaring inferno hurls towards the target!"
+                        spell.description = "A great roaring inferno hurls towards"
 
 def initialise_class_spellslots(combatant):
     reset_spellslots(combatant)

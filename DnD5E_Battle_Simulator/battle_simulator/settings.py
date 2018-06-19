@@ -8,6 +8,7 @@ def init():
 
     global file
 
+    #Simulation controls
     #Maximum number of battle simulations to occur
     global max_attempts
     max_attempts = 10
@@ -16,9 +17,9 @@ def init():
     global max_rounds
     max_rounds = 50
 
-    #List for appending output
-    global output
-    output = []
+    #Randomises starting positions within a range
+    global randomise_starting_positions
+    randomise_starting_positions = True    
 
     #Verbosity controls
     # Movement verbosity - if True, will output each step taken in the movement functions (lots of spam)
@@ -32,3 +33,7 @@ def init():
     global start_time
     
     global end_time
+    
+    #List for appending output
+    global output
+    output = []

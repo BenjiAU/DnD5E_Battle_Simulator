@@ -25,7 +25,7 @@ def select_spell(combatant,casttime):
                         # Choose the first spell we find, or check the total potential damage of the spell to decide which one to use
                         if best_spell == None or (spell.instance*(spell.damage_die_count*spell.damage_die)) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
                             best_spell = spell
-
+    
     return best_spell
 
 #Cast a spell  - if Crit is forced use it
@@ -37,11 +37,11 @@ def cast_spell(combatant,spell,crit = None):
     if spellslot:               
         # Deduct one usage from the spellslot (not cantrips)
         if spellslot.level == 0:
-            print_output(combatant.name + ' is casting the Cantrip ' + spell.name + ': ' + spell.description)
+            print_output(indent() + spell.description + " " + combatant.target.name)
         else:
             #Consume the spell slot from player's available slots
-            print_output(combatant.name + ' is burning a ' + numbered_list(spellslot.level) + ' level spellslot to cast ' + spell.name)                            
-            spellslot.current -= 1     
+            print_output(indent() + combatant.name + ' is burning a ' + numbered_list(spellslot.level) + ' level spellslot to cast ' + spell.name)                            
+            spellslot.current -= 1
 
         # Make spell attack (if spell is an attack)
         if spell.spell_attack:            
