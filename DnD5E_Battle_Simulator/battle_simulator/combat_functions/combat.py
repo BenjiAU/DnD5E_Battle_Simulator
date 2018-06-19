@@ -216,7 +216,7 @@ def attack(combatant,weapon):
                     #Advantage/disadvantage conditions (not weapon specific)                
                     if not attackcomplete:
 
-                        determine_advantage(combatant,range_attack,advantage,disadvantage)                        
+                        advantage,disadvantage = determine_advantage(combatant,range_attack)                        
                     
                         #Modifier conditions (i.e. GWM, sharpshooter)       
                         if range_attack:                            

@@ -281,9 +281,9 @@ def simulate_battle():
 
                                 # Turn completion events
                                 # Reset sneak attack on anyone who used sneak attack (i.e. opportunity attacks)
-                                for combatant in combatants.list:
-                                    if combatant.sneak_attack:
-                                        combatant.sneak_attack_used = False
+                                for sneak_attack_combatant in combatants.list:
+                                    if sneak_attack_combatant.sneak_attack:
+                                        sneak_attack_combatant.sneak_attack_used = False
 
                                 #Mark the turn as complete
                                 print_output('That finishes ' + combatant.name + '\'s turn.')

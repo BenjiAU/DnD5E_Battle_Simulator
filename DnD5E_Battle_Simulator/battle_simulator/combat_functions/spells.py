@@ -73,7 +73,7 @@ def spell_attack(combatant,target,spell,spellslot):
     disadvantage = False    
     crit = False
 
-    determine_advantage(combatant,spell.range > 0,advantage,disadvantage)
+    advantage,disadvantage = determine_advantage(combatant,spell.range > 0)
     spell_hit_modifier = calc_spell_hit_modifier(combatant,spell)
     atkroll = attack_roll(combatant,advantage,disadvantage,spell_hit_modifier)    
     if atkroll == 20:

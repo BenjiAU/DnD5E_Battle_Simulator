@@ -95,7 +95,9 @@ def roll_initiative(combatant):
         initiativeroll += combatant.proficiency
     combatant.initiative_roll = initiativeroll
 
-def determine_advantage(combatant,range_attack,advantage,disadvantage):
+def determine_advantage(combatant,range_attack):
+    advantage = False
+    disadvantage = False
     # Inter-round advantage/disadvantage conditions, which are managed by various status-es
     if combatant.has_advantage:
         advantage = True
@@ -135,6 +137,8 @@ def determine_advantage(combatant,range_attack,advantage,disadvantage):
     if combatant.vow_of_enmity_target == combatant.target:
         print_output(combatant.name + ' has advantage on the attack from their Vow of Enmity!')
         advantage = True
+
+    return advantage,disadvantage
 
 def attack_roll(combatant,advantage,disadvantage,to_hit_modifier):
     initroll = roll_die(20)                    
