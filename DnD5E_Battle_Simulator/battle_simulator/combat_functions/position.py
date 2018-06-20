@@ -75,6 +75,11 @@ def determine_desired_range(combatant):
 
         if selected_spell != None:
             desired_range = selected_spell.range                        
+        #Spellcasters may still have a weapon and want to use it if they can't find a useful spell
+        elif combatant.main_hand_weapon.range == 0 and not (combatant.main_hand_weapon.thrown):
+            desired_range = 0
+        else:
+            desired_range = combatant.main_hand_weapon.range
     else:        
         if combatant.main_hand_weapon.range == 0 and not (combatant.main_hand_weapon.thrown):    
             desired_range = 0
