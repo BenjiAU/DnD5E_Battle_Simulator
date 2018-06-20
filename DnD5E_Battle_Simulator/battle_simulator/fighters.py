@@ -114,6 +114,12 @@ def init_percy(init_combatants):
 
     #Saves
     percysaves = saving_throw_block()
+    percysaves.str = 7
+    percysaves.dex = 6
+    percysaves.con = 8
+    percysaves.intel = 5
+    percysaves.wis = 3
+    percysaves.cha = 2
     
     percy.saves = percysaves
 
