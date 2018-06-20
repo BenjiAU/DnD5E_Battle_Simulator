@@ -10,10 +10,9 @@ def reset_combatants(init_combatants):
     #Initialise Battle
     for combatant in init_combatants:                   
 
-        # remove any conditions
-        for old_combatant_condition in combatant.creature_conditions():
-            remove_condition(combatant,old_combatant_condition.condition)
-
+        # remove any conditions affecting combatants
+        combatant.creature_conditions().clear()
+        
         # Reset creature values #
         combatant.alive = True
         combatant.death_saving_throw_failure = 0

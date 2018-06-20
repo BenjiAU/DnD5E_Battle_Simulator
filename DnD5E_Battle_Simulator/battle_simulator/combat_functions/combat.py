@@ -39,7 +39,7 @@ def attack_action(combatant):
                 attack(combatant,combatant.main_hand_weapon)    
     elif combatant.creature_type == creature_type.Player:
         # Primary attack call for players
-        print_output(combatant.name + ' uses the Attack action against')                
+        print_output(combatant.name + ' uses the Attack action')                
         attack(combatant,combatant.main_hand_weapon)
         
         # Bonus attack functions for players
@@ -452,9 +452,9 @@ def attack(combatant,weapon):
                             totaldamage = dice_damage + damage_modifier + feat_bonus            
 
                             if feat_bonus == 0:
-                                print_output(indent() + combatant.name + '\'s strike dealt a total of ' + damage_text(repr(totaldamage)) + ' points of ' + weapon_damage_type.name + ' damage (Dice: ' + repr(dice_damage) + ' Modifier: ' + repr(damage_modifier) + ')')
+                                print_output(indent() + combatant.name + '\'s strike dealt a total of ' + damage_text(repr(totaldamage)) + ' points of ' + weapon_damage_type.name + ' damage')
                             else:
-                                print_output(indent() + combatant.name + '\'s strike dealt a total of ' + damage_text(repr(totaldamage)) + ' points of ' + weapon_damage_type.name + ' damage (Dice: ' + repr(dice_damage) + ' Modifier: ' + repr(damage_modifier) + ' Bonus ' + repr(feat_bonus) + ')')
+                                print_output(indent() + combatant.name + '\'s strike dealt a total of ' + damage_text(repr(totaldamage)) + ' points of ' + weapon_damage_type.name + ' damage')
                             deal_damage(combatant,combatant.target,totaldamage,weapon_damage_type,weapon.magic)
                 
                             if track_hemo:
