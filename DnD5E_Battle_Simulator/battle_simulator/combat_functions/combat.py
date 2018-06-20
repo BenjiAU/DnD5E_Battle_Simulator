@@ -575,7 +575,7 @@ def attack(combatant,weapon):
             if not check_condition(combatant.target,condition.Incapacitated):
                 combatant.ki_points -= 1
                 print_output(combatant.name + ' focuses on the flow of Ki in ' + combatant.target.name + '\'s body, and attempts a Stunning Strike! Current Ki Points: ' + repr(combatant.ki_points) + '/' + repr(combatant.max_ki_points))            
-                if savingthrow(combatant.target,saving_throw.Dexterity,conmod(combatant.target),combatant.target.saves.con_adv,8+combatant.proficiency+wismod(combatant)):
+                if savingthrow(combatant.target,saving_throw.Constitution,conmod(combatant.target),combatant.target.saves.con_adv,8+combatant.proficiency+wismod(combatant)):
                     print_output(combatant.target.name + ' resists the attempt to manipulate the flow of ki in their body, and is unaffected by the Stunning Strike!')
                 else:
                     print_output(combatant.target.name + ' seizes up as the flow of Ki through their body is disrupted by the Stunning Strike!')
