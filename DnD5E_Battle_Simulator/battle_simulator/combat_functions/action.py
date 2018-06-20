@@ -195,7 +195,7 @@ def bonus_action(combatant):
                         use_movement(combatant)                            
                     else:
                         print_output(combatant.name + ' fell over where they stand!')
-                        combatant.prone = True
+                        inflict_condition(combatant,condition.Prone)
                     combatant.bonus_action_used = True       
 
 def hasted_action(combatant):

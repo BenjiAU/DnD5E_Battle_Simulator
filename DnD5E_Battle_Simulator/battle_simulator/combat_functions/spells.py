@@ -10,7 +10,7 @@ from operator import attrgetter
 def select_spell(combatant,casttime):
     best_spell = None
     #Check that the target is in a condition to warrant casting the spell on?
-    if combatant.target.conscious:    
+    if not check_condition(combatant.target,condition.Unconscious):    
         for spell in combatant.spell_list():
             if spell.casting_time == casttime:
                 #Check that components (V,S,M) are available for spell?

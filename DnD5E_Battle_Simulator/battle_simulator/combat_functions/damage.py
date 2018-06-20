@@ -121,9 +121,9 @@ def deal_damage(combatant,target,damage,dealt_damage_type,magical):
 def heal_damage(combatant,healing):        
     #Can't heal the dead
     if combatant.alive:
-    # Bring combatant back from unconsciousness, reset death saving throws if any
-        if combatant.current_health == 0:
-            combatant.conscious = True
+    # Bring combatant back from unconsciousness if healing restores you to over 0 hp, reset death saving throws if any
+        if check_condition(combatant,condition.Unconscious) and combatant.current_health + healing > 0:
+            remove_condition(combatant,condition.Unconscious)
             combatant.death_saving_throw_failure = 0
             combatant.death_saving_throw_success = 0
 
@@ -144,7 +144,7 @@ def resolve_damage(combatant):
     combatant.pending_damage().clear()
     if total_damage > 0:
         
-        if combatant.current_health >= 0 and combatant.conscious:
+        if combatant.current_health >= 0 and not check_condition(combatant,condition.Unconscious):
             #Use Reaction if it can do anything
             if not combatant.reaction_used:
                 # Stone's Endurance
@@ -176,48 +176,49 @@ def resolve_damage(combatant):
             print_output(combatant.name + ' suffers a total of ' + damage_text(repr(int(total_damage))) + ' points of damage. ' + hp_text(combatant.current_health,combatant.max_health))        
 
 def resolve_fatality(combatant):
-    if combatant.alive and combatant.conscious and combatant.current_health <= 0:
+    if combatant.alive and not check_condition(combatant,condition.Unconscious) and combatant.current_health <= 0:
         # Default proposition - combatant goes unconscious
-        combatant.conscious = False   
-        print_output(combatant.name + ' is knocked unconscious by the force of the blow!')
+        # If any features or abilities remove the unconsciousness condition, we remain standing
+        inflict_condition(combatant,combatant,condition.Unconscious)
+        #print_output(combatant.name + ' is knocked unconscious by the force of the blow!')
 
         #Relentless rage
         if combatant.relentless_rage and combatant.raging:
             if savingthrow(combatant,saving_throw.Constitution,combatant.saves.con,False,combatant.relentless_rage_DC):
                 print_output(combatant.name + ' was dropped below 0 hit points, but recovers to 1 hit point due to their Relentless Rage!')
                 combatant.alive = True
-                combatant.conscious = True
+                remove_condition(combatant,condition.Unconscious)
                 combatant.current_health = 1
                 combatant.relentless_rage_DC += 5
             else:                
                 print_output('The fury within ' + combatant.name + '\'s eyes fades, and they slump to the ground, unable to sustain their Relentless Rage!')
-                combatant.conscious = False      
+                remove_condition(combatant,condition.Unconscious)
                 combatant.relentless_rage = False  
 
         # rage beyond death (if we need to)
-        if not combatant.conscious and combatant.rage_beyond_death and combatant.raging:
+        if check_condition(combatant,condition.Unconscious) and combatant.rage_beyond_death and combatant.raging:
             # Combatant is not unconscious if they have Rage Beyond Death
             print_output(combatant.name + ' picks themselves up and continues fighting in their divine rage!')
-            combatant.conscious = True
+            remove_condition(combatant,condition.Unconscious)
             if combatant.death_saving_throw_failure <= 3:
                 # Roll a death saving throw; only track failures, when we hit 3 they are dead at the end of rage
                 death_saving_throw(combatant)
                 if combatant.death_saving_throw_failure >= 3:
                     print_output(combatant.name + ' fails their third death saving throw, but remains standing in their zealous rage beyond death!')       
-                    combatant.conscious = True
+                    remove_condition(combatant,condition.Unconscious)
                     combatant.alive = True
         elif combatant.rage_beyond_death and not combatant.raging:
             if combatant.death_saving_throw_failure >= 3:
                 print_output(combatant.name + ' falls to their knees, the white-hot rage leaving their eyes as their jaw goes slack, and they perish on the ground.')                    
-                combatant.conscious = False
+                inflict_condition(combatant,combatant,condition.Unconscious)
                 combatant.alive = False  
             else:
                 print_output(combatant.name + ' collapses unconscious on the ground, exhausted by their divine rage, but still breathing')
-                combatant.conscious = False
+                inflict_condition(combatant,combatant,condition.Unconscious)
                 combatant.alive = True
 
     #Resolve death saving throws (thrown at other parts, i.e. when damage suffered or when unconscious on your turn)
-    elif combatant.alive and not combatant.conscious and combatant.current_health <= 0:
+    elif combatant.alive and check_condition(combatant,condition.Unconscious) and combatant.current_health <= 0:
         if combatant.death_saving_throw_failure >= 3:
             print_output('~~~~' + combatant.name + '\'s chest stops moving, as the cold embrace of death welcomes them.' + '~~~~')
             combatant.alive = False
@@ -226,13 +227,14 @@ def resolve_fatality(combatant):
             combatant.stabilised = True                
     
     # Knock target prone, set movement to 0, and turn off rage and if combatant unconscious after evaluating Rage features
-    if not combatant.conscious:
+    if check_condition(combatant,condition.Unconscious):
         combatant.raging = False
-        combatant.prone = True
+        if not check_condition(combatant,condition.Prone):
+            inflict_condition(combatant,combatant,condition.Prone)
         combatant.movement = 0
 
     #Resolve death
-    if not combatant.alive and not combatant.conscious and combatant.current_health <=0:
+    if not combatant.alive and check_condition(combatant,condition.Unconscious) and combatant.current_health <=0:
         print_output(killing_blow_text('HOW DO YOU WANT TO DO THIS??'))        
 
 def death_saving_throw(combatant):

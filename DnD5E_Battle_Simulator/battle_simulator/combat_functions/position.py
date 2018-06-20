@@ -27,11 +27,11 @@ def use_movement(combatant):
     # If we're a melee fighter, try to close the gap
     # If we're a ranged fighter, try to keep at maximum range (but don't run off into the wilderness)
 
-    if combatant.prone:
+    if check_condition(combatant,condition.Prone):
         # Spend half combatant.movement to get up #
         combatant.movement = math.floor(combatant.movement/2)
         print_output(combatant.name + ' spends ' + repr(combatant.movement) + ' feet of movement to stand up from prone')            
-        combatant.prone = False
+        remove_condition(combatant,condition.Prone)
     
     determine_desired_range(combatant)    
 
@@ -141,7 +141,7 @@ def move_grid(combatant,direction):
     #Check for opportunity attacks
     evaluate_opportunity_attacks(combatant,new_xpos,new_ypos)    
 
-    if combatant.movement > 0 and not combatant.prone:        
+    if combatant.movement > 0 and not check_condition(combatant,condition.Prone):        
         combatant.xpos = new_xpos
         combatant.ypos = new_ypos
         # Update movement
@@ -432,7 +432,7 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
     enemies = get_living_enemies(combatant_before_move)
     for opportunity_attacker in enemies:                
         #Only conscious enemies with capacity can make an opportunity attack
-        if opportunity_attacker.conscious and not check_condition(opportunity_attacker,condition.Incapacitated):
+        if not check_condition(opportunity_attacker,condition.Unconscious) and not check_condition(opportunity_attacker,condition.Incapacitated):
             # Evaluate only if reaction available
             if not opportunity_attacker.reaction_used:
                 # Only provoke opportunity attacks for melee weapons

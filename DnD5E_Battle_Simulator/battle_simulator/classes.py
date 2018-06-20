@@ -61,6 +61,7 @@ class statistic_block():
 class creature_condition():
     condition = int()
     source = None
+    limited_duration = bool()
     duration = int()
 
 class condition(Enum):
@@ -739,10 +740,8 @@ class creature():
     movement_used = bool() # Tracks if Movement step of turn has been used
     action_used = bool() # Tracks if Action step of turn has been used
     bonus_action_used = bool() # Tracks if Bonus Action step of turn has been used
-    reaction_used = bool() # Tracks if Reaction step of turn has been used
-
-    prone = bool() # Tracks if creature is prone (requires half movement to stand)
-    conscious = bool() # Tracks if creature is conscious
+    reaction_used = bool() # Tracks if Reaction step of turn has been used    
+    
     death_saving_throw_success = int() # Tracks succesful Death Saving Throws
     death_saving_throw_failure = int() # Tracks failed Death Saving Throws
     stabilised = bool() # Tracks stabilisation (i.e. 3 successes)

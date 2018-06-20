@@ -3,19 +3,21 @@
 #Implicit imports
 from battle_simulator.classes import *
 from battle_simulator.combat_functions.inventory import * 
-
+from battle_simulator.combat_functions.conditions import * 
 #Other imports
 
 def reset_combatants(init_combatants):
     #Initialise Battle
     for combatant in init_combatants:                   
 
+        # remove any conditions
+        for old_combatant_condition in combatant.creature_conditions():
+            remove_condition(combatant,old_combatant_condition.condition)
+
         # Reset creature values #
         combatant.alive = True
         combatant.death_saving_throw_failure = 0
         combatant.death_saving_throw_success = 0
-        combatant.conscious = True
-        combatant.prone = False
         combatant.current_health = combatant.max_health
         combatant.enlarged = False        # Need a better wayto handle this        
         combatant.hasted = False

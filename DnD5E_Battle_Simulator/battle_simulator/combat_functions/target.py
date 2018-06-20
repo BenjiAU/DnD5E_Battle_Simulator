@@ -6,6 +6,7 @@ from battle_simulator.classes import *
 from battle_simulator.print_functions import *
 from battle_simulator.combat_functions.position import all_other_combatants
 from battle_simulator.combat_functions.generics import calc_distance
+from battle_simulator.combat_functions.conditions import check_condition
 
 def find_target(combatant):    
     #Always set the target as a reference to the master list of combatants (to avoid having to constantly refresh to pick up changes in the target)
@@ -16,7 +17,7 @@ def find_target(combatant):
         if combatant.name != enemy.name and combatant.team != enemy.team:
             if enemy.alive:                
                 #Target selection priority:                     
-                if enemy.conscious:                
+                if not check_condition(enemy,condition.Unconscious):                
                 # If our current target is healthy, and has more current HP than the potential target, swap to the weaker one
                     if best_target == None:
                         best_target = enemy

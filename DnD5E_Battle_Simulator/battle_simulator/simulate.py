@@ -126,7 +126,7 @@ def simulate_battle():
                     while not turn_complete:
                         # Continuously evaluate this subloop only while combatant is alive/conscious; if these conditions change, skip out to death handling
                         combatant_alive_this_turn = False
-                        while not turn_complete and combatant.alive and combatant.conscious:
+                        while not turn_complete and combatant.alive and not check_condition(combatant,condition.Unconscious):
                             combatant_alive_this_turn = True
                             # update statistics
                             combatant.rounds_fought += 1
@@ -202,28 +202,28 @@ def simulate_battle():
                                     print_output('<b>Movement:</b>')
                                     movement(combatant)
 
-                                    if not combatant.conscious or not combatant.alive:
+                                    if check_condition(combatant,condition.Unconscious) or not combatant.alive:
                                         break
 
                                     # bonus action (pre-action)#       
                                     if not combatant.bonus_action_used:                                    
                                         bonus_action(combatant)     
 
-                                    if not combatant.conscious or not combatant.alive:
+                                    if check_condition(combatant,condition.Unconscious) or not combatant.alive:
                                         break
 
                                     # action #
                                     print_output('<b>Action:</b>')
                                     action(combatant)              
                                 
-                                    if not combatant.conscious or not combatant.alive:
+                                    if check_condition(combatant,condition.Unconscious) or not combatant.alive:
                                         break
 
                                     # bonus action (post-action)#       
                                     if not combatant.bonus_action_used:                                    
                                         bonus_action(combatant)            
 
-                                    if not combatant.conscious or not combatant.alive:
+                                    if check_condition(combatant,condition.Unconscious) or not combatant.alive:
                                         break
 
                                     # hasted action #
@@ -231,13 +231,13 @@ def simulate_battle():
                                         hasted_action(combatant)
                                         combatant.hasted_action_used = True
                                 
-                                    if not combatant.conscious or not combatant.alive:
+                                    if check_condition(combatant,condition.Unconscious) or not combatant.alive:
                                         break
 
                                     # additional abilities (action surge etc.)
                                     if combatant.action_surge > 0: 
                                         # Don't blow action surge if current target is down; find a new target instead
-                                        if not combatant.target.alive or not combatant.target.conscious:
+                                        if not combatant.target.alive or check_condition(combatant.target,condition.Unconscious):
                                             find_target(combatant)
                                         # If we still have a target, use our action surge
                                         if combatant.target:
@@ -249,7 +249,7 @@ def simulate_battle():
                                             print_output('<b>Action Surge action:</b>')
                                             action(combatant)                                
                                 
-                                    if not combatant.conscious or not combatant.alive:
+                                    if check_condition(combatant,condition.Unconscious) or not combatant.alive:
                                         break
                                     #print_output(combatant.name + "s new position: " + repr(combatant.position))
                         
@@ -263,7 +263,7 @@ def simulate_battle():
 
                                 #Apply Hemorraging Critical damage
                                 resolve_hemo_damage(combatant)                   
-                                if not combatant.conscious or not combatant.alive:
+                                if check_condition(combatant,condition.Unconscious) or not combatant.alive:
                                     break
                                 
                                 # Resolve Head Shot status
@@ -303,17 +303,17 @@ def simulate_battle():
                                 battle_complete = True
 
                         # Handle unconsciousness/death
-                        if combatant.alive and not combatant.conscious:
+                        if combatant.alive and check_condition(combatant,condition.Unconscious):
                             print_output(combatant.name + ' is unconscious on the ground!')
                             # Unconscious actions
                             # If we're struck down by something on our turn, we don't need to death save til next turn
                             if not combatant_alive_this_turn:
-                                if not combatant.conscious and combatant.current_health <= 0 and not combatant.stabilised:
+                                if check_condition(combatant,condition.Unconscious) and combatant.current_health <= 0 and not combatant.stabilised:
                                     death_saving_throw(combatant)
                                     # See if they're dead
                                     resolve_fatality(combatant)                           
                             turn_complete = True
-                        elif not combatant.alive and not combatant.conscious:
+                        elif not combatant.alive and check_condition(combatant,condition.Unconscious):
                             print_output(combatant.name + ' is dead!')    
                             print_output("</br>")
                             turn_complete = True                                                                       

@@ -49,7 +49,7 @@ def attack_action(combatant):
             print_output(combatant.name + ' uses their Bonus Action to make an offhand strike!')                
             attack(combatant,combatant.offhand_weapon)
             combatant.bonus_action_used = True
-
+                
         # Flurry of Blows
         if not combatant.bonus_action_used and combatant.flurry_of_blows:                      
             if combatant.main_hand_weapon.weapon_type == weapon_type.Unarmed or combatant.main_hand_weapon.monk_weapon:
@@ -267,7 +267,7 @@ def attack(combatant,weapon):
                                 elif grit_selector <= 4:
                                     # Leg Shot #
                                     # Don't bother if target is already prone:
-                                    if not combatant.target.prone:
+                                    if not check_condition(combatant.target,condition.Prone):
                                         # Only leg shot melee attackers
                                         if combatant.target.main_hand_weapon.range == 0:
                                             combatant.current_grit -= 1
@@ -349,7 +349,7 @@ def attack(combatant,weapon):
                                 print_output(combatant.name + '\'s attack (' + repr(totalatk) + ') against '+ combatant.target.name + ' (AC ' + repr(totalAC) + ') with ' + weapon.name + ' HIT!!!')
                             else:
                                 print_output(combatant.name + '\'s attack (' + repr(atkroll + to_hit_modifier) + '-' + repr(feat_penalty) + ') against '+ combatant.target.name + ' (AC ' + repr(totalAC) + ') with ' + weapon.name + ' HIT!!!')
-                            if combatant.target.conscious == False and not crit and weapon.range == 0:
+                            if check_condition(combatant.target,condition.Unconscious) and not crit and weapon.range == 0:
                                 print_output('The blow strikes the unconscious form of ' + combatant.target.name + ' and deals CRITICAL DAMAGE!')
                                 crit = True       
                             
@@ -368,7 +368,7 @@ def attack(combatant,weapon):
                                         print_output(doubleindent() + combatant.target.name + ' succeeded on the Leg Shot save, and remains standing')
                                     else:
                                         print_output(doubleindent() + combatant.target.name + ' FAILED the Leg Shot save - they are now prone!')
-                                        combatant.target.prone = True
+                                        inflict_condition(combatant.target,combatant,condition.Prone)
                                          
                             # Calculate damage modifier (adds strmod/dexmod to attack)
                             damage_modifier = calc_damage_modifier(combatant,weapon)
@@ -507,7 +507,7 @@ def attack(combatant,weapon):
 
                             #Conditionally cast spells/use items on crit after initial damage resolved
                             # Do some preliminary checking to make sure we do not inadvertantly burn a spell slot
-                            if combatant.target.conscious:    
+                            if not check_condition(combatant.target,condition.Unconscious):    
                                 #Divine Smite
                                 for spell in combatant.spell_list():
                                     if spell.name == "Divine Smite":
@@ -534,7 +534,7 @@ def attack(combatant,weapon):
                             #After all the damage from the attack action is resolved, check the fatality
                             #Do this sparingly or players wlil die multiple times from one attack 
                             #i.e. activate relentless rage each time they drop below 0
-                            if combatant.target.conscious:                              
+                            if not check_condition(combatant.target,condition.Unconscious):                              
                                 resolve_damage(combatant.target)
                             else:                            
                                 if crit:

@@ -112,7 +112,7 @@ def determine_advantage(combatant,range_attack):
         advantage = True
 
     #Check condition of target                
-    if combatant.target.prone and range_attack:
+    if check_condition(combatant.target,condition.Prone) and range_attack:
         print_output(combatant.target.name + ' is prone on the ground, giving ' + combatant.name + ' disadvantage on the attack!')
         disadvantage = True
 
