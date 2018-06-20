@@ -113,7 +113,7 @@ def breath_attack(combatant):
     # Retrieve the combatant list reference if it hasn't passed throuhg?
     for affected_target in affected_targets:    
         print_output(affected_target.name + ' is in the affected area (located at (' + repr(affected_target.xpos) + ',' + repr(affected_target.ypos) + ')')   
-        if savingthrow(affected_target,saving_throw.Dexterity,dexmod(affected_target),affected_target.saves.dex_adv,23):
+        if savingthrow(affected_target,saving_throw.Dexterity,affected_target.saves.dex,affected_target.saves.dex_adv,23):
             #If target has evasion and saves, nothing happens
             if affected_target.evasion:
                 print_output(affected_target.name + ' avoids all damage from the attack thanks to Evasion!') 
@@ -356,7 +356,7 @@ def attack(combatant,weapon):
                             # resolve trick shot #
                             if trick_shot:
                                 if trick_shot_target == "Head":
-                                    if savingthrow(combatant.target,saving_throw.Constitution,conmod(combatant.target),combatant.target.saves.con_adv,8+combatant.proficiency + dexmod(combatant)):
+                                    if savingthrow(combatant.target,saving_throw.Constitution,combatant.target.saves.con,combatant.target.saves.con_adv,8+combatant.proficiency + dexmod(combatant)):
                                         print_output(doubleindent() + combatant.target.name + ' succeeded on the Head Shot save, and is immune to its effect.')
                                     else:
                                         print_output(doubleindent() + combatant.target.name + ' FAILED the Head Shot save - they now had disadvantage on attacks until the end of their next turn!')
@@ -364,7 +364,7 @@ def attack(combatant,weapon):
                                         combatant.target.head_shotted = True
                                 elif trick_shot_target == "Legs":
                                     # logic to choose the right kind of called shot? lol #
-                                    if savingthrow(combatant.target,saving_throw.Strength,strmod(combatant.target),combatant.target.saves.str_adv,8+combatant.proficiency + dexmod(combatant)):
+                                    if savingthrow(combatant.target,saving_throw.Strength,combatant.target.saves.str,combatant.target.saves.str_adv,8+combatant.proficiency + dexmod(combatant)):
                                         print_output(doubleindent() + combatant.target.name + ' succeeded on the Leg Shot save, and remains standing')
                                     else:
                                         print_output(doubleindent() + combatant.target.name + ' FAILED the Leg Shot save - they are now prone!')
@@ -575,7 +575,7 @@ def attack(combatant,weapon):
             if not check_condition(combatant.target,condition.Incapacitated):
                 combatant.ki_points -= 1
                 print_output(combatant.name + ' focuses on the flow of Ki in ' + combatant.target.name + '\'s body, and attempts a Stunning Strike! Current Ki Points: ' + repr(combatant.ki_points) + '/' + repr(combatant.max_ki_points))            
-                if savingthrow(combatant.target,saving_throw.Constitution,conmod(combatant.target),combatant.target.saves.con_adv,8+combatant.proficiency+wismod(combatant)):
+                if savingthrow(combatant.target,saving_throw.Constitution,combatant.target.saves.con,combatant.target.saves.con_adv,8+combatant.proficiency+wismod(combatant)):
                     print_output(combatant.target.name + ' resists the attempt to manipulate the flow of ki in their body, and is unaffected by the Stunning Strike!')
                 else:
                     print_output(combatant.target.name + ' seizes up as the flow of Ki through their body is disrupted by the Stunning Strike!')
