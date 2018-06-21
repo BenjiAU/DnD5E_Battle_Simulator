@@ -54,7 +54,7 @@ def find_heal_target(combatant,range):
         if calc_distance(combatant,ally) <= range:
             if check_condition(ally,condition.Unconscious):
                 heal_target = ally
-            elif ally.current_health <= ally.max_health/4:
+            elif heal_target == None and ally.current_health <= ally.max_health/4:
                 heal_target  = ally
 
     if heal_target == None:
