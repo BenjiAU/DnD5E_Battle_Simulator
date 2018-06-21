@@ -48,6 +48,7 @@ def resolve_hemo_damage(combatant):
         deal_damage(combatant,combatant,combatant.hemo_damage,combatant.hemo_damage_type,False)
         combatant.hemo_damage = 0
         combatant.hemo_damage_type = 0     
+        resolve_damage(combatant)
         resolve_fatality(combatant)
 
 def resolve_spell_damage(combatant,target,spell,spellslot,crit):
