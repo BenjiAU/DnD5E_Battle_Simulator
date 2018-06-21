@@ -18,6 +18,9 @@ def use_luck(combatant):
 
 def savingthrow(combatant,savetype,DC):
     print_output('<i>Saving Throw</i>')
+    adv = False
+    modifier = 0
+    
     if savetype == saving_throw.Strength:
         modifier = combatant.saves.str
         adv = combatant.saves.str_adv
@@ -76,6 +79,7 @@ def savingthrow(combatant,savetype,DC):
 # check functions #
 def abilitycheck(combatant,checktype,DC,proficient=False):    
     #Pass a DC of 0 to just return the check value (i.e. Initiative, Perception)
+    adv = False
     if checktype == ability_check.Strength:
         modifier = strmod(combatant)
     elif checktype == ability_check.Dexterity:
@@ -205,3 +209,28 @@ def calc_distance(combatant,target):
     xdistance = int(math.fabs(combatant.xpos-target.xpos))
     ydistance = int(math.fabs(combatant.ypos-target.ypos))
     return int(math.sqrt((xdistance * xdistance) + (ydistance * ydistance)))
+
+# Targetting functions that need to be outside core loop
+def all_other_combatants(combatant):
+    targets = []
+    for target in combatants.list:
+        if combatant.name != target.name:
+            if target.alive:                
+                targets.append(target)
+    return targets
+
+def get_living_enemies(combatant):
+    enemies = []
+    for potential_enemy in combatants.list:
+        if combatant.name != potential_enemy.name and combatant.team != potential_enemy.team:
+            if potential_enemy.alive:                
+                enemies.append(potential_enemy)
+    return enemies
+
+def get_living_allies(combatant):
+    allies = []
+    for potential_ally in combatants.list:
+        if combatant.name != potential_ally.name and combatant.team == potential_ally.team:
+            if potential_ally.alive:                
+                allies.append(potential_ally)
+    return allies

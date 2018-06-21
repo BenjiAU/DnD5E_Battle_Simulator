@@ -132,8 +132,7 @@ def simulate_battle():
                             # update statistics
                             combatant.rounds_fought += 1
 
-                            # Re-evaluate targets
-                            print_output('<b>Determining targets:</b>')
+                            # Re-evaluate targets                            
                             if find_target(combatant):                
                                 weapon_swap(combatant,calc_distance(combatant,combatant.target))   
                                 
@@ -142,6 +141,7 @@ def simulate_battle():
                                 combatant.movement_used = False
                                 combatant.action_used = False
                                 combatant.bonus_action_used = False
+                                combatant.bonus_action_spell_casted = False
                                 combatant.reaction_used = False
                                 
                                 # Reset the granted actions provided by various conditions (i.e. Haste)
@@ -155,13 +155,7 @@ def simulate_battle():
 
                                 # Sneak Attack (resets at the start of each turn)
                                 if combatant.sneak_attack:
-                                    combatant.sneak_attack_used = False
-
-                                # Determine distance between targets and report if it is > 0
-                                dist = calc_distance(combatant,combatant.target)
-                                grids = calc_no_of_grids(dist)
-                                if combatant.target and dist > 0:
-                                    print_output('Distance to target: ' + repr(grids) + ' grid squares, or ' + repr(dist) + ' feet')
+                                    combatant.sneak_attack_used = False                                
 
                                 #check for breath weapon recharge
                                 if combatant.creature_type == creature_type.Monster:
@@ -224,7 +218,7 @@ def simulate_battle():
                                             #Hasted condition (hasted action has limits on what can be done)
                                             if combatant_condition.condition == condition.Hasted:
                                                 hasted_action(combatant)
-                                                combatant_condition.granted_action_used                                    
+                                                combatant_condition.granted_action_used = True
                                 
                                     if check_condition(combatant,condition.Unconscious) or not combatant.alive:
                                         break

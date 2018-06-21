@@ -1,4 +1,5 @@
 from enum import Enum, auto
+
 import math
 import random
 
@@ -103,6 +104,10 @@ class condition(Enum):
     Slowed = auto()   # Slow spell
     Reduced = auto() # Enlarge/Reduce spell
     Headshot = auto() # Gunslinger head shot
+
+    #Special Concentrating condition
+    Concentrating = auto()
+
 
 class player_class_block():
     player_class = int()
@@ -346,6 +351,10 @@ class spell():
    description = str()   
    school = int() #Spell school
       
+   concentration = bool() #True if this spell is a Concentrating spell (inflicts a Concentrating condition on caster)
+   maximum_duration = int() # Maximum duration of the spell
+
+   cantrip = bool() #True if a cantrip, spellslots do not apply
    min_spellslot_level = int() #Minimum spell slot to be expended to cast spell (0 = cantrip)   
    max_spellslot_level = int() #Maximum spell slot to be expended with additional effect (i.e. divine smite at 8th level has 5th level properties)
    
@@ -360,6 +369,8 @@ class spell():
    condition_duration = int() # Duration for the inflicted condition
 
    spell_attack = bool()   # True if this spell is a spell attack, false if it's a DC save (range attribute determines range or touch) or buff
+   saving_throw_attribute = int() #Saving throw information, defined if a save is required, otherwise blank (i.e. for buffs/spell attacks)   
+
    instance = int() # Instances of damage; i.e. Eldritch blast gains additional beams at 5th, 11th, 17th level     
    
    damage_die = int()
@@ -375,9 +386,8 @@ class spell():
    
    healing_die = int()
    healing_die_count = int()
-
-   saving_throw_attribute = int() #Saving throw information, defined if a save is required, otherwise blank (i.e. for buffs/spell attacks)
-   saving_throw_dc = int() #DC is set on the spell object (carried over from caster spell dc)
+   healing_die_per_spell_slot = int() # Additional healing die per spell slot
+   healing_die_count_per_spell_slot = int() # Count of additional healing die per spell slot   
 
    # Errata   
    verbal = bool() #Has Verbal Components
@@ -744,9 +754,11 @@ class creature():
     initiative_roll = int() # Used to sort combatants in initiative order
     movement_used = bool() # Tracks if Movement step of turn has been used
     action_used = bool() # Tracks if Action step of turn has been used
-    bonus_action_used = bool() # Tracks if Bonus Action step of turn has been used
+    bonus_action_used = bool() # Tracks if Bonus Action step of turn has been used    
     reaction_used = bool() # Tracks if Reaction step of turn has been used    
     
+    bonus_action_spell_casted = bool() # Stops you casting anything but a cantrip if you use BA to cast a spell
+
     death_saving_throw_success = int() # Tracks succesful Death Saving Throws
     death_saving_throw_failure = int() # Tracks failed Death Saving Throws
     stabilised = bool() # Tracks stabilisation (i.e. 3 successes)
@@ -829,6 +841,26 @@ def conmod(combatant):
 
 def chamod(combatant):
     return math.floor((combatant.stats.cha-10)/2)
+
+def spellcasting_ability_modifier(combatant,spell):
+    modifier = 0
+    player_spellcasting_attribute = None
+    for spell_player_class in spell.player_classes():
+        for player_class_block in combatant.player_classes():            
+            if spell_player_class == player_class_block.player_class:
+                player_spellcasting_attribute = player_class_block.spellcasting_attribute
+    
+    if player_spellcasting_attribute == attribute.Intelligence:
+        modifier = intmod(combatant)
+    elif player_spellcasting_attribute == attribute.Wisdom:
+        modifier = wismod(combatant)
+    elif player_spellcasting_attribute == attribute.Charisma:
+        modifier = chamod(combatant)
+    return modifier
+
+def spell_save_DC(combatant,spell):
+    modifier = spellcasting_ability_modifier(combatant,spell)
+    return 8 + combatant.proficiency + modifier
 
 # Rolls a dice (initiates a new random seed on each call) #
 def roll_die(die):

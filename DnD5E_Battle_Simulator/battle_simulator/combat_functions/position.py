@@ -68,6 +68,7 @@ def determine_desired_range(combatant):
         # Default position for spellcasters is to keep at least 100 feet of distance between them and target
         desired_range = 100
         # If we haven't used our action yet, decide where to be based on the best spell's distance
+        selected_spell = None
         if not combatant.action_used:
             selected_spell = select_spell(combatant,spell_casting_time.Action)
         elif not combatant.bonus_action_used:
@@ -75,11 +76,13 @@ def determine_desired_range(combatant):
 
         if selected_spell != None:
             desired_range = selected_spell.range                        
-        #Spellcasters may still have a weapon and want to use it if they can't find a useful spell
-        elif combatant.main_hand_weapon.range == 0 and not (combatant.main_hand_weapon.thrown):
-            desired_range = 0
         else:
-            desired_range = combatant.main_hand_weapon.range
+            if combatant.main_hand_weapon != None:
+                #Spellcasters may still have a weapon and want to use it if they can't find a useful spell
+                if combatant.main_hand_weapon.range == 0 and not (combatant.main_hand_weapon.thrown):
+                    desired_range = 0
+                else:
+                    desired_range = combatant.main_hand_weapon.range
     else:        
         if combatant.main_hand_weapon.range == 0 and not (combatant.main_hand_weapon.thrown):    
             desired_range = 0
@@ -256,19 +259,26 @@ def move_to_target(combatant,target):
             if move_grid(combatant,direction):
                 grid_moved = True
             else:
-                # The desired direction failed (because of prone, another character blocking square etc.)
-                # Try moving perpendicular to the desired direction (this should let us move around on the next tick)
-                direction = derive_perpendicular(direction)
-                if move_grid(combatant,direction):
+                #Check that we have movement remaining (moving the grid could have gotten us hit by Sentinel AoO which drops movement to none)
+                if combatant.movement == 0:
+                    grids_to_move = 0
+                    grid_movement = 0
                     grid_moved = True
                 else:
-                    # Move in a random direction to see if that lets us get around the obstacle on the next tick (as we derive a new path to target0
-                    direction = cardinal_direction.Random
+                    # The desired movement direction failed for another reason (because of prone, another character blocking square etc.)
+                    # Try moving perpendicular to the desired direction (this should let us move around on the next tick)                
+                    direction = derive_perpendicular(direction)
                     if move_grid(combatant,direction):
-                        grid_moved = True             
+                        grid_moved = True
                     else:
-                        print_output('Could not move!')
-                        grid_moved = True             
+                        # Move in a random direction to see if that lets us get around the obstacle on the next tick (as we derive a new path to target0
+                        direction = cardinal_direction.Random
+                        if move_grid(combatant,direction):
+                            grid_moved = True             
+                        else:
+                            # Catchall - something stopped us from moving
+                            print_output('Could not move!')
+                            grid_moved = True             
 
         grids_moved += 1
         #Evaluate after each step if the target is in range of our weapon
@@ -370,30 +380,6 @@ def move_from_target(combatant,target):
 def calc_no_of_grids(distance):
     return(int(round(math.fabs(distance/5))))
 
-def get_living_enemies(combatant):
-    enemies = []
-    for potential_enemy in combatants.list:
-        if combatant.name != potential_enemy.name and combatant.team != potential_enemy.team:
-            if potential_enemy.alive:                
-                enemies.append(potential_enemy)
-    return enemies
-
-def get_living_allies(combatant):
-    allies = []
-    for potential_ally in combatants.list:
-        if combatant.name != potential_enemy.name and combatant.team == potential_enemy.team:
-            if potential_ally.alive:                
-                allies.append(potential_ally)
-    return allies
-
-def all_other_combatants(combatant):
-    targets = []
-    for target in combatants.list:
-        if combatant.name != target.name:
-            if target.alive:                
-                targets.append(target)
-    return targets
-
 def determine_enemy_positions(combatant):        
     enemy_positions = []
     for potential_enemy in combatants.list:
@@ -407,7 +393,7 @@ def target_in_range(combatant,target,range):
         range = melee_range()
     #Calculate distance in feet
     distance_to_target = calc_distance(combatant,target)
-    if (distance_to_target <= range) or (combatant.main_hand_weapon.reach and distance_to_target < range + 5):
+    if (distance_to_target <= range):
         return True
     #Check that no grids are adjacent for melee attacks
     if is_adjacent(combatant,target):
@@ -463,7 +449,7 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
 
                             # Make the attack out of sequence
                             print_output('-------------------------------------------------------------------------------------------------------------------------')
-                            print_output(combatant_before_move.name + '\'s movement from ' + position_text(combatant_before_move.xpos,combatant_before_move.ypos) + ' has triggered an Attack of Opportunity from ' + opportunity_attacker.name + ' !' + position_text(opportunity_attacker.xpos,opportunity_attacker.ypos))
+                            print_output(combatant_before_move.name + '\'s movement (' + position_text(combatant_before_move.xpos,combatant_before_move.ypos) + ') has triggered an Attack of Opportunity from ' + opportunity_attacker.name + '! (' + position_text(opportunity_attacker.xpos,opportunity_attacker.ypos) + ')')
                             print_output('Resolving Attack of Opportunity!')                            
                             if check_condition(combatant_before_move,condition.Disengaged):
                                 print_output(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged!')

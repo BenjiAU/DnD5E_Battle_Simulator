@@ -84,7 +84,35 @@ def resolve_spell_damage(combatant,target,spell,spellslot,crit):
         spell_damage = spell_damage * 2
         
     print_output(indent() + spell.name + ' dealt ' + damage_text(repr(spell_damage)) + ' points of ' + spell.damage_type.name + ' damage!')                    
-    deal_damage(combatant,combatant.target,spell_damage,spell.damage_type,True)    
+    deal_damage(combatant,target,spell_damage,spell.damage_type,True)   
+
+def resolve_spell_healing(combatant,target,spell,spellslot):
+    print_output(indent() + 'Rolling spell healing:')                        
+    spell_healing = 0
+    if spell.healing_die > 0:
+        # Start with base healing of spell
+        for x in range(0,spell.healing_die_count):
+            die_healing = roll_die(spell.healing_die)
+            print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_healing) + ' on a d' + repr(spell.healing_die) + ' (Spell Healing)')
+            spell_healing += die_healing
+
+        #Add additional healing for levels of expended spell slot
+        if spellslot.level > spell.min_spellslot_level:
+            # If the spell gains no benefit for spells higher than the maximum, we still burn the higher slot, but only get benefit from the maximum against the spell                
+            if spell.max_spellslot_level < spellslot.level:
+                spellslot_bonus = spell.max_spellslot_level
+            else:
+                spellslot_bonus = spellslot.level                
+                
+            for x in range(spell.min_spellslot_level,spellslot_bonus):
+                for y in range(0,spell.healing_die_count_per_spell_slot):
+                    die_healing = roll_die(spell.healing_die_per_spell_slot)
+                    print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_healing) + ' on a d' + repr(spell.healing_die_per_spell_slot) + ' (Additional Spell Healing from Spell Slot)')
+                    spell_healing += die_healing
+        
+    spell_healing += spellcasting_ability_modifier(combatant,spell)
+    print_output(indent() + spell.name + ' delivered ' + healing_text(repr(spell_healing)) + ' points of healing!')                    
+    heal_damage(target,spell_healing) 
 
 def deal_damage(combatant,target,damage,dealt_damage_type,magical):    
     #Reduce bludgeoning/piercing/slashing if raging (and not wearing Heavy armour)
@@ -127,7 +155,12 @@ def heal_damage(combatant,healing):
             combatant.death_saving_throw_failure = 0
             combatant.death_saving_throw_success = 0
 
-        combatant.current_health = combatant.current_health + healing
+        if combatant.current_health + healing > combatant.max_health:
+            combatant.current_health = combatant.max_health
+        else:
+            combatant.current_health = combatant.current_health + healing
+
+        print_output(indent() + combatant.name + ' recovers ' + healing_text(repr(healing)) + ' points of health. ' + hp_text(combatant.current_health,combatant.max_health))
     
 def resolve_damage(combatant):
     total_damage = 0
@@ -170,7 +203,15 @@ def resolve_damage(combatant):
                         combatant.reaction_used = True
                         
             combatant.current_health = max(combatant.current_health - total_damage,0)
-                        
+            #Check Concentration
+            if check_condition(combatant,condition.Concentrating):
+                concentration_check_DC = max(10,round(total_damage/2))
+                print_output(combatant.name + ' needs to make a Concentrating check to maintain focus!')
+                if savingthrow(combatant,saving_throw.Constitution,concentration_check_DC):
+                    print_output(indent() + combatant.name + ' maintains focus on the spell!')
+                else:
+                    remove_condition(combatant,condition.Concentrating)
+
             if settings.show_damage_summary:
                 print_output('Damage Summary: ' + damage_string)        
             print_output(combatant.name + ' suffers a total of ' + damage_text(repr(int(total_damage))) + ' points of damage. ' + hp_text(combatant.current_health,combatant.max_health))        
@@ -179,8 +220,7 @@ def resolve_fatality(combatant):
     if combatant.alive and not check_condition(combatant,condition.Unconscious) and combatant.current_health <= 0:
         # Default proposition - combatant goes unconscious
         # If any features or abilities remove the unconsciousness condition, we remain standing
-        inflict_condition(combatant,combatant,condition.Unconscious)
-        #print_output(combatant.name + ' is knocked unconscious by the force of the blow!')
+        inflict_condition(combatant,combatant,condition.Unconscious)                
 
         #Relentless rage
         if combatant.relentless_rage and check_condition(combatant,condition.Raging):
@@ -229,8 +269,11 @@ def resolve_fatality(combatant):
     # Knock target prone, set movement to 0, and turn off rage and if combatant unconscious after evaluating Rage features
     if check_condition(combatant,condition.Unconscious):
         remove_condition(combatant,condition.Raging) 
+        # Remove concentration
+        remove_condition(combatant,condition.Concentrating)            
+
         if not check_condition(combatant,condition.Prone):
-            inflict_condition(combatant,combatant,condition.Prone)
+            inflict_condition(combatant,combatant,condition.Prone)        
         combatant.movement = 0
 
     #Resolve death

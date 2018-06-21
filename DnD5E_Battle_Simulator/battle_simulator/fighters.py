@@ -922,6 +922,10 @@ def init_jester(init_combatants):
     curewounds.name = "Cure Wounds"
     jester.spell_list().append(curewounds)
 
+    sacredflame = spell()
+    sacredflame.name = "Sacred Flame"
+    jester.spell_list().append(sacredflame)        
+
     init_combatants.append(jester)    
 
 def init_molly(init_combatants):

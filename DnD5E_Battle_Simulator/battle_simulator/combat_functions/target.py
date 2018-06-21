@@ -5,7 +5,7 @@ from battle_simulator import combatants
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
 from battle_simulator.combat_functions.position import * 
-from battle_simulator.combat_functions.generics import calc_distance
+from battle_simulator.combat_functions.generics import *
 from battle_simulator.combat_functions.conditions import check_condition
 
 def find_target(combatant):    
@@ -13,26 +13,30 @@ def find_target(combatant):
     original_target = combatant.target
     combatant.target = None    
     best_target = None
-    for enemy in combatants.list:
-        if combatant.name != enemy.name and combatant.team != enemy.team:
-            if enemy.alive:                
-                #Target selection priority:                     
-                if not check_condition(enemy,condition.Unconscious):                                
-                    # If we have no target, choose this enemy
-                    if best_target == None:
-                        best_target = enemy                    
-                    # If the enemy is within our range, and closer to us than the current target, swap to this enemy
-                    elif calc_distance(combatant,enemy) <= combatant.desired_range and calc_distance(combatant,best_target) > calc_distance(combatant,enemy):
-                        best_target = enemy
-                    # Swap to the closer enemy
-                    elif calc_distance(combatant,best_target) > calc_distance(combatant,enemy):
-                        best_target = enemy
-                    # If two enemies are the same distance away, use their current HP to decide who to target
-                    elif best_target.current_health == best_target.max_health and best_target.current_health > enemy.current_health:
-                        best_target = enemy
-                elif best_target == None:
-                    # Only choose an unconscious target if we have no other target defined
-                    best_target = enemy 
+    for enemy in get_living_enemies(combatant):                   
+        #Target selection priority:                     
+        if not check_condition(enemy,condition.Unconscious):                                
+            # If we have no target, choose this enemy
+            if best_target == None:
+                best_target = enemy    
+                
+            # If the enemy is within our range, and closer to us than the current target, swap to this enemy
+            if calc_distance(combatant,enemy) <= combatant.desired_range:
+                best_target = enemy
+            #If the enemy is closer than the current target, swap to it
+            elif calc_distance(combatant,enemy) < calc_distance(combatant,best_target):                
+                best_target = enemy                            
+
+    #If we do not have a target, allow target selection from unconscious targets
+    if best_target == None:
+        for enemy in get_living_enemies(combatant):                   
+        #Target selection priority:                                                     
+            if best_target == None:
+                best_target = enemy                   
+            if calc_distance(combatant,enemy) <= combatant.desired_range:
+                best_target = enemy            
+            elif calc_distance(combatant,enemy) < calc_distance(combatant,best_target):                
+                best_target = enemy                                            
                     
     combatant.target = best_target
     if combatant.target:
@@ -44,28 +48,29 @@ def find_target(combatant):
     else:
         return False
 
-def find_heal_target(combatant):
+def find_heal_target(combatant,range):
     heal_target = None    
     for ally in get_living_allies(combatant):
-        if check_condition(ally,condition.Unconscious):
-            heal_target = ally
-        elif ally.current_health < ally.max_health/4:
-            heal_target  = ally    
+        if calc_distance(combatant,ally) <= range:
+            if check_condition(ally,condition.Unconscious):
+                heal_target = ally
+            elif ally.current_health <= ally.max_health/4:
+                heal_target  = ally
+
     if heal_target == None:
-        if combatant.current_health < combatant.max_health/4:
-            heal_target = combatant
+        if combatant.current_health <= combatant.max_health/2:
+            heal_target = combatant    
     return heal_target
 
-def find_buff_target(combatant,buff_condition):
+def find_buff_target(combatant,buff_condition,range):
     buff_target = None    
     for ally in get_living_allies(combatant):
-        if not check_condition(ally,condition.Unconscious) and not check_condition(ally,Stunned) and not check_condition(ally,Incapacitated):
-            #For testing - target Raging allies with Enlarge or Haste if we have it
-            if buff_condition == condition.Enlarged:
-                if check_condition(ally,condition.Raging):    
+        if calc_distance(combatant,ally) <= range:
+            if not check_condition(ally,condition.Unconscious) and not check_condition(ally,condition.Stunned) and not check_condition(ally,condition.Incapacitated):
+                #For testing - target Raging allies with Enlarge or Haste if we have it
+                if buff_condition == condition.Enlarged:                    
                     buff_target = ally        
-            elif buff_condition == condition.Hasted:
-                if check_condition(ally,condition.Raging):           
+                elif buff_condition == condition.Hasted:                    
                     buff_target = ally        
     if buff_target == None:    
         buff_target = combatant

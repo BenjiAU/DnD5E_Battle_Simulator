@@ -36,16 +36,37 @@ def inflict_condition(combatant,source,condition,duration=0,grants_advantage=Fal
         combatant_condition.duration = duration    
         combatant_condition.grants_advantage = grants_advantage
         combatant_condition.grants_disadvantage = grants_disadvantage
+        
+        #Special property of Haste
+        if condition == condition.Hasted:
+            combatant_condition.grants_action = True
+            combatant_condition.granted_action_used = False
         combatant.creature_conditions().append(combatant_condition)   
         print_output(indent() + combatant.name + ' is now ' + combatant_condition.condition.name + '!')
 
 def remove_condition(combatant,condition_to_remove):
+    #Concentration is inflicted by the spell; look across all other targets for instances of that spell and remove them if required
+    if condition_to_remove == condition.Concentrating:
+        # Retrieve the concentration object so we can access the source
+        concentration_condition = None
+        for combatant_condition in combatant.creature_conditions():
+           if combatant_condition.condition == condition_to_remove:
+                concentration_condition = combatant_condition
+
+        if concentration_condition != None:
+            for spell_effect_combatant in combatants.list:
+                for spell_effect in spell_effect_combatant.creature_conditions():
+                    # Avoid recursion
+                    if spell_effect.source == concentration_condition.source and spell_effect.condition != condition_to_remove:
+                        remove_condition(spell_effect_combatant,spell_effect.condition)
+
     # Mutate the condition list against the creature to exclude the condition/conditions to remove
-    # On the off chance multiple instances of the same condition are recorded against the target this will remove all instances of them 
+    # On the off chance multiple instances of the same condition are recorded against the target this will remove all instances of them     
     if check_condition(combatant,condition_to_remove):
         combatant.creature_conditions()[:] = [combatant_condition for combatant_condition in combatant.creature_conditions() if not combatant_condition.condition == condition_to_remove]    
-        print_output(indent() + combatant.name + ' is no longer ' + condition_to_remove.name + '!')
+        print_output(indent() + combatant.name + ' is no longer ' + condition_to_remove.name + '!')    
 
+        
 def update_conditions(combatant):
     # Update the duration on all limited-duration conditions
     for combatant_condition in combatant.creature_conditions():

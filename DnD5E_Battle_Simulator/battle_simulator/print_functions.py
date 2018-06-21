@@ -169,6 +169,9 @@ def print_combatant_details(combatant,position):
         print_output(indent() + feat.name)
     #print_output('Rage Beyond Death: ' + repr(combatant.rage_beyond_death))
     #print_output('---------------------------------')
+    print_output('Spells Known')    
+    for spell in combatant.spell_list():                                       
+        print_output(indent() + spell.name) 
     print_output('Spellslots')    
     for spellslot in combatant.spellslots():                               
         if spellslot.level != 0:

@@ -9,12 +9,12 @@ from battle_simulator.combat_functions.inventory import *
 from battle_simulator.combat_functions.position import *
 from battle_simulator.combat_functions.target import *
             
-def action(combatant):
+def action(combatant):    
     if not find_target(combatant):
         print_output('No targets remain!')
         return
 
-    # Only perform an action if target exists    
+    # Check that our action was not consumed out-of-turn by a different effect
     if combatant.action_used:
         print_output(combatant.name + ' has already used their Action this turn.')
 
@@ -26,56 +26,61 @@ def action(combatant):
                 combatant.action_used = True
 
     # Cast a Spell
-    if not combatant.action_used:
-        # See if we have any action-cost spells to use
-        if combatant.spellcaster:
-            # Select an appropriate action-cost spell
-            selected_spell = select_spell(combatant,spell_casting_time.Action)                
-            if selected_spell != None:                    
-                print_output(combatant.name + ' uses the Cast a Spell Action to cast ' + selected_spell.name + '!')
-                cast_spell(combatant,selected_spell)
-                combatant.action_used = True
+    if not combatant.action_used:        
+        # Select an appropriate action-cost spell
+        selected_spell = select_spell(combatant,spell_casting_time.Action)                
+        if selected_spell != None:                    
+            print_output(combatant.name + ' uses the Cast a Spell Action to cast ' + selected_spell.name + '!')
+            cast_spell(combatant,selected_spell)
+            combatant.action_used = True
 
-    # If we get to this point, use our default attack if available
-    if not combatant.action_used:            
-        # Swap to a different weapon if it makes sense due to range                    
-        current_range = calc_distance(combatant,combatant.target)
-        # Attempt a weapon swap - change weapons depending on range
-        # This will prefer to swap a non-broken or ruined weapon in
-        weapon_swap(combatant,current_range)
+    # Attack
+    if not combatant.action_used:        
+        if combatant.main_hand_weapon != None:
+            # Swap to a different weapon if it makes sense due to range                    
+            current_range = calc_distance(combatant,combatant.target)
+            # Attempt a weapon swap - change weapons depending on range
+            # This will prefer to swap a non-broken or ruined weapon in
+            weapon_swap(combatant,current_range)
 
-        if combatant.main_hand_weapon.broken == False:
-            if target_in_range(combatant,combatant.target,combatant.main_hand_weapon.range):
-                attack_action(combatant)                        
-            else:
-                # Check the upper range increment (if the weapon has one) instead and potentially fire at disadvantage
-                if target_in_range(combatant,combatant.target,combatant.main_hand_weapon.long_range):
+            if combatant.main_hand_weapon.broken == False:
+                if target_in_range(combatant,combatant.target,combatant.main_hand_weapon.range):
                     attack_action(combatant)                        
+                    combatant.action_used = True
                 else:
-                    # Dash Action
-                    print_output(combatant.name + ' is taking the Dash action!')
-                    combatant.movement = combatant.speed
-                    if check_condition(combatant,condition.Hasted):
-                        combatant.movement = combatant.speed * 2                                                
-                    use_movement(combatant)
+                    # Check the upper range increment (if the weapon has one) instead and potentially fire at disadvantage
+                    if target_in_range(combatant,combatant.target,combatant.main_hand_weapon.long_range):
+                        attack_action(combatant)
+                        combatant.action_used = True
+            else:
+                # If the weapon is Ruined, and we could not swap to a non-ruined weapon, we're out of luck
+                if combatant.main_hand_weapon.ruined:
+                    print_output(combatant.name + ' can\'t do anything with ' + combatant.main_hand_weapon.name + ', it is damaged beyond repair!')
+                    # Can't swap to a valid weapon - just have to sit this one out
                     combatant.action_used = True
-        else:
-            # If the weapon is Ruined, and we could not swap to a non-ruined weapon, we're out of luck
-            if combatant.main_hand_weapon.ruined:
-                print_output(combatant.name + ' can\'t do anything with ' + combatant.main_hand_weapon.name + ', it is damaged beyond repair!')
-                # Can't swap to a valid weapon - just have to sit this one out
-                combatant.action_used = True
 
-            # If the weapon is broken, and we could not swap to a non-broken weapon, must waste action reparing it
-            if not combatant.action_used:
-                if combatant.main_hand_weapon.broken:
-                    repair_weapon(combatant)            
-                    combatant.action_used = True
+                # If the weapon is broken, and we could not swap to a non-broken weapon, must waste action reparing it
+                if not combatant.action_used:
+                    if combatant.main_hand_weapon.broken:
+                        repair_weapon(combatant)            
+                        combatant.action_used = True
                 
-            #If we have not attacked yet, attempt to attack
-            if not combatant.action_used:
-                attack_action(combatant)
-                combatant.action_used = True
+                #If we have not attacked yet, attempt to attack
+                if not combatant.action_used:
+                    attack_action(combatant)
+                    combatant.action_used = True                        
+    # Dash
+    if not find_target(combatant):
+        print_output('No targets remain!')
+        return
+
+    if not combatant.action_used:
+        print_output(combatant.name + ' is taking the Dash action!')
+        combatant.movement = combatant.speed
+        if check_condition(combatant,condition.Hasted):
+            combatant.movement = combatant.speed * 2                                                
+        use_movement(combatant)
+        combatant.action_used = True
 
     combatant.action_used = True
 
@@ -139,19 +144,20 @@ def bonus_action(combatant):
             fighter_level = get_combatant_class_level(combatant,player_class.Fighter)                
             if combatant.current_health + 10 + fighter_level < combatant.max_health:
                 second_wind_heal = roll_die(10) + fighter_level
-                heal_damage(combatant,second_wind_heal)                    
-                print_output(combatant.name + ' uses their Bonus Action to gain a Second Wind, and restores ' + healing_text(repr(second_wind_heal)) + ' hit points! ' + hp_text(combatant.current_health,combatant.max_health))
+                print_output(combatant.name + ' uses their Bonus Action to gain a Second Wind!')
+                heal_damage(combatant,second_wind_heal)                                    
                 combatant.second_wind = False
                 combatant.bonus_action_used = True
 
     #Lightning Reload
     if not combatant.bonus_action_used:
-        if combatant.main_hand_weapon.weapon_type == weapon_type.Firearm:
-            if combatant.lighting_reload:
-                if combatant.main_hand_weapon.currentammo == 0:
-                    combatant.main_hand_weapon.currentammo = combatant.main_hand_weapon.reload
-                    print_output(combatant.name + ' used a bonus action to reload. ' + combatant.main_hand_weapon.name + ' Ammo: ' + repr(combatant.main_hand_weapon.currentammo) + '/' + repr(combatant.main_hand_weapon.reload))
-                    combatant.bonus_action_used = True
+        if combatant.main_hand_weapon != None:
+            if combatant.main_hand_weapon.weapon_type == weapon_type.Firearm:
+                if combatant.lighting_reload:
+                    if combatant.main_hand_weapon.currentammo == 0:
+                        combatant.main_hand_weapon.currentammo = combatant.main_hand_weapon.reload
+                        print_output(combatant.name + ' used a bonus action to reload. ' + combatant.main_hand_weapon.name + ' Ammo: ' + repr(combatant.main_hand_weapon.currentammo) + '/' + repr(combatant.main_hand_weapon.reload))
+                        combatant.bonus_action_used = True
 
     # Monk bonus actions
 
@@ -203,8 +209,20 @@ def bonus_action(combatant):
                     inflict_condition(combatant,condition.Prone)
                 combatant.bonus_action_used = True       
 
+
+   # Cast a Spell
+    if not combatant.bonus_action_used:        
+        # Select an appropriate action-cost spell
+        selected_spell = select_spell(combatant,spell_casting_time.Bonus_Action)                
+        if selected_spell != None:
+            print_output(combatant.name + ' uses their Bonus Action to cast ' + selected_spell.name + '!')
+            cast_spell(combatant,selected_spell)
+            combatant.bonus_action_used = True
+            combatant.bonus_action_spell_casted = True
+
 def hasted_action(combatant):
     print_output('<b>Hasted Action:</b>')
+    hasted_action_used = False
     # Only perform an action if target exists
     if not find_target(combatant):
         print_output('No targets remain!')
@@ -215,13 +233,19 @@ def hasted_action(combatant):
     # Attempt a weapon swap - change weapons depending on range
     # This will prefer to swap a non-broken or ruined weapon in
     weapon_swap(combatant,current_range)
-        
-    if target_in_range(combatant,combatant.target,combatant.main_hand_weapon.range):            
-        attack(combatant,combatant.main_hand_weapon)            
-    else:
+    
+    if combatant.main_hand_weapon != None:
+        if target_in_range(combatant,combatant.target,combatant.main_hand_weapon.range):            
+            print_output(combatant.name + ' uses the Attack action as a Hasted action!')                        
+            attack(combatant,combatant.main_hand_weapon)          
+            hasted_action_used = True
+    if not hasted_action_used:    
         print_output(combatant.name + ' uses the Dash action as a Hasted action!')                        
         combatant.movement = combatant.speed * 2                        
         use_movement(combatant)                            
+        hasted_action_used = True
+
+    hasted_action_used = True
 
 def use_bonus_action(combatant,action):
     # For out of sequence bonus actions (i.e. Disengaging before moving)

@@ -8,6 +8,10 @@ def init():
 
     global file
 
+    #Defines a global variable to track new spells as they are created, to ensure we have a unique value for each combatant/spell cast
+    global last_spell_ID
+    last_spell_ID = 10000
+
     #Simulation controls
     #Maximum number of battle simulations to occur
     global max_attempts
