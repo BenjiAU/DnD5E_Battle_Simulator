@@ -1,4 +1,4 @@
-#Explicit imports
+#Explicit importscheck
 from battle_simulator import combatants
 
 #Implicit imports
@@ -16,9 +16,29 @@ def use_luck(combatant):
 
 # save functions #
 
-def savingthrow(combatant,savetype,modifier,adv,DC):
+def savingthrow(combatant,savetype,DC):
     print_output('<i>Saving Throw</i>')
+    if savetype == saving_throw.Strength:
+        modifier = combatant.saves.str
+        adv = combatant.saves.str_adv
+    elif savetype == saving_throw.Dexterity:
+        modifier = combatant.saves.dex
+        adv = combatant.saves.dex_adv
+    elif savetype == saving_throw.Constitution:
+        modifier = combatant.saves.con
+        adv = combatant.saves.con_adv
+    elif savetype == saving_throw.Intelligence:
+        modifier = combatant.saves.int
+        adv = combatant.saves.int_adv
+    elif savetype == saving_throw.Wisdom:
+        modifier = combatant.saves.wis
+        adv = combatant.saves.wis_adv
+    elif savetype == saving_throw.Charisma:
+        modifier = combatant.saves.cha
+        adv = combatant.saves.cha_adv
+
     roll = roll_die(20)
+
     savingthrow = roll + modifier    
     print_output(combatant.name + ' rolled a ' + repr(roll) + ' on a d20 for the saving throw with a +' + repr(modifier) + ' modifier')                                                                                                             
     # Check conditions
@@ -31,6 +51,7 @@ def savingthrow(combatant,savetype,modifier,adv,DC):
     if savingthrow >= DC:
         print_output(indent() + combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
         return True
+    
     if adv:
         #print_output(combatant.name + ' failed the save, but has advantage on ' + savetype + ' saving throws!')
         roll = roll_die(20)
@@ -53,8 +74,24 @@ def savingthrow(combatant,savetype,modifier,adv,DC):
     return False
 
 # check functions #
-def abilitycheck(combatant,checktype,modifier,adv,DC):    
+def abilitycheck(combatant,checktype,DC,proficient=False):    
     #Pass a DC of 0 to just return the check value (i.e. Initiative, Perception)
+    if checktype == ability_check.Strength:
+        modifier = strmod(combatant)
+    elif checktype == ability_check.Dexterity:
+        modifier = dexmod(combatant)        
+    elif checktype == ability_check.Constitution:
+        modifier = conmod(combatant)
+    elif checktype == ability_check.Intelligence:
+        modifier = intmod(combatant)        
+    elif checktype == ability_check.Wisdom:
+        modifier = wismod(combatant)        
+    elif checktype == ability_check.Charisma:
+        modifier = chamod(combatant)        
+
+    if proficient:
+        modifier += combatant.proficiency
+
     roll = roll_die(20)
     check = roll + modifier
     print_output(combatant.name + ' rolled a ' + repr(roll) + ' on a d20 for the ability check with a +' + repr(modifier) + ' modifier')                                                                                                             
@@ -89,9 +126,9 @@ def abilitycheck(combatant,checktype,modifier,adv,DC):
 
 # Initiative
 def roll_initiative(combatant):
-    initiativeroll = abilitycheck(combatant,ability_check.Dexterity,dexmod(combatant),False,0)      
+    initiativeroll = abilitycheck(combatant,ability_check.Dexterity,0)      
     if combatant.feral_instinct:
-        initiativeroll_adv = abilitycheck(combatant,ability_check.Dexterity,dexmod(combatant),True,0)
+        initiativeroll_adv = abilitycheck(combatant,ability_check.Dexterity,0)
         initiativeroll = max(initiativeroll,initiativeroll_adv)
     if combatant.quickdraw:
         initiativeroll += combatant.proficiency

@@ -378,6 +378,14 @@ def get_living_enemies(combatant):
                 enemies.append(potential_enemy)
     return enemies
 
+def get_living_allies(combatant):
+    allies = []
+    for potential_ally in combatants.list:
+        if combatant.name != potential_enemy.name and combatant.team == potential_enemy.team:
+            if potential_ally.alive:                
+                allies.append(potential_ally)
+    return allies
+
 def all_other_combatants(combatant):
     targets = []
     for target in combatants.list:

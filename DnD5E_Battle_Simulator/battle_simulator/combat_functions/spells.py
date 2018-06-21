@@ -4,6 +4,7 @@ from battle_simulator.print_functions import *
 from battle_simulator.combat_functions.damage import * 
 from battle_simulator.combat_functions.generics import *
 from battle_simulator.combat_functions.position import *
+from battle_simulator.combat_functions.target import *
 import operator
 from operator import attrgetter
 
@@ -19,17 +20,38 @@ def select_spell(combatant,casttime):
                 spellslot = get_highest_spellslot(combatant,spell)
                 #See if a spellslot was returned by the function
                 if spellslot:    
-                    #Check that target is in range of spell (spells with range 0 always satisfy this condition - i.e. Divine Smite is tied to attack)
-                    if (spell.range == 0) or calc_distance(combatant,combatant.target) <= spell.range:                           
-                        # Choose the first spell we find, or check the total potential damage of the spell to decide which one to use
-                        if best_spell == None or (spell.instance*(spell.damage_die_count*spell.damage_die)) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
+                    #Healing spells first:
+                    # Healing spell
+                    if spell.healing_die != 0:
+                        if best_spell == None or (spell.instance*(spell.healing_die_count*spell.healing_die)) >= (best_spell.instance*(best_spell.healing_die_count*best_spell.healing_die)):
+                            if find_heal_target(combatant) != None:
+                                best_spell = spell
+
+                    # Buff spells
+                    if best_spell == None:                        
+                        if spell.condition != 0 and spell.saving_throw_attribute == 0:                                                                                    
+                            if find_buff_target(combatant,condition) != None:
+                                best_spell = spell
+
+                    # Debuff/saving throw spells
+                    if best_spell == None:
+                        if spell.condition != 0:
                             best_spell = spell
-                    # It may be that the spell is currently out of range, but it could still be beneficial to close the gap and use that spell
-                    # Apply a penalty to out-of-range spells to make us choose between a weaker, closer spell and a stronger one that forces us to close the gap
-                    elif calc_distance(combatant,combatant.target) > spell.range:                    
-                        range_penalty = 0.75
-                        if best_spell == None or ((spell.instance*(spell.damage_die_count*spell.damage_die))*range_penalty) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
-                            best_spell = spell
+
+                    # Spell attacks
+                    if best_spell == None:
+                        if spell.spell_attack:
+                            #Check that target is in range of spell (spells with range 0 always satisfy this condition - i.e. Divine Smite is tied to attack)
+                            if (spell.range == 0) or calc_distance(combatant,combatant.target) <= spell.range:                           
+                                # Choose the first spell we find, or check the total potential damage of the spell to decide which one to use
+                                if best_spell == None or (spell.instance*(spell.damage_die_count*spell.damage_die)) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
+                                    best_spell = spell
+                            # It may be that the spell is currently out of range, but it could still be beneficial to close the gap and use that spell
+                            # Apply a penalty to out-of-range spells to make us choose between a weaker, closer spell and a stronger one that forces us to close the gap
+                            elif calc_distance(combatant,combatant.target) > spell.range:                    
+                                range_penalty = 0.75
+                                if best_spell == None or ((spell.instance*(spell.damage_die_count*spell.damage_die))*range_penalty) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
+                                    best_spell = spell
     return best_spell
 
 #Cast a spell  - if Crit is forced use it
@@ -47,8 +69,33 @@ def cast_spell(combatant,spell,crit = None):
             print_output(indent() + combatant.name + ' is burning a ' + numbered_list(spellslot.level) + ' level spellslot to cast ' + spell.name)                            
             spellslot.current -= 1
 
+        
+        if spell.healing_die != 0:
+            heal_target = find_heal_target(combatant)
+
+            i = 1
+            while i <= spell.instance:
+                for x in range(0,spell.healing_die_count):
+                    die_heal = roll_die(spell.healing_die)
+                    print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.healing_die) + ' (Healing)')
+                    spell_healing += die_damage
+                total_healing = spell_healing + spellcasting_ability_modifier(combatant,spell)
+                i += 1                     
+            print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + heal_target.name)
+            heal_damage(heal_target,total_healing)     
+        # Buff/debuff
+        elif spell.condition != 0:
+            #Apply the buff
+            if spell.saving_throw_attribute == 0:
+                buff_target = find_buff_target(combatant,spell.condition)
+                print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + buff_target.name)
+                inflict_condition(buff_target,combatant,spell.condition,spell.condition_duration)
+            #Attempt to apply the debuff
+            elif not savingthrow(combatant.target,spell.saving_throw_attribute,spell.saving_throw_DC):                
+                print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + combatant.target.name)
+                inflict_condition(combatant.target,combatant,spell.condition,spell.condition_duration)
         # Make spell attack (if spell is an attack)
-        if spell.spell_attack:            
+        elif spell.spell_attack:            
             # Make one attack per instance
             i = 1
             while i <= spell.instance:
@@ -97,19 +144,25 @@ def spell_attack(combatant,target,spell,spellslot):
 def calc_spell_hit_modifier(combatant,spell):
     to_hit_modifier = 0
 
+    to_hit_modifier += spellcasting_ability_modifier(combatant,spell)    
+
+    to_hit_modifier += combatant.proficiency
+    return (to_hit_modifier)
+
+def spellcasting_ability_modifier(combatant,spell):
+    modifier = 0
     for spell_player_class in spell.player_classes():
         for player_class_block in combatant.player_classes():            
             if spell_player_class == player_class_block.player_class:
                 player_spellcasting_attribute = player_class_block.spellcasting_attribute
+    
     if player_spellcasting_attribute == attribute.Intelligence:
-        to_hit_modifier = intmod(combatant)
+        modifier = intmod(combatant)
     elif player_spellcasting_attribute == attribute.Wisdom:
-        to_hit_modifier = wismod(combatant)
+        modifier = wismod(combatant)
     elif player_spellcasting_attribute == attribute.Charisma:
-        to_hit_modifier = chamod(combatant)
-
-    to_hit_modifier += combatant.proficiency
-    return (to_hit_modifier)
+        modifier = chamod(combatant)
+    return modifier
 
 def get_highest_spellslot(combatant,spell):    
     # Sort spells by level (use highest slots first)

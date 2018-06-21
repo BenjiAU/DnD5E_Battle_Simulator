@@ -356,8 +356,9 @@ class spell():
    shape = int() # Shape enumeration (shape that spell affects, i.e. fireball = 20 ft radius sphere)
    shape_size = int()
    
-   inflicts_condition = int() # The condition inflicted by the skill (if any- this could be a buff or debuff, or an additional affect of a damaging spell)
-   
+   condition = int() # The condition inflicted by the skill (if any- this could be a buff or debuff, or an additional affect of a damaging spell)
+   condition_duration = int() # Duration for the inflicted condition
+
    spell_attack = bool()   # True if this spell is a spell attack, false if it's a DC save (range attribute determines range or touch) or buff
    instance = int() # Instances of damage; i.e. Eldritch blast gains additional beams at 5th, 11th, 17th level     
    
@@ -371,7 +372,10 @@ class spell():
    bonus_damage_die = int() 
    bonus_damage_die_count = int()
    bonus_damage_target = int() #Bonus damage inflicted if race = target
-          
+   
+   healing_die = int()
+   healing_die_count = int()
+
    saving_throw_attribute = int() #Saving throw information, defined if a save is required, otherwise blank (i.e. for buffs/spell attacks)
    saving_throw_dc = int() #DC is set on the spell object (carried over from caster spell dc)
 

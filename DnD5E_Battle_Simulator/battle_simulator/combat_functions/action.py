@@ -194,7 +194,7 @@ def bonus_action(combatant):
             if item.grants_equipment_spell == equipment_spells.Leap:
                 #For now treat this as special forced combatant.movement of 20 feet
                 print_output(combatant.name + ' is taking a flying leap using their ' + item.name + ' as a Bonus Action!')                    
-                if abilitycheck(combatant,ability_check.Strength,strmod(combatant),combatant.checks.str_adv,16):                    
+                if abilitycheck(combatant,ability_check.Strength,16):                    
                     print_output(combatant.name + ' leaps 20 feet.')                        
                     combatant.movement = 20
                     use_movement(combatant)                            
@@ -235,7 +235,7 @@ def use_bonus_action(combatant,action):
     
 def repair_weapon(combatant):
     print_output(combatant.name + ' attempts to repair ' + combatant.main_hand_weapon.name)    
-    if abilitycheck(combatant,ability_check.Dexterity,dexmod(combatant)+combatant.proficiency,False,10+combatant.main_hand_weapon.misfire):  
+    if abilitycheck(combatant,ability_check.Dexterity,10+combatant.main_hand_weapon.misfire,True):  
         print_output(combatant.name + ' successfully repaired ' + combatant.main_hand_weapon.name)
         combatant.main_hand_weapon.broken = False
     else:

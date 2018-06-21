@@ -4,7 +4,7 @@ from battle_simulator import combatants
 #Implicit imports
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
-from battle_simulator.combat_functions.position import all_other_combatants
+from battle_simulator.combat_functions.position import * 
 from battle_simulator.combat_functions.generics import calc_distance
 from battle_simulator.combat_functions.conditions import check_condition
 
@@ -43,6 +43,33 @@ def find_target(combatant):
             return True
     else:
         return False
+
+def find_heal_target(combatant):
+    heal_target = None    
+    for ally in get_living_allies(combatant):
+        if check_condition(ally,condition.Unconscious):
+            heal_target = ally
+        elif ally.current_health < ally.max_health/4:
+            heal_target  = ally    
+    if heal_target == None:
+        if combatant.current_health < combatant.max_health/4:
+            heal_target = combatant
+    return heal_target
+
+def find_buff_target(combatant,buff_condition):
+    buff_target = None    
+    for ally in get_living_allies(combatant):
+        if not check_condition(ally,condition.Unconscious) and not check_condition(ally,Stunned) and not check_condition(ally,Incapacitated):
+            #For testing - target Raging allies with Enlarge or Haste if we have it
+            if buff_condition == condition.Enlarged:
+                if check_condition(ally,condition.Raging):    
+                    buff_target = ally        
+            elif buff_condition == condition.Hasted:
+                if check_condition(ally,condition.Raging):           
+                    buff_target = ally        
+    if buff_target == None:    
+        buff_target = combatant
+    return buff_target
 
 def find_targets_in_area(combatant,affected_grids):    
     affected_targets = []

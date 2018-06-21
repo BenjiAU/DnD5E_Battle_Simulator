@@ -749,6 +749,14 @@ def init_caleb(init_combatants):
     firebolt.name = "Firebolt"
     caleb.spell_list().append(firebolt)
 
+    haste = spell()
+    haste.name = "Haste"
+    caleb.spell_list().append(haste)
+
+    enlarge = spell()
+    enlarge.name = "Enlarge"
+    caleb.spell_list().append(enlarge)
+
     init_combatants.append(caleb)    
 
 def init_nott(init_combatants):   
@@ -905,6 +913,14 @@ def init_jester(init_combatants):
 
     #jester's gear
     # combat stats # 
+
+    healingword = spell()
+    healingword.name = "Healing Word"
+    jester.spell_list().append(healingword)
+
+    curewounds = spell()
+    curewounds.name = "Cure Wounds"
+    jester.spell_list().append(curewounds)
 
     init_combatants.append(jester)    
 

@@ -184,7 +184,7 @@ def resolve_fatality(combatant):
 
         #Relentless rage
         if combatant.relentless_rage and check_condition(combatant,condition.Raging):
-            if savingthrow(combatant,saving_throw.Constitution,combatant.saves.con,False,combatant.relentless_rage_DC):
+            if savingthrow(combatant,saving_throw.Constitution,combatant.relentless_rage_DC):
                 print_output(combatant.name + ' was dropped below 0 hit points, but recovers to 1 hit point due to their Relentless Rage!')
                 combatant.alive = True
                 remove_condition(combatant,condition.Unconscious)
