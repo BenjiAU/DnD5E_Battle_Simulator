@@ -95,7 +95,10 @@ def simulate_battle():
         print_output('Combat order established: ')
         combatorder = 0                   
         
-        #Print initiative order and initialise targets
+        #Remove the gag on output (to stop weapon/target/roll spam at the start of the sim)
+        settings.suppress_output = False
+
+        #Print initiative order and initialise targets        
         begin_combatant_details()
         for combatant in combatants.list:                   
             #Determine teams for battle            
@@ -105,8 +108,6 @@ def simulate_battle():
 
             combatorder += 1            
             print_combatant_details(combatant,combatorder)
-            if find_target(combatant):                
-                weapon_swap(combatant,calc_distance(combatant,combatant.target))               
         end_combatant_details()
 
         #Begin combat rounds (up to a maximum to avoid overflow)
@@ -133,29 +134,20 @@ def simulate_battle():
 
                             # Re-evaluate targets
                             print_output('<b>Determining targets:</b>')
-                            if combatant.target:                                
-                                if not combatant.target.alive:
-                                    #Aim for a new target as the current one is dead
-                                    print_output(combatant.name + '\'s target is dead! Choosing new target...')
-                                    if find_target(combatant):                
-                                        weapon_swap(combatant,calc_distance(combatant,combatant.target))   
-                            else:
-                                if find_target(combatant):                
-                                    weapon_swap(combatant,calc_distance(combatant,combatant.target))   
+                            if find_target(combatant):                
+                                weapon_swap(combatant,calc_distance(combatant,combatant.target))   
                                 
                             #If we have not retrieved a target from the function, victory is declared for this team
                             if combatant.target:
-                                # Targetable actions
-                                print_output(combatant.name + ' is targetting: ' + combatant.target.name)
-
                                 combatant.movement_used = False
                                 combatant.action_used = False
                                 combatant.bonus_action_used = False
                                 combatant.reaction_used = False
                                 
-                                # Reset Hasted action if still under the effect of the Haste spell
-                                if combatant.hasted:
-                                    combatant.hasted_action_used = False;
+                                # Reset the granted actions provided by various conditions (i.e. Haste)
+                                for combatant_condition in combatant.creature_conditions():
+                                    if combatant_condition.grants_action:
+                                        combatant_condition.granted_action_used = False                                
 
                                 #Divine Fury (resets at the start of each turn)
                                 if combatant.divine_fury:
@@ -227,9 +219,12 @@ def simulate_battle():
                                         break
 
                                     # hasted action #
-                                    if combatant.hasted_action and not combatant.hasted_action_used:
-                                        hasted_action(combatant)
-                                        combatant.hasted_action_used = True
+                                    for combatant_condition in combatant.creature_conditions():
+                                        if combatant_condition.grants_action and not combatant_condition.granted_action_used:
+                                            #Hasted condition (hasted action has limits on what can be done)
+                                            if combatant_condition.condition == condition.Hasted:
+                                                hasted_action(combatant)
+                                                combatant_condition.granted_action_used                                    
                                 
                                     if check_condition(combatant,condition.Unconscious) or not combatant.alive:
                                         break
@@ -261,26 +256,18 @@ def simulate_battle():
                                 # Update the duration counter on any conditions currently suffered by the combatant
                                 update_conditions(combatant)
 
-                                #Apply Hemorraging Critical damage
-                                resolve_hemo_damage(combatant)                   
+                                # Resolve fatality to see if the combatant dies because of expired conditions
+                                resolve_fatality(combatant)
+
                                 if check_condition(combatant,condition.Unconscious) or not combatant.alive:
                                     break
-                                
-                                # Resolve Head Shot status
-                                if combatant.head_shotted:
-                                    print_output(combatant.name + ' shakes off the effects of the Head Shot, and no longer has disadvantage on attacks!')
-                                    combatant.head_shotted = False
-                                    combatant.has_disadvantage = False
 
-                                # Update rage counter
-                                if combatant.raging:
-                                    combatant.rage_duration += 1
-                                if combatant.raging and combatant.rage_duration >= combatant.max_rage_duration:
-                                    print_output(combatant.name + ' cannot sustain their rage any longer, and it expires')
-                                    combatant.raging = False                                    
-                                    # Resolve fatality to see if the combatant dies because of Rage Beyond Death
-                                    resolve_fatality(combatant)
+                                #Apply Hemorraging Critical damage
+                                resolve_hemo_damage(combatant)                   
 
+                                if check_condition(combatant,condition.Unconscious) or not combatant.alive:
+                                    break
+                                                                
                                 # Turn completion events
                                 # Reset sneak attack on anyone who used sneak attack (i.e. opportunity attacks)
                                 for sneak_attack_combatant in combatants.list:

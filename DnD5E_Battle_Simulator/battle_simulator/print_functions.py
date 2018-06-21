@@ -35,14 +35,15 @@ def delete_file():
         os.remove(settings.filename)      
 
 def print_output(string): 
-    if settings.filename != "":
-        if not settings.file_open:
-            open_file()      
-        print(string,file=settings.file)
-        settings.output.append(string)
-    else:
-        print(string)
-        settings.output.append(string)
+    if not settings.suppress_output:
+        if settings.filename != "":
+            if not settings.file_open:
+                open_file()      
+            print(string,file=settings.file)
+            settings.output.append(string)
+        else:
+            print(string)
+            settings.output.append(string)
 
 def print_error(string):
     print_output('<div class="error"' + string + '</div>')
@@ -64,11 +65,15 @@ def print_time_stamp(start,string):
         settings.output.append(string)
     
 def print_combatant_table(combatant):
+    all_ticked = False
     string = ""
     string += Markup('<div class=combatant>')    
     string += Markup('<tr>')
     string += Markup('<td>')
-    string += Markup('<input type=checkbox name="combatant_' + combatant.name + '" value="'+ combatant.fullname+ '">')
+    if all_ticked:
+        string += Markup('<input type=checkbox checked=True name="combatant_' + combatant.name + '" value="'+ combatant.fullname+ '">')
+    else:
+        string += Markup('<input type=checkbox name="combatant_' + combatant.name + '" value="'+ combatant.fullname+ '">')
     string += Markup('</td>')
     string += Markup('<td>')
     string += Markup(combatant.fullname)
@@ -166,7 +171,8 @@ def print_combatant_details(combatant,position):
     #print_output('---------------------------------')
     print_output('Spellslots')    
     for spellslot in combatant.spellslots():                               
-        print_output(indent() + numbered_list(spellslot.level) + ' Level Spellslots: ' + repr(spellslot.current))        
+        if spellslot.level != 0:
+            print_output(indent() + numbered_list(spellslot.level) + ' Level Spellslots: ' + repr(spellslot.current))        
     print_output('**************************')
     print_output('</td>')
 

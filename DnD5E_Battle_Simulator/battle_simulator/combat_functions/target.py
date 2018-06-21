@@ -17,15 +17,19 @@ def find_target(combatant):
         if combatant.name != enemy.name and combatant.team != enemy.team:
             if enemy.alive:                
                 #Target selection priority:                     
-                if not check_condition(enemy,condition.Unconscious):                
-                # If our current target is healthy, and has more current HP than the potential target, swap to the weaker one
+                if not check_condition(enemy,condition.Unconscious):                                
+                    # If we have no target, choose this enemy
                     if best_target == None:
+                        best_target = enemy                    
+                    # If the enemy is within our range, and closer to us than the current target, swap to this enemy
+                    elif calc_distance(combatant,enemy) <= combatant.desired_range and calc_distance(combatant,best_target) > calc_distance(combatant,enemy):
                         best_target = enemy
+                    # Swap to the closer enemy
+                    elif calc_distance(combatant,best_target) > calc_distance(combatant,enemy):
+                        best_target = enemy
+                    # If two enemies are the same distance away, use their current HP to decide who to target
                     elif best_target.current_health == best_target.max_health and best_target.current_health > enemy.current_health:
                         best_target = enemy
-                    # If our current target is farther away than the enemy, swap to the closer target
-                    elif calc_distance(combatant,enemy) <= calc_distance(combatant,best_target):
-                        best_target = enemy                                    
                 elif best_target == None:
                     # Only choose an unconscious target if we have no other target defined
                     best_target = enemy 

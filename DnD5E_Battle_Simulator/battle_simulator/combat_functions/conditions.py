@@ -5,7 +5,7 @@ from battle_simulator import combatants
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
 
-def inflict_condition(combatant,source,condition,duration=0):
+def inflict_condition(combatant,source,condition,duration=0,grants_advantage=False,grants_disadvantage=False):
     condition_inflicted = False
     for combatant_condition in combatant.creature_conditions():
         if combatant_condition.condition == condition:
@@ -34,14 +34,17 @@ def inflict_condition(combatant,source,condition,duration=0):
         else:
             combatant_condition.limited_duration = False
         combatant_condition.duration = duration    
+        combatant_condition.grants_advantage = grants_advantage
+        combatant_condition.grants_disadvantage = grants_disadvantage
         combatant.creature_conditions().append(combatant_condition)   
         print_output(indent() + combatant.name + ' is now ' + combatant_condition.condition.name + '!')
 
 def remove_condition(combatant,condition_to_remove):
     # Mutate the condition list against the creature to exclude the condition/conditions to remove
     # On the off chance multiple instances of the same condition are recorded against the target this will remove all instances of them 
-    combatant.creature_conditions()[:] = [combatant_condition for combatant_condition in combatant.creature_conditions() if not combatant_condition.condition == condition_to_remove]    
-    print_output(indent() + combatant.name + ' is no longer ' + condition_to_remove.name + '!')
+    if check_condition(combatant,condition_to_remove):
+        combatant.creature_conditions()[:] = [combatant_condition for combatant_condition in combatant.creature_conditions() if not combatant_condition.condition == condition_to_remove]    
+        print_output(indent() + combatant.name + ' is no longer ' + condition_to_remove.name + '!')
 
 def update_conditions(combatant):
     # Update the duration on all limited-duration conditions
@@ -55,6 +58,7 @@ def update_conditions(combatant):
     # Mutate the list to remove conditions that have expired
     combatant.creature_conditions()[:] = [combatant_condition for combatant_condition in combatant.creature_conditions() if combatant_condition.limited_duration and not combatant_condition.duration <= 0]
 
+#Return true/false if the condition affects the combatant
 def check_condition(combatant,condition):
     for combatant_condition in combatant.creature_conditions():
         if combatant_condition.condition == condition:

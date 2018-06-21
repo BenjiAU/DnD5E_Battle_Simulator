@@ -28,7 +28,11 @@ def attack_action(combatant):
 
                 if len(multiattack_weapons) > 0:
                     print_output(combatant.name + ' unleashes a Multiattack!')                
-                    for weapon in multiattack_weapons:                        
+                    for weapon in multiattack_weapons:                                                                            
+                        #Repeat the Find Target call after each attack in a multiattack (to avoid instantly killing unconscious players)
+                        if not find_target(combatant):
+                            print_output('No targets remain!')
+                            return
                         attack(combatant,weapon)
                 else:
                     #Revert to normal attack/swap to range or reach weapon if required
@@ -39,14 +43,18 @@ def attack_action(combatant):
                 attack(combatant,combatant.main_hand_weapon)    
     elif combatant.creature_type == creature_type.Player:
         # Primary attack call for players
-        print_output(combatant.name + ' uses the Attack action')                
+        print_output(combatant.name + ' uses the Attack action')        
         attack(combatant,combatant.main_hand_weapon)
         
         # Bonus attack functions for players
         # Bonus Action offhand attack
         # Rules: both weapons must be Light, weapons must be different, off hand weapon must be equipped
         if not combatant.bonus_action_used and combatant.offhand_weapon != None and combatant.main_hand_weapon != combatant.offhand_weapon and combatant.main_hand_weapon.light and combatant.offhand_weapon.light:
-            print_output(combatant.name + ' uses their Bonus Action to make an offhand strike!')                
+            print_output(combatant.name + ' uses their Bonus Action to make an offhand strike!')            
+            #Repeat find_target call to see if we offhand strike someone else
+            if not find_target(combatant):
+                print_output('No targets remain!')
+                return
             attack(combatant,combatant.offhand_weapon)
             combatant.bonus_action_used = True
                 
@@ -58,7 +66,15 @@ def attack_action(combatant):
                     print_output(combatant.name + ' spends 1 Ki Point and unleashes a Flurry of Blows! Current Ki Points: ' + repr(combatant.ki_points) + '/' + repr(combatant.max_ki_points))                    
                     orig_weapon = combatant.main_hand_weapon
                     combatant.main_hand_weapon = unarmed_strike(combatant)
+                    #Repeat find_target call to see if we should punch someone else
+                    if not find_target(combatant):
+                        print_output('No targets remain!')
+                        return
                     attack(combatant,combatant.main_hand_weapon)
+                    #Repeat find_target call to see if we should punch someone else
+                    if not find_target(combatant):
+                        print_output('No targets remain!')
+                        return
                     attack(combatant,combatant.main_hand_weapon)
                     combatant.main_hand_weapon = orig_weapon
                     combatant.bonus_action_used = True
@@ -70,6 +86,10 @@ def attack_action(combatant):
                 #Can't attack if weapon is broken, must spend next action to fix it
                 if not combatant.main_hand_weapon.broken:
                     print_output('<i>' + combatant.name + ' uses an Extra Attack.</i>')
+                    #Repeat find_target call to see if we should punch someone else
+                    if not find_target(combatant):
+                        print_output('No targets remain!')
+                        return
                     attack(combatant,combatant.main_hand_weapon)  
     else:
         print_error(combatant.name + ' does not have a Creature Type defined. Unable to determine attack action.')
@@ -152,11 +172,6 @@ def attack(combatant,weapon):
     in_long_range = False        
     #Only attack with a weapon
     # Unarmed strikes or improvised weapons must create a phantom weapon object to use this function
-    
-    # Call to Find Target here to re-prioritise if our current target goes down mid-round
-    if not find_target(combatant):
-        print_output('No targets remain!')
-        return
 
     if weapon.name != "":        
         if target_in_range(combatant,combatant.target,weapon.range):
@@ -269,11 +284,12 @@ def attack(combatant,weapon):
                                     # Don't bother if target is already prone:
                                     if not check_condition(combatant.target,condition.Prone):
                                         # Only leg shot melee attackers
-                                        if combatant.target.main_hand_weapon.range == 0:
-                                            combatant.current_grit -= 1
-                                            print_output(combatant.name + ' spends 1 Grit Point to perform a Leg Trick Shot. Current Grit: ' + repr(combatant.current_grit))                                            
-                                            trick_shot_target = "Legs"
-                                            trick_shot = True
+                                        if combatant.target.main_hand_weapon != None:
+                                            if combatant.target.main_hand_weapon.range == 0:
+                                                combatant.current_grit -= 1
+                                                print_output(combatant.name + ' spends 1 Grit Point to perform a Leg Trick Shot. Current Grit: ' + repr(combatant.current_grit))                                            
+                                                trick_shot_target = "Legs"
+                                                trick_shot = True
 
                                 elif grit_selector <= 6:
                                     # Deadeye Shot (Gunslinger)
@@ -360,8 +376,7 @@ def attack(combatant,weapon):
                                         print_output(doubleindent() + combatant.target.name + ' succeeded on the Head Shot save, and is immune to its effect.')
                                     else:
                                         print_output(doubleindent() + combatant.target.name + ' FAILED the Head Shot save - they now had disadvantage on attacks until the end of their next turn!')
-                                        combatant.target.has_disadvantage = True
-                                        combatant.target.head_shotted = True
+                                        inflict_condition(combatant.target,combatant,condition.Headshot,1,False,True)                                        
                                 elif trick_shot_target == "Legs":
                                     # logic to choose the right kind of called shot? lol #
                                     if savingthrow(combatant.target,saving_throw.Strength,combatant.target.saves.str,combatant.target.saves.str_adv,8+combatant.proficiency + dexmod(combatant)):
@@ -421,7 +436,7 @@ def attack(combatant,weapon):
                     
                                 #Brutal Critical feature
                                 if combatant.brutal_critical:
-                                    print_output(indent() + combatant.name + ' dealt massive damage with Brutal Critical! Rolling an additional ' + repr(combatant.brutal_critical_dice) + ' d' + repr(weapon.damage_die))
+                                    print_output(indent() + combatant.name + ' dealt massive damage with Brutal Critical! Rolling an additional ' + repr(combatant.brutal_critical_dice) + 'd' + repr(weapon.damage_die))
                                     for x in range(0,combatant.brutal_critical_dice):                            
                                         die_damage = roll_die(weapon.damage_die)            
                                         print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(weapon.damage_die) + ' (Brutal Critical damage)')
@@ -624,7 +639,7 @@ def calc_damage_modifier(combatant,weapon):
             additional_damage += strmod(combatant)
 
     # Rage
-    if combatant.raging and not combatant.armour_type == armour_type.Heavy:
+    if check_condition(combatant,condition.Raging) and not combatant.armour_type == armour_type.Heavy:
         additional_damage += combatant.rage_damage
     
     # Add weapon bonus (i.e. +3 weapon)

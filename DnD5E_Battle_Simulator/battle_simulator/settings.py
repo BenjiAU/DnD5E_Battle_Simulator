@@ -30,6 +30,9 @@ def init():
     global show_damage_summary
     show_damage_summary = False
 
+    global suppress_output
+    suppress_output = True
+
     global start_time
     
     global end_time

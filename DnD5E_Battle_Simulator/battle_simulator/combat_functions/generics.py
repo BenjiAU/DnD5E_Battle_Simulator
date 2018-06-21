@@ -20,6 +20,7 @@ def savingthrow(combatant,savetype,modifier,adv,DC):
     print_output('<i>Saving Throw</i>')
     roll = roll_die(20)
     savingthrow = roll + modifier    
+    print_output(combatant.name + ' rolled a ' + repr(roll) + ' on a d20 for the saving throw with a +' + repr(modifier) + ' modifier')                                                                                                             
     # Check conditions
     if check_condition(combatant,condition.Stunned):
         if savetype == saving_throw.Strength or savetype == saving_throw.Dexterity:
@@ -28,7 +29,7 @@ def savingthrow(combatant,savetype,modifier,adv,DC):
 
     #print_output(savetype + ' save: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier))
     if savingthrow >= DC:
-        print_output(indent() + combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a saving throw of ' + repr(roll) + ' + ' + repr(modifier))
+        print_output(indent() + combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
         return True
     if adv:
         #print_output(combatant.name + ' failed the save, but has advantage on ' + savetype + ' saving throws!')
@@ -36,7 +37,7 @@ def savingthrow(combatant,savetype,modifier,adv,DC):
         savingthrow = roll + modifier
         #print_output(savetype + ' save: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier))        
         if savingthrow >= DC:
-            print_output(indent() + combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a saving throw of ' + repr(roll) + ' + ' + repr(modifier))
+            print_output(indent() + combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
             return True
 
     #If the savingthrow fails, and we could make it with a decent roll (say higher than 15), and we have luck, spend luck to reroll the d20
@@ -45,10 +46,10 @@ def savingthrow(combatant,savetype,modifier,adv,DC):
         if luck_roll > roll:
             savingthrow = luck_roll + modifier
             if savingthrow >= DC:
-                print_output(indent() + combatant.name + ' used a point of Luck, and has now succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a saving throw of ' + repr(luck_roll) + ' + ' + repr(modifier))
+                print_output(indent() + combatant.name + ' used a point of Luck, and has now succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
                 return True
 
-    print_output(indent() + combatant.name + ' FAILED on a DC' + repr(DC) + ' ' + savetype.name + ' save with a saving throw of of ' + repr(roll) + ' + ' + repr(modifier))
+    print_output(indent() + combatant.name + ' FAILED on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
     return False
 
 # check functions #
@@ -56,6 +57,7 @@ def abilitycheck(combatant,checktype,modifier,adv,DC):
     #Pass a DC of 0 to just return the check value (i.e. Initiative, Perception)
     roll = roll_die(20)
     check = roll + modifier
+    print_output(combatant.name + ' rolled a ' + repr(roll) + ' on a d20 for the ability check with a +' + repr(modifier) + ' modifier')                                                                                                             
     if DC == 0:
         return(check)
 
@@ -98,42 +100,39 @@ def roll_initiative(combatant):
 def determine_advantage(combatant,range_attack):
     advantage = False
     disadvantage = False
-    # Inter-round advantage/disadvantage conditions, which are managed by various status-es
-    if combatant.has_advantage:
-        advantage = True
-
-    if combatant.has_disadvantage:
-        disadvantage = True
-        if combatant.head_shotted:
-            print_output(combatant.name + ' has disadvantage on the attack from an earlier Head Shot!')
-
-    if check_condition(combatant.target,condition.Stunned):
-        print_output(combatant.target.name + ' is Stunned, giving all attacks against it advantage!')
-        advantage = True
-
-    #Check condition of target                
-    if check_condition(combatant.target,condition.Prone) and range_attack:
-        print_output(combatant.target.name + ' is prone on the ground, giving ' + combatant.name + ' disadvantage on the attack!')
-        disadvantage = True
+    # Check for all conditions on the combatant, and see if any of them grant advantage/disadvantage directly
+    for combatant_condition in combatant.creature_conditions():
+        if combatant_condition.grants_advantage:
+            advantage = True            
+            print_output(combatant.name + ' has advantage on the attack from the ' + combatant_condition.condition.name + ' condition!')        
+        if combatant_condition.grants_disadvantage:
+            disadvantage = True            
+            print_output(combatant.name + ' has disadvantage on the attack from the ' + combatant_condition.condition.name + ' condition!')        
+    
+    #Check if any conditions are present on the target, as some of them may influence advantage/disadvantage  
+    for target_condition in combatant.target.creature_conditions():
+        if target_condition.condition == condition.Stunned:
+            print_output(combatant.target.name + ' is Stunned, giving all attacks against it advantage!')
+            advantage = True            
+        if target_condition.condition == condition.Reckless:
+            print_output(combatant.name + ' has advantage on the attack, as ' + combatant.target.name + ' used Reckless Attack last round!')
+            advantage = True
+        if target_condition.condition == condition.Prone and range_attack:
+            print_output(combatant.target.name + ' is prone on the ground, giving ' + combatant.name + ' disadvantage on the attack!')
+            disadvantage = True
 
     #Check assassination flag
     if combatant.can_assassinate_target:
         print_output(combatant.name + ' reacts with supernatural speed, and can Assassinate ' + combatant.target.name + ', gaining advantage on the attack')
         advantage = True
-
-    #Did the target use reckless attack last round?
-    #Should this apply only to melee attacks? Removed that condition for now
-    if combatant.target.use_reckless:
-        print_output(combatant.name + ' has advantage on the attack, as ' + combatant.target.name + ' used Reckless Attack last round!')
-        advantage = True
-
+        
     #Can we use reckless attack?
     if combatant.reckless and not advantage:
-        combatant.use_reckless = True
+        inflict_condition(combatant,combatant,condition.Reckless,2,True,False)
         print_output(combatant.name + ' uses Reckless Attack, gaining advantage on the attack!')
         advantage = True
 
-    #Is Vow of Enmity up?
+    #Is Vow of Enmity up?    
     if combatant.vow_of_enmity_target == combatant.target:
         print_output(combatant.name + ' has advantage on the attack from their Vow of Enmity!')
         advantage = True
@@ -159,7 +158,11 @@ def attack_roll(combatant,advantage,disadvantage,to_hit_modifier):
     return atkroll
 
 def calc_total_AC(combatant):
-    return combatant.armour_class + combatant.hasted_bonus_armour
+    totalAC = 0
+    totalAC += combatant.armour_class
+    if check_condition(combatant,condition.Hasted):
+        totalAC += 2
+    return totalAC
 
 def calc_distance(combatant,target):
     xdistance = int(math.fabs(combatant.xpos-target.xpos))

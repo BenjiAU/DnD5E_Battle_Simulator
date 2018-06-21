@@ -17,12 +17,7 @@ def reset_combatants(init_combatants):
         combatant.alive = True
         combatant.death_saving_throw_failure = 0
         combatant.death_saving_throw_success = 0
-        combatant.current_health = combatant.max_health
-        combatant.enlarged = False        # Need a better wayto handle this        
-        combatant.hasted = False
-        combatant.hasted_bonus_armour = 0
-        combatant.hasted_action = False
-        combatant.hasted_action_used = False
+        combatant.current_health = combatant.max_health        
         combatant.action_surge = 0
         combatant.extra_attack = 0
         
@@ -110,12 +105,7 @@ def initialise_class_features(combatant):
             # Rage (1st level)
             if class_instance.player_class_level >= 1:
                 combatant.barbarian_unarmored_defense = True
-                combatant.canrage = True
-                combatant.raging = False
-                # Number of rounds rage has been up for
-                combatant.rage_duration = 0
-                # Number of rounds rage can be sustained for
-                combatant.max_rage_duration = 10 
+                combatant.canrage = True                
                 #+2 Rage Damage (1st through 8th)
                 combatant.rage_damage = 2
             # Reckless Attack (2nd level)

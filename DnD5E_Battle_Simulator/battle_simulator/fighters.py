@@ -8,6 +8,7 @@ def initialise_combatants(init_combatants):
     init_grog(init_combatants)
     init_vax(init_combatants)
 
+    init_kiri(init_combatants)
     init_fjord(init_combatants)
     init_beau(init_combatants)
     init_caleb(init_combatants)
@@ -53,7 +54,7 @@ def initialise_teams(combatants,teams):
     teams.append(yellow)
 
     vmnames = ["Grog","Vax","Percy","Doty","Trinket"]
-    m9names = ["Fjord","Beau","Caleb","Nott","Jester","Molly","Yasha"]
+    m9names = ["Fjord","Beau","Caleb","Nott","Jester","Molly","Yasha","Kiri"]
     monsternames = ["Umbrasyl","Hill Giant","Arkhan"]
     #Iterate through all combatants and initially assign them to team
     for combatant in combatants:
@@ -219,7 +220,7 @@ def init_grog(init_combatants):
     #GROG
     grog = creature()
     
-    grog.notes = "Always Enlarges/Rages on first turn. Will Reckless/Great Weapon Master every chance he gets!"
+    grog.notes = "Always Rages on first turn. Will Reckless/Great Weapon Master every chance he gets!"
 
     grog.creature_type = creature_type.Player
     grog.fullname = "Grog Strongjaw"
@@ -461,10 +462,81 @@ def init_vax(init_combatants):
 
     init_combatants.append(vax)    
 
+def init_kiri(init_combatants):
+    kiri = creature()
+
+    kiri.notes = "The newest member of the Mighty Nein"
+
+    kiri.creature_type = creature_type.Player
+    kiri.fullname = "Kiri the Kenku"
+    kiri.name = "Kiri"
+    kiri.race = race.Kenku    
+
+    rogue_class = player_class_block()
+    rogue_class.player_class = player_class.Rogue
+    rogue_class.player_subclass = player_subclass.Assassin
+    rogue_class.player_class_level = 1
+    kiri.player_classes().append(rogue_class)
+
+    kiri.max_health = 99999
+    kiri.armour_class = 50
+    kiri.speed = 1000
+    kiri.proficiency = 999
+    kiri.weapon_proficiency().append(weapon_type.Dagger)
+
+    kiri.creature_feats().append(feat.Sharpshooter)
+    kiri.creature_feats().append(feat.Lucky)
+
+    #Stats
+    kiristats = statistic_block()
+    kiristats.str = 99
+    kiristats.dex = 99
+    kiristats.con = 99
+    kiristats.intel = 99
+    kiristats.wis = 99
+    kiristats.cha = 99
+
+    kiri.stats = kiristats
+    
+    #Saves
+    kirisaves = saving_throw_block()    
+    kirisaves.str = 99
+    kirisaves.dex = 99
+    kirisaves.con = 99
+    kirisaves.intel = 99
+    kirisaves.wis = 99
+    kirisaves.cha = 99
+    
+    kiri.saves = kirisaves
+
+    #Ability Checks
+    kirichecks = ability_check_block()
+    
+    kiri.checks = kirichecks        
+
+
+    #kiri's weapons
+    dagger = weapon()
+    dagger.name = "Dagger"
+    dagger.weapon_type = weapon_type.Dagger;
+    dagger.range = 60
+    
+    dagger.damage_die = 4
+    dagger.damage_die_count = 1
+    dagger.weapon_damage_type = damage_type.Piercing
+    
+    dagger.magic_to_hit_modifier = 3
+    dagger.magic_damage_modifier = 3
+
+    dagger.finesse = True    
+    dagger.magic = True
+
+    kiri.weapon_inventory().append(dagger)
+
+    init_combatants.append(kiri)    
+
 # The Mighty Nein
 def init_fjord(init_combatants):
-
-    #yasha
     fjord = creature()
 
     fjord.notes = "Pact of the Blade Warlock"
@@ -547,8 +619,6 @@ def init_fjord(init_combatants):
     init_combatants.append(fjord)    
 
 def init_beau(init_combatants):
-
-    #yasha
     beau = creature()
 
     beau.notes = "Beauregard, Monk of the Cobalt Soul"
@@ -571,6 +641,8 @@ def init_beau(init_combatants):
     beau.proficiency = calc_proficiency(beau)
     beau.weapon_proficiency().append(weapon_type.Unarmed)
     beau.weapon_proficiency().append(weapon_type.Quarterstaff)
+    
+    beau.creature_feats().append(feat.Sentinel)
 
     #Stats
     beaustats = statistic_block()
@@ -621,8 +693,6 @@ def init_beau(init_combatants):
     init_combatants.append(beau)    
 
 def init_caleb(init_combatants):
-
-    #yasha
     caleb = creature()
 
     caleb.notes = "Transmutation Wizard"
@@ -681,9 +751,7 @@ def init_caleb(init_combatants):
 
     init_combatants.append(caleb)    
 
-def init_nott(init_combatants):
-
-    #yasha
+def init_nott(init_combatants):   
     nott = creature()
 
     nott.notes = "There's no comma"
@@ -771,8 +839,6 @@ def init_nott(init_combatants):
     init_combatants.append(nott)    
 
 def init_jester(init_combatants):
-
-    #yasha
     jester = creature()
 
     jester.notes = "Trickery Domain Cleric"
@@ -843,8 +909,6 @@ def init_jester(init_combatants):
     init_combatants.append(jester)    
 
 def init_molly(init_combatants):
-
-    #yasha
     molly = creature()
 
     molly.notes = "Mollymauk, Ghostslayer Blood Hunter (based on version 2.1)"
@@ -933,8 +997,6 @@ def init_molly(init_combatants):
     init_combatants.append(molly)   
 
 def init_yasha(init_combatants):
-
-    #yasha
     yasha = creature()
 
     yasha.notes = "Yasha, Path of the Zealot Barbarian"
@@ -956,7 +1018,7 @@ def init_yasha(init_combatants):
     yasha.speed = 40
     yasha.proficiency = calc_proficiency(yasha)
     yasha.weapon_proficiency().append(weapon_type.Greatsword)
-    
+    yasha.creature_feats().append(feat.Sentinel)
 
     #Stats
     yashastats = statistic_block()

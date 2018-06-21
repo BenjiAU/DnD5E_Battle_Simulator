@@ -16,7 +16,7 @@ def movement(combatant):
     if combatant.target:
         # combatant.movement #
         combatant.movement = combatant.speed
-        if combatant.hasted:
+        if check_condition(combatant,condition.Hasted):
             combatant.movement = combatant.movement * 2
         use_movement(combatant)
 
@@ -180,6 +180,7 @@ def derive_cardinal_direction(x1,x2,y1,y2):
     return(direction)
 
 def derive_perpendicular(direction):
+    perpendicular = cardinal_direction.Random
     if direction == cardinal_direction.North:
         perpendicular = cardinal_direction.East        
     elif direction == cardinal_direction.NorthEast:        
@@ -272,7 +273,7 @@ def move_to_target(combatant,target):
         grids_moved += 1
         #Evaluate after each step if the target is in range of our weapon
         if target_in_range(combatant,combatant.target,combatant.desired_range):                        
-            print_output(movement_text(combatant.name + ' skids to a halt, now in range of ' + combatant.target.name + '. ') + position_text(combatant.xpos,combatant.ypos))
+            print_output(movement_text(combatant.name + ' decides to stop, now in range of ' + combatant.target.name + '. ') + position_text(combatant.xpos,combatant.ypos))
             movement_complete = True
 
             grids_to_move = 0
@@ -355,7 +356,7 @@ def move_from_target(combatant,target):
         #If combatant.movement would take us outside the maximum range of our weapon, stop here instead
         if not combatant.action_used: 
             if not target_in_range(combatant,combatant.target,combatant.desired_range):                        
-                print_output(indent() + combatant.name + ' changes their mind at the last second, moving back to (' + repr(initial_xpos) + ',' + repr(initial_ypos) + ') to stay in range of ' + combatant.target.name)
+                print_output(indent() + combatant.name + ' decides to stop at (' + repr(initial_xpos) + ',' + repr(initial_ypos) + ') to stay in range of ' + combatant.target.name)
                 combatant.xpos = initial_xpos;
                 combatant.ypos = initial_ypos;
                 grids_to_move = 0
@@ -441,34 +442,35 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
             # Evaluate only if reaction available
             if not opportunity_attacker.reaction_used:
                 # Only provoke opportunity attacks for melee weapons
-                if opportunity_attacker.main_hand_weapon.range == 0:
-                    # If the enemy is currently adjacent, but would not be after movement, condition is fulfilled
-                    # Note - this will not work with Reach weapons, will need additional conditions to handle Reach
-                    # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
-                    if is_adjacent(opportunity_attacker,combatant_before_move) and not is_adjacent(opportunity_attacker,combatant_after_move):                    
-                        #Swap targets if necessary
-                        original_target = opportunity_attacker.target 
-                        if opportunity_attacker.target != combatant_before_move:                            
-                            opportunity_attacker.target = combatant_before_move
+                if opportunity_attacker.main_hand_weapon != None:
+                    if opportunity_attacker.main_hand_weapon.range == 0:
+                        # If the enemy is currently adjacent, but would not be after movement, condition is fulfilled
+                        # Note - this will not work with Reach weapons, will need additional conditions to handle Reach
+                        # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
+                        if is_adjacent(opportunity_attacker,combatant_before_move) and not is_adjacent(opportunity_attacker,combatant_after_move):                    
+                            #Swap targets if necessary
+                            original_target = opportunity_attacker.target 
+                            if opportunity_attacker.target != combatant_before_move:                            
+                                opportunity_attacker.target = combatant_before_move
 
-                        # Make the attack out of sequence
-                        print_output('-------------------------------------------------------------------------------------------------------------------------')
-                        print_output(combatant_before_move.name + '\'s movement has triggered an Attack of Opportunity from ' + opportunity_attacker.name + ' !')                        
-                        print_output('Resolving Attack of Opportunity!')                            
-                        if combatant_before_move.disengaged:
-                            print_output(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged!')
-                        else:
-                            if combat.attack(opportunity_attacker,opportunity_attacker.main_hand_weapon):
-                                for feat in opportunity_attacker.creature_feats():
-                                    if feat == feat.Sentinel:
-                                        #Successful opportunity attacks reduce creatures speed to 0
-                                        combatant_before_move.movement = 0
-                                        print_output(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                        
-                            print_output(opportunity_attacker.name + ' has spent their reaction')                                                    
-                            # Consume reaction
-                            opportunity_attacker.reaction_used = True
-                        print_output('The Attack of Opportunity has been resolved!')
-                        print_output('-------------------------------------------------------------------------------------------------------------------------')
+                            # Make the attack out of sequence
+                            print_output('-------------------------------------------------------------------------------------------------------------------------')
+                            print_output(combatant_before_move.name + '\'s movement from ' + position_text(combatant_before_move.xpos,combatant_before_move.ypos) + ' has triggered an Attack of Opportunity from ' + opportunity_attacker.name + ' !' + position_text(opportunity_attacker.xpos,opportunity_attacker.ypos))
+                            print_output('Resolving Attack of Opportunity!')                            
+                            if check_condition(combatant_before_move,condition.Disengaged):
+                                print_output(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged!')
+                            else:
+                                if combat.attack(opportunity_attacker,opportunity_attacker.main_hand_weapon):
+                                    for feat in opportunity_attacker.creature_feats():
+                                        if feat == feat.Sentinel:
+                                            #Successful opportunity attacks reduce creatures speed to 0
+                                            combatant_before_move.movement = 0
+                                            print_output(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                        
+                                print_output(opportunity_attacker.name + ' has spent their reaction')                                                    
+                                # Consume reaction
+                                opportunity_attacker.reaction_used = True
+                            print_output('The Attack of Opportunity has been resolved!')
+                            print_output('-------------------------------------------------------------------------------------------------------------------------')
                             
-                        # Reset target
-                        opportunity_attacker.target = original_target
+                            # Reset target
+                            opportunity_attacker.target = original_target

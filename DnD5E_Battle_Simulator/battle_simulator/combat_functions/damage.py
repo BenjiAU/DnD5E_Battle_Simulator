@@ -83,16 +83,16 @@ def resolve_spell_damage(combatant,target,spell,spellslot,crit):
     if crit:
         spell_damage = spell_damage * 2
         
-    print_output(indent() + spell.name + ' dealt ' + repr(spell_damage) + ' points of ' + spell.damage_type.name + ' damage!')                    
+    print_output(indent() + spell.name + ' dealt ' + damage_text(repr(spell_damage)) + ' points of ' + spell.damage_type.name + ' damage!')                    
     deal_damage(combatant,combatant.target,spell_damage,spell.damage_type,True)    
 
 def deal_damage(combatant,target,damage,dealt_damage_type,magical):    
     #Reduce bludgeoning/piercing/slashing if raging (and not wearing Heavy armour)
-    if target.raging and not target.armour_type == armour_type.Heavy:            
+    if check_condition(target,condition.Raging) and not target.armour_type == armour_type.Heavy:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing):
             damage = int(damage/2)              
             print_output(doubleindent() + target.name + ' shrugs off ' + dmgred_text(repr(damage)) + ' points of damage in their rage!')
-    if target.enlarged:
+    if check_condition(target,condition.Enlarged):
         if dealt_damage_type in (damage_type.Fire,damage_type.Cold,damage_type.Lightning):
             damage = int(damage/2)              
             print_output(doubleindent() + target.name + ' shrugs off ' + dmgred_text(repr(damage)) + ' points of damage due to the effects of Enlarge!')
@@ -183,7 +183,7 @@ def resolve_fatality(combatant):
         #print_output(combatant.name + ' is knocked unconscious by the force of the blow!')
 
         #Relentless rage
-        if combatant.relentless_rage and combatant.raging:
+        if combatant.relentless_rage and check_condition(combatant,condition.Raging):
             if savingthrow(combatant,saving_throw.Constitution,combatant.saves.con,False,combatant.relentless_rage_DC):
                 print_output(combatant.name + ' was dropped below 0 hit points, but recovers to 1 hit point due to their Relentless Rage!')
                 combatant.alive = True
@@ -196,7 +196,7 @@ def resolve_fatality(combatant):
                 combatant.relentless_rage = False  
 
         # rage beyond death (if we need to)
-        if check_condition(combatant,condition.Unconscious) and combatant.rage_beyond_death and combatant.raging:
+        if check_condition(combatant,condition.Unconscious) and check_condition(combatant,condition.Raging) and combatant.rage_beyond_death:
             # Combatant is not unconscious if they have Rage Beyond Death
             print_output(combatant.name + ' picks themselves up and continues fighting in their divine rage!')
             remove_condition(combatant,condition.Unconscious)
@@ -207,7 +207,7 @@ def resolve_fatality(combatant):
                     print_output(combatant.name + ' fails their third death saving throw, but remains standing in their zealous rage beyond death!')       
                     remove_condition(combatant,condition.Unconscious)
                     combatant.alive = True
-        elif combatant.rage_beyond_death and not combatant.raging:
+        elif not check_condition(combatant,condition.Raging) and combatant.rage_beyond_death:
             if combatant.death_saving_throw_failure >= 3:
                 print_output(combatant.name + ' falls to their knees, the white-hot rage leaving their eyes as their jaw goes slack, and they perish on the ground.')                    
                 inflict_condition(combatant,combatant,condition.Unconscious)
@@ -228,7 +228,7 @@ def resolve_fatality(combatant):
     
     # Knock target prone, set movement to 0, and turn off rage and if combatant unconscious after evaluating Rage features
     if check_condition(combatant,condition.Unconscious):
-        combatant.raging = False
+        remove_condition(combatant,condition.Raging) 
         if not check_condition(combatant,condition.Prone):
             inflict_condition(combatant,combatant,condition.Prone)
         combatant.movement = 0

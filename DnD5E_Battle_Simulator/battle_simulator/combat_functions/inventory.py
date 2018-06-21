@@ -4,6 +4,7 @@ from battle_simulator import combatants
 #Implicit imports
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
+from battle_simulator.combat_functions.conditions import * 
 
 import operator
 from operator import itemgetter
@@ -13,19 +14,18 @@ def use_equipment(combatant):
     for eq in combatant.equipment_inventory():
         # Enlarge (i.e. from Titanstone Knuckles)
         if eq.grants_equipment_spell == equipment_spells.Enlarge:
-            if not combatant.enlarged:
+            if not check_condition(combatant,condition.Enlarged):
                 print_output(combatant.name + ' smashes the ' + eq.name + ' together and grows in size! This uses up their Action')            
-                combatant.enlarged = True
+                inflict_condition(combatant,eq,condition.Enlarged,10)
                 combatant.action_used = True
 
         # Haste (i.e. from Boots of Haste)
         if eq.grants_equipment_spell == equipment_spells.Haste:
-            if not combatant.hasted:
+            if not check_condition(combatant,condition.Hasted):
                 print_output(combatant.name + ' clicks the ' + eq.name + ' together and begins to move rapidly! (+ Hasted Action, +2AC) This uses up their Bonus Action')            
-                combatant.hasted = True
-                combatant.hasted_bonus_armour = 2;
-                combatant.hasted_action = True;
-                combatant.hasted_action_used = False;
+                #Inflict the Haste condition from the Equipment object
+                # Haste lasts 1 minute (10 rounds)
+                inflict_condition(combatant,eq,condition.Hasted,10)
                 combatant.bonus_action_used = True
 
         # Blade Return (Belt of Blade Returning - does not use an action/bonus action, just happens at the start of each round)

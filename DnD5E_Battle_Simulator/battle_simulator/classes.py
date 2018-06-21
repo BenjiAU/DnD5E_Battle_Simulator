@@ -63,10 +63,16 @@ class creature_condition():
     source = None
     limited_duration = bool()
     duration = int()
+    attribute = int() #Attribute that the condition affects (i.e. Hex grants disadvantage on _attribute_ saving throws)
+    grants_action = bool() #Does this condition grant an additional Action (i.e. Haste)
+    granted_action_used = int() #Tracks if the extra action granted by this condition has been used 
+    grants_advantage = bool()
+    grants_disadvantage = bool()
 
 class condition(Enum):
     def __str__(self):
         return str(self.value)    
+    #Conditions (as per player handbook
     Blinded = auto()
     Charmed = auto()
     Deafened = auto()
@@ -82,6 +88,21 @@ class condition(Enum):
     Stunned = auto()
     Unconscious = auto()
     Exhaustion = auto()
+
+    # Buffs
+    Enlarged = auto() #Enlarge/Reduce spell
+    Hasted = auto() # Haste spell
+    Disengaged = auto() # Disengage action (does not provoke Attacks of Opportunity)
+    Dodging = auto() # Dodge action (attacks against are made with disadvantage)
+    Raging = auto() #Barbarian Rage
+    Reckless = auto() #Barbarian Reckless Attack
+
+    # Debuffs
+    Hexed = auto()
+    Cursed = auto() # Warlock hexblades curse
+    Slowed = auto()   # Slow spell
+    Reduced = auto() # Enlarge/Reduce spell
+    Headshot = auto() # Gunslinger head shot
 
 class player_class_block():
     player_class = int()
@@ -214,6 +235,7 @@ class race(Enum):
     Goblin = auto()
     Goliath = auto() 
     Tiefling = auto()
+    Kenku = auto()
     #Monster races
     Dragon = auto()
     Undead = auto()
@@ -320,69 +342,51 @@ class spellslot():
 
 #Spells version 2
 class spell():
-   name = str()
+   name = str()   
+   description = str()   
+   school = int() #Spell school
+      
+   min_spellslot_level = int() #Minimum spell slot to be expended to cast spell (0 = cantrip)   
+   max_spellslot_level = int() #Maximum spell slot to be expended with additional effect (i.e. divine smite at 8th level has 5th level properties)
    
-   description = str()
-   #Spell school
-   school = int()
+   casting_time = int()# Casting Time - normally action/bonus action
    
+   range = int() # Castable range of spell to origin (i..e fireball = 150ft)   
+   origin = int() # Spells' origin (point at which spell originates (i.e. fireball erupts from point you choose in range)
+   shape = int() # Shape enumeration (shape that spell affects, i.e. fireball = 20 ft radius sphere)
+   shape_size = int()
+   
+   inflicts_condition = int() # The condition inflicted by the skill (if any- this could be a buff or debuff, or an additional affect of a damaging spell)
+   
+   spell_attack = bool()   # True if this spell is a spell attack, false if it's a DC save (range attribute determines range or touch) or buff
+   instance = int() # Instances of damage; i.e. Eldritch blast gains additional beams at 5th, 11th, 17th level     
+   
+   damage_die = int()
+   damage_die_count = int()
+   damage_type = int()
+   
+   damage_die_per_spell_slot = int() # Additional damage die per spell slot
+   damage_die_count_per_spell_slot = int() # Count of additional damage die per spell slot
+         
+   bonus_damage_die = int() 
+   bonus_damage_die_count = int()
+   bonus_damage_target = int() #Bonus damage inflicted if race = target
+          
+   saving_throw_attribute = int() #Saving throw information, defined if a save is required, otherwise blank (i.e. for buffs/spell attacks)
+   saving_throw_dc = int() #DC is set on the spell object (carried over from caster spell dc)
+
+   # Errata   
+   verbal = bool() #Has Verbal Components
+   somatic = bool() #Has Somatic Components
+   material = bool() #Has Material Components   
+   material_cost = int() # Cost in GP for material (as if we'll ever get to that point)
+
    #Player Class types that can cast this spell
    def player_classes(self):
         if not hasattr(self, "_player_classes"):
             self._player_classes = []
         return self._player_classes
-
-   #Minimum spell slot to be expended to cast spell (0 = cantrip)
-   min_spellslot_level = int()
    
-   #Maximum spell slot to be expended with additional effect 
-   #(i.e. divine smite at 8th level has 5th level properties)
-   max_spellslot_level = int()
-
-   # Casting Time - normally action/bonus action
-   casting_time = int()
-
-   # True if this spell is a spell attack, false if it's a DC save (range attribute determines range or touch)
-   spell_attack = bool()   
-   # Instances of damage; i.e. Eldritch blast gains additional beams at 5th, 11th, 17th level
-   instance = int()
-   # Castable range of spell to origin (i..e fireball = 150ft)
-   range = int()
-   # Spells' origin (point at which spell originates (i.e. fireball erupts from point you choose in range)
-   origin = int()
-   # Shape enumeration (shape that spell affects, i.e. fireball = 20 ft radius sphere)
-   shape = int()
-   shape_size = int()
-
-   #Components
-   verbal = bool()
-   somatic = bool()
-   material = bool()
-   # Cost in GP for material (as if we'll ever get to that point)
-   material_cost = int()
-
-   #Damage information
-   damage_die = int()
-   damage_die_count = int()
-   damage_type = int()
-
-   #Additional damage to deal per spell slot gap between min_spell_slot (up to max)
-   damage_die_per_spell_slot = int()
-   damage_die_count_per_spell_slot = int()
-   
-   #Additional damage to deal based on class level
-   #damage_die_per_class_level = int()
-   #damage_die_count_per_class_level = int()
-   
-   #Bonus damage based on target
-   bonus_damage_die = int()
-   bonus_damage_die_count = int()
-   bonus_damage_target = int()
-       
-   #Saving throw information; DC is set on the spell object 
-   saving_throw = int()
-   saving_throw_dc = int()   
-
 #various damage types
 class damage_type(Enum):
     def __str__(self):
@@ -577,11 +581,8 @@ class creature():
     barbarian_unarmored_defense = bool()
     canrage = bool()
     ragedamage = int()
-    raging = bool()    
-    rage_duration = int()
     max_rage_duration = int()
-    reckless = bool()
-    use_reckless = bool()
+    reckless = bool()    
 
     brutal_critical = bool()
     brutal_critical_dice = int()
@@ -746,21 +747,10 @@ class creature():
     death_saving_throw_failure = int() # Tracks failed Death Saving Throws
     stabilised = bool() # Tracks stabilisation (i.e. 3 successes)
     alive = bool() # Tracks if creature is still alive
-
-    enlarged = bool() # Tracks whether creature is affected by the Enlarge equipment spell
-    hasted = bool() # Tracks whether creature is affected by the Haste equipment spell 
-    hasted_bonus_armour = int() # Tracks the bonus armour granted by Haste
-    hasted_action = bool() # Tracks whether the creature has a Hasted action
-    hasted_action_used = bool() # Tracks whether the creature used their Hasted action
-    disengaged = bool() #Has taken the Disengage action and does not provoke opportunity attacks
-    dodging = bool() # Has taken the Dodge action and imparts disadvantage on inbound attacks
-    
+       
     # Tracks persistent advantage/disadvantage properties
     has_advantage = bool()
     has_disadvantage = bool() 
-
-    # Tracks other miscellaneous conditoins
-    head_shotted = bool() #Victim of Gunslinger Head Shot Trick Shot
 
     # Generic target object, linked to another creature in the find_target function
     target = None
