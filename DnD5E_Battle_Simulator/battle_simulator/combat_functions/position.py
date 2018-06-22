@@ -12,6 +12,9 @@ from copy import copy
 
 ### Core Round functions ###
 def movement(combatant):
+    if not combatant.movement_used:
+        print_output("<b>Movement:</b>")
+
     # Only move if a target exists
     if combatant.target:
         # combatant.movement #
@@ -124,7 +127,7 @@ def move_grid(combatant,direction):
         direction = cardinal_direction(rand_direction)
 
         if settings.verbose_movement:
-            print_output(indent() + combatant.name + ' chooses to travel ' + direction.name)
+            print_indent( combatant.name + ' chooses to travel ' + direction.name)
     
     xpos = 0
     ypos = 0
@@ -136,14 +139,14 @@ def move_grid(combatant,direction):
     new_ypos = initialypos + ypos
     
     if settings.verbose_movement:
-        print_output(indent() + combatant.name + ' attempts to move ' + direction.name + ' from (' + repr(initialxpos) + ',' + repr(initialypos) + ') to (' + repr(new_xpos) + ',' + repr(new_ypos) + ')')
+        print_indent( combatant.name + ' attempts to move ' + direction.name + ' from (' + repr(initialxpos) + ',' + repr(initialypos) + ') to (' + repr(new_xpos) + ',' + repr(new_ypos) + ')')
 
     #Check that the grid is not occupied
     other_combatants = all_other_combatants(combatant)
     for other_combatant in other_combatants:
         if (other_combatant.xpos == new_xpos) and (other_combatant.ypos == new_ypos):
             #Force any other combatant in those positions to block movement through that square
-            print_output(indent() + movement_text(combatant.name + ' failed to move - ' + other_combatant.name + ' is blocking them at (' + repr(new_xpos) + ',' + repr(new_ypos) + ')!'))
+            print_indent( movement_text(combatant.name + ' failed to move - ' + other_combatant.name + ' is blocking them at (' + repr(new_xpos) + ',' + repr(new_ypos) + ')!'))
             return False
 
     #Check for opportunity attacks
@@ -155,11 +158,11 @@ def move_grid(combatant,direction):
         # Update movement
         combatant.movement -= 5
         if settings.verbose_movement:
-            print_output(indent() + combatant.name + ' successfully moved, spending 5 points of movement (Remaining Movement: ' + repr(combatant.movement) + ' feet.)')
+            print_indent( combatant.name + ' successfully moved, spending 5 points of movement (Remaining Movement: ' + repr(combatant.movement) + ' feet.)')
         return True
     else:        
         if settings.verbose_movement:
-            print_output(indent() + movement_text(combatant.name + ' failed to move - they have no movement remaining!'))            
+            print_indent( movement_text(combatant.name + ' failed to move - they have no movement remaining!'))            
         return False
 
 def derive_cardinal_direction(x1,x2,y1,y2):
@@ -249,7 +252,7 @@ def move_to_target(combatant,target):
         initial_ypos = combatant.ypos
 
         if settings.verbose_movement:
-            print_output(indent() + combatant.name + ' is ' + repr(grids_to_move) + ' grids away from their destination and has ' + repr(grid_movement) + ' grids of movement remaining')
+            print_indent( combatant.name + ' is ' + repr(grids_to_move) + ' grids away from their destination and has ' + repr(grid_movement) + ' grids of movement remaining')
 
         #x1,x2,y1,y2
         direction = derive_cardinal_direction(combatant.xpos,target.xpos,combatant.ypos,target.ypos)
@@ -316,7 +319,7 @@ def move_from_target(combatant,target):
         initial_ypos = combatant.ypos
 
         if settings.verbose_movement:
-            print_output(indent() + combatant.name + ' is ' + repr(grids_to_move) + ' grids away from their destination and has ' + repr(grid_movement) + ' grids of movement remaining')
+            print_indent( combatant.name + ' is ' + repr(grids_to_move) + ' grids away from their destination and has ' + repr(grid_movement) + ' grids of movement remaining')
 
         direction = cardinal_direction.Stay
 
@@ -366,7 +369,7 @@ def move_from_target(combatant,target):
         #If combatant.movement would take us outside the maximum range of our weapon, stop here instead
         if not combatant.action_used: 
             if not target_in_range(combatant,combatant.target,combatant.desired_range):                        
-                print_output(indent() + combatant.name + ' decides to stop at (' + repr(initial_xpos) + ',' + repr(initial_ypos) + ') to stay in range of ' + combatant.target.name)
+                print_indent( combatant.name + ' decides to stop at (' + repr(initial_xpos) + ',' + repr(initial_ypos) + ') to stay in range of ' + combatant.target.name)
                 combatant.xpos = initial_xpos;
                 combatant.ypos = initial_ypos;
                 grids_to_move = 0

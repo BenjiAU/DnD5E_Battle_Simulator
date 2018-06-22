@@ -45,6 +45,12 @@ def print_output(string):
             print(string)
             settings.output.append(string)
 
+def begin_div(string):
+    print_output('<div class="' + string + '">')
+
+def end_div():
+    print_output('</div>')
+
 def print_error(string):
     print_output('<div class="error"' + string + '</div>')
 
@@ -114,7 +120,7 @@ def print_combatant_table(combatant):
 
 def begin_combatant_details():
     string = ""
-    string += '<table>'
+    string += '<table class=combatant_details>'
     string += '<tr>'
     print_output(string)
 
@@ -126,57 +132,49 @@ def end_combatant_details():
 
 def print_combatant_details(combatant,position):
     print_output('<td valign=top>')
-    print_output('**************************')
-    print_output('Position: ' + repr(position)) 
-    print_output(' Name: '  + combatant.fullname)
-    print_output(' Team: '  + combatant.team.name)
-    print_output(' Race: '  + combatant.race.name)
-    print_output(' Character Level ' + repr(characterlevel(combatant)))
-    print_output(' Class Breakdown: ')
+    print_output('Initiative Order: ' + repr(position)) 
+    print_output('Name: '  + combatant.fullname)
+    print_output('Team: '  + combatant.team.name)
+    print_output('Race: '  + combatant.race.name)
+    print_output('Character Level ' + repr(characterlevel(combatant)))
+    print_output('Class Breakdown: ')
     for class_instance in combatant.player_classes():
-        print_output(indent() + ' Class: '  + class_instance.player_class.name)
+        print_indent( 'Class: '  + class_instance.player_class.name)
         if class_instance.player_subclass:
-            print_output(doubleindent() + ' Sub-class: '  + class_instance.player_subclass.name)
-        print_output(doubleindent() + ' Level: '  + repr(class_instance.player_class_level))
-        print_output('')
-    print_output(' Max Hit Points: '  + repr(combatant.max_health))
+            print_double_indent( 'Sub-class: '  + class_instance.player_subclass.name)
+        print_double_indent( 'Level: '  + repr(class_instance.player_class_level))
+    print_output('Max Hit Points: '  + repr(combatant.max_health))
     print_output(' --------------------------------' )
-    print_output(' Stats: ')
-    print_output(' Strength: ' + repr(combatant.stats.str))
-    print_output(' Dexterity: ' + repr(combatant.stats.dex))
-    print_output(' Constitution: ' + repr(combatant.stats.con))
-    print_output(' Intelligence: ' + repr(combatant.stats.intel))
-    print_output(' Wisdom: ' + repr(combatant.stats.wis))
-    print_output(' Charisma: ' + repr(combatant.stats.cha))
+    print_output('Stats: ')
+    print_output('Strength: ' + repr(combatant.stats.str))
+    print_output('Dexterity: ' + repr(combatant.stats.dex))
+    print_output('Constitution: ' + repr(combatant.stats.con))
+    print_output('Intelligence: ' + repr(combatant.stats.intel))
+    print_output('Wisdom: ' + repr(combatant.stats.wis))
+    print_output('Charisma: ' + repr(combatant.stats.cha))
     print_output(' --------------------------------' )
-    print_output('')            
-    print_output(' Weapon Proficiencies: ')
+    print_output('Weapon Proficiencies: ')
     for item in combatant.weapon_proficiency():
-        print_output(indent() + item.name)
-    print_output('')
-    print_output('')    
-    print_output(' Weapons: ')
+        print_indent( item.name)
+    print_output('Weapons: ')
     for weapon in combatant.weapon_inventory():
-        print_output(indent() + weapon.name)
-    print_output('')
-    print_output(' Other Equipment: ')
+        print_indent( weapon.name)
+    print_output('Other Equipment: ')
     for item in combatant.equipment_inventory():                
-        print_output(indent() + item.name)
-    print_output('')
+        print_indent( item.name)
     print_output('---------------------------------')       
     print_output('Feats')
     for feat in combatant.creature_feats():
-        print_output(indent() + feat.name)
+        print_indent( feat.name)
     #print_output('Rage Beyond Death: ' + repr(combatant.rage_beyond_death))
     #print_output('---------------------------------')
     print_output('Spells Known')    
     for spell in combatant.spell_list():                                       
-        print_output(indent() + spell.name) 
+        print_indent( spell.name) 
     print_output('Spellslots')    
     for spellslot in combatant.spellslots():                               
         if spellslot.level != 0:
-            print_output(indent() + numbered_list(spellslot.level) + ' Level Spellslots: ' + repr(spellslot.current))        
-    print_output('**************************')
+            print_indent( numbered_list(spellslot.level) + ' Level Spellslots: ' + repr(spellslot.current))        
     print_output('</td>')
 
 def print_summary(combatant):
@@ -189,42 +187,50 @@ def print_summary(combatant):
     if combatant.attacks_hit > 0:
         print_output(' Hit Percentage: '  + repr(math.floor(combatant.attacks_hit/(combatant.attacks_hit + combatant.attacks_missed)*100)) + '%')    
     print_output(' Total Rounds Fought: '  + repr(combatant.rounds_fought))
-    print_output(' Average Damage per Round: '  + repr(math.floor(combatant.total_damage_dealt/combatant.rounds_fought)))    
+    if combatant.rounds_fought > 0:
+        print_output(' Average Damage per Round: '  + repr(math.floor(combatant.total_damage_dealt/combatant.rounds_fought)))    
     print_output(' Average Damage per Attempt: '  + repr(math.floor(combatant.total_damage_dealt/settings.max_attempts)))    
     print_output(' Total Damage Dealt: '  + repr(combatant.total_damage_dealt))
 
 def print_grid(xorigin,yorigin,highlight_grids,targets):   
     target_grids = []
+    target_ids = []
     for target in targets:
-        target_grids.append((target.xpos,target.ypos))
+        name = target.name
+        target_grids.append((target.xpos,target.ypos))        
+        target_ids.append(hp_text(target.alive,target.current_health,target.max_health,target.name[0]))        
     #print_output(' Affected Grids ' + repr(highlight_grids))
     #Drawing grid from top left corner
-    x = xorigin - 40
-    y = yorigin + 40    
-    #Initial line of grid showing starting co-ordinates
-    grid_line = '<div class=grid>AoE Grid (centered on origin point: ' + repr(xorigin) + ',' + repr(yorigin) + ')'
-    print_output(grid_line)
-    grid_line = '<div class=grid>Legend: O = Origin, X = Affected Target, A = Affected Area, T = Unaffected Target, . = Empty'
-    print_output(grid_line)    
-    grid_line = '<div class=grid>'
-    while y > yorigin - 41:
-        x = xorigin - 40        
-        while x < xorigin + 41:
+    x = xorigin - 50
+    y = yorigin + 50    
+    #Initial line of grid showing starting co-ordinates    
+    begin_div('grid_column')
+    begin_div('grid')    
+    print_output('Battlefield (origin point: ' + repr(xorigin) + ',' + repr(yorigin) + ')')
+    while y > yorigin - 51:
+        x = xorigin - 50        
+        grid_line = ""
+        while x < xorigin + 51: 
             if x == xorigin and y == yorigin:
                 grid_line += ' O '
             elif (x,y) in highlight_grids and (x,y) in target_grids:
-                grid_line += ' X '        
+                list_index = target_grids.index((x,y))
+                grid_line += target_ids[list_index]
             elif (x,y) in target_grids:
-                grid_line += ' T '         
+                list_index = target_grids.index((x,y))
+                grid_line += target_ids[list_index]
             elif (x,y) in highlight_grids:
-                grid_line += ' A '                               
+                grid_line += ' * '                               
             else:
                 grid_line += ' . '        
             #grid_line += '(' + repr(x) + ',' + repr(y) + ')'        
-            x += 5        
-        print_output(grid_line)            
-        grid_line = '<div class=grid>'
-        y -= 5
+            x += 5                
+        print_output(grid_line)                    
+        y -= 5        
+    # End the Grid div
+    end_div()
+    # End the Grid Column div
+    end_div()
 
 def numbered_list(counter):
     suffix = ""
@@ -246,11 +252,10 @@ def characterlevel(combatant):
     return player_level
 
 #Style functions
-def indent():
-    return '<div class="indent">'
-
-def doubleindent():
-    return '<div class="doubleindent">'
+def print_indent(text):
+    print_output('<span class="indent">' + text + '</span>')
+def print_double_indent(text):
+    print_output('<span class="double-indent">' + text + '</span>')
 
 def movement_text(text):
     return '<span class="movement">' + text + '</span>'
@@ -267,15 +272,25 @@ def healing_text(text):
 def dmgred_text(text):
     return '<span class="damage_reduction">' + text + '</span>'
 
-def hp_text(currenthp,maxhp):
-    if currenthp/maxhp >= 0.75:
-        return '<span class="hpnormal">Current HP: ' + repr(currenthp) + '/' + repr(maxhp)+ '</span>'
-    elif currenthp/maxhp >= 0.5 and currenthp/maxhp < 0.75:
-        return '<span class="hpmidrange">Current HP: ' + repr(currenthp) + '/' + repr(maxhp)+ '</span>'
-    elif currenthp >= 1 and currenthp/maxhp < 0.5:
-        return '<span class="hplow">Current HP: ' + repr(currenthp) + '/' + repr(maxhp)+ '</span>'
-    elif currenthp <= 0:
-        return '<span class="hpdead">Current HP: ' + repr(currenthp) + '/' + repr(maxhp)+ '</span>'
+def hp_text(alive,currenthp,maxhp,string=""):
+    hp_string = ""
+    if alive:
+        if currenthp/maxhp >= 0.75:
+            hp_string ='<span class="hpnormal">'
+        elif currenthp/maxhp >= 0.5 and currenthp/maxhp < 0.75:
+            hp_string ='<span class="hpmidrange">'
+        elif currenthp >= 1 and currenthp/maxhp < 0.5:
+            hp_string ='<span class="hplow">'
+        elif currenthp <= 0:
+            hp_string = '<span class="hpzero">'
+    else:
+        hp_string = '<span class="hpdead">'
+
+    if string == "":
+        hp_string += 'Current HP: ' + repr(currenthp) + '/' + repr(maxhp)+ '</span>'
+    else:
+        hp_string += string + '</span>'
+    return hp_string
 
 def position_text(xpos,ypos):
     return movement_text('Current Position: (' + repr(xpos) + ',' + repr(ypos) + ')')
@@ -285,3 +300,6 @@ def victory_text(text):
 
 def killing_blow_text(text):
     return '<span class=hdywtdt>' + text + '</span>'
+
+def print_horizontal_line():
+    print_output(Markup('<hr>'))

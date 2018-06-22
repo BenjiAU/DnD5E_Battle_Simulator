@@ -1,5 +1,15 @@
-body
-{
+body {
+    font-family: Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+}
+
+input[type="text"] {
+    font-family: Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
 }
 
 .info {
@@ -22,15 +32,65 @@ body
     background-color: #232B2B;
     color: #FFFFFF;
 }
-.grid {
-    font-family: 'Courier New';
+
+.output_column {
+    width: 100%;
+    position: relative;
+    padding-left: 10px;
+    z-index: 1
 }
+
+.grid_column {
+    float: right;
+    position: relative;
+    width: 50%;
+    border: 1px solid #FFFFFF;
+    z-index: 2
+}
+
+.grid {
+    font-family: 'Courier New';    
+}
+
+.output:after {
+/* Clear floats after the columns */
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.attempt {
+    border-top: 4px solid #FFFFFF;    
+    border-left: 4px solid #FFFFFF;
+    padding-left: 20px;
+}
+
+.attempt:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.round {
+    border-top: 2px dashed #FFFFFF;
+    border-left: 2px dashed #FFFFFF;
+    padding-left: 20px;
+}
+
+.turn {
+    border-left: 1px solid #FFFFFF;    
+    padding-left: 20px;
+    /*
+        border-bottom: 2px dashed#FFFFFF ;
+    */
+}
+
 
 .indent {
     margin-left: 40px;
 }
 
-.doubleindent {
+.double-indent {
     margin-left: 80px;
 }
 
@@ -70,9 +130,16 @@ body
     color: lightcoral;
 }
 
+.hpzero {
+    color: darkred;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
 .hpdead{
     color: darkred;
     font-weight: bold;
+    text-decoration: line-through;
 }
 
 .hdywtdt{
@@ -89,4 +156,12 @@ body
 
 .death{
 
+}
+
+.combatant_details {
+    border: 1px solid #FFFFFF;
+}
+
+.combatant_details td {
+    border-right: 1px solid #FFFFFF;        
 }

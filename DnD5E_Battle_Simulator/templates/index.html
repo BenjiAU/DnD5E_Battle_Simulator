@@ -20,78 +20,51 @@
 </head>
 <body>
     <div class="info">
-        <h2> Critical Role - Battle Simulator  <br /></h2>
+        <h1> Critical Role - Battle Simulator</h1>
         {{data.msg}}
     </div>
 
     </br>
-    Welcome to the battle simulator, inspired by the Wizards of the Coast TTRPG and the show Critical Role.
-    </br>
-    This is a programming exercise designed to strengthen my Python skills, and help answer questions about 'Who would win' in certain iconic Critical Role battles if they were to be replayed or realised
-    </br>
-    It all started with the question; at what range can a max-level Percy bring down a max-level Grog? The answer might surprise you!
-    </br>
-    You can currently configure which combatants should battle from the predefined list, as well as change their starting co-ordinate positions and 'Team'.
-    </br>
-    Creatures on the same team will not attack each other, and victory will be declared for one Team when all members of enemy teams have been vanquished.
-    </br>
-    As of June 8th, you can now also change the Level, HP and Armour Class of combatants. Values are seeded from character sheets (primarily from critrolestats.com), and will reset to those values between simulations.
-    </br>
-    Note that class-based abilities that are granted by level happen as the level changes; so a level 5 Percy will only have the benefits of a level 5 Fighter.
-    </br>
-    Equipment is not yet configurable, and changing levels for characters with multiple classes is not yet possible; I'll need to actually build some sort of interface to manage this better.
-    </br>
-    There will be bugs and things that are unfinished; that's part of the fun!
-    </br>
+    Welcome to the battle simulator, inspired by the Wizards of the Coast TTRPG and the show Critical Role.  
     </br>
     Feedback is welcome via <a href="https://twitter.com/Benj1B">Twitter</a>, and you can check out the source code on <a href="https://github.com/BenjiAU/DnD5E_Battle_Simulator/">Github</a> :
 
     <div class="input">
         <form method="POST">
             <div class="combatant_select">
-                <div>
-                    <br />
-                </div>
-                <div>
-                    -----------------------------------------Select your Combatants!------------------------------------
-                </div>
-                <div>
-                    <br />
-                </div>
-                <div>
-                    <table class="combatant_select" border="1">
-                        <tr>
-                            <td>
-                                Select
-                            </td>
-                            <td>
-                                Name
-                            </td>
-                            <td>
-                                Level
-                            </td>
-                            <td>
-                                Maximum HP
-                            </td>
-                            <td>
-                                Armour Class
-                            </td>
-                            <td>
-                                Notes
-                            </td>
-                            <td>
-                                Starting X-Position
-                            </td>
-                            <td>
-                                Starting Y-Position
-                            </td>
-                            <td>
-                                Team
-                            </td>
-                        </tr>
-                        {{data.combatants}}
-                    </table>
-                </div>
+                <br />
+                <table class="combatant_select" border="1">
+                    <tr>
+                        <td>
+                            Select
+                        </td>
+                        <td>
+                            Name
+                        </td>
+                        <td>
+                            Level
+                        </td>
+                        <td>
+                            Maximum HP
+                        </td>
+                        <td>
+                            Armour Class
+                        </td>
+                        <td>
+                            Notes
+                        </td>
+                        <td>
+                            Starting X-Position
+                        </td>
+                        <td>
+                            Starting Y-Position
+                        </td>
+                        <td>
+                            Team
+                        </td>
+                    </tr>
+                    {{data.combatants}}
+                </table>
             </div>
             Simulate battle: <input name="simulate" value="Simulate" type="submit"></>
         </form>

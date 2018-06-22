@@ -10,6 +10,9 @@ from battle_simulator.combat_functions.position import *
 from battle_simulator.combat_functions.target import *
             
 def action(combatant):    
+    if not combatant.action_used:
+        print_output('<b>Action:</b>') 
+
     if not find_target(combatant):
         print_output('No targets remain!')
         return
@@ -84,8 +87,7 @@ def action(combatant):
 
     combatant.action_used = True
 
-def bonus_action(combatant): 
-    print_output('<b>Bonus Action:</b>') 
+def bonus_action(combatant):             
     if not find_target(combatant):
         print_output('No targets remain!')
         return

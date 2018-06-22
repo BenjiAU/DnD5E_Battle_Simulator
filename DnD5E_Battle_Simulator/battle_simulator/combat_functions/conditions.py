@@ -15,11 +15,11 @@ def inflict_condition(combatant,source,condition,duration=0,grants_advantage=Fal
                     combatant_condition.source = source
                     combatant_condition.duration = duration
                     
-                    print_output(indent() + combatant.name + ' is affected by a new instance of the ' + combatant_condition.condition.name + ' condition! It\'s duration has been refreshed!')
+                    print_indent( combatant.name + ' is affected by a new instance of the ' + combatant_condition.condition.name + ' condition! It\'s duration has been refreshed!')
                     condition_inflicted = True
                 elif combatant_condition.limited_duration and not combatant_condition.duration < duration:
                     # The new condition has a shorter duration than the one being suffered; output a message
-                    print_output(indent() + combatant.name + ' is already ' + combatant_condition.condition.name + '!')
+                    print_indent( combatant.name + ' is already ' + combatant_condition.condition.name + '!')
                     condition_inflicted = True
                 else:
                     #The condition has already been inflicted on the target, do not output a message
@@ -42,7 +42,7 @@ def inflict_condition(combatant,source,condition,duration=0,grants_advantage=Fal
             combatant_condition.grants_action = True
             combatant_condition.granted_action_used = False
         combatant.creature_conditions().append(combatant_condition)   
-        print_output(indent() + combatant.name + ' is now ' + combatant_condition.condition.name + '!')
+        print_indent( combatant.name + ' is now ' + combatant_condition.condition.name + '!')
 
 def remove_condition(combatant,condition_to_remove):
     #Concentration is inflicted by the spell; look across all other targets for instances of that spell and remove them if required
@@ -64,7 +64,7 @@ def remove_condition(combatant,condition_to_remove):
     # On the off chance multiple instances of the same condition are recorded against the target this will remove all instances of them     
     if check_condition(combatant,condition_to_remove):
         combatant.creature_conditions()[:] = [combatant_condition for combatant_condition in combatant.creature_conditions() if not combatant_condition.condition == condition_to_remove]    
-        print_output(indent() + combatant.name + ' is no longer ' + condition_to_remove.name + '!')    
+        print_indent( combatant.name + ' is no longer ' + condition_to_remove.name + '!')    
 
         
 def update_conditions(combatant):
@@ -74,7 +74,7 @@ def update_conditions(combatant):
         if combatant_condition.limited_duration and combatant_condition.duration > 0:
             combatant_condition.duration -= 1 
             if combatant_condition.duration <= 0:
-                print_output(indent() + 'The ' + combatant_condition.condition.name + ' condition affecting ' + combatant.name + ' wears off.')        
+                print_indent( 'The ' + combatant_condition.condition.name + ' condition affecting ' + combatant.name + ' wears off.')        
 
     # Mutate the list to remove conditions that have expired
     combatant.creature_conditions()[:] = [combatant_condition for combatant_condition in combatant.creature_conditions() if combatant_condition.limited_duration and not combatant_condition.duration <= 0]

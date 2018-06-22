@@ -15,27 +15,27 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source,
     crit_damage = 0
     if (bonus_target == 0) or (bonus_target == combatant.target.race):
         #if bonus_target == 0:
-            #print_output(indent() + 'Rolling bonus damage: ')
+            #print_indent( 'Rolling bonus damage: ')
 
         #else:
-            #print_output(indent() + 'Rolling bonus damage against ' + combatant.target.race.name + ': ')  
+            #print_indent( 'Rolling bonus damage against ' + combatant.target.race.name + ': ')  
             #                  
         for x in range(0,count):
             die_damage = roll_die(die)
-            print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')
+            print_double_indent( combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')
             if greatweaponfighting(combatant) and die_damage <= 2 and source == combatant.main_hand_weapon.name:
-                print_output(doubleindent() + combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
+                print_double_indent( combatant.name + ' rerolled a weapon die due to Great Weapon Fighting!')
                 die_damage = roll_die(die)
-                print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')
+                print_double_indent( combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')
             bonus_damage += die_damage
         if crit:
             crit_damage = bonus_damage * 2           
                         
     if crit:
-        print_output(indent() + combatant.name + ' dealt an additional ' + crit_damage_text(repr(crit_damage+flat)) + ' points of ' + type.name + ' damage with ' + source)
+        print_indent( combatant.name + ' dealt an additional ' + crit_damage_text(repr(crit_damage+flat)) + ' points of ' + type.name + ' damage with ' + source)
         deal_damage(combatant,combatant.target,crit_damage+flat,type,magic)
     else:
-        print_output(indent() + combatant.name + ' dealt an additional ' + damage_text(repr(bonus_damage+flat)) + ' points of ' + type.name + ' damage with ' + source)
+        print_indent( combatant.name + ' dealt an additional ' + damage_text(repr(bonus_damage+flat)) + ' points of ' + type.name + ' damage with ' + source)
         deal_damage(combatant,combatant.target,bonus_damage+flat,type,magic)
 
 def resolve_hemo_damage(combatant):        
@@ -52,13 +52,13 @@ def resolve_hemo_damage(combatant):
         resolve_fatality(combatant)
 
 def resolve_spell_damage(combatant,target,spell,spellslot,crit):
-    print_output(indent() + 'Rolling spell damage:')                        
+    print_indent( 'Rolling spell damage:')                        
     spell_damage = 0
     if spell.damage_die > 0:
         # Start with base damage of spell
         for x in range(0,spell.damage_die_count):
             die_damage = roll_die(spell.damage_die)
-            print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die) + ' (Spell Damage)')
+            print_double_indent( combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die) + ' (Spell Damage)')
             spell_damage += die_damage
 
         #Add additional damage for levels of expended spell slot
@@ -72,7 +72,7 @@ def resolve_spell_damage(combatant,target,spell,spellslot,crit):
             for x in range(spell.min_spellslot_level,spellslot_bonus):
                 for y in range(0,spell.damage_die_count_per_spell_slot):
                     die_damage = roll_die(spell.damage_die_per_spell_slot)
-                    print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die_per_spell_slot) + ' (Additional Spell Damage from Spell Slot)')
+                    print_double_indent( combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die_per_spell_slot) + ' (Additional Spell Damage from Spell Slot)')
                     spell_damage += die_damage
 
         #Add bonus damage
@@ -84,17 +84,17 @@ def resolve_spell_damage(combatant,target,spell,spellslot,crit):
     if crit:
         spell_damage = spell_damage * 2
         
-    print_output(indent() + spell.name + ' dealt ' + damage_text(repr(spell_damage)) + ' points of ' + spell.damage_type.name + ' damage!')                    
+    print_indent( spell.name + ' dealt ' + damage_text(repr(spell_damage)) + ' points of ' + spell.damage_type.name + ' damage!')                    
     deal_damage(combatant,target,spell_damage,spell.damage_type,True)   
 
 def resolve_spell_healing(combatant,target,spell,spellslot):
-    print_output(indent() + 'Rolling spell healing:')                        
+    print_indent( 'Rolling spell healing:')                        
     spell_healing = 0
     if spell.healing_die > 0:
         # Start with base healing of spell
         for x in range(0,spell.healing_die_count):
             die_healing = roll_die(spell.healing_die)
-            print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_healing) + ' on a d' + repr(spell.healing_die) + ' (Spell Healing)')
+            print_double_indent( combatant.name + ' rolled a ' + repr(die_healing) + ' on a d' + repr(spell.healing_die) + ' (Spell Healing)')
             spell_healing += die_healing
 
         #Add additional healing for levels of expended spell slot
@@ -108,11 +108,11 @@ def resolve_spell_healing(combatant,target,spell,spellslot):
             for x in range(spell.min_spellslot_level,spellslot_bonus):
                 for y in range(0,spell.healing_die_count_per_spell_slot):
                     die_healing = roll_die(spell.healing_die_per_spell_slot)
-                    print_output(doubleindent() + combatant.name + ' rolled a ' + repr(die_healing) + ' on a d' + repr(spell.healing_die_per_spell_slot) + ' (Additional Spell Healing from Spell Slot)')
+                    print_double_indent( combatant.name + ' rolled a ' + repr(die_healing) + ' on a d' + repr(spell.healing_die_per_spell_slot) + ' (Additional Spell Healing from Spell Slot)')
                     spell_healing += die_healing
         
     spell_healing += spellcasting_ability_modifier(combatant,spell)
-    print_output(indent() + spell.name + ' delivered ' + healing_text(repr(spell_healing)) + ' points of healing!')                    
+    print_indent( spell.name + ' delivered ' + healing_text(repr(spell_healing)) + ' points of healing!')                    
     heal_damage(target,spell_healing) 
 
 def deal_damage(combatant,target,damage,dealt_damage_type,magical):    
@@ -120,17 +120,17 @@ def deal_damage(combatant,target,damage,dealt_damage_type,magical):
     if check_condition(target,condition.Raging) and not target.armour_type == armour_type.Heavy:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing):
             damage = int(damage/2)              
-            print_output(doubleindent() + target.name + ' shrugs off ' + dmgred_text(repr(damage)) + ' points of damage in their rage!')
+            print_double_indent( target.name + ' shrugs off ' + dmgred_text(repr(damage)) + ' points of damage in their rage!')
     if check_condition(target,condition.Enlarged):
         if dealt_damage_type in (damage_type.Fire,damage_type.Cold,damage_type.Lightning):
             damage = int(damage/2)              
-            print_output(doubleindent() + target.name + ' shrugs off ' + dmgred_text(repr(damage)) + ' points of damage due to the effects of Enlarge!')
+            print_double_indent( target.name + ' shrugs off ' + dmgred_text(repr(damage)) + ' points of damage due to the effects of Enlarge!')
 
     #Reduce bludgeoning/piercing/slashing if dealt by non-magical dealt_
     if target.monster_type == monster_type.Ancient_Black_Dragon:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing) and not magical:
             damage = int(damage/2)              
-            print_output(doubleindent() + target.name + ' shrugs off ' + dmgred_text(repr(damage)) + ' points of damage from the non-magical attack!')
+            print_double_indent( target.name + ' shrugs off ' + dmgred_text(repr(damage)) + ' points of damage from the non-magical attack!')
 
     if damage > 0:
         #Check if creature already has a type of this damage pending to be deducted from hit points
@@ -161,11 +161,11 @@ def heal_damage(combatant,healing):
         else:
             combatant.current_health = combatant.current_health + healing
 
-        print_output(indent() + combatant.name + ' recovers ' + healing_text(repr(healing)) + ' points of health. ' + hp_text(combatant.current_health,combatant.max_health))
+        print_indent( combatant.name + ' recovers ' + healing_text(repr(healing)) + ' points of health. ' + hp_text(combatant.alive,combatant.current_health,combatant.max_health))
     
 def resolve_damage(combatant):
     total_damage = 0
-    damage_string = indent()
+    damage_string = ""
     #Calculate total damage
     #Track the damage dealt for output purposes and set the damage for that type back to zero    
     for x in combatant.pending_damage():        
@@ -209,13 +209,14 @@ def resolve_damage(combatant):
                 concentration_check_DC = max(10,round(total_damage/2))
                 print_output(combatant.name + ' needs to make a Concentrating check to maintain focus!')
                 if savingthrow(combatant,saving_throw.Constitution,concentration_check_DC):
-                    print_output(indent() + combatant.name + ' maintains focus on the spell!')
+                    print_indent( combatant.name + ' maintains focus on the spell!')
                 else:
                     remove_condition(combatant,condition.Concentrating)
 
             if settings.show_damage_summary:
-                print_output('Damage Summary: ' + damage_string)        
-            print_output(combatant.name + ' suffers a total of ' + damage_text(repr(int(total_damage))) + ' points of damage. ' + hp_text(combatant.current_health,combatant.max_health))        
+                print_output('Damage Summary: ')
+                print_indent(damage_string)        
+            print_output(combatant.name + ' suffers a total of ' + damage_text(repr(int(total_damage))) + ' points of damage. ' + hp_text(combatant.alive,combatant.current_health,combatant.max_health))        
 
 def resolve_fatality(combatant):
     if combatant.alive and not check_condition(combatant,condition.Unconscious) and combatant.current_health <= 0:
@@ -295,4 +296,4 @@ def death_saving_throw(combatant):
         print_output(combatant.name + ' recovers 1 HP, and is back in the fight!')
         heal_damage(combatant,1)        
         return
-    print_output(indent() + 'Death Saving Throw Successes: ' + repr(combatant.death_saving_throw_success) + ' Failures: ' + repr(combatant.death_saving_throw_failure))
+    print_indent( 'Death Saving Throw Successes: ' + repr(combatant.death_saving_throw_success) + ' Failures: ' + repr(combatant.death_saving_throw_failure))

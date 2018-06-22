@@ -74,10 +74,10 @@ def cast_spell(combatant,spell,crit = None):
     if spell.cantrip or spellslot:               
         # Deduct one usage from the spellslot (not cantrips)
         if spell.cantrip:
-            print_output(indent() + spell.description + " " + combatant.target.name)
+            print_indent( spell.description + " " + combatant.target.name)
         else:
             #Consume the spell slot from player's available slots
-            print_output(indent() + combatant.name + ' is burning a ' + numbered_list(spellslot.level) + ' level spellslot to cast ' + spell.name)                            
+            print_indent( combatant.name + ' is burning a ' + numbered_list(spellslot.level) + ' level spellslot to cast ' + spell.name)                            
             spellslot.current -= 1
         
         spell_ID = new_spell_ID()
@@ -119,7 +119,7 @@ def cast_spell(combatant,spell,crit = None):
                 else:
                     inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration)
         # Direct damage spell (just binary save)
-        elif spell.saving_throw_attribute == 0 and not spell.spell_attack:            
+        elif spell.saving_throw_attribute != 0 and not spell.spell_attack:            
             print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + combatant.target.name)
             if savingthrow(combatant.target,savetype,spell_save_DC(combatant,spell)):            
                 print_output(combatant.target.name + ' resists the effect of the ' + spell.name + ' spell!')
@@ -133,7 +133,8 @@ def cast_spell(combatant,spell,crit = None):
                 spell_attack(combatant,combatant.target,spell,spellslot)
                 i += 1                     
         else:
-            # Automatically resolve spell damage on spells i.e. Divine Smite
+            # Automatically resolve spell damage on spells that have no healing, are not spell attacks, do not inflict conditions, and have no save
+            # i.e. Divine Smite
             resolve_spell_damage(combatant,combatant.target,spell,spellslot,crit)
         #Resolve saving throw
         #if spell.saving_throw:
@@ -144,8 +145,9 @@ def cast_spell(combatant,spell,crit = None):
         resolve_fatality(combatant.target)
 
         #Check if we have spellslots left (except cantrips)
-        if spellslot.level != 0 and spellslot.current == 0:
-            print_output(combatant.name + ' has no ' + numbered_list(spellslot.level) + ' level spellslots remaining!')
+        if spellslot != None:
+            if spellslot.level != 0 and spellslot.current == 0:
+                print_output(combatant.name + ' has no ' + numbered_list(spellslot.level) + ' level spellslots remaining!')
 
 def spell_attack(combatant,target,spell,spellslot):
     advantage = False

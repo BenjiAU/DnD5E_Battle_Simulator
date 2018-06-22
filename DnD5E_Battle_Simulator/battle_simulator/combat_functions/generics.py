@@ -11,7 +11,7 @@ def use_luck(combatant):
         random.seed
         luck_die_roll = random.randint(1,20)        
         combatant.luck_uses -= 1
-        print_output(indent() + combatant.name + ' used a point of Luck, and rolled a ' + repr(luck_die_roll) + ' on the lucky d20!')
+        print_indent( combatant.name + ' used a point of Luck, and rolled a ' + repr(luck_die_roll) + ' on the lucky d20!')
         return(luck_die_roll)        
 
 # save functions #
@@ -47,12 +47,12 @@ def savingthrow(combatant,savetype,DC):
     # Check conditions
     if check_condition(combatant,condition.Stunned):
         if savetype == saving_throw.Strength or savetype == saving_throw.Dexterity:
-            print_output(indent() + combatant.name + ' automatically fails the ' + repr(DC) + ' ' + savetype.name + ' save as they are currently incapacitated!')
+            print_indent( combatant.name + ' automatically fails the ' + repr(DC) + ' ' + savetype.name + ' save as they are currently incapacitated!')
             return False
 
     #print_output(savetype + ' save: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier))
     if savingthrow >= DC:
-        print_output(indent() + combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
+        print_indent( combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
         return True
     
     if adv:
@@ -61,7 +61,7 @@ def savingthrow(combatant,savetype,DC):
         savingthrow = roll + modifier
         #print_output(savetype + ' save: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier))        
         if savingthrow >= DC:
-            print_output(indent() + combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
+            print_indent( combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
             return True
 
     #If the savingthrow fails, and we could make it with a decent roll (say higher than 15), and we have luck, spend luck to reroll the d20
@@ -70,10 +70,10 @@ def savingthrow(combatant,savetype,DC):
         if luck_roll > roll:
             savingthrow = luck_roll + modifier
             if savingthrow >= DC:
-                print_output(indent() + combatant.name + ' used a point of Luck, and has now succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
+                print_indent( combatant.name + ' used a point of Luck, and has now succeeded on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
                 return True
 
-    print_output(indent() + combatant.name + ' FAILED on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
+    print_indent( combatant.name + ' FAILED on a DC' + repr(DC) + ' ' + savetype.name + ' save with a total of ' + repr(savingthrow) + '!')
     return False
 
 # check functions #
@@ -105,7 +105,7 @@ def abilitycheck(combatant,checktype,DC,proficient=False):
     print_output('<i>Ability Check</i>')
     #print_output(checktype + ' check: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier))    
     if check >= DC:
-        print_output(indent() + combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check))
+        print_indent( combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check))
         return True
     if adv:
         #print_output(combatant.name + ' failed the check, but has advantage on ' + checktype + ' checks!')
@@ -113,7 +113,7 @@ def abilitycheck(combatant,checktype,DC,proficient=False):
         check = roll + modifier
         #print_output(checktype + ' check: Natural roll: ' + repr(roll) + ', modifier: ' + repr(modifier))    
         if check >= DC:
-            print_output(indent() + combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check))
+            print_indent( combatant.name + ' succeeded on a DC' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check))
             return True
 
     #If the savingthrow fails, and we could make it with a decent roll (say higher than 15), and we have luck, spend luck to reroll the d20
@@ -122,10 +122,10 @@ def abilitycheck(combatant,checktype,DC,proficient=False):
         if luck_roll > roll:
             check = luck_roll + modifier
             if check >= DC:
-                print_output(indent() + combatant.name + ' used a point of Luck, and has now succeeded on a DC' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check))
+                print_indent( combatant.name + ' used a point of Luck, and has now succeeded on a DC' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check))
                 return True
 
-    print_output(indent() + combatant.name + ' FAILED on a DC' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check))
+    print_indent( combatant.name + ' FAILED on a DC' + repr(DC) + ' ' + checktype.name + ' check with a total of ' + repr(check))
     return False
 
 # Initiative

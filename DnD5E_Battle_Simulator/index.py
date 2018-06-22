@@ -12,7 +12,9 @@ app=Flask(__name__)
 
 def index():
     filename = ""
-    html = Markup('<div class="output">----Output----')   
+    html = Markup('<div class="output">----Output----')       
+    # Master output column rendered here
+    html += Markup('<div class="output_column">')       
     html_combatants = ""
     
     simulate.load_combatants()
@@ -23,13 +25,17 @@ def index():
         if settings.output != None:
             if len(settings.output) > 0:
                 for i in settings.output:
-                    if '<div' in i:
-                        html += Markup(i + '</div>')
+                    #When the code generates a new column, terminate the outer div to close that column first and allow floating
+                    # When the code starts a random div, terminate it                    
+                    if '<div' in i or 'table' in i or 'td' in i:
+                        html += Markup(i)
                     else:
-                        html += Markup('<div>' + i + '</div>')           
+                        html += Markup(i + '<br>')           
     
+    # End the Output Column div                        
     html += Markup('</div>')
-
+    # End the Output div
+    html += Markup('</div>')
     data = {
         "title": 'Critical Role Battle Simulator V1.0',
         "msg":'Warning - content on this website may contain spoilers for one or both campaigns of Critical Role.',

@@ -103,24 +103,24 @@ def wield(combatant,weapon,replace_mainhand):
     #If our main hand is empty, equip the weapon automatically
     if combatant.main_hand_weapon == None:        
         combatant.main_hand_weapon = weapon
-        print_output(indent() + combatant.name + ' begins wielding ' + weapon.name + ' in their main hand.')
+        print_indent( combatant.name + ' begins wielding ' + weapon.name + ' in their main hand.')
         if weapon.two_handed or weapon.versatile:
             if combatant.offhand_weapon == None:    
-                print_output(indent() + combatant.name + ' grasps their weapon with both hands!')
+                print_indent( combatant.name + ' grasps their weapon with both hands!')
                 combatant.offhand_weapon = weapon            
         return True
     # If our main hand is not empty but the weapon swap is forced to the main hand, equip the weapon
     elif combatant.main_hand_weapon != None and replace_mainhand:            
         combatant.main_hand_weapon = weapon
-        print_output(indent() + combatant.name + ' begins wielding ' + weapon.name + ' in their main hand.')
+        print_indent( combatant.name + ' begins wielding ' + weapon.name + ' in their main hand.')
         if weapon.two_handed or weapon.versatile:
             if combatant.offhand_weapon == None:    
-                print_output(indent() + combatant.name + ' grasps their weapon with both hands!')
+                print_indent( combatant.name + ' grasps their weapon with both hands!')
                 combatant.offhand_weapon = weapon                    
         return True    
     # If we are holding something in the main hand and have not specified the new weapon to overwrite the mainhand, equip the weapon to the offhand
     else:
-        print_output(indent() + combatant.name + ' begins wielding ' + weapon.name + ' in their off hand.')
+        print_indent( combatant.name + ' begins wielding ' + weapon.name + ' in their off hand.')
         combatant.offhand_weapon = weapon
         return True
 

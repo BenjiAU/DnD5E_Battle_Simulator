@@ -73,11 +73,12 @@ def simulate_battle():
 
     attempt=0
     while attempt < settings.max_attempts and not error_occurred:
+        #Gag output (to stop weapon/target/roll spam at the start of the sim)
+        settings.suppress_output = True
+
         # Beginning of battle attempt
         battle_complete = False        
-        attempt += 1
-        print_output('<b>Attempt number: ' + repr(attempt)+ '</b>')
-        print_output(' ')      
+        attempt += 1                
         
         #Reset values on the global module list of combatants
         print_output('<bResetting Combatants...</b>')
@@ -86,17 +87,18 @@ def simulate_battle():
         #Re-initialise position for new round
         initialise_combat.set_starting_positions(combatants.list)
             
-        # roll initiative #        
-        print_output('<b>Rolling Initiative...</b>')
+        # roll initiative #                
         set_initiative_order()
         
-        #print_output out combat order at top of attempt
-        print_output("</br>")
-        print_output('Combat order established: ')
+        #print_output out combat order at top of attempt        
         combatorder = 0                   
         
         #Remove the gag on output (to stop weapon/target/roll spam at the start of the sim)
         settings.suppress_output = False
+        begin_div('attempt')
+        print_output('<b>Attempt number: ' + repr(attempt)+ '</b>')
+        print_output('<b>Rolling Initiative...</b>')
+        print_output('Combat order established: ')
 
         #Print initiative order and initialise targets        
         begin_combatant_details()
@@ -109,25 +111,30 @@ def simulate_battle():
             combatorder += 1            
             print_combatant_details(combatant,combatorder)
         end_combatant_details()
+        print_output("")
 
         #Begin combat rounds (up to a maximum to avoid overflow)
         round = 0              
+        print_output('<b>Beginning combat round simulation...</b>')
         while not battle_complete and round < settings.max_rounds:
+            begin_div('round')
             # Beginning of round
             round_complete = False
-            print_output("</br>")
             round = round + 1                
             print_output('<b>Round: ' + repr(round) + '</b>')
-    
+            
+            #Print a grid 50 units around the combatants to show the relative positions    
+            print_grid(0,0,[],combatants.list)            
+
             for combatant in combatants.list:        
                 if not round_complete:
-                    print_output("</br>")
-                    print_output('It is now ' + combatant.name + '\'s turn. ' + hp_text(combatant.current_health,combatant.max_health) + '. ' + position_text(combatant.xpos,combatant.ypos))
-                    turn_complete = False
+                    begin_div('turn')
+                    print_output('It is now ' + combatant.name + '\'s turn. ' + hp_text(combatant.alive,combatant.current_health,combatant.max_health) + '. ' + position_text(combatant.xpos,combatant.ypos))
+                    turn_complete = False                    
                     while not turn_complete:
                         # Continuously evaluate this subloop only while combatant is alive/conscious; if these conditions change, skip out to death handling
                         combatant_alive_this_turn = False
-                        while not turn_complete and combatant.alive and not check_condition(combatant,condition.Unconscious):
+                        while not turn_complete and combatant.alive and not check_condition(combatant,condition.Unconscious):                            
                             combatant_alive_this_turn = True
                             # update statistics
                             combatant.rounds_fought += 1
@@ -176,8 +183,7 @@ def simulate_battle():
                                     print_output(combatant.name + ' is incapacitated, and incapable of any action this turn!')
                                 else:
                                     # Is the combatant wearing equipment? Evaluate and use if appropriate
-                                    if combatant.equipment_inventory():
-                                        print_output('<b>Use Equipment:</b>')                            
+                                    if combatant.equipment_inventory():                                        
                                         use_equipment(combatant)
 
                                     # bonus action (pre-movement)#       
@@ -185,7 +191,6 @@ def simulate_battle():
                                         bonus_action(combatant)      
 
                                     # use movement first #
-                                    print_output('<b>Movement:</b>')
                                     movement(combatant)
 
                                     if check_condition(combatant,condition.Unconscious) or not combatant.alive:
@@ -199,7 +204,6 @@ def simulate_battle():
                                         break
 
                                     # action #
-                                    print_output('<b>Action:</b>')
                                     action(combatant)              
                                 
                                     if check_condition(combatant,condition.Unconscious) or not combatant.alive:
@@ -223,20 +227,19 @@ def simulate_battle():
                                     if check_condition(combatant,condition.Unconscious) or not combatant.alive:
                                         break
 
-                                    # additional abilities (action surge etc.)
+                                    # additional abilities (action surge etc.)                                    
                                     if combatant.action_surge > 0: 
-                                        # Don't blow action surge if current target is down; find a new target instead
-                                        if not combatant.target.alive or check_condition(combatant.target,condition.Unconscious):
-                                            find_target(combatant)
-                                        # If we still have a target, use our action surge
-                                        if combatant.target:
-                                            print_output('********************')
-                                            print_output(combatant.name + ' summons all their might, and uses an Action Surge!')
-                                            print_output('********************')
-                                            combatant.action_surge -= 1
-                                            combatant.action_used = False;
-                                            print_output('<b>Action Surge action:</b>')
-                                            action(combatant)                                
+                                        # Reassess targets
+                                        if find_target(combatant):
+                                            # Don't blow action surge if current target is down; find a new target instead
+                                            if combatant.target.alive and not check_condition(combatant.target,condition.Unconscious):
+                                                print_output('********************')
+                                                print_output(combatant.name + ' summons all their might, and uses an Action Surge!')
+                                                print_output('********************')
+                                                combatant.action_surge -= 1
+                                                combatant.action_used = False;
+                                                print_output('<b>Action Surge action:</b>')
+                                                action(combatant)                                
                                 
                                     if check_condition(combatant,condition.Unconscious) or not combatant.alive:
                                         break
@@ -270,11 +273,10 @@ def simulate_battle():
 
                                 #Mark the turn as complete
                                 print_output('That finishes ' + combatant.name + '\'s turn.')
-
                                 turn_complete = True
                             else:
                                 print_output(victory_text(combatant.name + ' has no valid targets! ' + combatant.team.name + ' wins!'))
-                                                                
+                                
                                 for team in combatants.teams:
                                     if team.battling and team.name == combatant.team.name:
                                         team.no_of_wins += 1
@@ -296,14 +298,16 @@ def simulate_battle():
                             turn_complete = True
                         elif not combatant.alive and check_condition(combatant,condition.Unconscious):
                             print_output(combatant.name + ' is dead!')    
-                            print_output("</br>")
+                            print_output("")
                             turn_complete = True                                                                       
 
                     #Turn Over
                     turn_complete = True
+                    end_div()
                     #Turn Over
             #End of Round
             round_complete = True
+            end_div()
             #End of Round
 
         # After settings.max_rounds of combat, if no victor, declare stalemate
@@ -311,13 +315,13 @@ def simulate_battle():
             print_output(repr(settings.max_rounds) + ' rounds of combat have passed, and there is no clear victor in the battle. Stalemate!')  
             battle_complete = True
         
-        print_output('_____________________________________________________________________________')        
-        print_output('<b>Attempt complete.</b>')
-        print_output('_____________________________________________________________________________')
+
+        print_output('<b>Attempt complete.</b>')        
+        end_div()
         # End of battle
 
     if not error_occurred:
-        print_output("</br>")
+        print_output("")
         print_output('------------------------')
         print_output('<b>Simulation Complete</b>')
         print_output('------------------------')
@@ -349,17 +353,11 @@ def set_initiative_order():
     unsorted_combatants = combatants.list
     #Roll initiative for each combatant
     for combatant in unsorted_combatants:     
-        if namestring == '':
-            namestring += combatant.name
-        else:
-            namestring += ', ' + combatant.name
         roll_initiative(combatant)            
                             
     initkey = operator.attrgetter("initiative_roll")
     combatants.list = sorted(unsorted_combatants, key=initkey,reverse=True)    
-    namestring += ': I need you to roll initiative!'
-    print_output(namestring)
 
     for combatant in combatants.list:
-        print_output(indent() + 'Name:' + combatant.name + ': Initiative Roll: ' + repr(combatant.initiative_roll))
+        print_indent( 'Name:' + combatant.name + ': Initiative Roll: ' + repr(combatant.initiative_roll))
     

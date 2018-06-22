@@ -199,12 +199,15 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
             if width_direction == -1:
                 width_offset += 5
                   
-    # Find enemy locations and see if targets are located within the grid set
+    # Find enemy locations and see if targets are located within the grid set; this will be returned for the damage function    
     affected_targets = find_targets_in_area(combatant,affected_grids)
-    #Print out a grid (half debugging, may leave it in) - show all the targets so they can be rendered
-    print_output('AoE Debugging: Total potential grids: ' + repr(total_affected_grids) + ' Max grids: ' + repr(max_grids) + ' Affected grids: ' + repr(len(affected_grids)))
 
-    print_grid(first_xorigin,first_yorigin,affected_grids,affected_targets)
+    # Find all tar
+    #Print out a grid (half debugging, may leave it in) - show all the targets so they can be rendered
+    #print_output('AoE Debugging: Total potential grids: ' + repr(total_affected_grids) + ' Max grids: ' + repr(max_grids) + ' Affected grids: ' + repr(len(affected_grids)))
+
+    # Pass the affected grids to the print_grid function, focused on the origin of the spell, and with all combatants listed so we can see the location of other member
+    print_grid(first_xorigin,first_yorigin,affected_grids,combatants.list)
 
     return affected_targets
             
