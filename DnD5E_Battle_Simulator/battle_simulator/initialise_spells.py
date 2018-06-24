@@ -229,16 +229,16 @@ def initialise_spells(combatant):
             spell.damage_die_count = 1
             spell.damage_type = damage_type.Force
 
-            if class_instance.player_class_level >= 1:
+            if characterlevel(combatant) >= 1:
                 spell.instance = 1
                 spell.description = "A crackling beam of energy leaps toward"
-            if class_instance.player_class_level >= 5:
+            if characterlevel(combatant) >= 5:
                 spell.instance = 2
                 spell.description = "Two crackling beams of energy leap toward"
-            if class_instance.player_class_level >= 11:
+            if characterlevel(combatant) >= 11:
                 spell.instance = 3
                 spell.description = "Three crackling beams of energy leap toward"
-            if class_instance.player_class_level >= 17:
+            if characterlevel(combatant) >= 17:
                 spell.instance = 4
                 spell.description = "Four crackling beams of energy leap toward"
 

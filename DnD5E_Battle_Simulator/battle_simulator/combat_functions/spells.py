@@ -248,7 +248,7 @@ def cast_spell(combatant,spell,crit = None):
                         if savingthrow(combatant.target,savetype,spell_save_DC(combatant,spell)):            
                             # If save successful, check the damage multiplier; multiplier of 0 means no damage
                             if spell.saving_throw_damage_multiplier == 0:                
-                                print_output(affected_target.name + ' resists all damage from the spell!') 
+                                print_output(combatant.target.name + ' resists all damage from the spell!') 
                             else:
                                 calculate_spell_damage(combatant,combatant.target,spell,spellslot,False,spell.saving_throw_damage_multiplier)                
                         else:
