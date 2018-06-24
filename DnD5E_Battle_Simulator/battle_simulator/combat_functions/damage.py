@@ -95,6 +95,21 @@ def calculate_spell_damage(combatant,target,spell,spellslot,crit,multiplier=1):
     print_indent( spell.name + ' dealt ' + damage_text(repr(spell_damage)) + ' points of ' + spell.damage_type.name + ' damage!')                    
     deal_damage(combatant,target,spell_damage,spell.damage_type,True)   
 
+def resolve_spell_damage(combatant):    
+    if not check_condition(combatant,condition.Unconscious):                              
+        resolve_damage(combatant)
+    else:                            
+        if crit:
+            print_output('***' + 'The critical blow strikes the unconscious form of ' + combatant.target.name + ' and causes them to fail two Death Saving Throws!' + '***')
+            combatant.death_saving_throw_failure += 2
+        else:
+            print_output('***' + 'The blow strikes the unconscious form of ' + combatant.target.name + ' and causes them to fail a Death Saving Throw!' + '***')
+            combatant.death_saving_throw_failure += 1
+                            
+        print_indent( 'Death Saving Throw Successes: ' + repr(combatant.target.death_saving_throw_success) + ' Failures: ' + repr(combatant.target.death_saving_throw_failure))
+
+    resolve_fatality(combatant)
+
 def resolve_spell_healing(combatant,target,spell,spellslot):
     print_indent( 'Rolling spell healing:')                        
     spell_healing = 0

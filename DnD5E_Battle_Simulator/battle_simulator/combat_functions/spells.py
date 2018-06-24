@@ -85,10 +85,9 @@ def select_spell(combatant,casttime):
     return best_spell
 
 #Cast a spell  - if Crit is forced use it
-def cast_spell(combatant,spell,crit = None):
-    #Check if a spell slot is available to be used
-    #Always use highest level spellslot to cast spell (for now...)
-    spellslot = get_highest_spellslot(combatant,spell)
+def cast_spell(combatant,spell,crit = None):    
+    #Find the best spellslot to use on this spell
+    spellslot = get_best_spellslot(combatant,spell)
     #See if a spellslot was returned by the function
     if spell.cantrip or spellslot:               
         # Deduct one usage from the spellslot (not cantrips)
@@ -157,7 +156,9 @@ def cast_spell(combatant,spell,crit = None):
                     inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
                     #Debuff spells may also have a damage component
                     if spell.damage_die != 0:
-                        calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)         
+                        calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)        
+                        resolve_damage(combatant.target)
+                        resolve_fatality(combatant.target)
             else:
                 # No saving throw defined, automatic success
                 inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
@@ -188,7 +189,8 @@ def cast_spell(combatant,spell,crit = None):
                         inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
                         #Debuff spells may also have a damage component
                         if spell.damage_die != 0:
-                            calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)         
+                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False)        
+                            resolve_spell_damage(affected_target)                            
                 else:
                     # No saving throw defined, automatic success
                     inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
@@ -323,6 +325,22 @@ def get_highest_spellslot(combatant,spell):
             # 0 level spellslots are cantrips, and always returned. Otherwise we must have enough spells remaining
             if spellslot.current > 0:
                 return spellslot             
+
+
+def get_best_spellslot(combatant,spell):    
+    # Sort spells by level then selects the one that fits within min/max bounds (so you dont burn higher level spellslots for no reason)
+    initkey = operator.attrgetter("level")
+    sorted_spells = sorted(combatant.spellslots(), key=initkey,reverse=True)    
+
+    best_spellslot = None
+    for spellslot in sorted_spells:
+        if spellslot.level >= spell.min_spellslot_level and spellslot.level <= spell.max_spellslot_level:
+            # 0 level spellslots are cantrips, and always returned. Otherwise we must have enough spells remaining
+            if spellslot.current > 0:
+                if best_spellslot == None or spellslot.level > best_spellslot.level:
+                    best_spellslot = spellslot
+
+    return best_spellslot
 
 def new_spell_ID():
     ID = settings.last_spell_ID + 1
