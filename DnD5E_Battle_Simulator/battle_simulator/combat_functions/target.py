@@ -66,14 +66,16 @@ def find_buff_target(combatant,buff_condition,range):
     buff_target = None    
     for ally in get_living_allies(combatant):
         if calc_distance(combatant,ally) <= range:
-            if not check_condition(ally,condition.Unconscious) and not check_condition(ally,condition.Stunned) and not check_condition(ally,condition.Incapacitated):
-                #For testing - target Raging allies with Enlarge or Haste if we have it
-                if buff_condition == condition.Enlarged:                    
-                    buff_target = ally        
+            if not check_condition(ally,condition.Unconscious) and not check_condition(ally,condition.Stunned) and not check_condition(ally,condition.Incapacitated):                                
+                #Only apply the Enlarge buff to melee allies
+                if buff_condition == condition.Enlarged and combatant.main_hand_weapon != None and not combatant.spellcaster:                    
+                    if combatant.main_hand_weapon.range == 0:
+                        buff_target = ally        
                 elif buff_condition == condition.Hasted:                    
                     buff_target = ally        
     if buff_target == None:    
-        buff_target = combatant
+        if buff_condition == condition.Hasted:                    
+            buff_target = combatant
     return buff_target
 
 def find_targets_in_area(combatant,affected_grids):    
