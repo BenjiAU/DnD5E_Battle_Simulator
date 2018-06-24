@@ -25,8 +25,8 @@ def open_file():
             print_time_stamp(True,'Starting Time: ')
 
 def close_file():
-    print_time_stamp(False,'Ending Time: ')    
     if settings.filename != "":
+        print_time_stamp(False,'Ending Time: ')        
         settings.file.close()
         settings.file_open = False
 
