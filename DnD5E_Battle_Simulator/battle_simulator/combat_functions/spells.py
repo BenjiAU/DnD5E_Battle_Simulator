@@ -267,6 +267,9 @@ def cast_spell(combatant,spell,crit = None):
             resolve_damage(combatant.target)
             resolve_fatality(combatant.target)
             
+        #Silently update concentration; if all targets saved aagainst the effect we need to immediately stop concentrating
+        update_concentration(combatant)
+
         #Resolve spell damage and fatalities after attacks landed/saving throws failed and all instances are accounted for
         if spell.category == spell_category.Damage or spell.category == spell_category.AoE_Damage:
             resolve_damage(combatant.target)

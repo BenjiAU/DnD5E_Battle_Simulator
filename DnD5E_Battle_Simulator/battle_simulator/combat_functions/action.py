@@ -28,7 +28,8 @@ def action(combatant):
         if condition_to_save_against != None:
             print_output(combatant.name + ' uses their Action to save against the ' + condition_to_save_against.condition.name + ' condition!')
             if savingthrow(combatant,condition_to_save_against.saving_throw_attribute,condition_to_save_against.saving_throw_DC):
-                remove_condition(combatant,condition_to_save_against.condition)            
+                remove_condition(combatant,condition_to_save_against.condition)           
+            combatant.action_used = True
 
     if not combatant.action_used:
         #Custom monster logic before stepping into main loop

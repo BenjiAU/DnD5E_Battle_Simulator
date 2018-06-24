@@ -134,7 +134,7 @@ def simulate_battle():
                     while not turn_complete:
                         # Continuously evaluate this subloop only while combatant is alive/conscious; if these conditions change, skip out to death handling
                         combatant_alive_this_turn = False
-                        while not turn_complete and combatant.alive and not check_condition(combatant,condition.Unconscious):                            
+                        while not turn_complete and continue_turn(combatant):                            
                             combatant_alive_this_turn = True
                             # update statistics
                             combatant.rounds_fought += 1
@@ -258,13 +258,13 @@ def simulate_battle():
                                 # Resolve fatality to see if the combatant dies because of expired conditions
                                 resolve_fatality(combatant)
 
-                                if check_condition(combatant,condition.Unconscious) or not combatant.alive:
+                                if not continue_turn(combatant):
                                     break
 
                                 #Apply Hemorraging Critical damage
                                 resolve_hemo_damage(combatant)                   
 
-                                if check_condition(combatant,condition.Unconscious) or not combatant.alive:
+                                if not continue_turn(combatant):
                                     break
                                                                 
                                 # Turn completion events
@@ -287,7 +287,7 @@ def simulate_battle():
                                 round_complete = True
                                 battle_complete = True
 
-                        # Handle unconsciousness/death
+                        # Handle unconsciousness/death                        
                         if combatant.alive and check_condition(combatant,condition.Unconscious):
                             print_output(combatant.name + ' is unconscious on the ground!')
                             # Unconscious actions
@@ -298,10 +298,14 @@ def simulate_battle():
                                     # See if they're dead
                                     resolve_fatality(combatant)                           
                             turn_complete = True
-                        elif not combatant.alive and check_condition(combatant,condition.Unconscious):
+                        elif not combatant.alive:
                             print_output(combatant.name + ' is dead!')    
                             print_output("")
-                            turn_complete = True                                                                       
+                            turn_complete = True       
+                        else:                        
+                            # Catch-all escape - some conditions may prevent turn from finishing nromally (i.e. Incapacitated), this will ensure that the next turn rolls on as normal
+                            print_output('That finishes ' + combatant.name + '\'s turn.')                            
+                            turn_complete = True
 
                     #Turn Over
                     turn_complete = True

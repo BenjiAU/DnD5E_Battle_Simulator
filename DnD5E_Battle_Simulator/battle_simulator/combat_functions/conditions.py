@@ -72,7 +72,8 @@ def get_concentration_condition(combatant):
     for combatant_condition in combatant.creature_conditions():
         if combatant_condition.condition == condition.Concentrating:
             concentration_condition = combatant_condition
-    return concentration_condition
+            return concentration_condition
+    return None
 
 def end_concentration(combatant):
     concentration_condition = get_concentration_condition(combatant)
@@ -94,8 +95,9 @@ def update_concentration(combatant):
                 if spell_effect.source == concentration_condition.source and spell_effect.condition != condition.Concentrating:
                     return True
     
-    # There are no current active spell effects relying on our concentration; safe to remove concentration
-        remove_condition(combatant,concentration_condition.condition)
+        # There are no current active spell effects relying on our concentration; safe to remove concentration           
+        combatant.creature_conditions()[:] = [combatant_condition for combatant_condition in combatant.creature_conditions() if not combatant_condition.condition == concentration_condition.condition]
+        print_indent(combatant.name + ' is no longer ' + concentration_condition.condition.name + '!')   
         return False
 
 def update_conditions(combatant):
