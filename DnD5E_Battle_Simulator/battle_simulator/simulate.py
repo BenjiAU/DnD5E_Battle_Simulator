@@ -271,11 +271,8 @@ def simulate_battle():
                                 # Reset sneak attack on anyone who used sneak attack (i.e. opportunity attacks)
                                 for sneak_attack_combatant in combatants.list:
                                     if sneak_attack_combatant.sneak_attack:
-                                        sneak_attack_combatant.sneak_attack_used = False
-
-                                #Mark the turn as complete
-                                print_output('That finishes ' + combatant.name + '\'s turn.')
-                                turn_complete = True
+                                        sneak_attack_combatant.sneak_attack_used = False                                
+                                
                             else:
                                 print_output(victory_text(combatant.name + ' has no valid targets! ' + combatant.team.name + ' wins!'))
                                 
@@ -303,7 +300,7 @@ def simulate_battle():
                             print_output("")
                             turn_complete = True       
                         else:                        
-                            # Catch-all escape - some conditions may prevent turn from finishing nromally (i.e. Incapacitated), this will ensure that the next turn rolls on as normal
+                            # Mark the turn as complete
                             print_output('That finishes ' + combatant.name + '\'s turn.')                            
                             turn_complete = True
 
