@@ -11,78 +11,77 @@ from operator import attrgetter
 def select_spell(combatant,casttime):
     best_spell = None
     #Check that the target is in a condition to warrant casting the spell on?
-    if not check_condition(combatant.target,condition.Unconscious):    
-        for spell in combatant.spell_list():
-            if spell.casting_time == casttime:
-                #If we already used our bonus action this turn to cast a spell, we can only cast 1 action speed cantrips on our action
-                if combatant.bonus_action_spell_casted and not spell.cantrip:
-                    break
+    for spell in combatant.spell_list():
+        if spell.casting_time == casttime:
+            #If we already used our bonus action this turn to cast a spell, we can only cast 1 action speed cantrips on our action
+            if combatant.bonus_action_spell_casted and not spell.cantrip:
+                break
 
-                #Check that components (V,S,M) are available for spell?
-                #Evaluate if spell is targetted or self (i.e. buff?)?
-                # Only select spells we have a spellslot for
-                spellslot = get_highest_spellslot(combatant,spell)
-                #See if a spellslot was returned by the function
-                if spell.cantrip or spellslot:    
-                    # Check Concentrating
-                    if not spell.concentration or (spell.concentration and not check_condition(combatant,condition.Concentrating)):
-                        #Always choose higher level spells first
-                        if best_spell == None or (best_spell != None and spell.min_spellslot_level >= best_spell.min_spellslot_level):
-                            #Healing spells first:
-                            # Healing spell                            
-                            if spell.category == spell_category.Healing:            
-                                if best_spell == None or ((spell.instance*(spell.healing_die_count*spell.healing_die)) >= (best_spell.instance*(best_spell.healing_die_count*best_spell.healing_die))):
-                                    heal_target = find_heal_target(combatant,spell.range)
-                                    if heal_target != None:
-                                        print_output(combatant.name + ' thinks that ' + heal_target.name + ' needs healing!')                     
-                                        best_spell = spell
-
-                            if spell.category == spell_category.Buff:                                        
-                                if find_buff_target(combatant,condition,spell.range) != None:                                    
+            #Check that components (V,S,M) are available for spell?
+            #Evaluate if spell is targetted or self (i.e. buff?)?
+            # Only select spells we have a spellslot for
+            spellslot = get_highest_spellslot(combatant,spell)
+            #See if a spellslot was returned by the function
+            if spell.cantrip or spellslot:    
+                # Check Concentrating
+                if not spell.concentration or (spell.concentration and not check_condition(combatant,condition.Concentrating)):
+                    #Always choose higher level spells first
+                    if best_spell == None or (best_spell != None and spell.min_spellslot_level >= best_spell.min_spellslot_level):
+                        #Healing spells first:
+                        # Healing spell                            
+                        if spell.category == spell_category.Healing:            
+                            if best_spell == None or ((spell.instance*(spell.healing_die_count*spell.healing_die)) >= (best_spell.instance*(best_spell.healing_die_count*best_spell.healing_die))):
+                                heal_target = find_heal_target(combatant,spell.range)
+                                if heal_target != None:
+                                    print_output(combatant.name + ' thinks that ' + heal_target.name + ' needs healing!')                     
                                     best_spell = spell
 
-                            # AoE Debuffs                            
-                            if spell.category == spell_category.AoE_Debuff:                                        
-                                # Check targets, if more than 2 in AoE this is best spell
-                                affected_targets = []                                                
-                                affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)   
-                                if len(affected_targets) >= 2:
-                                    best_spell = spell
-
-                            # Single target debuffs
-                            if spell.category == spell_category.Debuff:                                        
+                        if spell.category == spell_category.Buff:                                        
+                            if find_buff_target(combatant,condition,spell.range) != None:                                    
                                 best_spell = spell
 
-                            # Damage spells (only if we have no healing/buff/debuffs)
-                            # AoE Damage
-                            if spell.category == spell_category.AoE_Damage:                                        
-                                # Check targets, if more than 2 in AoE this is best spell
-                                affected_targets = []                                                
-                                affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)   
-                                if len(affected_targets) >= 2:
-                                    best_spell = spell
+                        # AoE Debuffs                            
+                        if spell.category == spell_category.AoE_Debuff:                                        
+                            # Check targets, if more than 2 in AoE this is best spell
+                            affected_targets = []                                                
+                            affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)   
+                            if len(affected_targets) >= 2:
+                                best_spell = spell
+
+                        # Single target debuffs
+                        if spell.category == spell_category.Debuff:                                        
+                            best_spell = spell
+
+                        # Damage spells (only if we have no healing/buff/debuffs)
+                        # AoE Damage
+                        if spell.category == spell_category.AoE_Damage:                                        
+                            # Check targets, if more than 2 in AoE this is best spell
+                            affected_targets = []                                                
+                            affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)   
+                            if len(affected_targets) >= 2:
+                                best_spell = spell
                             
-                            # Single target damage
-                            if spell.category == spell_category.Damage:                                                                                                        
-                                if spell.spell_attack:
-                                    #Check that target is in range of spell (spells with range 0 always satisfy this condition - i.e. Divine Smite is tied to attack)
-                                    if (spell.range == 0) or calc_distance(combatant,combatant.target) <= spell.range:                           
-                                        # Choose the first spell we find, or check the total potential damage of the spell to decide which one to use
-                                        if best_spell == None or (spell.instance*(spell.damage_die_count*spell.damage_die)) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
-                                            best_spell = spell
-                                    # It may be that the spell is currently out of range, but it could still be beneficial to close the gap and use that spell
-                                    # Apply a penalty to out-of-range spells to make us choose between a weaker, closer spell and a stronger one that forces us to close the gap
-                                    elif calc_distance(combatant,combatant.target) > spell.range:                    
-                                        range_penalty = 0.75
-                                        if best_spell == None or ((spell.instance*(spell.damage_die_count*spell.damage_die))*range_penalty) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
-                                            best_spell = spell
-                                else:
-                                    # Prefer non-spell attacks that have no save (i.e. magic missile)
-                                    if spell.saving_throw_attribute == 0:
+                        # Single target damage
+                        if spell.category == spell_category.Damage:                                                                                                        
+                            if spell.spell_attack:
+                                #Check that target is in range of spell (spells with range 0 always satisfy this condition - i.e. Divine Smite is tied to attack)
+                                if (spell.range == 0) or calc_distance(combatant,combatant.target) <= spell.range:                           
+                                    # Choose the first spell we find, or check the total potential damage of the spell to decide which one to use
+                                    if best_spell == None or (spell.instance*(spell.damage_die_count*spell.damage_die)) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
                                         best_spell = spell
-                                    else:
-                                        if best_spell == None or (spell.instance*(spell.damage_die_count*spell.damage_die)) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
-                                            best_spell = spell
+                                # It may be that the spell is currently out of range, but it could still be beneficial to close the gap and use that spell
+                                # Apply a penalty to out-of-range spells to make us choose between a weaker, closer spell and a stronger one that forces us to close the gap
+                                elif calc_distance(combatant,combatant.target) > spell.range:                    
+                                    range_penalty = 0.75
+                                    if best_spell == None or ((spell.instance*(spell.damage_die_count*spell.damage_die))*range_penalty) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
+                                        best_spell = spell
+                            else:
+                                # Prefer non-spell attacks that have no save (i.e. magic missile)
+                                if spell.saving_throw_attribute == 0:
+                                    best_spell = spell
+                                else:
+                                    if best_spell == None or (spell.instance*(spell.damage_die_count*spell.damage_die)) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
+                                        best_spell = spell
     return best_spell
 
 #Cast a spell  - if Crit is forced use it
