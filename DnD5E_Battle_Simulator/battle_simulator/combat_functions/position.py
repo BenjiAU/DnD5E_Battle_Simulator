@@ -21,6 +21,8 @@ def movement(combatant):
         combatant.movement = combatant.speed
         if check_condition(combatant,condition.Hasted):
             combatant.movement = combatant.movement * 2
+        if check_condition(combatant,condition.Slowed):
+            combatant.movement = combatant.movement / 2
         use_movement(combatant)
 
     combatant.movement_used = True
@@ -29,6 +31,9 @@ def use_movement(combatant):
     # Goal: make sure we're in range to use our attacks/abilities if we have available
     # If we're a melee fighter, try to close the gap
     # If we're a ranged fighter, try to keep at maximum range (but don't run off into the wilderness)
+
+    if check_condition(combatant,condition.Restrained):
+        combatant.movement = 0
 
     if check_condition(combatant,condition.Prone):
         # Spend half combatant.movement to get up #

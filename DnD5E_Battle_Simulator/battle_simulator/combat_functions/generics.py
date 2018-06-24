@@ -26,6 +26,8 @@ def savingthrow(combatant,savetype,DC):
         adv = combatant.saves.str_adv
     elif savetype == saving_throw.Dexterity:
         modifier = combatant.saves.dex
+        if check_condition(combatant,condition.Slowed):
+            modifier -= 2
         adv = combatant.saves.dex_adv
     elif savetype == saving_throw.Constitution:
         modifier = combatant.saves.con
@@ -39,6 +41,8 @@ def savingthrow(combatant,savetype,DC):
     elif savetype == saving_throw.Charisma:
         modifier = combatant.saves.cha
         adv = combatant.saves.cha_adv
+
+    
 
     roll = roll_die(20)
 
@@ -143,13 +147,13 @@ def determine_advantage(combatant,range_attack):
     disadvantage = False
     # Check for all conditions on the combatant, and see if any of them grant advantage/disadvantage directly
     for combatant_condition in combatant.creature_conditions():
-        if combatant_condition.grants_advantage:
+        if combatant_condition.grants_advantage and not combatant_condition.condition == condition.Reckless:
             advantage = True            
             print_output(combatant.name + ' has advantage on the attack from the ' + combatant_condition.condition.name + ' condition!')        
         if combatant_condition.grants_disadvantage:
             disadvantage = True            
             print_output(combatant.name + ' has disadvantage on the attack from the ' + combatant_condition.condition.name + ' condition!')        
-    
+        
     #Check if any conditions are present on the target, as some of them may influence advantage/disadvantage  
     for target_condition in combatant.target.creature_conditions():
         if target_condition.condition == condition.Stunned:
@@ -157,6 +161,9 @@ def determine_advantage(combatant,range_attack):
             advantage = True            
         if target_condition.condition == condition.Reckless:
             print_output(combatant.name + ' has advantage on the attack, as ' + combatant.target.name + ' used Reckless Attack last round!')
+            advantage = True
+        if target_condition.condition == condition.Restrained:
+            print_output(combatant.name + ' has advantage on the attack, as ' + combatant.target.name + ' is Restrained!')
             advantage = True
         if target_condition.condition == condition.Prone and range_attack:
             print_output(combatant.target.name + ' is prone on the ground, giving ' + combatant.name + ' disadvantage on the attack!')
@@ -168,7 +175,9 @@ def determine_advantage(combatant,range_attack):
         advantage = True
         
     #Can we use reckless attack?
-    if combatant.reckless and not advantage:
+    # If we don't haev advantage, use reckless
+    # If we have advantage and we already have an active reckless condition, still call the Inflict condition function to make sure the duration updates
+    if combatant.reckless and (not advantage or check_condition(combatant,condition.Reckless)):         
         inflict_condition(combatant,combatant,condition.Reckless,2,True,False)
         print_output(combatant.name + ' uses Reckless Attack, gaining advantage on the attack!')
         advantage = True
@@ -203,6 +212,8 @@ def calc_total_AC(combatant):
     totalAC += combatant.armour_class
     if check_condition(combatant,condition.Hasted):
         totalAC += 2
+    if check_condition(combatant,condition.Slowed):
+        totalAC -= 2
     return totalAC
 
 def calc_distance(combatant,target):

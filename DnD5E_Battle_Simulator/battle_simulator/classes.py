@@ -330,6 +330,18 @@ class spell_school(Enum):
     Necromancy = auto()
     Evocation = auto()
 
+class spell_category(Enum):
+    def __str__(self):
+        return str(self.value)
+    Healing = auto()
+    AoE_Healing = auto()
+    Buff = auto()
+    AoE_Buff = auto()
+    Debuff = auto()
+    AoE_Debuff = auto()
+    Damage = auto()
+    AoE_Damage = auto()
+    
 class spell_casting_time(Enum):
     def __str__(self):
         return str(self.value)    
@@ -349,10 +361,13 @@ class spellslot():
 class spell():
    name = str()   
    description = str()   
+   category = int() #Internal Spell category, to make spell selection logic easier
+
    school = int() #Spell school
       
    concentration = bool() #True if this spell is a Concentrating spell (inflicts a Concentrating condition on caster)
    maximum_duration = int() # Maximum duration of the spell
+   persistent = bool() #Persistent spells include Bigby's Hand, Earthen Grasp, Witchbolt etc
 
    cantrip = bool() #True if a cantrip, spellslots do not apply
    min_spellslot_level = int() #Minimum spell slot to be expended to cast spell (0 = cantrip)   
@@ -363,23 +378,28 @@ class spell():
    range = int() # Castable range of spell to origin (i..e fireball = 150ft)   
    origin = int() # Spells' origin (point at which spell originates (i.e. fireball erupts from point you choose in range)
    shape = int() # Shape enumeration (shape that spell affects, i.e. fireball = 20 ft radius sphere)
-   shape_size = int()
+   shape_width = int()
+   shape_length = int()
    
    condition = int() # The condition inflicted by the skill (if any- this could be a buff or debuff, or an additional affect of a damaging spell)
    condition_duration = int() # Duration for the inflicted condition
 
    spell_attack = bool()   # True if this spell is a spell attack, false if it's a DC save (range attribute determines range or touch) or buff
    saving_throw_attribute = int() #Saving throw information, defined if a save is required, otherwise blank (i.e. for buffs/spell attacks)   
+   saving_throw_damage_multiplier = int() # Damage multiplier if save is successful (0 = no damage, .5 = half damage on successful save) 
 
    instance = int() # Instances of damage; i.e. Eldritch blast gains additional beams at 5th, 11th, 17th level     
    
+   flat_damage = int() # Flat damage added to die damage of spell
+
    damage_die = int()
    damage_die_count = int()
    damage_type = int()
    
    damage_die_per_spell_slot = int() # Additional damage die per spell slot
    damage_die_count_per_spell_slot = int() # Count of additional damage die per spell slot
-         
+   instance_per_spell_slot = int() #Additional spell instances per spell slot
+
    bonus_damage_die = int() 
    bonus_damage_die_count = int()
    bonus_damage_target = int() #Bonus damage inflicted if race = target

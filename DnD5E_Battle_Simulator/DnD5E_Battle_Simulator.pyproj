@@ -48,6 +48,7 @@
     </Compile>
     <Compile Include="battle_simulator\combat_functions\__init__.py" />
     <Compile Include="battle_simulator\fighters.py" />
+    <Compile Include="battle_simulator\initialise_spells.py" />
     <Compile Include="battle_simulator\initialise_combat.py">
       <SubType>Code</SubType>
     </Compile>

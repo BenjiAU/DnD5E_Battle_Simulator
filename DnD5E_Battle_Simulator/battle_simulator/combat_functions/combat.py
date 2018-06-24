@@ -34,6 +34,9 @@ def attack_action(combatant):
                             print_output('No targets remain!')
                             return
                         attack(combatant,weapon)
+                        if check_condition(combatant,condition.Slowed):
+                            print_output(combatant.name + ' is Slowed, and cannot take their next Multiattack')
+                            return                
                 else:
                     #Revert to normal attack/swap to range or reach weapon if required
                     print_output(combatant.name + ' uses the Attack action')                
@@ -82,6 +85,10 @@ def attack_action(combatant):
                     print_output(combatant.name + ' has no Ki Points remaining, and cannot use Flurry of Blows!')
 
         if combatant.extra_attack > 0:
+            if check_condition(combatant,condition.Slowed):
+                print_output(combatant.name + ' is Slowed, and cannot take an Extra Attack')
+                return
+
             for x in range(0,combatant.extra_attack):
                 #Can't attack if weapon is broken, must spend next action to fix it
                 if not combatant.main_hand_weapon.broken:
@@ -114,7 +121,7 @@ def breath_attack(combatant):
     # Black dragon breath attack is a 10 ft wide 90 ft line (all dragons are different)
     affected_targets = []
         
-    affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,area_of_effect_shape.Line,10,90)   
+    affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,area_of_effect_shape.Line,10,90,True)   
 
     # Calculate damage
     breath_damage = 0

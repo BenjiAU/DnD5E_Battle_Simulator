@@ -745,17 +745,29 @@ def init_caleb(init_combatants):
     #caleb's gear
     # combat stats # 
     # Calebs's spells - spells are initialised/damage dice calculated during initialisation 
-    firebolt = spell()
-    firebolt.name = "Firebolt"
-    caleb.spell_list().append(firebolt)
+    # Cantrips
+    for spellname in ["Firebolt","Dancing Lights","Friends"]:
+        new_spell = spell()
+        new_spell.name = spellname
+        caleb.spell_list().append(new_spell)
 
-    haste = spell()
-    haste.name = "Haste"
-    caleb.spell_list().append(haste)
+    # Level 1 spells
+    for spellname in ["Detect Magic","Find Familiar","Chromatic Orb","Disguise Self","Alarm","Comprehend Languages","Burning Hands","Identify","Unseen Servant","Sleep","Mage Armor","Magic Missiles"]:
+        new_spell = spell()
+        new_spell.name = spellname
+        caleb.spell_list().append(new_spell)
 
-    enlarge = spell()
-    enlarge.name = "Enlarge"
-    caleb.spell_list().append(enlarge)
+    # Level 2 spells
+    for spellname in ["Blur","Scorching Ray","Maximillian's Earthen Grasp","Enlarge","Reduce","Suggestion"]:
+        new_spell = spell()
+        new_spell.name = spellname
+        caleb.spell_list().append(new_spell)
+
+    # Level 3 spells
+    for spellname in ["Haste","Slow"]:
+        new_spell = spell()
+        new_spell.name = spellname
+        caleb.spell_list().append(new_spell)
 
     init_combatants.append(caleb)    
 

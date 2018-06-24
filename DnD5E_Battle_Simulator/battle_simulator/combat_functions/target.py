@@ -85,7 +85,7 @@ def find_targets_in_area(combatant,affected_grids):
             affected_targets.append(potential_target)
     return affected_targets
 
-def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,length):
+def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,length,printgrid=False):
     #Determines area of effect of passed in parameters and returns a dict of affected x,y co-ords    
     #First round the values to the nearest 5 foot
     width = round_to_integer(width,5)
@@ -102,6 +102,8 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
     y = 0
     xdestination = 0
     ydestination = 0
+    first_xorigin = xorigin
+    first_yorigin = yorigin   
 
     # Begin at point of origin
     # Determine direction of ability
@@ -112,10 +114,7 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
         width_limit = width/5
         width_pointer = 1
         width_step = 5
-        width_direction = 1
-        
-        first_xorigin = xorigin
-        first_yorigin = yorigin        
+        width_direction = 1        
         
         # Calculate the angle between the origin point and target points in radians            
         radians = math.atan2(ytarget-yorigin, xtarget-xorigin)    
@@ -197,8 +196,8 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
             width_pointer += 1            
             width_direction *= -1
             if width_direction == -1:
-                width_offset += 5
-                  
+                width_offset += 5                      
+
     # Find enemy locations and see if targets are located within the grid set; this will be returned for the damage function    
     affected_targets = find_targets_in_area(combatant,affected_grids)
 
@@ -207,7 +206,8 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
     #print_output('AoE Debugging: Total potential grids: ' + repr(total_affected_grids) + ' Max grids: ' + repr(max_grids) + ' Affected grids: ' + repr(len(affected_grids)))
 
     # Pass the affected grids to the print_grid function, focused on the origin of the spell, and with all combatants listed so we can see the location of other member
-    print_grid(first_xorigin,first_yorigin,affected_grids,combatants.list)
+    if printgrid:
+        print_grid(first_xorigin,first_yorigin,affected_grids,combatants.list)
 
     return affected_targets
             

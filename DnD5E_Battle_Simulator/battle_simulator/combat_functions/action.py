@@ -92,6 +92,11 @@ def bonus_action(combatant):
         print_output('No targets remain!')
         return
     
+    if check_condition(combatant,condition.Slowed):
+        print_output(combatant.name + ' is Slowed, and cannot use their Bonus Action.')
+        comabtant.bonus_action_used = True
+        return
+
     if combatant.bonus_action_used:
         print_output(combatant.name + ' has already used their Bonus Action this turn.')
                 

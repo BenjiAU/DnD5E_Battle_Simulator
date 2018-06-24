@@ -30,27 +30,40 @@ def select_spell(combatant,casttime):
                         if best_spell == None or (best_spell != None and spell.min_spellslot_level >= best_spell.min_spellslot_level):
                             #Healing spells first:
                             # Healing spell                            
-                            if spell.healing_die != 0:
+                            if spell.category == spell_category.Healing:            
                                 if best_spell == None or ((spell.instance*(spell.healing_die_count*spell.healing_die)) >= (best_spell.instance*(best_spell.healing_die_count*best_spell.healing_die))):
                                     heal_target = find_heal_target(combatant,spell.range)
                                     if heal_target != None:
                                         print_output(combatant.name + ' thinks that ' + heal_target.name + ' needs healing!')                     
                                         best_spell = spell
 
-                            # Buff spells                            
-                            if spell.condition != 0 and spell.saving_throw_attribute == 0:                                                                                    
+                            if spell.category == spell_category.Buff:                                        
                                 if find_buff_target(combatant,condition,spell.range) != None:                                    
                                     best_spell = spell
 
-                            # Debuff/saving throw spells                            
-                            if spell.condition != 0:
-                                best_spell = spell
-
-                            # Direct damage/save forcing spells:
-                            if best_spell == None:
-                                if spell.damage_die != 0 and spell.saving_throw_attribute != 0 and not spell.spell_attack:
+                            # AoE Debuffs                            
+                            if spell.category == spell_category.AoE_Debuff:                                        
+                                # Check targets, if more than 2 in AoE this is best spell
+                                affected_targets = []                                                
+                                affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)   
+                                if len(affected_targets) >= 2:
                                     best_spell = spell
 
+                            # Single target debuffs
+                            if spell.category == spell_category.Debuff:                                        
+                                best_spell = spell
+
+                            # Damage spells (only if we have no healing/buff/debuffs)
+                            # AoE Damage
+                            if spell.category == spell_category.AoE_Damage:                                        
+                                # Check targets, if more than 2 in AoE this is best spell
+                                affected_targets = []                                                
+                                affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)   
+                                if len(affected_targets) >= 2:
+                                    best_spell = spell
+                            
+                            # Single target damage
+                            if spell.category == spell_category.Damage:                                                                                                        
                                 if spell.spell_attack:
                                     #Check that target is in range of spell (spells with range 0 always satisfy this condition - i.e. Divine Smite is tied to attack)
                                     if (spell.range == 0) or calc_distance(combatant,combatant.target) <= spell.range:                           
@@ -62,6 +75,13 @@ def select_spell(combatant,casttime):
                                     elif calc_distance(combatant,combatant.target) > spell.range:                    
                                         range_penalty = 0.75
                                         if best_spell == None or ((spell.instance*(spell.damage_die_count*spell.damage_die))*range_penalty) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
+                                            best_spell = spell
+                                else:
+                                    # Prefer non-spell attacks that have no save (i.e. magic missile)
+                                    if spell.saving_throw_attribute == 0:
+                                        best_spell = spell
+                                    else:
+                                        if best_spell == None or (spell.instance*(spell.damage_die_count*spell.damage_die)) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
                                             best_spell = spell
     return best_spell
 
@@ -84,65 +104,173 @@ def cast_spell(combatant,spell,crit = None):
         savetype = saving_throw.Strength
         if spell.saving_throw_attribute != 0:
             savetype = saving_throw(spell.saving_throw_attribute)
+        
+        spellslot_bonus = 0
+        if spellslot != None:
+            if spellslot.level > spell.min_spellslot_level:
+                # If the spell gains no benefit for spells higher than the maximum, we still burn the higher slot, but only get benefit from the maximum against the spell                
+                if spell.max_spellslot_level < spellslot.level:
+                    spellslot_bonus = spell.max_spellslot_level-spell.min_spellslot_level
+                else:
+                    spellslot_bonus = spellslot.level-spell.min_spellslot_level
+                
+        if spellslot_bonus > 0:
+            total_instances = spell.instance + (spell.instance_per_spell_slot * spellslot_bonus)
+        else:
+            total_instances = spell.instance
 
         if spell.concentration:
             # Assign an identifier to the spell, so we can later cancel its effect across conditions            
             inflict_condition(combatant,spell_ID,condition.Concentrating,spell.maximum_duration)
-
-        if spell.healing_die != 0:
+        
+        # Healing spells
+        if spell.category == spell_category.Healing:            
             heal_target = find_heal_target(combatant,spell.range)
+            print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + heal_target.name)
 
             if heal_target != None:
-                i = 1
-                while i <= spell.instance:
+                i = 0
+                while i < total_instances:
                     for x in range(0,spell.healing_die_count):
-                        resolve_spell_healing(combatant,heal_target,spell,spellslot)                                    
-                    i += 1                     
+                        resolve_spell_healing(combatant,heal_target,spell,spellslot)                                                        
+                    i += 1
             else:
                 print_output('The spell fizzles as there is no target any more!')
 
-        # Buff/debuff
-        elif spell.condition != 0:
-            #Apply the buff
-            if spell.saving_throw_attribute == 0:
-                buff_target = find_buff_target(combatant,spell.condition,spell.range)
-                if buff_target != None:                
-                    print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + buff_target.name)
-                    inflict_condition(buff_target,spell_ID,spell.condition,spell.condition_duration)
-                else:
-                    print_output('The spell fizzles as there is no target any more!')
-            #Attempt to apply the debuff
+        # Buff
+        elif spell.category == spell_category.Buff:            
+            #Apply the buff            
+            buff_target = find_buff_target(combatant,spell.condition,spell.range)
+            if buff_target != None:                
+                print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + buff_target.name)
+                inflict_condition(buff_target,spell_ID,spell.condition,spell.condition_duration)
             else:
+                print_output('The spell fizzles as there is no target any more!')
+
+        #Debuff
+        elif spell.category == spell_category.Debuff:            
+            # Check if a saving throw is defined
+            if spell.saving_throw_attribute != 0:
                 print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + combatant.target.name)
                 if savingthrow(combatant.target,savetype,spell_save_DC(combatant,spell)):            
                     print_output(combatant.target.name + ' resists the effect of the ' + spell.name + ' spell!')
                 else:
                     inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration)
-        # Direct damage spell (just binary save)
-        elif spell.saving_throw_attribute != 0 and not spell.spell_attack:            
-            print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + combatant.target.name)
-            if savingthrow(combatant.target,savetype,spell_save_DC(combatant,spell)):            
-                print_output(combatant.target.name + ' resists the effect of the ' + spell.name + ' spell!')
+                    #Debuff spells may also have a damage component
+                    if spell.damage_die != 0:
+                        calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)         
             else:
-                resolve_spell_damage(combatant,combatant.target,spell,spellslot,False)                
-        # Make spell attack (if spell is an attack)
-        elif spell.spell_attack:            
-            # Make one attack per instance
-            i = 1
-            while i <= spell.instance:
-                spell_attack(combatant,combatant.target,spell,spellslot)
-                i += 1                     
-        else:
-            # Automatically resolve spell damage on spells that have no healing, are not spell attacks, do not inflict conditions, and have no save
-            # i.e. Divine Smite
-            resolve_spell_damage(combatant,combatant.target,spell,spellslot,crit)
-        #Resolve saving throw
-        #if spell.saving_throw:
-            #Resolve saving throw to see if damage/condition is applied                                                                                   
+                # No saving throw defined, automatic success
+                inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration)
 
+        # AoE Debuff spell
+        elif spell.category == spell_category.AoE_Debuff:
+            affected_targets = []
+            xorigin = 0
+            yorigin = 0
+            # Determine point of origin
+            # Determine target point
+            # Determine AoE
+            # Find affected targets
+            if spell.origin == origin_point.Self:
+                xorigin = comabtant.xpos
+                yorigin = combatant.ypos
+
+            affected_targets = calculate_area_effect(combatant,xorigin,yorigin,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length,True)   
+                
+            for affected_target in affected_targets:    
+                print_output(affected_target.name + ' is in the affected area (located at (' + repr(affected_target.xpos) + ',' + repr(affected_target.ypos) + ')')   
+                # Check if a saving throw is defined
+                if spell.saving_throw_attribute != 0:
+                    print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + combatant.target.name)
+                    if savingthrow(combatant.target,savetype,spell_save_DC(combatant,spell)):            
+                        print_output(combatant.target.name + ' resists the effect of the ' + spell.name + ' spell!')
+                    else:
+                        inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration)
+                        #Debuff spells may also have a damage component
+                        if spell.damage_die != 0:
+                            calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)         
+                else:
+                    # No saving throw defined, automatic success
+                    inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration)
+        # AoE Damage spell
+        elif spell.category == spell_category.AoE_Damage:
+            affected_targets = []
+            xorigin = 0
+            yorigin = 0
+            # Determine point of origin
+            # Determine target point
+            # Determine AoE
+            # Find affected targets
+            if spell.origin == origin_point.Self:
+                xorigin = comabtant.xpos
+                yorigin = combatant.ypos
+
+            affected_targets = calculate_area_effect(combatant,xorigin,yorigin,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length,True)   
+
+            # Apply damage to targets
+            for affected_target in affected_targets:    
+                print_output(affected_target.name + ' is in the affected area (located at (' + repr(affected_target.xpos) + ',' + repr(affected_target.ypos) + ')')   
+                if spell.saving_throw_attribute != 0:
+                    if savingthrow(affected_target,spell.saving_throw_attribute,spell_save_DC(combatant,spell)):
+                        #If target has evasion and saves, nothing happens
+                        if (spell.saving_throw_attribute == saving_throw.Dexterity and affected_target.evasion) or (spell.saving_throw_damage_multiplier == 0):
+                            print_output(affected_target.name + ' resists all damage from the spell!') 
+                        else:                
+                            print_output(affected_target.name + ' resists some damage from the spell!') 
+                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False,spell.saving_throw_damage_multiplier)                
+                    else:
+                        if spell.saving_throw_attribute == saving_throw.Dexterity and affected_target.evasion:
+                            print_output(affected_target.name + ' avoids half the damage thanks to Evasion!')
+                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False,0.5)              
+                        else:
+                            # Full damage
+                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False) 
+                else:
+                    # Damage automatically applies
+                    calculate_spell_damage(combatant,affected_target,spell,spellslot,False,spell.saving_throw_damage_multiplier)         
+
+                # Resolve damage against the target
+                resolve_damage(affected_target)
+                resolve_fatality(affected_target)
+        # Direct damage spell
+        elif spell.category == spell_category.Damage:
+            if spell.spell_attack:
+                i = 0
+                while i < total_instances:
+                    spell_attack(combatant,combatant.target,spell,spellslot)
+                    i += 1
+            else:
+                i = 0
+                while i < total_instances:
+                    # Check if a saving throw is defined
+                    if spell.saving_throw_attribute != 0:                    
+                        if savingthrow(combatant.target,savetype,spell_save_DC(combatant,spell)):            
+                            # If save successful, check the damage multiplier; multiplier of 0 means no damage
+                            if spell.saving_throw_damage_multiplier == 0:                
+                                print_output(affected_target.name + ' resists all damage from the spell!') 
+                            else:
+                                calculate_spell_damage(combatant,combatant.target,spell,spellslot,False,spell.saving_throw_damage_multiplier)                
+                        else:
+                            # Failed save
+                            calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)                
+                    # No saving throw defined - damage applies automatically (i.e. Divine Smite)
+                    else:
+                        calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)            
+                    i += 1
+
+                # Resolve damage against the target
+                resolve_damage(combatant.target)
+                resolve_fatality(combatant.target)
+
+            # Resolve damage against the target
+            resolve_damage(combatant.target)
+            resolve_fatality(combatant.target)
+            
         #Resolve spell damage and fatalities after attacks landed/saving throws failed and all instances are accounted for
-        resolve_damage(combatant.target)
-        resolve_fatality(combatant.target)
+        if spell.category == spell_category.Damage or spell.category == spell_category.AoE_Damage:
+            resolve_damage(combatant.target)
+            
 
         #Check if we have spellslots left (except cantrips)
         if spellslot != None:
@@ -167,7 +295,7 @@ def spell_attack(combatant,target,spell,spellslot):
     totalAC = calc_total_AC(target)
     if totalatk >= calc_total_AC(target):
         print_output(combatant.name + '\'s spell attack (' + repr(totalatk) + ') against '+ combatant.target.name + ' (AC ' + repr(totalAC) + ') with ' + spell.name + ' HIT!!!')
-        resolve_spell_damage(combatant,combatant.target,spell,spellslot,crit)
+        calculate_spell_damage(combatant,combatant.target,spell,spellslot,crit)
         combatant.attacks_hit += 1
     else:        
         print_output(combatant.name + '\'s spell attack (' + repr(totalatk) + ') against ' + combatant.target.name +  ' (AC ' + repr(totalAC) + ') with ' + spell.name + ' MISSED!')        

@@ -25,6 +25,10 @@ def inflict_condition(combatant,source,condition,duration=0,grants_advantage=Fal
                     #The condition has already been inflicted on the target, do not output a message
                     condition_inflicted = True
                     
+    # Set condition properties here?
+    if condition == condition.Restrained:
+        grants_disadvantage = True
+
     if not condition_inflicted:
         combatant_condition = creature_condition()
         combatant_condition.source = source
@@ -33,7 +37,7 @@ def inflict_condition(combatant,source,condition,duration=0,grants_advantage=Fal
             combatant_condition.limited_duration = True
         else:
             combatant_condition.limited_duration = False
-        combatant_condition.duration = duration    
+        combatant_condition.duration = duration            
         combatant_condition.grants_advantage = grants_advantage
         combatant_condition.grants_disadvantage = grants_disadvantage
         
