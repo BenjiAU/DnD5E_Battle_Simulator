@@ -180,10 +180,36 @@ def reset_spellslots(combatant):
 
 def initialise_spells(combatant):
     
+    
+    
+    for spell in combatant.spell_list():
+    
+    #############
+    # Class Feats
+    #############    
+        if spell.name == "Divine Smite":                                                                                        
+            spell.school = spell_school.Evocation
+            spell.category = spell_category.Damage
+            spell.min_spellslot_level = 1
+            spell.max_spellslot_level = 6
+            spell.casting_time = spell_casting_time.Instant
+            spell.range = 0
+            spell.origin = origin_point.Self
+            spell.instance = 1
+
+            spell.damage_die = 8
+            spell.damage_die_count = 2
+            spell.damage_type = damage_type.Radiant
+            spell.bonus_damage_die = 8
+            spell.bonus_damage_die_count = 1
+            spell.bonus_damage_target = race.Undead
+            spell.damage_die_per_spell_slot = 8
+            spell.damage_die_count_per_spell_slot = 1       
+
     #############
     ## Cantrips #
     #############        
-    for spell in combatant.spell_list():
+
         if spell.name == "Sacred Flame":
             spell.school = spell_school.Evocation
             spell.category = spell_category.Damage

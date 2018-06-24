@@ -456,23 +456,20 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
                                 opportunity_attacker.target = combatant_before_move
 
                             # Make the attack out of sequence
-                            print_output('-------------------------------------------------------------------------------------------------------------------------')
-                            print_output(combatant_before_move.name + '\'s movement (' + position_text(combatant_before_move.xpos,combatant_before_move.ypos) + ') has triggered an Attack of Opportunity from ' + opportunity_attacker.name + '! (' + position_text(opportunity_attacker.xpos,opportunity_attacker.ypos) + ')')
-                            print_output('Resolving Attack of Opportunity!')                            
+                            print_output('<b>Reaction:</b>')
+                            print_output(combatant_before_move.name + '\'s movement (' + position_text(combatant_before_move.xpos,combatant_before_move.ypos) + ') has triggered an Attack of Opportunity from ' + opportunity_attacker.name + '! (' + position_text(opportunity_attacker.xpos,opportunity_attacker.ypos) + ')')                            
                             if check_condition(combatant_before_move,condition.Disengaged):
-                                print_output(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged!')
+                                print_indent(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged! Their Reaction was not consumed.')
                             else:
                                 if combat.attack(opportunity_attacker,opportunity_attacker.main_hand_weapon):
                                     for feat in opportunity_attacker.creature_feats():
                                         if feat == feat.Sentinel:
                                             #Successful opportunity attacks reduce creatures speed to 0
                                             combatant_before_move.movement = 0
-                                            print_output(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                        
-                                print_output(opportunity_attacker.name + ' has spent their reaction')                                                    
+                                            print_double_indent(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                                                                        
+                                print_indent(opportunity_attacker.name + ' has spent their reaction to make an Attack of Opportunity against ' + combatant_before_move.name)                                                    
                                 # Consume reaction
                                 opportunity_attacker.reaction_used = True
-                            print_output('The Attack of Opportunity has been resolved!')
-                            print_output('-------------------------------------------------------------------------------------------------------------------------')
                             
                             # Reset target
                             opportunity_attacker.target = original_target

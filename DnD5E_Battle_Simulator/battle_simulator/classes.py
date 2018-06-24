@@ -812,6 +812,7 @@ class creature():
 class pending_damage():
     pending_damage_type = int()
     pending_damage = int()
+    crit = bool() #Marks whether this damage is from a critical strike
 
 # Helper Functions
 # Keep functions that need to be accessed from around the program here, as long as they don't require any outside knowledge (i.e. are constructed just from the nature of classes)

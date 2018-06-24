@@ -97,7 +97,8 @@ def update_concentration(combatant):
     
         # There are no current active spell effects relying on our concentration; safe to remove concentration           
         combatant.creature_conditions()[:] = [combatant_condition for combatant_condition in combatant.creature_conditions() if not combatant_condition.condition == concentration_condition.condition]
-        print_indent(combatant.name + ' is no longer ' + concentration_condition.condition.name + '!')   
+        print_output('The spell effects maintained by ' + combatant.name + ' have worn off.')
+        print_indent(combatant.name + ' is no longer Concentrating!')
         return False
 
 def update_conditions(combatant):

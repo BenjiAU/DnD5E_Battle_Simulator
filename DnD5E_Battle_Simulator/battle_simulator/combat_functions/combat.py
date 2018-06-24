@@ -145,7 +145,7 @@ def breath_attack(combatant):
             if affected_target.evasion:
                 print_output(affected_target.name + ' avoids all damage from the attack thanks to Evasion!') 
             else:                
-                deal_damage(combatant,affected_target,breath_damage/2,breath_damage_type,True)
+                deal_damage(combatant,affected_target,breath_damage/2,breath_damage_type,True,False)
                 #statistics, count this as a hit attack
                 combatant.attacks_hit += 1
         else:
@@ -154,9 +154,9 @@ def breath_attack(combatant):
             #If target has evasion and fails, half damage
             if affected_target.evasion:
                 print_output(affected_target.name + ' halves the damage of the attack thanks to Evasion!') 
-                deal_damage(combatant,affected_target,breath_damage/2,breath_damage_type,True)
+                deal_damage(combatant,affected_target,breath_damage/2,breath_damage_type,True,False)
             else:
-                deal_damage(combatant,affected_target,breath_damage,breath_damage_type,True)
+                deal_damage(combatant,affected_target,breath_damage,breath_damage_type,True,False)
                     
         #See if the damage droped target below 0 hp
         resolve_damage(affected_target)
@@ -481,7 +481,7 @@ def attack(combatant,weapon):
                             # Check if any modifiers kick in to reduce the damage of the attack (i.e. Rogue Uncanny Dodge)
                             totaldamage = calculate_reduction_after_attack(combatant.target,totaldamage)
 
-                            deal_damage(combatant,combatant.target,totaldamage,weapon_damage_type,weapon.magic)
+                            deal_damage(combatant,combatant.target,totaldamage,weapon_damage_type,weapon.magic,crit)
                 
                             if track_hemo:
                                 print_indent( combatant.name + ' adds an extra ' + damage_text(repr(int(totaldamage/2))) + ' damage via Hemorrhaging Critical, which will be dealt at the end of ' + combatant.target.name + '\'s turn.')
@@ -534,44 +534,32 @@ def attack(combatant,weapon):
                             #Conditionally cast spells/use items on crit after initial damage resolved
                             # Do some preliminary checking to make sure we do not inadvertantly burn a spell slot
                             if not check_condition(combatant.target,condition.Unconscious):    
-                                #Divine Smite
+                                if crit:                            
+                                    #Cabal's Ruin
+                                    #Only use cabal's on a crit, dump all charges
+                                    for eq in combatant.equipment_inventory():
+                                        if eq.grants_equipment_spell == equipment_spells.CabalsRuin:                              
+                                            equipment_damage_type = eq.damage_type
+                                            if eq.current_charges > 0:
+                                                print_indent( combatant.name + ' activates ' + eq.name + ', pouring ' +  repr(eq.current_charges) + ' charges into ' + combatant.target.name + '!')
+                                                for x in range(0,eq.current_charges):
+                                                    die_damage = roll_die(eq.damage_die)                                
+                                                    equipment_damage += die_damage * 2         
+                                                    print_double_indent( combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(eq.damage_die) + ' (Cabal\'s Ruin damage)')
+                                                eq.current_charges = 0                
+                                                print_indent( combatant.name + ' dealt an additional ' + damage_text(repr(equipment_damage)) + ' points of ' + equipment_damage_type.name + ' damage with ' + eq.name)
+                                                deal_damage(combatant,combatant.target,equipment_damage,equipment_damage_type,True,crit)
+                                                                    #Divine Smite
                                 for spell in combatant.spell_list():
                                     if spell.name == "Divine Smite":
                                         #Casting Divine Smite should be the last resolution of any attack action
-                                        #Casting a spell calls its own 'resolve_damage' function                                                                        
+                                        #Note: Casting a spell calls its own 'resolve_damage' function, so this needs to be kept near the end of damage calculations
                                         cast_spell(combatant,spell,crit)
 
-                            if crit:                            
-                                #Cabal's Ruin
-                                #Only use cabal's on a crit, dump all charges
-                                for eq in combatant.equipment_inventory():
-                                    if eq.grants_equipment_spell == equipment_spells.CabalsRuin:                              
-                                        equipment_damage_type = eq.damage_type
-                                        if eq.current_charges > 0:
-                                            print_indent( combatant.name + ' activates ' + eq.name + ', pouring ' +  repr(eq.current_charges) + ' charges into ' + combatant.target.name + '!')
-                                            for x in range(0,eq.current_charges):
-                                                die_damage = roll_die(eq.damage_die)                                
-                                                equipment_damage += die_damage * 2         
-                                                print_double_indent( combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(eq.damage_die) + ' (Cabal\'s Ruin damage)')
-                                            eq.current_charges = 0                
-                                            print_indent( combatant.name + ' dealt an additional ' + damage_text(repr(equipment_damage)) + ' points of ' + equipment_damage_type.name + ' damage with ' + eq.name)
-                                            deal_damage(combatant,combatant.target,equipment_damage,equipment_damage_type,True)
-                
-                            #After all the damage from the attack action is resolved, check the fatality
-                            #Do this sparingly or players wlil die multiple times from one attack 
-                            #i.e. activate relentless rage each time they drop below 0
-                            if not check_condition(combatant.target,condition.Unconscious):                              
-                                resolve_damage(combatant.target)
-                            else:                            
-                                if crit:
-                                    print_output('***' + 'The critical blow strikes the unconscious form of ' + combatant.target.name + ' and causes them to fail two Death Saving Throws!' + '***')
-                                    combatant.target.death_saving_throw_failure += 2
-                                else:
-                                    print_output('***' + 'The blow strikes the unconscious form of ' + combatant.target.name + ' and causes them to fail a Death Saving Throw!' + '***')
-                                    combatant.target.death_saving_throw_failure += 1
+                            #Resolve all of the damage created by the attack and stored against the combatant object
+                            resolve_damage(combatant.target)                
                             
-                                print_indent( 'Death Saving Throw Successes: ' + repr(combatant.target.death_saving_throw_success) + ' Failures: ' + repr(combatant.target.death_saving_throw_failure))
-
+                            #Resolve the fatality to check if the combatant is still alive/conscious
                             resolve_fatality(combatant.target)
                         else:
                             print_output(combatant.name + '\'s attack (' + repr(totalatk) + ') against ' + combatant.target.name +  ' (AC ' + repr(totalAC) + ') with ' + weapon.name + ' MISSED!')        

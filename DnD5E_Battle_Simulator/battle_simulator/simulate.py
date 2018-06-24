@@ -52,9 +52,15 @@ def simulate_battle():
     #Error handling
     error_occurred = False
 
-    settings.init() # do only once
+    # Initialise global setting variables
+    settings.init() 
+
+    # Initialise output file to the /combatlog directory
     set_output_file()            
     
+    # Open the output file to allow print commands through (even if we error before entering the sim proper)
+    open_file()
+
     # Error checking
     if len(combatants.list) > 1:
         enemy_found = False        
@@ -115,7 +121,7 @@ def simulate_battle():
 
         #Begin combat rounds (up to a maximum to avoid overflow)
         round = 0              
-        print_output('<b>Beginning combat round simulation...</b>')
+        print_output('<b>Beginning combat simulation...</b>')
         while not battle_complete and round < settings.max_rounds:
             begin_div('round')
             # Beginning of round
@@ -134,7 +140,7 @@ def simulate_battle():
                     while not turn_complete:
                         # Continuously evaluate this subloop only while combatant is alive/conscious; if these conditions change, skip out to death handling
                         combatant_alive_this_turn = False
-                        while not turn_complete and continue_turn(combatant):                            
+                        while continue_turn(combatant):                            
                             combatant_alive_this_turn = True
                             # update statistics
                             combatant.rounds_fought += 1
@@ -243,37 +249,7 @@ def simulate_battle():
                                             print_output('<b>Action Surge action:</b>')
                                             action(combatant)                                
                                 
-                                if not continue_turn(combatant):
-                                    break
-                                #print_output(combatant.name + "s new position: " + repr(combatant.position))
-                        
-                                ### END OF TURN ACTIONS ###
-
-                                #Resolve events at the end of turn                                    
-                                print_output('<b>End of Turn:</b>')
-                                
-                                # Update the duration counter on any conditions currently suffered by the combatant
-                                update_conditions(combatant)
-
-                                # Resolve fatality to see if the combatant dies because of expired conditions
-                                resolve_fatality(combatant)
-
-                                if not continue_turn(combatant):
-                                    break
-
-                                #Apply Hemorraging Critical damage
-                                resolve_hemo_damage(combatant)                   
-
-                                if not continue_turn(combatant):
-                                    break
-                                                                
-                                # Turn completion events
-                                # Reset sneak attack on anyone who used sneak attack (i.e. opportunity attacks)
-                                for sneak_attack_combatant in combatants.list:
-                                    if sneak_attack_combatant.sneak_attack:
-                                        sneak_attack_combatant.sneak_attack_used = False                                
-                                
-                                turn_complete = True
+                                break
 
                             else:
                                 print_output(victory_text(combatant.name + ' has no valid targets! ' + combatant.team.name + ' wins!'))
@@ -286,6 +262,20 @@ def simulate_battle():
                                 round_complete = True
                                 battle_complete = True
 
+                                break
+
+                        #Resolve events at the end of turn                                    
+                        print_output('<b>End of Turn:</b>')
+                                
+                        # Update the duration counter on any conditions currently suffered by the combatant
+                        update_conditions(combatant)
+
+                        #Apply Hemorraging Critical damage
+                        resolve_hemo_damage(combatant)                   
+
+                        # Resolve fatality to see if the combatant dies because of expired conditions
+                        resolve_fatality(combatant)
+                                                               
                         # Handle unconsciousness/death                        
                         if combatant.alive and check_condition(combatant,condition.Unconscious):
                             print_output(combatant.name + ' is unconscious on the ground!')
@@ -296,15 +286,19 @@ def simulate_battle():
                                     death_saving_throw(combatant)
                                     # See if they're dead
                                     resolve_fatality(combatant)                           
-                            turn_complete = True
                         elif not combatant.alive:
                             print_output(combatant.name + ' is dead!')    
-                            print_output("")
-                            turn_complete = True       
-                        else:                        
-                            # Mark the turn as complete
-                            print_output('That finishes ' + combatant.name + '\'s turn.')                            
-                            turn_complete = True
+                            print_output("")                                                                            
+
+                        # Turn completion events
+                        # Reset sneak attack on anyone who used sneak attack (i.e. opportunity attacks)
+                        for sneak_attack_combatant in combatants.list:
+                            if sneak_attack_combatant.sneak_attack:
+                                sneak_attack_combatant.sneak_attack_used = False                                                                                        
+
+                        # Mark the turn as complete
+                        print_output('That finishes ' + combatant.name + '\'s turn.')                            
+                        turn_complete = True
 
                     #Turn Over
                     turn_complete = True
@@ -344,7 +338,7 @@ def simulate_battle():
             if team.battling and team.no_of_wins > 0:
                 print_output(victory_text(team.name + ' ----- No. of wins: ' + repr(team.no_of_wins)))
     
-    #Close the output file if it is open    
+    #Close the output file gracefully
     close_file()    
 
 def reset_simulation():

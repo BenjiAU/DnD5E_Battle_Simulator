@@ -25,10 +25,11 @@ def open_file():
             print_time_stamp(True,'Starting Time: ')
 
 def close_file():
-    if settings.filename != "":
-        print_time_stamp(False,'Ending Time: ')        
-        settings.file.close()
-        settings.file_open = False
+    if hasattr(settings,'file'):
+        if settings.filename != "" and settings.file != None:
+            print_time_stamp(False,'Ending Time: ')        
+            settings.file.close()
+            settings.file_open = False
 
 def delete_file():
     if (settings.filename != "") and (settings.file_open == False):

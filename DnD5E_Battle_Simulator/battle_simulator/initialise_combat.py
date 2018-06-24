@@ -344,24 +344,7 @@ def initialise_class_features(combatant):
         if class_instance.player_class == player_class.Paladin:
             # Divine Smite (2nd level)
             if class_instance.player_class_level >= 2:
-                combatant.divine_smite = True                
-                for spell in combatant.spell_list():
-                    if spell.name == "Divine Smite":                                                                                        
-                        spell.school = spell_school.Evocation
-                        spell.min_spellslot_level = 1
-                        spell.max_spellslot_level = 6
-                        spell.casting_time = spell_casting_time.Instant
-                        spell.range = 0
-                        spell.origin = origin_point.Self
-
-                        spell.damage_die = 8
-                        spell.damage_die_count = 2
-                        spell.damage_type = damage_type.Radiant
-                        spell.bonus_damage_die = 8
-                        spell.bonus_damage_die_count = 1
-                        spell.bonus_damage_target = race.Undead
-                        spell.damage_die_per_spell_slot = 8
-                        spell.damage_die_count_per_spell_slot = 1                        
+                combatant.divine_smite = True                                
 
             # Channel Divinity
             if class_instance.player_class_level >= 3: 

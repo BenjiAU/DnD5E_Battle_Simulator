@@ -27,10 +27,10 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source,
                         
     if crit:
         print_indent( combatant.name + ' dealt an additional ' + crit_damage_text(repr(crit_damage+flat)) + ' points of ' + type.name + ' damage with ' + source)
-        deal_damage(combatant,combatant.target,crit_damage+flat,type,magic)
+        deal_damage(combatant,combatant.target,crit_damage+flat,type,magic,crit)
     else:
         print_indent( combatant.name + ' dealt an additional ' + damage_text(repr(bonus_damage+flat)) + ' points of ' + type.name + ' damage with ' + source)
-        deal_damage(combatant,combatant.target,bonus_damage+flat,type,magic)
+        deal_damage(combatant,combatant.target,bonus_damage+flat,type,magic,crit)
 
 def resolve_hemo_damage(combatant):        
     #Gunslinger - Hemorrhaging Shot; damage and type is stored against the target and resolved after the target takes its turn (treated as nonmagical always?)
@@ -39,7 +39,7 @@ def resolve_hemo_damage(combatant):
         #hack
         #combatant.hemo_damage_type = combatant.target.main_hand_weapon.weapon_damage_type
         #deal damage to yourself
-        deal_damage(combatant,combatant,combatant.hemo_damage,combatant.hemo_damage_type,False)
+        deal_damage(combatant,combatant,combatant.hemo_damage,combatant.hemo_damage_type,False,False)
         combatant.hemo_damage = 0
         combatant.hemo_damage_type = 0     
         resolve_damage(combatant)
@@ -91,22 +91,13 @@ def calculate_spell_damage(combatant,target,spell,spellslot,crit,multiplier=1):
     if spell.spell_attack:
         spell_damage = calculate_reduction_after_attack(combatant.target,spell_damage)
 
-    deal_damage(combatant,target,spell_damage,spell.damage_type,True)   
+    deal_damage(combatant,target,spell_damage,spell.damage_type,True,crit)   
 
-def resolve_spell_damage(combatant):    
-    if not check_condition(combatant,condition.Unconscious):                              
-        resolve_damage(combatant)
-    else:                            
-        if crit:
-            print_output('***' + 'The critical blow strikes the unconscious form of ' + combatant.target.name + ' and causes them to fail two Death Saving Throws!' + '***')
-            combatant.death_saving_throw_failure += 2
-        else:
-            print_output('***' + 'The blow strikes the unconscious form of ' + combatant.target.name + ' and causes them to fail a Death Saving Throw!' + '***')
-            combatant.death_saving_throw_failure += 1
-                            
-        print_indent( 'Death Saving Throw Successes: ' + repr(combatant.target.death_saving_throw_success) + ' Failures: ' + repr(combatant.target.death_saving_throw_failure))
+    # The spell effect is self-contained with all damage computed in this function; resolve it immediately and check fatality
+    resolve_damage(target)
 
-    resolve_fatality(combatant)
+    # Resolve fatality immediately for spell effects
+    resolve_fatality(combatant.target)
 
 def resolve_spell_healing(combatant,target,spell,spellslot):
     print_indent( 'Rolling spell healing:')                        
@@ -136,7 +127,7 @@ def resolve_spell_healing(combatant,target,spell,spellslot):
     print_indent( spell.name + ' delivered ' + healing_text(repr(spell_healing)) + ' points of healing!')                    
     heal_damage(target,spell_healing) 
 
-def deal_damage(combatant,target,damage,dealt_damage_type,magical):    
+def deal_damage(combatant,target,damage,dealt_damage_type,magical,crit):    
     #Reduce bludgeoning/piercing/slashing if raging (and not wearing Heavy armour)
     if check_condition(target,condition.Raging) and not target.armour_type == armour_type.Heavy:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing):
@@ -158,6 +149,7 @@ def deal_damage(combatant,target,damage,dealt_damage_type,magical):
         for x in target.pending_damage():
             if x.pending_damage_type == dealt_damage_type:
                 x.damage += damage
+                x.crit = crit
                 damage = 0
         #If there is still damage, create a new pending damage object against the creature
         if damage > 0:
@@ -185,16 +177,18 @@ def heal_damage(combatant,healing):
         print_indent( combatant.name + ' recovers ' + healing_text(repr(healing)) + ' points of health. ' + hp_text(combatant.alive,combatant.current_health,combatant.max_health))
 
 def calculate_reduction_after_attack(target,dealt_damage):
-    modified_damage = damage
+    modified_damage = dealt_damage
     # Use damage thresholds to help decide if reactions/effects should apply
-    if modified_damage > 10:
-        # Uncanny Dodge (can only occur after being victim of an Attack you can see - reduce all the attack damage by half)
-        if target.uncanny_dodge and not target.reaction_used:
-            # Don't waste dodge on small hits                
-            reduction = int(dealt_damage/2)                        
-            print_output(combatant.name + ' uses their reaction, and uses Uncanny Dodge to reduce the damage of the attack by ' + dmgred_text(repr(reduction)) + '! ')                                    
-            modified_damage = int(modified_damage - reduction)            
-            target.reaction_used = True
+    if not check_condition(target,condition.Unconscious) and not check_condition(target,condition.Incapacitated):
+        if modified_damage > characterlevel(target):
+            # Uncanny Dodge (can only occur after being victim of an Attack you can see - reduce all the attack damage by half)
+            if target.uncanny_dodge and not target.reaction_used:
+                # Don't waste dodge on small hits                
+                reduction = int(dealt_damage/2)           
+                print_output('<b>Reaction:</b>')
+                print_indent(target.name + ' uses their reaction, and uses Uncanny Dodge to reduce the damage of the attack by ' + dmgred_text(repr(reduction)) + '! ')                                    
+                modified_damage = int(modified_damage - reduction)            
+                target.reaction_used = True
 
     return modified_damage
 
@@ -203,12 +197,15 @@ def resolve_damage(combatant):
     damage_string = ""
     #Calculate total damage
     #Track the damage dealt for output purposes and set the damage for that type back to zero    
+    crit = False
     for x in combatant.pending_damage():        
         if x.damage > 0:
             total_damage += x.damage
             damage_string += repr(int(x.damage)) + ' points of ' + x.pending_damage_type.name + " damage"
             damage_string += "</br>"
-    
+        if x.crit:
+            crit = True
+
     #Empty the list of pending damage
     combatant.pending_damage().clear()
     if total_damage > 0:
@@ -223,7 +220,8 @@ def resolve_damage(combatant):
                         if total_damage > conmod(combatant)+12:
                             reduction = conmod(combatant) + roll_die(12)
                             total_damage = int(total_damage - reduction)
-                            print_output(combatant.name + ' uses their reaction, and uses Stones Endurance to reduce the damage by ' + repr(reduction) + '! ')
+                            print_output('<b>Reaction:</b>')                
+                            print_indent(combatant.name + ' uses their reaction, and uses Stones Endurance to reduce the damage by ' + repr(reduction) + '! ')
                             damage_string += 'reduced by ' + repr(int(reduction)) + ' (Stones Endurance)'
                             combatant.stones_endurance_used = True
                             combatant.reaction_used = True                
@@ -242,6 +240,21 @@ def resolve_damage(combatant):
                 print_output('Damage Summary: ')
                 print_indent(damage_string)        
             print_output(combatant.name + ' suffers a total of ' + damage_text(repr(int(total_damage))) + ' points of damage. ' + hp_text(combatant.alive,combatant.current_health,combatant.max_health))        
+        else:
+            if total_damage < combatant.max_health:
+                if crit:
+                    print_output('***' + 'The critical damage strikes the unconscious form of ' + combatant.name + ' and causes them to fail two Death Saving Throws!' + '***')
+                    combatant.death_saving_throw_failure += 2
+                else:
+                    print_output('***' + 'The damage heavily impacts the unconscious form of ' + combatant.name + ' and causes them to fail a Death Saving Throw!' + '***')
+                    combatant.death_saving_throw_failure += 1
+                            
+                print_indent( 'Death Saving Throw Successes: ' + healing_text(repr(combatant.death_saving_throw_success)) + ' Failures: ' + damage_text(repr(combatant.death_saving_throw_failure)))
+            else:
+                #Instant death as total damage > hit point maximum
+                print_output('***' + 'The damage exceeds ' + combatant.name + '\'s hit point maximum, and causes them to immediately perish.' + '***')
+                combatant.death_saving_throw_failure = 3
+                resolve_fatality(combatant)
 
 def resolve_fatality(combatant):
     if combatant.alive and not check_condition(combatant,condition.Unconscious) and combatant.current_health <= 0:
@@ -304,21 +317,27 @@ def resolve_fatality(combatant):
         combatant.movement = 0
 
     #Resolve death
-    if not combatant.alive and check_condition(combatant,condition.Unconscious) and combatant.current_health <=0:
-        print_output(killing_blow_text('HOW DO YOU WANT TO DO THIS??'))        
+    #if not combatant.alive and check_condition(combatant,condition.Unconscious) and combatant.current_health <=0:
+    #    print_output(killing_blow_text('HOW DO YOU WANT TO DO THIS??'))        
 
 def death_saving_throw(combatant):
-    i = roll_die(20)
-    print_output(' *** ' + combatant.name + ' makes a Death Saving Throw: they rolled a ' + repr(i) + ' *** ')
-    if i <= 1:
+    roll = roll_die(20)        
+    roll_text = ""
+
+    if roll <= 1:
+        roll_text = damage_text(repr(roll))
         combatant.death_saving_throw_failure += 2
-    elif i <= 9:
+    elif roll <= 9:
+        roll_text = damage_text(repr(roll))
         combatant.death_saving_throw_failure += 1
-    elif i <= 19:
+    elif roll <= 19:
+        roll_text = healing_text(repr(roll))
         combatant.death_saving_throw_success += 1
-    elif i >= 20:
+    elif roll >= 20:
         # On a natural 20 or higher (due to Bless spell etc.) automatically succeed all death saving throws and recover 1HP. Still prone
+        print_output(' *** ' + combatant.name + ' makes a Death Saving Throw: they rolled a NATURAL 20 *** ')
         print_output(combatant.name + ' recovers 1 HP, and is back in the fight!')
         heal_damage(combatant,1)        
         return
-    print_indent( 'Death Saving Throw Successes: ' + repr(combatant.death_saving_throw_success) + ' Failures: ' + repr(combatant.death_saving_throw_failure))
+    print_output(' *** ' + combatant.name + ' makes a Death Saving Throw: they rolled a ' + roll_text + ' *** ')
+    print_indent( 'Death Saving Throw Successes: ' + healing_text(repr(combatant.death_saving_throw_success)) + ' Failures: ' + damage_text(repr(combatant.death_saving_throw_failure)))

@@ -35,7 +35,7 @@ def init():
     show_damage_summary = False
 
     global suppress_output
-    suppress_output = True
+    suppress_output = False
 
     global start_time
     

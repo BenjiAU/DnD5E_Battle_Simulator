@@ -156,9 +156,7 @@ def cast_spell(combatant,spell,crit = None):
                     inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
                     #Debuff spells may also have a damage component
                     if spell.damage_die != 0:
-                        calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)        
-                        resolve_damage(combatant.target)
-                        resolve_fatality(combatant.target)
+                        calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)    
             else:
                 # No saving throw defined, automatic success
                 inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
@@ -189,8 +187,7 @@ def cast_spell(combatant,spell,crit = None):
                         inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
                         #Debuff spells may also have a damage component
                         if spell.damage_die != 0:
-                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False)        
-                            resolve_spell_damage(affected_target)                            
+                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False)                             
                 else:
                     # No saving throw defined, automatic success
                     inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
@@ -230,22 +227,26 @@ def cast_spell(combatant,spell,crit = None):
                 else:
                     # Damage automatically applies
                     calculate_spell_damage(combatant,affected_target,spell,spellslot,False,spell.saving_throw_damage_multiplier)         
-
-                # Resolve damage against the target
-                resolve_damage(affected_target)
-                resolve_fatality(affected_target)
         # Direct damage spell
         elif spell.category == spell_category.Damage:
             if spell.spell_attack:
                 i = 0
                 while i < total_instances:
+                    #Repeat find_target call to see if we should firebolt someone else (i.e. because our current target drops)
+                    if not find_target(combatant):
+                        print_output('No targets remain!')
+                        return
                     spell_attack(combatant,combatant.target,spell,spellslot)
-                    i += 1
+                    i += 1                
             else:
                 i = 0
                 while i < total_instances:
                     # Check if a saving throw is defined
-                    if spell.saving_throw_attribute != 0:                    
+                    #Repeat find_target call to see if we should firebolt someone else (i.e. because our current target drops)
+                    if not find_target(combatant):
+                        print_output('No targets remain!')
+                        return
+                    if spell.saving_throw_attribute != 0:                                            
                         if savingthrow(combatant.target,savetype,spell_save_DC(combatant,spell)):            
                             # If save successful, check the damage multiplier; multiplier of 0 means no damage
                             if spell.saving_throw_damage_multiplier == 0:                
@@ -259,22 +260,9 @@ def cast_spell(combatant,spell,crit = None):
                     else:
                         calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)            
                     i += 1
-
-                # Resolve damage against the target
-                resolve_damage(combatant.target)
-                resolve_fatality(combatant.target)
-
-            # Resolve damage against the target
-            resolve_damage(combatant.target)
-            resolve_fatality(combatant.target)
-            
+           
         #Silently update concentration; if all targets saved aagainst the effect we need to immediately stop concentrating
-        update_concentration(combatant)
-
-        #Resolve spell damage and fatalities after attacks landed/saving throws failed and all instances are accounted for
-        if spell.category == spell_category.Damage or spell.category == spell_category.AoE_Damage:
-            resolve_damage(combatant.target)
-            
+        update_concentration(combatant)            
 
         #Check if we have spellslots left (except cantrips)
         if spellslot != None:
@@ -284,7 +272,7 @@ def cast_spell(combatant,spell,crit = None):
 def spell_attack(combatant,target,spell,spellslot):
     advantage = False
     disadvantage = False    
-    crit = False
+    crit = False    
 
     advantage,disadvantage = determine_advantage(combatant,spell.range > 0)
     spell_hit_modifier = calc_spell_hit_modifier(combatant,spell)
@@ -304,8 +292,7 @@ def spell_attack(combatant,target,spell,spellslot):
     else:        
         print_output(combatant.name + '\'s spell attack (' + repr(totalatk) + ') against ' + combatant.target.name +  ' (AC ' + repr(totalAC) + ') with ' + spell.name + ' MISSED!')        
         #Update statistics
-        combatant.attacks_missed += 1
-
+        combatant.attacks_missed += 1    
 
 def calc_spell_hit_modifier(combatant,spell):
     to_hit_modifier = 0
