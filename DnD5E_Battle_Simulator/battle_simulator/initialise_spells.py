@@ -475,8 +475,12 @@ def initialise_spells(combatant):
             spell.condition = condition.Restrained
             spell.saving_throw_attribute = saving_throw.Strength            
             spell.saving_throw_damage_multiplier = 0.5
-            spell.persistent = True
 
+            spell.condition_duration = 10
+            spell.maximum_duration = spell.condition_duration
+
+            spell.repeat_save_action = True
+            
             spell.damage_type = damage_type.Bludgeoning
             spell.player_classes().append(player_class.Wizard)
             spell.player_classes().append(player_class.Sorcerer)

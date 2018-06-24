@@ -147,7 +147,7 @@ def determine_advantage(combatant,range_attack):
     disadvantage = False
     # Check for all conditions on the combatant, and see if any of them grant advantage/disadvantage directly
     for combatant_condition in combatant.creature_conditions():
-        if combatant_condition.grants_advantage and not combatant_condition.condition == condition.Reckless:
+        if combatant_condition.grants_advantage:
             advantage = True            
             print_output(combatant.name + ' has advantage on the attack from the ' + combatant_condition.condition.name + ' condition!')        
         if combatant_condition.grants_disadvantage:
@@ -178,7 +178,7 @@ def determine_advantage(combatant,range_attack):
     # If we don't haev advantage, use reckless
     # If we have advantage and we already have an active reckless condition, still call the Inflict condition function to make sure the duration updates
     if combatant.reckless and (not advantage or check_condition(combatant,condition.Reckless)):         
-        inflict_condition(combatant,combatant,condition.Reckless,2,True,False)
+        inflict_condition(combatant,combatant,condition.Reckless,2)
         print_output(combatant.name + ' uses Reckless Attack, gaining advantage on the attack!')
         advantage = True
 
@@ -245,3 +245,12 @@ def get_living_allies(combatant):
             if potential_ally.alive:                
                 allies.append(potential_ally)
     return allies
+
+def continue_turn(combatant):
+    if check_condition(combatant,condition.Unconscious):
+        return False
+    if check_condition(combatant,condition.Incapacitated):
+        return False
+    if not combatant.alive:
+        return False
+    return True

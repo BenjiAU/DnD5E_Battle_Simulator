@@ -155,13 +155,13 @@ def cast_spell(combatant,spell,crit = None):
                 if savingthrow(combatant.target,savetype,spell_save_DC(combatant,spell)):            
                     print_output(combatant.target.name + ' resists the effect of the ' + spell.name + ' spell!')
                 else:
-                    inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration)
+                    inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
                     #Debuff spells may also have a damage component
                     if spell.damage_die != 0:
                         calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)         
             else:
                 # No saving throw defined, automatic success
-                inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration)
+                inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
 
         # AoE Debuff spell
         elif spell.category == spell_category.AoE_Debuff:
@@ -186,13 +186,13 @@ def cast_spell(combatant,spell,crit = None):
                     if savingthrow(combatant.target,savetype,spell_save_DC(combatant,spell)):            
                         print_output(combatant.target.name + ' resists the effect of the ' + spell.name + ' spell!')
                     else:
-                        inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration)
+                        inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
                         #Debuff spells may also have a damage component
                         if spell.damage_die != 0:
                             calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)         
                 else:
                     # No saving throw defined, automatic success
-                    inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration)
+                    inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
         # AoE Damage spell
         elif spell.category == spell_category.AoE_Damage:
             affected_targets = []

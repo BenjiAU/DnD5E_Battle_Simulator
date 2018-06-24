@@ -69,6 +69,11 @@ class creature_condition():
     granted_action_used = int() #Tracks if the extra action granted by this condition has been used 
     grants_advantage = bool()
     grants_disadvantage = bool()
+    # Saving throw information
+    save_action = bool() # Can save against this condition by spending an action
+    save_end_of_turn = bool() # Can save against this condition for free at end of turn
+    saving_throw_attribute = int() # Saving throw attribute
+    saving_throw_DC = int() # DC of save
 
 class condition(Enum):
     def __str__(self):
@@ -366,8 +371,7 @@ class spell():
    school = int() #Spell school
       
    concentration = bool() #True if this spell is a Concentrating spell (inflicts a Concentrating condition on caster)
-   maximum_duration = int() # Maximum duration of the spell
-   persistent = bool() #Persistent spells include Bigby's Hand, Earthen Grasp, Witchbolt etc
+   maximum_duration = int() # Maximum duration of the spell   
 
    cantrip = bool() #True if a cantrip, spellslots do not apply
    min_spellslot_level = int() #Minimum spell slot to be expended to cast spell (0 = cantrip)   
@@ -386,7 +390,9 @@ class spell():
 
    spell_attack = bool()   # True if this spell is a spell attack, false if it's a DC save (range attribute determines range or touch) or buff
    saving_throw_attribute = int() #Saving throw information, defined if a save is required, otherwise blank (i.e. for buffs/spell attacks)   
-   saving_throw_damage_multiplier = int() # Damage multiplier if save is successful (0 = no damage, .5 = half damage on successful save) 
+   saving_throw_damage_multiplier = int() # Damage multiplier if save is successful (0 = no damage, .5 = half damage on successful save)    
+   repeat_save_action = bool()
+   repeat_save_end_of_turn = bool()   
 
    instance = int() # Instances of damage; i.e. Eldritch blast gains additional beams at 5th, 11th, 17th level     
    

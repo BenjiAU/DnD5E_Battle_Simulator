@@ -2,6 +2,7 @@
 from battle_simulator import combatants
 from battle_simulator import classes
 from battle_simulator import print_functions
+from battle_simulator.combat_functions.generics import *
 from battle_simulator.combat_functions.combat import *
 from battle_simulator.combat_functions.spells import *
 from battle_simulator.combat_functions.damage import * 
@@ -21,6 +22,14 @@ def action(combatant):
     if combatant.action_used:
         print_output(combatant.name + ' has already used their Action this turn.')
 
+    # Save against a Condition that requires an action to save
+    if not combatant.action_used:
+        condition_to_save_against = action_saveable_condition(combatant)
+        if condition_to_save_against != None:
+            print_output(combatant.name + ' uses their Action to save against the ' + condition_to_save_against.condition.name + ' condition!')
+            if savingthrow(combatant,condition_to_save_against.saving_throw_attribute,condition_to_save_against.saving_throw_DC):
+                remove_condition(combatant,condition_to_save_against.condition)            
+
     if not combatant.action_used:
         #Custom monster logic before stepping into main loop
         if combatant.creature_type == creature_type.Monster:
@@ -29,7 +38,7 @@ def action(combatant):
                 combatant.action_used = True
 
     # Cast a Spell
-    if not combatant.action_used:        
+    if not combatant.action_used:                
         # Select an appropriate action-cost spell
         selected_spell = select_spell(combatant,spell_casting_time.Action)                
         if selected_spell != None:                    

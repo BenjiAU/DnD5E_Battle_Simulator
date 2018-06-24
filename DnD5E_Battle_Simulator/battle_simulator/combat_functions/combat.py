@@ -383,7 +383,7 @@ def attack(combatant,weapon):
                                         print_double_indent( combatant.target.name + ' succeeded on the Head Shot save, and is immune to its effect.')
                                     else:
                                         print_double_indent( combatant.target.name + ' FAILED the Head Shot save - they now had disadvantage on attacks until the end of their next turn!')
-                                        inflict_condition(combatant.target,combatant,condition.Headshot,1,False,True)                                        
+                                        inflict_condition(combatant.target,combatant,condition.Headshot,1)                                        
                                 elif trick_shot_target == "Legs":
                                     # logic to choose the right kind of called shot? lol #
                                     if savingthrow(combatant.target,saving_throw.Strength,8+combatant.proficiency + dexmod(combatant)):

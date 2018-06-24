@@ -177,73 +177,75 @@ def simulate_battle():
                                     else:
                                         combatant.can_assassinate_target = False
 
+                                # Update concentration, to end the concentration effect if the targets were were concentrating on saved against the spell effects etc.
+                                update_concentration(combatant)
 
                                 ### Begin actual turn operations ###
-                                if check_condition(combatant,condition.Incapacitated):
-                                    print_output(combatant.name + ' is incapacitated, and incapable of any action this turn!')
-                                else:
-                                    # Is the combatant wearing equipment? Evaluate and use if appropriate
-                                    if combatant.equipment_inventory():                                        
-                                        use_equipment(combatant)
+                                if not continue_turn(combatant):
+                                    break
+                                    
+                                # Is the combatant wearing equipment? Evaluate and use if appropriate
+                                if combatant.equipment_inventory():                                        
+                                    use_equipment(combatant)
 
-                                    # bonus action (pre-movement)#       
-                                    if not combatant.bonus_action_used:                                    
-                                        bonus_action(combatant)      
+                                # bonus action (pre-movement)#       
+                                if not combatant.bonus_action_used:                                    
+                                    bonus_action(combatant)      
 
-                                    # use movement first #
-                                    movement(combatant)
+                                # use movement first #
+                                movement(combatant)
 
-                                    if check_condition(combatant,condition.Unconscious) or not combatant.alive:
-                                        break
+                                if not continue_turn(combatant):
+                                    break
 
-                                    # bonus action (pre-action)#       
-                                    if not combatant.bonus_action_used:                                    
-                                        bonus_action(combatant)     
+                                # bonus action (pre-action)#       
+                                if not combatant.bonus_action_used:                                    
+                                    bonus_action(combatant)     
 
-                                    if check_condition(combatant,condition.Unconscious) or not combatant.alive:
-                                        break
+                                if not continue_turn(combatant):
+                                    break
 
-                                    # action #
-                                    action(combatant)              
+                                # action #
+                                action(combatant)              
                                 
-                                    if check_condition(combatant,condition.Unconscious) or not combatant.alive:
-                                        break
+                                if not continue_turn(combatant):
+                                    break
 
-                                    # bonus action (post-action)#       
-                                    if not combatant.bonus_action_used:                                    
-                                        bonus_action(combatant)            
+                                # bonus action (post-action)#       
+                                if not combatant.bonus_action_used:                                    
+                                    bonus_action(combatant)            
 
-                                    if check_condition(combatant,condition.Unconscious) or not combatant.alive:
-                                        break
+                                if not continue_turn(combatant):
+                                    break
 
-                                    # hasted action #
-                                    for combatant_condition in combatant.creature_conditions():
-                                        if combatant_condition.grants_action and not combatant_condition.granted_action_used:
-                                            #Hasted condition (hasted action has limits on what can be done)
-                                            if combatant_condition.condition == condition.Hasted:
-                                                hasted_action(combatant)
-                                                combatant_condition.granted_action_used = True
+                                # hasted action #
+                                for combatant_condition in combatant.creature_conditions():
+                                    if combatant_condition.grants_action and not combatant_condition.granted_action_used:
+                                        #Hasted condition (hasted action has limits on what can be done)
+                                        if combatant_condition.condition == condition.Hasted:
+                                            hasted_action(combatant)
+                                            combatant_condition.granted_action_used = True
                                 
-                                    if check_condition(combatant,condition.Unconscious) or not combatant.alive:
-                                        break
+                                if not continue_turn(combatant):
+                                    break
 
-                                    # additional abilities (action surge etc.)                                    
-                                    if combatant.action_surge > 0: 
-                                        # Reassess targets
-                                        if find_target(combatant):
-                                            # Don't blow action surge if current target is down; find a new target instead
-                                            if combatant.target.alive and not check_condition(combatant.target,condition.Unconscious):
-                                                print_output('********************')
-                                                print_output(combatant.name + ' summons all their might, and uses an Action Surge!')
-                                                print_output('********************')
-                                                combatant.action_surge -= 1
-                                                combatant.action_used = False;
-                                                print_output('<b>Action Surge action:</b>')
-                                                action(combatant)                                
+                                # additional abilities (action surge etc.)                                    
+                                if combatant.action_surge > 0: 
+                                    # Reassess targets
+                                    if find_target(combatant):
+                                        # Don't blow action surge if current target is down; find a new target instead
+                                        if combatant.target.alive and not check_condition(combatant.target,condition.Unconscious):
+                                            print_output('********************')
+                                            print_output(combatant.name + ' summons all their might, and uses an Action Surge!')
+                                            print_output('********************')
+                                            combatant.action_surge -= 1
+                                            combatant.action_used = False;
+                                            print_output('<b>Action Surge action:</b>')
+                                            action(combatant)                                
                                 
-                                    if check_condition(combatant,condition.Unconscious) or not combatant.alive:
-                                        break
-                                    #print_output(combatant.name + "s new position: " + repr(combatant.position))
+                                if not continue_turn(combatant):
+                                    break
+                                #print_output(combatant.name + "s new position: " + repr(combatant.position))
                         
                                 ### END OF TURN ACTIONS ###
 
