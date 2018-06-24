@@ -477,6 +477,10 @@ def attack(combatant,weapon):
                                 print_indent( combatant.name + '\'s strike dealt a total of ' + damage_text(repr(totaldamage)) + ' points of ' + weapon_damage_type.name + ' damage')
                             else:
                                 print_indent( combatant.name + '\'s strike dealt a total of ' + damage_text(repr(totaldamage)) + ' points of ' + weapon_damage_type.name + ' damage')
+
+                            # Check if any modifiers kick in to reduce the damage of the attack (i.e. Rogue Uncanny Dodge)
+                            totaldamage = calculate_reduction_after_attack(combatant.target,totaldamage)
+
                             deal_damage(combatant,combatant.target,totaldamage,weapon_damage_type,weapon.magic)
                 
                             if track_hemo:

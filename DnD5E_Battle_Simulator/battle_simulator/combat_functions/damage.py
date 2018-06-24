@@ -14,12 +14,6 @@ def resolve_bonus_damage(combatant,bonus_target,type,die,count,flat,crit,source,
     bonus_damage = 0
     crit_damage = 0
     if (bonus_target == 0) or (bonus_target == combatant.target.race):
-        #if bonus_target == 0:
-            #print_indent( 'Rolling bonus damage: ')
-
-        #else:
-            #print_indent( 'Rolling bonus damage against ' + combatant.target.race.name + ': ')  
-            #                  
         for x in range(0,count):
             die_damage = roll_die(die)
             print_double_indent( combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(die) + ' (' + source + ' Bonus Damage)')
@@ -93,6 +87,10 @@ def calculate_spell_damage(combatant,target,spell,spellslot,crit,multiplier=1):
     spell_damage = int(spell_damage * multiplier)
 
     print_indent( spell.name + ' dealt ' + damage_text(repr(spell_damage)) + ' points of ' + spell.damage_type.name + ' damage!')                    
+    
+    if spell.spell_attack:
+        spell_damage = calculate_reduction_after_attack(combatant.target,spell_damage)
+
     deal_damage(combatant,target,spell_damage,spell.damage_type,True)   
 
 def resolve_spell_damage(combatant):    
@@ -149,7 +147,7 @@ def deal_damage(combatant,target,damage,dealt_damage_type,magical):
             damage = int(damage/2)              
             print_double_indent( target.name + ' shrugs off ' + dmgred_text(repr(damage)) + ' points of damage due to the effects of Enlarge!')
 
-    #Reduce bludgeoning/piercing/slashing if dealt by non-magical dealt_
+    #Reduce bludgeoning/piercing/slashing if dealt by non-magical weapon
     if target.monster_type == monster_type.Ancient_Black_Dragon:            
         if dealt_damage_type in (damage_type.Piercing,damage_type.Bludgeoning,damage_type.Slashing) and not magical:
             damage = int(damage/2)              
@@ -185,7 +183,21 @@ def heal_damage(combatant,healing):
             combatant.current_health = combatant.current_health + healing
 
         print_indent( combatant.name + ' recovers ' + healing_text(repr(healing)) + ' points of health. ' + hp_text(combatant.alive,combatant.current_health,combatant.max_health))
-    
+
+def calculate_reduction_after_attack(target,dealt_damage):
+    modified_damage = damage
+    # Use damage thresholds to help decide if reactions/effects should apply
+    if modified_damage > 10:
+        # Uncanny Dodge (can only occur after being victim of an Attack you can see - reduce all the attack damage by half)
+        if target.uncanny_dodge and not target.reaction_used:
+            # Don't waste dodge on small hits                
+            reduction = int(dealt_damage/2)                        
+            print_output(combatant.name + ' uses their reaction, and uses Uncanny Dodge to reduce the damage of the attack by ' + dmgred_text(repr(reduction)) + '! ')                                    
+            modified_damage = int(modified_damage - reduction)            
+            target.reaction_used = True
+
+    return modified_damage
+
 def resolve_damage(combatant):
     total_damage = 0
     damage_string = ""
@@ -214,17 +226,7 @@ def resolve_damage(combatant):
                             print_output(combatant.name + ' uses their reaction, and uses Stones Endurance to reduce the damage by ' + repr(reduction) + '! ')
                             damage_string += 'reduced by ' + repr(int(reduction)) + ' (Stones Endurance)'
                             combatant.stones_endurance_used = True
-                            combatant.reaction_used = True
-
-                # Uncanny Dodge (can only occur after being victim of an Attack you can see - reduce all the attack damage by half)
-                if combatant.uncanny_dodge:
-                    # Don't waste dodge on small hits
-                    if total_damage > 20:
-                        reduction = int(total_damage/2)                        
-                        print_output(combatant.name + ' uses their reaction, and uses Uncanny Dodge to reduce the damage of the attack by ' + dmgred_text(repr(reduction)) + '! ')                                    
-                        total_damage = int(total_damage - reduction)
-                        damage_string += 'reduced by ' + repr(int(reduction)) + ' (Uncanny Dodge)'
-                        combatant.reaction_used = True
+                            combatant.reaction_used = True                
                         
             combatant.current_health = max(combatant.current_health - total_damage,0)
             #Check Concentration
