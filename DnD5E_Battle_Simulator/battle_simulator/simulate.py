@@ -273,6 +273,8 @@ def simulate_battle():
                                     if sneak_attack_combatant.sneak_attack:
                                         sneak_attack_combatant.sneak_attack_used = False                                
                                 
+                                turn_complete = True
+
                             else:
                                 print_output(victory_text(combatant.name + ' has no valid targets! ' + combatant.team.name + ' wins!'))
                                 
