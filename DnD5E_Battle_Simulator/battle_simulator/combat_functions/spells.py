@@ -320,6 +320,8 @@ def calc_spell_hit_modifier(combatant,spell):
     return (to_hit_modifier)
 
 def get_highest_spellslot(combatant,spell):    
+    if spell.cantrip:
+        return None
     # Sort spells by level (use highest slots first)
     initkey = operator.attrgetter("level")
     sorted_spells = sorted(combatant.spellslots(), key=initkey,reverse=True)    
@@ -333,6 +335,8 @@ def get_highest_spellslot(combatant,spell):
 
 def get_best_spellslot(combatant,spell):    
     # Sort spells by level then selects the one that fits within min/max bounds (so you dont burn higher level spellslots for no reason)
+    if spell.cantrip:
+        return None
     initkey = operator.attrgetter("level")
     sorted_spells = sorted(combatant.spellslots(), key=initkey,reverse=True)    
 
