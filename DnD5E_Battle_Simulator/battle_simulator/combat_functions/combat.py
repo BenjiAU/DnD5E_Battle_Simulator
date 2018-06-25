@@ -598,10 +598,10 @@ def attack(combatant,weapon):
             print_output(combatant.target.name + ' is out of range of ' + weapon.name + '!')
 
     #Post-Attack features/decisions
-    if attack_hit:
+    if attack_hit and can_continue_turn(combatant):
         # Stunning Strike - after a hit, spend 1 ki point to stun
         if combatant.stunning_strike and combatant.ki_points > 0:
-            # Do not burn stunning strike if target is not threatening:
+            # Do not burn stunning strike if target is not threaten
             if can_continue_turn(combatant.target):
                 combatant.ki_points -= 1
                 print_output(combatant.name + ' focuses on the flow of Ki in ' + combatant.target.name + '\'s body, and attempts a Stunning Strike! Current Ki Points: ' + repr(combatant.ki_points) + '/' + repr(combatant.max_ki_points))            

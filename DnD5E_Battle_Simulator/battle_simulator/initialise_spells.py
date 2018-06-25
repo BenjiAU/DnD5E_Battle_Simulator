@@ -184,24 +184,25 @@ def initialise_spells(combatant):
     #############
     # Monster Ft.
     #############
-        if spell.name == "Venom Spray":                                            
+        if spell.name == "Venom Burst":                                            
             spell.school = spell_school.Evocation           
             spell.category = spell_category.AoE_Damage
             spell.min_spellslot_level = 0
             spell.max_spellslot_level = 0
             spell.instance = 1
+            
             spell.casting_time = spell_casting_time.Instant
             spell.range = 0
             spell.origin = origin_point.Self                    
-            spell.shape = area_of_effect_shape.Line
-            spell.shape_width = 5
-            spell.shape_length = 5
+            spell.shape = area_of_effect_shape.Square
+            spell.shape_width = 15
+            spell.shape_length = 15
 
             spell.damage_die = 8
-            spell.damage_die_count = 4
+            spell.damage_die_count = 2
             spell.damage_type = damage_type.Poison
             
-            spell.description = "A burst of venomous liquid sprays out!"   
+            spell.description = "A burst of venomous liquid sprays out from pustules and sores all over its body, as the Venom Troll stares at"   
 
     #############
     # Class Feats

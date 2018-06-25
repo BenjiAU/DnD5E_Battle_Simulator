@@ -5,6 +5,7 @@ from battle_simulator import combatants
 from battle_simulator.classes import *
 from battle_simulator.print_functions import *
 from battle_simulator.combat_functions.generics import * 
+from battle_simulator.combat_functions.events import * 
 
 #Other imports
 import random
@@ -194,9 +195,11 @@ def calculate_reduction_after_attack(target,dealt_damage):
     return modified_damage
 
 def resolve_damage(combatant):
+    #Fire the on_damage_taken_event before damage is resolved
+    on_damage_taken_event(combatant)
+
     total_damage = 0
-    damage_string = ""
-    trigger_damage_event = False
+    damage_string = ""    
     #Calculate total damage
     #Track the damage dealt for output purposes and set the damage for that type back to zero    
     crit = False
@@ -207,10 +210,6 @@ def resolve_damage(combatant):
             damage_string += "</br>"
         if x.crit:
             crit = True
-        #Track psychic damage for venom troll?
-        if combatant.event_on_damage:
-            if x.pending_damage_type in combatant.event_on_damage_type:
-                trigger_damage_event = True
 
     #Empty the list of pending damage
     combatant.pending_damage().clear()
@@ -245,11 +244,8 @@ def resolve_damage(combatant):
             if settings.show_damage_summary:
                 print_output('Damage Summary: ')
                 print_indent(damage_string)        
-            print_output(combatant.name + ' suffers a total of ' + damage_text(repr(int(total_damage))) + ' points of damage. ' + hp_text(combatant.alive,combatant.current_health,combatant.max_health))        
-
-            if trigger_damage_event:
-                cast_spell(combatant,combatant.event_on_damage_spell)
-
+            print_output(combatant.name + ' suffers a total of ' + damage_text(repr(int(total_damage))) + ' points of damage. ' + hp_text(combatant.alive,combatant.current_health,combatant.max_health))                    
+            
         else:
             if total_damage < combatant.max_health:
                 if crit:

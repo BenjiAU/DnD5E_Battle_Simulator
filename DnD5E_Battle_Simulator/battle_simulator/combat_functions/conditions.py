@@ -9,30 +9,29 @@ def inflict_condition(combatant,source,condition,duration=0,save_action=False,sa
     condition_inflicted = False
     for combatant_condition in combatant.creature_conditions():
         if combatant_condition.condition == condition:
-            if combatant_condition.source != source:
-                if combatant_condition.limited_duration and combatant_condition.duration < duration:
-                    #Overwrite the current condition with the new condition and duration
-                    combatant_condition.source = source
-                    combatant_condition.duration = duration
+            if combatant_condition.limited_duration and combatant_condition.duration < duration:
+                #Overwrite the current condition with the new condition and duration
+                combatant_condition.source = source
+                combatant_condition.duration = duration
                     
-                    print_indent( combatant.name + ' is affected by a new instance of the ' + combatant_condition.condition.name + ' condition! It\'s duration has been refreshed!')
-                    condition_inflicted = True
-                elif combatant_condition.limited_duration and not combatant_condition.duration < duration:
-                    # The new condition has a shorter duration than the one being suffered; output a message
-                    print_indent( combatant.name + ' is already ' + combatant_condition.condition.name + '!')
-                    condition_inflicted = True
-                else:
-                    #The condition has already been inflicted on the target, do not output a message
-                    condition_inflicted = True
-                    
+                print_indent( combatant.name + ' is affected by a new instance of the ' + combatant_condition.condition.name + ' condition! It\'s duration has been refreshed!')
+                condition_inflicted = True
+            elif combatant_condition.limited_duration and combatant_condition.duration >= duration:
+                # The new condition has a shorter duration than the one being suffered; output a message
+                print_indent( combatant.name + ' is already ' + combatant_condition.condition.name + '!')
+                condition_inflicted = True
+            else:
+                #The condition has already been inflicted on the target, do not output a message
+                condition_inflicted = True
+
+    if not condition_inflicted:                    
     # Set advantage/disadvantage
-    grants_advantage = False
-    grants_disadvantage = False
+        grants_advantage = False
+        grants_disadvantage = False
 
-    if condition in [condition.Restrained,condition.Headshot]:
-        grants_disadvantage = True
-
-    if not condition_inflicted:
+        if condition in [condition.Restrained,condition.Headshot]:
+            grants_disadvantage = True
+        
         combatant_condition = creature_condition()
         combatant_condition.source = source
         combatant_condition.condition = condition

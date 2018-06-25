@@ -19,6 +19,7 @@ from battle_simulator.combat_functions.target import *
 from battle_simulator.combat_functions.inventory import *
 from battle_simulator.combat_functions.position import *
 from battle_simulator.combat_functions.conditions import *
+from battle_simulator.combat_functions.events import * 
 
 #System imports
 import operator
@@ -136,6 +137,9 @@ def simulate_battle():
                 if not round_complete:
                     begin_div('turn')
                     print_output('It is now ' + combatant.name + '\'s turn. ' + hp_text(combatant.alive,combatant.current_health,combatant.max_health) + '. ' + position_text(combatant.xpos,combatant.ypos))
+                    
+                    on_begin_turn_event(combatant)
+
                     turn_complete = False                    
                     while not turn_complete:
                         # Continuously evaluate this subloop only while combatant is alive/conscious; if these conditions change, skip out to death handling

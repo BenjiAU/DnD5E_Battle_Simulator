@@ -99,7 +99,10 @@ def reset_combatants(init_combatants):
             ### Hill Giant
             if combatant.monster_type == monster_type.Hill:                            
                 combatant.multiattack = ["Greatclub","Greatclub"]
-                
+            
+            if combatant.monster_type == monster_type.Venom:                            
+                combatant.multiattack = ["Claw","Bite"]
+            
 def initialise_class_features(combatant):
     ### Initialise Class Abilities ###        
     for class_instance in combatant.player_classes():

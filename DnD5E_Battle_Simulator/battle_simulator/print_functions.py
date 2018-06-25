@@ -193,7 +193,7 @@ def print_summary(combatant):
     print_output(' Average Damage per Attempt: '  + repr(math.floor(combatant.total_damage_dealt/settings.max_attempts)))    
     print_output(' Total Damage Dealt: '  + repr(combatant.total_damage_dealt))
 
-def print_grid(xorigin,yorigin,highlight_grids,targets):   
+def print_grid(xorigin,yorigin,highlight_grids,targets,width=40,length=40,title="Battlefield"):   
     target_grids = []
     target_ids = []
     for target in targets:
@@ -202,16 +202,18 @@ def print_grid(xorigin,yorigin,highlight_grids,targets):
         target_ids.append(hp_text(target.alive,target.current_health,target.max_health,target.name[0]))        
     #print_output(' Affected Grids ' + repr(highlight_grids))
     #Drawing grid from top left corner
-    x = xorigin - 50
-    y = yorigin + 50    
+    xmax = width + 10
+    ymax = length + 10
+    x = xorigin - xmax
+    y = yorigin + ymax
     #Initial line of grid showing starting co-ordinates    
     begin_div('grid_column')
     begin_div('grid')    
-    print_output('Battlefield (origin point: ' + repr(xorigin) + ',' + repr(yorigin) + ')')
-    while y > yorigin - 51:
-        x = xorigin - 50        
+    print_output(title + ' (origin point: ' + repr(xorigin) + ',' + repr(yorigin) + ')')
+    while y > yorigin - ymax - 1:
+        x = xorigin - xmax    
         grid_line = ""
-        while x < xorigin + 51: 
+        while x < xorigin + xmax + 1: 
             if x == xorigin and y == yorigin:
                 grid_line += ' O '
             elif (x,y) in highlight_grids and (x,y) in target_grids:

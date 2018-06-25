@@ -275,7 +275,8 @@ class monster_type(Enum):
     Bear = auto()
     #Dragons
     Ancient_Black_Dragon = auto()
-
+    #Trolls
+    Venom = auto()
 class feat(Enum):
     def __str__(self):
         return str(self.value)    
@@ -604,6 +605,12 @@ class creature():
             self._equipment_inventory = []
         return self._equipment_inventory      
     
+    # Events are out of turn 'things' that can occur with a trigger and a reactionary spell (i.e. venom troll venom spray on suffering damage)
+    def events(self):
+        if not hasattr(self, "_events"):
+            self._events = []
+        return self._events
+
     proficiency = int() # Determined by taking the PC's 'primary' class, based on the level - see initgrog for example
     
     #Combat/class/race/feat properties - variety of fields used to track whether abilities can be used, the count remaining for abilities, and other combat info
@@ -788,11 +795,7 @@ class creature():
     movement_used = bool() # Tracks if Movement step of turn has been used
     action_used = bool() # Tracks if Action step of turn has been used
     bonus_action_used = bool() # Tracks if Bonus Action step of turn has been used    
-    reaction_used = bool() # Tracks if Reaction step of turn has been used    
-
-    event_on_damage = bool() # Tracks if an event occurs when this creature is damage
-    event_on_damage_type = [] # List of damage types that trigger the event_on_damage
-    event_on_damage_spell = spell() #Spell object to cast on damage taken event
+    reaction_used = bool() # Tracks if Reaction step of turn has been used        
 
     bonus_action_spell_casted = bool() # Stops you casting anything but a cantrip if you use BA to cast a spell
 
@@ -904,3 +907,32 @@ def spell_save_DC(combatant,spell):
 def roll_die(die):
     random.seed
     return random.randint(1,die)
+
+class event():
+    trigger = int() # event_triggers are littered through the code at appropriate points for the events module to intervene
+    invoke = int() #describes what to do when trigger occurs
+    requirements = [] # List of abstract conditions, at least one of which must match the calling trigger code
+    spell = spell() # Spell object to be called if invoke = Spell
+    self_heal = int() # Self heal from Regeneration?
+    disabled = bool() # Disabled for one turn due to reasons
+
+class event_trigger(Enum):
+    def __str__(self):
+        return str(self.value)    
+    OnSufferDamage = auto()
+    OnDealDamage = auto()
+    OnBeginTurn = auto()
+    OnEndTurn = auto()
+    OnUnconscious = auto()
+    OnDeath = auto()
+    OnKill = auto()
+
+class event_invoke(Enum):
+    def __str__(self):
+        return str(self.value)    
+    Spell = auto()
+    Action = auto()
+    BonusAction = auto()
+    Reaction = auto()
+    Attack = auto()
+    Feature = auto()

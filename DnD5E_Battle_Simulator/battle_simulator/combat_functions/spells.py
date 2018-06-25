@@ -25,7 +25,7 @@ def select_spell(combatant,casttime):
             # Only select spells we have a spellslot for
             spellslot = get_highest_spellslot(combatant,spell)
             #See if a spellslot was returned by the function
-            if spell.cantrip or spellslot:    
+            if spell.cantrip or spell.min_spellslot_level == 0 or spellslot:    
                 # Check Concentrating
                 if not spell.concentration or (spell.concentration and not check_condition(combatant,condition.Concentrating)):
                     # Run through the list at least once to find a spell
@@ -97,17 +97,21 @@ def select_spell(combatant,casttime):
 
 #Cast a spell  - if Crit is forced use it
 def cast_spell(combatant,spell,crit = None):    
+    if not find_target(combatant):
+        print_output('No targets remain!')
+        return
     #Find the best spellslot to use on this spell
     spellslot = get_best_spellslot(combatant,spell)
-    #See if a spellslot was returned by the function
-    if spell.cantrip or spellslot:               
+    #See if a spellslot was returned by the function - cantrips and spells with a zero spellslot level are exempt
+    if spell.cantrip or spell.min_spellslot_level == 0 or spellslot:               
         # Deduct one usage from the spellslot (not cantrips)
-        if spell.cantrip:
-            print_indent( spell.description + " " + combatant.target.name)
-        else:
+        if spellslot:
             #Consume the spell slot from player's available slots
-            print_indent( combatant.name + ' is burning a ' + numbered_list(spellslot.level) + ' level spellslot to cast ' + spell.name)                            
+            print_indent( combatant.name + ' is burning a ' + numbered_list(spellslot.level) + ' level spellslot to cast ' + spell.name)                                    
             spellslot.current -= 1
+                
+        if spell.description != "":
+            print_indent( spell.description + " " + combatant.target.name)        
         
         spell_ID = new_spell_ID()
         savetype = saving_throw.Strength
@@ -184,7 +188,7 @@ def cast_spell(combatant,spell,crit = None):
             if spell.origin == origin_point.Self:
                 xorigin = comabtant.xpos
                 yorigin = combatant.ypos
-
+            
             affected_targets = calculate_area_effect(combatant,xorigin,yorigin,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length,True)   
                 
             for affected_target in affected_targets:    
@@ -203,7 +207,7 @@ def cast_spell(combatant,spell,crit = None):
                     # No saving throw defined, automatic success
                     inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
         # AoE Damage spell
-        elif spell.category == spell_category.AoE_Damage:
+        elif spell.category == spell_category.AoE_Damage:            
             affected_targets = []
             xorigin = 0
             yorigin = 0
@@ -212,7 +216,7 @@ def cast_spell(combatant,spell,crit = None):
             # Determine AoE
             # Find affected targets
             if spell.origin == origin_point.Self:
-                xorigin = comabtant.xpos
+                xorigin = combatant.xpos
                 yorigin = combatant.ypos
 
             affected_targets = calculate_area_effect(combatant,xorigin,yorigin,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length,True)   
@@ -237,7 +241,7 @@ def cast_spell(combatant,spell,crit = None):
                             calculate_spell_damage(combatant,affected_target,spell,spellslot,False) 
                 else:
                     # Damage automatically applies
-                    calculate_spell_damage(combatant,affected_target,spell,spellslot,False,spell.saving_throw_damage_multiplier)         
+                    calculate_spell_damage(combatant,affected_target,spell,spellslot,False)         
         # Direct damage spell
         elif spell.category == spell_category.Damage:
             if spell.spell_attack:

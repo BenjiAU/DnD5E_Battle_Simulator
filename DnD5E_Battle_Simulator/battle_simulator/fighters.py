@@ -56,7 +56,7 @@ def initialise_teams(combatants,teams):
 
     vmnames = ["Grog","Vax","Percy","Doty","Trinket"]
     m9names = ["Fjord","Beau","Caleb","Nott","Jester","Molly","Yasha","Kiri"]
-    monsternames = ["Umbrasyl","Hill Giant","Arkhan"]
+    monsternames = ["Umbrasyl","Hill Giant","Arkhan","Venom Troll"]
     #Iterate through all combatants and initially assign them to team
     for combatant in combatants:
         if combatant.name in vmnames:
@@ -1463,7 +1463,7 @@ def init_venom_troll(init_combatants):
     venomtroll.fullname = "Venom Troll"
     venomtroll.name = "Venom Troll"
     venomtroll.race = race.Troll
-    venomtroll.monster_type = monster_type.Hill    
+    venomtroll.monster_type = monster_type.Venom
     venomtroll.max_health = 140
     venomtroll.armour_class = 15
     venomtroll.base_speed = 30
@@ -1501,7 +1501,7 @@ def init_venom_troll(init_combatants):
     
     claw.bonus_damage_die = 8
     claw.bonus_damage_die_count = 2
-    claw.bonus_damage_type = damage_type.Posion
+    claw.bonus_damage_type = damage_type.Poison
     
     claw.magic_to_hit_modifier = 3
 
@@ -1518,18 +1518,28 @@ def init_venom_troll(init_combatants):
     
     bite.bonus_damage_die = 8
     bite.bonus_damage_die_count = 2
-    bite.bonus_damage_type = damage_type.Posion
+    bite.bonus_damage_type = damage_type.Poison
     
     bite.magic_to_hit_modifier = 3
 
     venomtroll.weapon_inventory().append(bite)
 
-    venomtroll.event_on_damage = True
-    venomtroll.event_on_damage_type = [dt for dt in damage_type if dt != damage_type.Psychic]
     new_spell = spell()
-    new_spell.name = "Venom Spray"
-    venomtroll.spell_list.append(new_spell)
-    venomtroll.event_on_damage_spell = new_spell
+    new_spell.name = "Venom Burst"
+    venomtroll.spell_list().append(new_spell)
+
+    new_event = event()
+    new_event.trigger = event_trigger.OnSufferDamage
+    new_event.requirements = [dt for dt in damage_type if dt != damage_type.Psychic]
+    new_event.invoke = event_invoke.Spell
+    new_event.spell = new_spell
+    venomtroll.events().append(new_event)
+
+    regeneration = event()
+    regeneration.trigger = event_trigger.OnBeginTurn    
+    regeneration .invoke = event_invoke.Feature
+    regeneration.self_heal = 10
+    venomtroll.events().append(regeneration)
 
     init_combatants.append(venomtroll)    
 
