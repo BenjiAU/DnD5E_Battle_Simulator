@@ -252,13 +252,17 @@ class race(Enum):
     Undead = auto()
     Construct = auto()
     Giant = auto()
+    Troll = auto()
     Beast = auto()
     Monstrosity = auto()
 
 class subrace(Enum):
     def __str__(self):
         return str(self.value)    
+    # Player subraces
     Revenant = auto()
+    # Monster subraces
+    VenomTroll = auto()
 
 class monster_type(Enum):
     def __str__(self):
@@ -543,8 +547,9 @@ class creature():
     max_health = int()
     current_health = int()        
         
-    speed = int()   
-    movement = int() #Distinct from speed, reflects movement per round and is consumed/reset at start of round
+    base_speed = int() # Base speed
+    current_speed = int() # Current speed, reset to base speed at the start of each round
+    movement = int() #Available feet of movement, manipulated through the flow of battle as the combatants want to move closer or farther up to their current speed
     desired_range = int() # Set by movement functions, determines the desired range that the combatant wants tok eep between them and target
 
     stats = statistic_block()
@@ -784,7 +789,11 @@ class creature():
     action_used = bool() # Tracks if Action step of turn has been used
     bonus_action_used = bool() # Tracks if Bonus Action step of turn has been used    
     reaction_used = bool() # Tracks if Reaction step of turn has been used    
-    
+
+    event_on_damage = bool() # Tracks if an event occurs when this creature is damage
+    event_on_damage_type = [] # List of damage types that trigger the event_on_damage
+    event_on_damage_spell = spell() #Spell object to cast on damage taken event
+
     bonus_action_spell_casted = bool() # Stops you casting anything but a cantrip if you use BA to cast a spell
 
     death_saving_throw_success = int() # Tracks succesful Death Saving Throws

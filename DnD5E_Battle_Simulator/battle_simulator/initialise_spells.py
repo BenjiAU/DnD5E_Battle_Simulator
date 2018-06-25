@@ -178,12 +178,31 @@ def add_spellslot(combatant,spell_level,spellslot_count):
 def reset_spellslots(combatant):
     combatant.spellslots().clear()
 
-def initialise_spells(combatant):
-    
-    
-    
+def initialise_spells(combatant):    
     for spell in combatant.spell_list():
-    
+        
+    #############
+    # Monster Ft.
+    #############
+        if spell.name == "Venom Spray":                                            
+            spell.school = spell_school.Evocation           
+            spell.category = spell_category.AoE_Damage
+            spell.min_spellslot_level = 0
+            spell.max_spellslot_level = 0
+            spell.instance = 1
+            spell.casting_time = spell_casting_time.Instant
+            spell.range = 0
+            spell.origin = origin_point.Self                    
+            spell.shape = area_of_effect_shape.Line
+            spell.shape_width = 5
+            spell.shape_length = 5
+
+            spell.damage_die = 8
+            spell.damage_die_count = 4
+            spell.damage_type = damage_type.Poison
+            
+            spell.description = "A burst of venomous liquid sprays out!"   
+
     #############
     # Class Feats
     #############    

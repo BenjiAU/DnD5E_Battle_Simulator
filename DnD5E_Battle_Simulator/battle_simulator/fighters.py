@@ -18,6 +18,7 @@ def initialise_combatants(init_combatants):
     init_yasha(init_combatants)
     
     init_hill_giant(init_combatants)
+    init_venom_troll(init_combatants)
     init_arkhan(init_combatants)
     init_umbrasyl(init_combatants)
     
@@ -1452,6 +1453,85 @@ def init_hill_giant(init_combatants):
 
     init_combatants.append(hillgiant)    
 
+def init_venom_troll(init_combatants):
+
+    venomtroll = creature()
+
+    venomtroll.notes = "The grotesque venom troll from C2E21-E23"
+
+    venomtroll.creature_type = creature_type.Monster
+    venomtroll.fullname = "Venom Troll"
+    venomtroll.name = "Venom Troll"
+    venomtroll.race = race.Troll
+    venomtroll.monster_type = monster_type.Hill    
+    venomtroll.max_health = 140
+    venomtroll.armour_class = 15
+    venomtroll.base_speed = 30
+        
+    #Stats
+    venomtrollstats = statistic_block()
+    venomtrollstats.str = 21
+    venomtrollstats.dex = 8
+    venomtrollstats.con = 19
+    venomtrollstats.intel = 5
+    venomtrollstats.wis = 9
+    venomtrollstats.cha = 6
+
+    venomtroll.stats = venomtrollstats
+    
+    #Saves
+    venomtrollsaves = saving_throw_block()    
+    
+    venomtroll.saves = venomtrollsaves
+
+    #Ability Checks
+    venomtrollchecks = ability_check_block()    
+
+    venomtroll.checks = venomtrollchecks
+
+    #venomtroll's weapons
+    claw = weapon()
+    claw.name = "Claw"
+    claw.weapon_type = weapon_type.Natural;
+    claw.range = 0
+    
+    claw.damage_die = 8
+    claw.damage_die_count = 2
+    claw.weapon_damage_type = damage_type.Slashing
+    
+    claw.bonus_damage_die = 8
+    claw.bonus_damage_die_count = 2
+    claw.bonus_damage_type = damage_type.Posion
+    
+    claw.magic_to_hit_modifier = 3
+
+    venomtroll.weapon_inventory().append(claw)
+
+    bite = weapon()
+    bite.name = "Bite"
+    bite.weapon_type = weapon_type.Natural;
+    bite.range = 0
+    
+    bite.damage_die = 8
+    bite.damage_die_count = 2
+    bite.weapon_damage_type = damage_type.Slashing
+    
+    bite.bonus_damage_die = 8
+    bite.bonus_damage_die_count = 2
+    bite.bonus_damage_type = damage_type.Posion
+    
+    bite.magic_to_hit_modifier = 3
+
+    venomtroll.weapon_inventory().append(bite)
+
+    venomtroll.event_on_damage = True
+    venomtroll.event_on_damage_type = [dt for dt in damage_type if dt != damage_type.Psychic]
+    new_spell = spell()
+    new_spell.name = "Venom Spray"
+    venomtroll.spell_list.append(new_spell)
+    venomtroll.event_on_damage_spell = new_spell
+
+    init_combatants.append(venomtroll)    
 
 def init_trinket(init_combatants):
 
