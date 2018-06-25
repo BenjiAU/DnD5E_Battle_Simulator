@@ -440,7 +440,7 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
     enemies = get_living_enemies(combatant_before_move)
     for opportunity_attacker in enemies:                
         #Only conscious enemies with capacity can make an opportunity attack
-        if can_use_reactions(opportunity_attacker):            
+        if can_use_reaction(opportunity_attacker):            
             # Only provoke opportunity attacks for melee weapons
             if opportunity_attacker.main_hand_weapon != None:
                 if opportunity_attacker.main_hand_weapon.range == 0:

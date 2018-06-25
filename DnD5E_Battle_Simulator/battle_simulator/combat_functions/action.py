@@ -114,7 +114,7 @@ def bonus_action(combatant):
     #Rage
     if not combatant.bonus_action_used:
         if combatant.canrage and not check_condition(combatant,condition.Raging):
-            print_output('<b>Bonus Action</b>')
+            print_output('<b>Bonus Action:</b>')
             print_output(combatant.name + ' uses their Bonus Action to go into a mindless rage! "I would like to RAAAGE!!!"')                
             inflict_condition(combatant,combatant,condition.Raging,10)
             # Reset duration of this rage                
@@ -130,7 +130,7 @@ def bonus_action(combatant):
             if combatant.frenzy:      
                 #You can make a single melee weapon Attack as a Bonus Action on each of your turns after this one (does not have to be tied to Attack action)
                 if target_in_range(combatant,combatant.target,combatant.main_hand_weapon.range):            
-                    print_output('<b>Bonus Action</b>')
+                    print_output('<b>Bonus Action:</b>')
                     print_output(combatant.name + ' uses their Bonus Action to make a frenzied weapon attack against ' + combatant.target.name)
                     if not find_target(combatant):
                         print_output('No targets remain!')
@@ -163,7 +163,7 @@ def bonus_action(combatant):
             fighter_level = get_combatant_class_level(combatant,player_class.Fighter)                
             if combatant.current_health + 10 + fighter_level < combatant.max_health:
                 second_wind_heal = roll_die(10) + fighter_level
-                print_output('<b>Bonus Action</b>')
+                print_output('<b>Bonus Action:</b>')
                 print_output(combatant.name + ' uses their Bonus Action to gain a Second Wind!')
                 heal_damage(combatant,second_wind_heal)                                    
                 combatant.second_wind = False
@@ -176,7 +176,7 @@ def bonus_action(combatant):
                 if combatant.lighting_reload:
                     if combatant.main_hand_weapon.currentammo == 0:
                         combatant.main_hand_weapon.currentammo = combatant.main_hand_weapon.reload
-                        print_output('<b>Bonus Action</b>')
+                        print_output('<b>Bonus Action:</b>')
                         print_output(combatant.name + ' used a bonus action to reload. ' + combatant.main_hand_weapon.name + ' Ammo: ' + repr(combatant.main_hand_weapon.currentammo) + '/' + repr(combatant.main_hand_weapon.reload))
                         combatant.bonus_action_used = True
 
@@ -187,7 +187,7 @@ def bonus_action(combatant):
     if not combatant.bonus_action_used:
         if combatant.channel_divinity and combatant.vow_of_enmity:
             combatant.vow_of_enmity_target = combatant.target
-            print_output('<b>Bonus Action</b>')
+            print_output('<b>Bonus Action:</b>')
             print_output(combatant.name + ' swears a Vow of Enmity against ' + combatant.target.name)
             combatant.channel_divinity = False
             combatant.bonus_action_used = True
@@ -198,14 +198,14 @@ def bonus_action(combatant):
         if combatant.cunning_action:
             #Disengage if we're using ranged weapons and someone is in melee range
             if enemy_in_melee_range(combatant,None) and combatant.main_hand_weapon.range > 0:                                     
-                print_output('<b>Bonus Action</b>')
+                print_output('<b>Bonus Action:</b>')
                 print_output(combatant.name + ' is using their Cunning Action, and taking the Disengage bonus action!')
                 inflict_condition(combatant,combatant,condition.Disengaged)                    
                 combatant.bonus_action_used = True
 
             #Dash if we've used our Action to increase the gap                 
             if not combatant.bonus_action_used and combatant.action_used and not check_condition(combatant,condition.Restrained):         
-                print_output('<b>Bonus Action</b>')
+                print_output('<b>Bonus Action:</b>')
                 print_output(combatant.name + ' is using their Cunning Action, and taking the Dash bonus action!')
                 combatant.movement = combatant.speed
                 if check_condition(combatant,condition.Hasted):
@@ -223,7 +223,7 @@ def bonus_action(combatant):
         for item in combatant.equipment_inventory():
             if item.grants_equipment_spell == equipment_spells.Leap:
                 #For now treat this as special forced combatant.movement of 20 feet
-                print_output('<b>Bonus Action</b>')
+                print_output('<b>Bonus Action:</b>')
                 print_output(combatant.name + ' is taking a flying leap using their ' + item.name + ' as a Bonus Action!')                    
                 if abilitycheck(combatant,ability_check.Strength,16):                    
                     print_output(combatant.name + ' leaps 20 feet.')                        
@@ -240,7 +240,7 @@ def bonus_action(combatant):
         # Select an appropriate action-cost spell
         selected_spell = select_spell(combatant,spell_casting_time.Bonus_Action)                
         if selected_spell != None:
-            print_output('<b>Bonus Action</b>')
+            print_output('<b>Bonus Action:</b>')
             print_output(combatant.name + ' uses their Bonus Action to cast ' + selected_spell.name + '!')
             cast_spell(combatant,selected_spell)
             combatant.bonus_action_used = True
@@ -303,6 +303,7 @@ def select_crimson_rite(combatant):
 
 def activate_crimson_rite(combatant,weapon,rite):
     if not combatant.bonus_action_used:
+        print_output('<b>Bonus Action:</b>')
         print_output(combatant.name + ' drags the blade of their ' + weapon.name + ' across their skin, and ' + rite.colour + ' light engulfs it as the Crimson ' + rite.name + ' is activated!')
         deal_damage(combatant,combatant,rite.activation_damage,damage_type.Generic,False,False)
         resolve_damage(combatant)                            

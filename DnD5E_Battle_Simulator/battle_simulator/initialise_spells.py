@@ -429,6 +429,26 @@ def initialise_spells(combatant):
 
             spell.description = "Magical darts spring into existence and fire towards"   
 
+        if spell.name == "Shield":                                            
+            spell.school = spell_school.Abjuration
+            spell.category = spell_category.Buff
+            spell.min_spellslot_level = 1
+            spell.max_spellslot_level = 1
+            spell.instance = 1
+            spell.casting_time = spell_casting_time.Reaction
+            spell.range = 0
+            spell.origin = origin_point.Self                    
+
+            spell.verbal = True
+            spell.somatic = True
+            
+            spell.condition = condition.Shielded
+            spell.condition_duration = 1
+            spell.maximum_duration = 1
+            spell.player_classes().append(player_class.Wizard)
+            spell.player_classes().append(player_class.Sorcerer)
+
+            spell.description = "A magical barrier appears around"   
     #############
     ## Level 2 ##
     #############             

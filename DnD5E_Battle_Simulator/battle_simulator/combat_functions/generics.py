@@ -214,6 +214,8 @@ def calc_total_AC(combatant):
         totalAC += 2
     if check_condition(combatant,condition.Slowed):
         totalAC -= 2
+    if check_condition(combatant,condition.Shielded):
+        totalAC += 5
     return totalAC
 
 def calc_distance(combatant,target):

@@ -50,32 +50,53 @@ def find_target(combatant):
 
 def find_heal_target(combatant,range):
     heal_target = None    
-    for ally in get_living_allies(combatant):
-        if calc_distance(combatant,ally) <= range:
-            if check_condition(ally,condition.Unconscious):
+    for ally in get_living_allies(combatant):        
+        if check_condition(ally,condition.Unconscious):
+            print_output(combatant.name + ' thinks that ' + ally.name + ' needs healing desperately!')   
+            if calc_distance(combatant,ally) <= range:
                 heal_target = ally
-            elif heal_target == None and ally.current_health <= ally.max_health/4:
+            else:
+                print_output(ally.name + ' is out of range and cannot be healed!')   
+        elif heal_target == None and ally.current_health <= ally.max_health/4:
+            print_output(combatant.name + ' thinks that ' + ally.name + ' needs healing')   
+            if calc_distance(combatant,ally) <= range:
                 heal_target  = ally
+            else:
+                print_output(ally.name + ' is out of range and cannot be healed!')   
 
     if heal_target == None:
         if combatant.current_health <= combatant.max_health/2:
+            print_output(combatant.name + ' thinks that they need to heal themselves')
             heal_target = combatant    
     return heal_target
 
 def find_buff_target(combatant,buff_condition,range):
     buff_target = None    
-    for ally in get_living_allies(combatant):
-        if calc_distance(combatant,ally) <= range:
-            if not check_condition(ally,condition.Unconscious) and not check_condition(ally,condition.Stunned) and not check_condition(ally,condition.Incapacitated):                                
-                #Only apply the Enlarge buff to melee allies
-                if buff_condition == condition.Enlarged and combatant.main_hand_weapon != None and not combatant.spellcaster:                    
-                    if combatant.main_hand_weapon.range == 0:
-                        buff_target = ally        
-                elif buff_condition == condition.Hasted:                    
-                    buff_target = ally        
+    # Self buffs
+    if buff_condition == condition.Shielded:
+        if not check_condition(combatant,condition.Shielded):
+            buff_target = combatant
+
+    # Allied buffs
+    if buff_target == None:
+        for ally in get_living_allies(combatant):
+            if calc_distance(combatant,ally) <= range:
+                if not check_condition(ally,condition.Unconscious) and not check_condition(ally,condition.Stunned) and not check_condition(ally,condition.Incapacitated):                                
+                    #Only apply the Enlarge buff to melee allies
+                    if buff_condition == condition.Enlarged and combatant.main_hand_weapon != None and not combatant.spellcaster:                    
+                        if combatant.main_hand_weapon.range == 0:
+                            if not check_condition(ally,condition.Enlarged):
+                                buff_target = ally        
+                    elif buff_condition == condition.Hasted:                
+                        if not check_condition(ally,condition.Hasted):
+                            buff_target = ally        
+
+    # Buff ourselves if we need to (i.e. no ally found and useful buff)
     if buff_target == None:    
         if buff_condition == condition.Hasted:                    
-            buff_target = combatant
+            if not check_condition(combatant,condition.Hasted):
+                buff_target = combatant
+
     return buff_target
 
 def find_targets_in_area(combatant,affected_grids):    

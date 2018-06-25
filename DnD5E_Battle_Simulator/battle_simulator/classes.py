@@ -102,6 +102,7 @@ class condition(Enum):
     Dodging = auto() # Dodge action (attacks against are made with disadvantage)
     Raging = auto() #Barbarian Rage
     Reckless = auto() #Barbarian Reckless Attack
+    Shielded = auto() # Wizard Shield spell
 
     # Debuffs
     Hexed = auto()
@@ -334,6 +335,7 @@ class spell_school(Enum):
     Transmutation = auto()
     Necromancy = auto()
     Evocation = auto()
+    Abjuration = auto()
 
 class spell_category(Enum):
     def __str__(self):

@@ -11,7 +11,10 @@ from operator import attrgetter
 def select_spell(combatant,casttime):
     best_spell = None
     #Check that the target is in a condition to warrant casting the spell on?
-    for spell in combatant.spell_list():
+    initkey = operator.attrgetter("min_spellslot_level")
+    spells_by_min_spellslot_level = sorted(combatant.spell_list(), key=initkey,reverse=True)    
+
+    for spell in spells_by_min_spellslot_level:
         if spell.casting_time == casttime:
             #If we already used our bonus action this turn to cast a spell, we can only cast 1 action speed cantrips on our action
             if combatant.bonus_action_spell_casted and not spell.cantrip:
@@ -25,42 +28,11 @@ def select_spell(combatant,casttime):
             if spell.cantrip or spellslot:    
                 # Check Concentrating
                 if not spell.concentration or (spell.concentration and not check_condition(combatant,condition.Concentrating)):
-                    #Always choose higher level spells first
-                    if best_spell == None or (best_spell != None and spell.min_spellslot_level >= best_spell.min_spellslot_level):
-                        #Healing spells first:
-                        # Healing spell                            
-                        if spell.category == spell_category.Healing:            
-                            if best_spell == None or ((spell.instance*(spell.healing_die_count*spell.healing_die)) >= (best_spell.instance*(best_spell.healing_die_count*best_spell.healing_die))):
-                                heal_target = find_heal_target(combatant,spell.range)
-                                if heal_target != None:
-                                    print_output(combatant.name + ' thinks that ' + heal_target.name + ' needs healing!')                     
-                                    best_spell = spell
-
-                        if spell.category == spell_category.Buff:                                        
-                            if find_buff_target(combatant,condition,spell.range) != None:                                    
-                                best_spell = spell
-
-                        # AoE Debuffs                            
-                        if spell.category == spell_category.AoE_Debuff:                                        
-                            # Check targets, if more than 2 in AoE this is best spell
-                            affected_targets = []                                                
-                            affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)   
-                            if len(affected_targets) >= 2:
-                                best_spell = spell
-
-                        # Single target debuffs
-                        if spell.category == spell_category.Debuff:                                        
-                            best_spell = spell
-
-                        # Damage spells (only if we have no healing/buff/debuffs)
-                        # AoE Damage
-                        if spell.category == spell_category.AoE_Damage:                                        
-                            # Check targets, if more than 2 in AoE this is best spell
-                            affected_targets = []                                                
-                            affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)   
-                            if len(affected_targets) >= 2:
-                                best_spell = spell
-                            
+                    # Run through the list at least once to find a spell
+                    # Then, only consider the spell if it is of a higher minimum level than the previous spell
+                    if best_spell == None or (best_spell != None and spell.min_spellslot_level >= best_spell.min_spellslot_level):                        
+                        # Consider each spell in the list, considering the least-preferable spells first, and the most preferable last
+                        # Healing > Buffs > AoE Debuffs > Debuffs > AoE Damage > Single target Damage (save) > Single target damage (spell attack)
                         # Single target damage
                         if spell.category == spell_category.Damage:                                                                                                        
                             if spell.spell_attack:
@@ -82,6 +54,45 @@ def select_spell(combatant,casttime):
                                 else:
                                     if best_spell == None or (spell.instance*(spell.damage_die_count*spell.damage_die)) >= (best_spell.instance*(best_spell.damage_die_count*best_spell.damage_die)):
                                         best_spell = spell
+
+                        # Damage spells (only if we have no healing/buff/debuffs)
+                        # AoE Damage
+                        if spell.category == spell_category.AoE_Damage:                                        
+                            # Check targets, if more than 2 in AoE this is best spell
+                            affected_targets = []                                                
+                            affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)   
+                            if len(affected_targets) >= 2:
+                                best_spell = spell
+
+                        # Single target debuffs, i.e. Hold Person
+                        if spell.category == spell_category.Debuff:                                        
+                            # Don't consider this spell if the condition is already on the target
+                            if not check_condition(combatant.target,spell.condition):
+                                # Prioritise debuff spells based on condition? Sometimes we may want to do damage instead if a condition effects the target
+                                if spell.condition == condition.Restrained:
+                                    best_spell = spell
+                                else:                                    
+                                    best_spell = spell
+
+                        # AoE Debuffs, i.e. Slow
+                        if spell.category == spell_category.AoE_Debuff:                                        
+                            # Check targets, if more than 2 in AoE this is best spell
+                            affected_targets = []                                                
+                            affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)                               
+                            if len(affected_targets) >= 2:
+                                best_spell = spell
+                        
+                        # Buff spells are very powerful, and include Reaction buffs like Shield
+                        if spell.category == spell_category.Buff:                                                                    
+                            if find_buff_target(combatant,condition,spell.range) != None:                                    
+                                best_spell = spell
+
+                        #Healing spells are the most important to consider; if we find a target who needs healing we                         
+                        if spell.category == spell_category.Healing:            
+                            if best_spell == None or ((spell.instance*(spell.healing_die_count*spell.healing_die)) >= (best_spell.instance*(best_spell.healing_die_count*best_spell.healing_die))):
+                                heal_target = find_heal_target(combatant,spell.range)
+                                if heal_target != None:                                                      
+                                    best_spell = spell
     return best_spell
 
 #Cast a spell  - if Crit is forced use it
@@ -268,6 +279,8 @@ def cast_spell(combatant,spell,crit = None):
         if spellslot != None:
             if spellslot.level != 0 and spellslot.current == 0:
                 print_output(combatant.name + ' has no ' + numbered_list(spellslot.level) + ' level spellslots remaining!')
+    else:
+        print_error('Error: ' + combatant.name + ' was unable to find an appropriate spellslot to cast ' + spell.name)
 
 def spell_attack(combatant,target,spell,spellslot):
     advantage = False
@@ -323,12 +336,15 @@ def get_best_spellslot(combatant,spell):
     for spellslot in sorted_spells:
         if spellslot.level >= spell.min_spellslot_level:
             if spellslot.current > 0:
-                if best_spellslot == None:
+                # Prefer to use the spell underneath the maximum spellslot level (i.e. casting Slow at level 5 offers no benefit over casting it at level 3)
+                if spellslot.level <= spell.max_spellslot_level:                                       
+                    best_spellslot = spellslot            
+                # If we have to over-cast, make sure we use the lowest available spellslot
+                elif spellslot.level >= spell.max_spellslot_level and spellslot.level < best_spellslot.level:
                     best_spellslot = spellslot
-            if spellslot.level <= spell.max_spellslot_level:            
-                if spellslot.current > 0:
-                    if best_spellslot == None or spellslot.level > best_spellslot.level:
-                        best_spellslot = spellslot
+                # Make sure we always return at least one spellslot 
+                elif best_spellslot == None:
+                    best_spellslot = spellslot
 
     return best_spellslot
 

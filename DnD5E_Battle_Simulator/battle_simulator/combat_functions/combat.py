@@ -364,6 +364,17 @@ def attack(combatant,weapon):
                         totalAC = calc_total_AC(combatant.target)
 
                         if totalatk >= totalAC:
+                            # Allow target to use reaction if attack would hit them
+                            if can_use_reaction(combatant.target):
+                                # Cast a reaction spell? (i.e. Shield)
+                                selected_spell = select_spell(combatant.target,spell_casting_time.Reaction)                
+                                if selected_spell != None:                    
+                                    print_output(combatant.target.name + ' uses the Cast a Spell Reaction to cast ' + selected_spell.name + '!')
+                                    cast_spell(combatant.target,selected_spell)
+                                    combatant.target.reaction_used = True
+                                    totalAC = calc_total_AC(combatant.target)
+
+                        if totalatk >= totalAC:
                             attack_hit = True
                             #Update statistics
                             combatant.attacks_hit += 1
