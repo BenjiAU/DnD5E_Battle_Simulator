@@ -84,7 +84,7 @@ def select_spell(combatant,casttime):
                         
                         # Buff spells are very powerful, and include Reaction buffs like Shield
                         if spell.category == spell_category.Buff:                                                                    
-                            if find_buff_target(combatant,condition,spell.range) != None:                                    
+                            if find_buff_target(combatant,spell.condition,spell.range) != None:                                    
                                 best_spell = spell
 
                         #Healing spells are the most important to consider; if we find a target who needs healing we                         
@@ -340,11 +340,8 @@ def get_best_spellslot(combatant,spell):
                 if spellslot.level <= spell.max_spellslot_level:                                       
                     best_spellslot = spellslot            
                 # If we have to over-cast, make sure we use the lowest available spellslot
-                elif spellslot.level >= spell.max_spellslot_level and spellslot.level < best_spellslot.level:
-                    best_spellslot = spellslot
-                # Make sure we always return at least one spellslot 
-                elif best_spellslot == None:
-                    best_spellslot = spellslot
+                elif best_spellslot == None or (spellslot.level >= spell.max_spellslot_level and spellslot.level < best_spellslot.level):
+                    best_spellslot = spellslot                
 
     return best_spellslot
 

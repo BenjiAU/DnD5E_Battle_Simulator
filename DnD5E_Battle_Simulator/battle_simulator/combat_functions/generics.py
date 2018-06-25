@@ -248,7 +248,7 @@ def get_living_allies(combatant):
                 allies.append(potential_ally)
     return allies
 
-def continue_turn(combatant):
+def can_continue_turn(combatant):
     if check_condition(combatant,condition.Unconscious):
         return False
     if check_condition(combatant,condition.Incapacitated):

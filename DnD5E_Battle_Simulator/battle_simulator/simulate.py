@@ -140,7 +140,7 @@ def simulate_battle():
                     while not turn_complete:
                         # Continuously evaluate this subloop only while combatant is alive/conscious; if these conditions change, skip out to death handling
                         combatant_alive_this_turn = False
-                        while continue_turn(combatant):                            
+                        while can_continue_turn(combatant):                            
                             combatant_alive_this_turn = True
                             # update statistics
                             combatant.rounds_fought += 1
@@ -156,7 +156,9 @@ def simulate_battle():
                                 combatant.bonus_action_used = False
                                 combatant.bonus_action_spell_casted = False
                                 combatant.reaction_used = False
-                                
+                                # Reset the current speed of the combatant to their base, plus any modifiers
+                                calculate_speed(combatant)                                                                
+
                                 # Reset the granted actions provided by various conditions (i.e. Haste)
                                 for combatant_condition in combatant.creature_conditions():
                                     if combatant_condition.grants_action:
@@ -187,7 +189,7 @@ def simulate_battle():
                                 update_concentration(combatant)
 
                                 ### Begin actual turn operations ###
-                                if not continue_turn(combatant):
+                                if not can_continue_turn(combatant):
                                     break
                                     
                                 # Is the combatant wearing equipment? Evaluate and use if appropriate
@@ -201,27 +203,27 @@ def simulate_battle():
                                 # use movement first #
                                 movement(combatant)
 
-                                if not continue_turn(combatant):
+                                if not can_continue_turn(combatant):
                                     break
 
                                 # bonus action (pre-action)#       
                                 if not combatant.bonus_action_used:                                    
                                     bonus_action(combatant)     
 
-                                if not continue_turn(combatant):
+                                if not can_continue_turn(combatant):
                                     break
 
                                 # action #
                                 action(combatant)              
                                 
-                                if not continue_turn(combatant):
+                                if not can_continue_turn(combatant):
                                     break
 
                                 # bonus action (post-action)#       
                                 if not combatant.bonus_action_used:                                    
                                     bonus_action(combatant)            
 
-                                if not continue_turn(combatant):
+                                if not can_continue_turn(combatant):
                                     break
 
                                 # hasted action #
@@ -232,7 +234,7 @@ def simulate_battle():
                                             hasted_action(combatant)
                                             combatant_condition.granted_action_used = True
                                 
-                                if not continue_turn(combatant):
+                                if not can_continue_turn(combatant):
                                     break
 
                                 # additional abilities (action surge etc.)                                    

@@ -89,9 +89,7 @@ def action(combatant):
 
     if not combatant.action_used and not check_condition(combatant,condition.Restrained):
         print_output(combatant.name + ' is taking the Dash action!')
-        combatant.movement = combatant.speed
-        if check_condition(combatant,condition.Hasted):
-            combatant.movement = combatant.speed * 2                                                
+        combatant.movement = combatant.current_speed        
         use_movement(combatant)
         combatant.action_used = True
     
@@ -207,9 +205,7 @@ def bonus_action(combatant):
             if not combatant.bonus_action_used and combatant.action_used and not check_condition(combatant,condition.Restrained):         
                 print_output('<b>Bonus Action:</b>')
                 print_output(combatant.name + ' is using their Cunning Action, and taking the Dash bonus action!')
-                combatant.movement = combatant.speed
-                if check_condition(combatant,condition.Hasted):
-                    combatant.movement = combatant.speed * 2                                                
+                combatant.movement = combatant.current_speed                                                           
                 use_movement(combatant)
                 combatant.bonus_action_used = True
 
@@ -267,11 +263,15 @@ def hasted_action(combatant):
             hasted_action_used = True
 
     if not hasted_action_used and not check_condition(combatant,condition.Restrained):    
-        print_output(combatant.name + ' uses the Dash action as a Hasted action!')                        
-        combatant.movement = combatant.speed * 2                        
-        use_movement(combatant)                            
-        hasted_action_used = True
+        if combatant.current_speed != 0:
+            if combatant.current_speed <= combatant.base_speed:
+                combatant.current_speed = combatant.current_speed * 2
 
+            print_output(combatant.name + ' uses the Dash action as a Hasted action!')                                
+            combatant.movement = combatant.current_speed
+            use_movement(combatant)                            
+            hasted_action_used = True
+        
     hasted_action_used = True
 
 def use_bonus_action(combatant,action):

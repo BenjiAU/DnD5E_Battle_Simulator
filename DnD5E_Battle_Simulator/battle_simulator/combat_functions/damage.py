@@ -156,6 +156,7 @@ def deal_damage(combatant,target,damage,dealt_damage_type,magical,crit):
             pd = pending_damage()
             pd.pending_damage_type = dealt_damage_type
             pd.damage = damage
+            pd.crit = crit
             target.pending_damage().append(pd)
             # Update statistics for combatant
             combatant.total_damage_dealt += damage

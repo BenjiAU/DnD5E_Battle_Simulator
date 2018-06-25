@@ -95,7 +95,7 @@ def init_percy(init_combatants):
 
     percy.max_health = 149
     percy.armour_class = 18
-    percy.speed = 30
+    percy.base_speed = 30
     percy.proficiency = calc_proficiency(percy)
     percy.weapon_proficiency().append(weapon_type.Firearm)
     percy.weapon_proficiency().append(weapon_type.Longsword)
@@ -241,7 +241,7 @@ def init_grog(init_combatants):
     grog.fighting_style = fighting_style.Great_Weapon_Fighting
     grog.max_health = 248
     grog.armour_class = 17
-    grog.speed = 50
+    grog.base_speed = 50
     grog.proficiency = calc_proficiency(grog)
     grog.weapon_proficiency().append(weapon_type.Greataxe)
 
@@ -347,7 +347,7 @@ def init_vax(init_combatants):
 
     vax.max_health = 127
     vax.armour_class = 20
-    vax.speed = 30
+    vax.base_speed = 30
     vax.proficiency = calc_proficiency(vax)
     vax.weapon_proficiency().append(weapon_type.Dagger)
 
@@ -480,7 +480,7 @@ def init_kiri(init_combatants):
 
     kiri.max_health = 99999
     kiri.armour_class = 50
-    kiri.speed = 1000
+    kiri.base_speed = 1000
     kiri.proficiency = 999
     kiri.weapon_proficiency().append(weapon_type.Dagger)
 
@@ -556,7 +556,7 @@ def init_fjord(init_combatants):
     #fjord.fighting_style = fighting_style.Great_Weapon_Fighting
     fjord.max_health = 41
     fjord.armour_class = 17 #Shield?
-    fjord.speed = 30
+    fjord.base_speed = 30
     fjord.proficiency = calc_proficiency(fjord)
     fjord.weapon_proficiency().append(weapon_type.Longsword)       
     fjord.spellcaster = True
@@ -637,7 +637,7 @@ def init_beau(init_combatants):
     #beau.fighting_style = fighting_style.Great_Weapon_Fighting
     beau.max_health = 44
     beau.armour_class = 17
-    beau.speed = 40
+    beau.base_speed = 40
     beau.proficiency = calc_proficiency(beau)
     beau.weapon_proficiency().append(weapon_type.Unarmed)
     beau.weapon_proficiency().append(weapon_type.Quarterstaff)
@@ -712,7 +712,7 @@ def init_caleb(init_combatants):
     #caleb.fighting_style = fighting_style.Great_Weapon_Fighting
     caleb.max_health = 31
     caleb.armour_class = 11
-    caleb.speed = 30
+    caleb.base_speed = 30
     caleb.proficiency = calc_proficiency(caleb)
     caleb.spellcaster = True
     #Stats
@@ -791,7 +791,7 @@ def init_nott(init_combatants):
     #nott.fighting_style = fighting_style.Great_Weapon_Fighting
     nott.max_health = 40
     nott.armour_class = 16
-    nott.speed = 30
+    nott.base_speed = 30
     nott.proficiency = calc_proficiency(nott)
     nott.weapon_proficiency().append(weapon_type.Crossbow)    
     nott.weapon_proficiency().append(weapon_type.Shortsword)    
@@ -878,7 +878,7 @@ def init_jester(init_combatants):
     #jester.fighting_style = fighting_style.Great_Weapon_Fighting
     jester.max_health = 38
     jester.armour_class = 18
-    jester.speed = 30
+    jester.base_speed = 30
     jester.proficiency = calc_proficiency(jester)
     jester.weapon_proficiency().append(weapon_type.Handaxe)        
     jester.spellcaster = True
@@ -959,7 +959,7 @@ def init_molly(init_combatants):
     molly.fighting_style = fighting_style.Two_Weapon_Fighting
     molly.max_health = 59
     molly.armour_class = 15
-    molly.speed = 30
+    molly.base_speed = 30
     molly.proficiency = calc_proficiency(molly)
     molly.weapon_proficiency().append(weapon_type.Shortsword)    
 
@@ -1047,7 +1047,7 @@ def init_yasha(init_combatants):
     #yasha.fighting_style = fighting_style.Great_Weapon_Fighting
     yasha.max_health = 55
     yasha.armour_class = 14
-    yasha.speed = 40
+    yasha.base_speed = 40
     yasha.proficiency = calc_proficiency(yasha)
     yasha.weapon_proficiency().append(weapon_type.Greatsword)
     yasha.creature_feats().append(feat.Sentinel)
@@ -1138,7 +1138,7 @@ def init_arkhan(init_combatants):
     #Arkhan is wearing Heavy plate armour
     arkhan.armour_type = armour_type.Heavy
 
-    arkhan.speed = 40
+    arkhan.base_speed = 40
     arkhan.proficiency = calc_proficiency(arkhan)
     arkhan.weapon_proficiency().append(weapon_type.Greataxe)
 
@@ -1224,7 +1224,7 @@ def init_umbrasyl(init_combatants):
     umbrasyl.monster_type = monster_type.Ancient_Black_Dragon
     umbrasyl.max_health = 640
     umbrasyl.armour_class = 22
-    umbrasyl.speed = 40
+    umbrasyl.base_speed = 40
         
     #Stats
     umbrasylstats = statistic_block()
@@ -1323,7 +1323,7 @@ def init_doty(init_combatants):
     doty.monster_type = monster_type.Doty    
     doty.max_health = 42
     doty.armour_class = 12
-    doty.speed = 40
+    doty.base_speed = 40
         
     #Stats
     dotystats = statistic_block()
@@ -1413,7 +1413,7 @@ def init_hill_giant(init_combatants):
     hillgiant.monster_type = monster_type.Hill    
     hillgiant.max_health = 105
     hillgiant.armour_class = 13
-    hillgiant.speed = 40
+    hillgiant.base_speed = 40
         
     #Stats
     hillgiantstats = statistic_block()
@@ -1466,7 +1466,7 @@ def init_trinket(init_combatants):
     trinket.monster_type = monster_type.Bear    
     trinket.max_health = 64
     trinket.armour_class = 20
-    trinket.speed = 40
+    trinket.base_speed = 40
         
     #Stats
     trinketstats = statistic_block()

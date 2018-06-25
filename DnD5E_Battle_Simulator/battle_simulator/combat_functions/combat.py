@@ -369,10 +369,15 @@ def attack(combatant,weapon):
                                 # Cast a reaction spell? (i.e. Shield)
                                 selected_spell = select_spell(combatant.target,spell_casting_time.Reaction)                
                                 if selected_spell != None:                    
-                                    print_output(combatant.target.name + ' uses the Cast a Spell Reaction to cast ' + selected_spell.name + '!')
-                                    cast_spell(combatant.target,selected_spell)
-                                    combatant.target.reaction_used = True
-                                    totalAC = calc_total_AC(combatant.target)
+                                    # Check if the Shield will work, or not
+                                    if selected_spell.condition == condition.Shielded:
+                                        if totalAC + 5 > totalatk:
+                                            print_output('<b>Reaction:</b>')
+                                            print_indent(combatant.target.name + ' uses the Cast a Spell Reaction to cast ' + selected_spell.name + '!')
+                                            cast_spell(combatant.target,selected_spell)
+                                            combatant.target.reaction_used = True
+                                            print_indent(combatant.target.name + ' has spent their reaction to cast ' + selected_spell.name + '!')
+                                            totalAC = calc_total_AC(combatant.target)
 
                         if totalatk >= totalAC:
                             attack_hit = True
@@ -596,8 +601,8 @@ def attack(combatant,weapon):
     if attack_hit:
         # Stunning Strike - after a hit, spend 1 ki point to stun
         if combatant.stunning_strike and combatant.ki_points > 0:
-            # Do not burn stunning strike if target already stunned
-            if not check_condition(combatant.target,condition.Incapacitated):
+            # Do not burn stunning strike if target is not threatening:
+            if can_continue_turn(combatant.target):
                 combatant.ki_points -= 1
                 print_output(combatant.name + ' focuses on the flow of Ki in ' + combatant.target.name + '\'s body, and attempts a Stunning Strike! Current Ki Points: ' + repr(combatant.ki_points) + '/' + repr(combatant.max_ki_points))            
                 if savingthrow(combatant.target,saving_throw.Constitution,8+combatant.proficiency+wismod(combatant)):

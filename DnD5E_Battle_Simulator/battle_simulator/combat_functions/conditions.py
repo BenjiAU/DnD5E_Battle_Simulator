@@ -59,13 +59,17 @@ def inflict_condition(combatant,source,condition,duration=0,save_action=False,sa
 
 def remove_condition(combatant,condition_to_remove):
     if condition_to_remove == condition.Concentrating:
-        end_concentration(combatant)
-    
+        end_concentration(combatant)        
+
     # Mutate the condition list against the creature to exclude the condition/conditions to remove
     # On the off chance multiple instances of the same condition are recorded against the target this will remove all instances of them     
     if check_condition(combatant,condition_to_remove):
         combatant.creature_conditions()[:] = [combatant_condition for combatant_condition in combatant.creature_conditions() if not combatant_condition.condition == condition_to_remove]    
         print_indent( combatant.name + ' is no longer ' + condition_to_remove.name + '!')    
+        # Special rule of Haste - after expiry, inflict Stun
+        if condition_to_remove == condition.Hasted:
+            print_indent( 'As Haste wears off, ' + combatant.name + ' is Stunned!')        
+            inflict_condition(combatant,combatant,condition.Stunned,1)
 
 def get_concentration_condition(combatant):
     concentration_condition = None
@@ -109,6 +113,10 @@ def update_conditions(combatant):
             combatant_condition.duration -= 1 
             if combatant_condition.duration <= 0:
                 print_indent( 'The ' + combatant_condition.condition.name + ' condition affecting ' + combatant.name + ' wears off.')        
+            # Special rule of Haste - after expiry, inflict Stun
+                if combatant_condition.condition == condition.Hasted:
+                    print_indent( 'As Haste wears off, ' + combatant.name + ' is Stunned!')        
+                    inflict_condition(combatant,combatant,condition.Stunned,1)
 
     # Mutate the list to remove conditions that have expired
     combatant.creature_conditions()[:] = [combatant_condition for combatant_condition in combatant.creature_conditions() if combatant_condition.limited_duration and not combatant_condition.duration <= 0]

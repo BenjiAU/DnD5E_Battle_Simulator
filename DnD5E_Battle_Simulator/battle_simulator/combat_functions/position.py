@@ -17,12 +17,9 @@ def movement(combatant):
 
     # Only move if a target exists
     if combatant.target:
-        # combatant.movement #
-        combatant.movement = combatant.speed
-        if check_condition(combatant,condition.Hasted):
-            combatant.movement = combatant.movement * 2
-        if check_condition(combatant,condition.Slowed):
-            combatant.movement = combatant.movement / 2
+        # Set the available movement of the combatant based on their current speed
+        combatant.movement = combatant.current_speed
+        
         use_movement(combatant)
 
     combatant.movement_used = True
@@ -463,6 +460,7 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
                                 for feat in opportunity_attacker.creature_feats():
                                     if feat == feat.Sentinel:
                                         #Successful opportunity attacks reduce creatures speed to 0
+                                        combatant_before_move.current_speed = 0
                                         combatant_before_move.movement = 0
                                         print_double_indent(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                                                                        
                             print_indent(opportunity_attacker.name + ' has spent their reaction to make an Attack of Opportunity against ' + combatant_before_move.name)                                                    
@@ -471,3 +469,10 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
                             
                         # Reset target
                         opportunity_attacker.target = original_target
+
+def calculate_speed(combatant):
+    combatant.current_speed = combatant.base_speed
+    if check_condition(combatant,condition.Hasted):
+        combatant.current_speed = combatant.current_speed * 2
+    if check_condition(combatant,condition.Slowed):
+        combatant.current_speed = combatant.current_speed / 2
