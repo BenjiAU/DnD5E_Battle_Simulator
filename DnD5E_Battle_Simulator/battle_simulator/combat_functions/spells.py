@@ -321,11 +321,14 @@ def get_best_spellslot(combatant,spell):
 
     best_spellslot = None
     for spellslot in sorted_spells:
-        if spellslot.level >= spell.min_spellslot_level and spellslot.level <= spell.max_spellslot_level:
-            # 0 level spellslots are cantrips, and always returned. Otherwise we must have enough spells remaining
+        if spellslot.level >= spell.min_spellslot_level:
             if spellslot.current > 0:
-                if best_spellslot == None or spellslot.level > best_spellslot.level:
+                if best_spellslot == None:
                     best_spellslot = spellslot
+            if spellslot.level <= spell.max_spellslot_level:            
+                if spellslot.current > 0:
+                    if best_spellslot == None or spellslot.level > best_spellslot.level:
+                        best_spellslot = spellslot
 
     return best_spellslot
 

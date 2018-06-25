@@ -179,10 +179,10 @@ def heal_damage(combatant,healing):
 def calculate_reduction_after_attack(target,dealt_damage):
     modified_damage = dealt_damage
     # Use damage thresholds to help decide if reactions/effects should apply
-    if not check_condition(target,condition.Unconscious) and not check_condition(target,condition.Incapacitated):
+    if can_use_reaction(target):
         if modified_damage > characterlevel(target):
             # Uncanny Dodge (can only occur after being victim of an Attack you can see - reduce all the attack damage by half)
-            if target.uncanny_dodge and not target.reaction_used:
+            if target.uncanny_dodge:
                 # Don't waste dodge on small hits                
                 reduction = int(dealt_damage/2)           
                 print_output('<b>Reaction:</b>')
@@ -212,7 +212,7 @@ def resolve_damage(combatant):
         
         if combatant.current_health >= 0 and not check_condition(combatant,condition.Unconscious):
             #Use Reaction if it can do anything
-            if not combatant.reaction_used:
+            if can_use_reaction(combatant):            
                 # Stone's Endurance
                 if combatant.stones_endurance:
                     if not combatant.stones_endurance_used:

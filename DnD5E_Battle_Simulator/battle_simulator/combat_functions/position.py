@@ -440,36 +440,34 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
     enemies = get_living_enemies(combatant_before_move)
     for opportunity_attacker in enemies:                
         #Only conscious enemies with capacity can make an opportunity attack
-        if not check_condition(opportunity_attacker,condition.Unconscious) and not check_condition(opportunity_attacker,condition.Incapacitated):
-            # Evaluate only if reaction available
-            if not opportunity_attacker.reaction_used:
-                # Only provoke opportunity attacks for melee weapons
-                if opportunity_attacker.main_hand_weapon != None:
-                    if opportunity_attacker.main_hand_weapon.range == 0:
-                        # If the enemy is currently adjacent, but would not be after movement, condition is fulfilled
-                        # Note - this will not work with Reach weapons, will need additional conditions to handle Reach
-                        # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
-                        if is_adjacent(opportunity_attacker,combatant_before_move) and not is_adjacent(opportunity_attacker,combatant_after_move):                    
-                            #Swap targets if necessary
-                            original_target = opportunity_attacker.target 
-                            if opportunity_attacker.target != combatant_before_move:                            
-                                opportunity_attacker.target = combatant_before_move
+        if can_use_reactions(opportunity_attacker):            
+            # Only provoke opportunity attacks for melee weapons
+            if opportunity_attacker.main_hand_weapon != None:
+                if opportunity_attacker.main_hand_weapon.range == 0:
+                    # If the enemy is currently adjacent, but would not be after movement, condition is fulfilled
+                    # Note - this will not work with Reach weapons, will need additional conditions to handle Reach
+                    # This won't play nice with Multiattack? May need a new function to evaluate if any instant-equippable weapon would trigger the OA
+                    if is_adjacent(opportunity_attacker,combatant_before_move) and not is_adjacent(opportunity_attacker,combatant_after_move):                    
+                        #Swap targets if necessary
+                        original_target = opportunity_attacker.target 
+                        if opportunity_attacker.target != combatant_before_move:                            
+                            opportunity_attacker.target = combatant_before_move
 
-                            # Make the attack out of sequence
-                            print_output('<b>Reaction:</b>')
-                            print_output(combatant_before_move.name + '\'s movement (' + position_text(combatant_before_move.xpos,combatant_before_move.ypos) + ') has triggered an Attack of Opportunity from ' + opportunity_attacker.name + '! (' + position_text(opportunity_attacker.xpos,opportunity_attacker.ypos) + ')')                            
-                            if check_condition(combatant_before_move,condition.Disengaged):
-                                print_indent(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged! Their Reaction was not consumed.')
-                            else:
-                                if combat.attack(opportunity_attacker,opportunity_attacker.main_hand_weapon):
-                                    for feat in opportunity_attacker.creature_feats():
-                                        if feat == feat.Sentinel:
-                                            #Successful opportunity attacks reduce creatures speed to 0
-                                            combatant_before_move.movement = 0
-                                            print_double_indent(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                                                                        
-                                print_indent(opportunity_attacker.name + ' has spent their reaction to make an Attack of Opportunity against ' + combatant_before_move.name)                                                    
-                                # Consume reaction
-                                opportunity_attacker.reaction_used = True
+                        # Make the attack out of sequence
+                        print_output('<b>Reaction:</b>')
+                        print_output(combatant_before_move.name + '\'s movement (' + position_text(combatant_before_move.xpos,combatant_before_move.ypos) + ') has triggered an Attack of Opportunity from ' + opportunity_attacker.name + '! (' + position_text(opportunity_attacker.xpos,opportunity_attacker.ypos) + ')')                            
+                        if check_condition(combatant_before_move,condition.Disengaged):
+                            print_indent(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged! Their Reaction was not consumed.')
+                        else:
+                            if combat.attack(opportunity_attacker,opportunity_attacker.main_hand_weapon):
+                                for feat in opportunity_attacker.creature_feats():
+                                    if feat == feat.Sentinel:
+                                        #Successful opportunity attacks reduce creatures speed to 0
+                                        combatant_before_move.movement = 0
+                                        print_double_indent(opportunity_attacker.name + ' uses their Sentinel feat to reduce ' + combatant_before_move.name + '\'s remaining movement to 0!')                                                                        
+                            print_indent(opportunity_attacker.name + ' has spent their reaction to make an Attack of Opportunity against ' + combatant_before_move.name)                                                    
+                            # Consume reaction
+                            opportunity_attacker.reaction_used = True
                             
-                            # Reset target
-                            opportunity_attacker.target = original_target
+                        # Reset target
+                        opportunity_attacker.target = original_target

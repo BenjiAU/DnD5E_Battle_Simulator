@@ -254,3 +254,16 @@ def continue_turn(combatant):
     if not combatant.alive:
         return False
     return True
+
+def can_use_reaction(combatant):
+    if check_condition(combatant,condition.Unconscious):
+        return False
+    if check_condition(combatant,condition.Incapacitated):
+        return False
+    if check_condition(combatant,condition.Slowed):
+        return False
+    if not combatant.alive:
+        return False
+    if combatant.reaction_used:
+        return False
+    return True
