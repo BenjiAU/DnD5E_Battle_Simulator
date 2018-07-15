@@ -26,6 +26,8 @@ def use_equipment(combatant):
                 #Inflict the Haste condition from the Equipment object
                 # Haste lasts 1 minute (10 rounds)
                 inflict_condition(combatant,eq,condition.Hasted,10)
+                # Force update on speed (accounting for any used movement)
+                combatant.current_speed = combatant.current_speed * 2
                 combatant.bonus_action_used = True
 
         # Blade Return (Belt of Blade Returning - does not use an action/bonus action, just happens at the start of each round)

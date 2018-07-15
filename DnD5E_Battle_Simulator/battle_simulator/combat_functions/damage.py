@@ -232,6 +232,7 @@ def resolve_damage(combatant):
                             combatant.reaction_used = True                
                         
             combatant.current_health = max(combatant.current_health - total_damage,0)
+
             #Check Concentration
             if check_condition(combatant,condition.Concentrating):
                 concentration_check_DC = max(10,round(total_damage/2))

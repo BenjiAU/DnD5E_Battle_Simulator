@@ -273,7 +273,7 @@ def cast_spell(combatant,spell,crit = None):
                             calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)                
                     # No saving throw defined - damage applies automatically (i.e. Divine Smite)
                     else:
-                        calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)            
+                        calculate_spell_damage(combatant,combatant.target,spell,spellslot,crit)            
                     i += 1
            
         #Silently update concentration; if all targets saved aagainst the effect we need to immediately stop concentrating
@@ -284,7 +284,7 @@ def cast_spell(combatant,spell,crit = None):
             if spellslot.level != 0 and spellslot.current == 0:
                 print_output(combatant.name + ' has no ' + numbered_list(spellslot.level) + ' level spellslots remaining!')
     else:
-        print_error('Error: ' + combatant.name + ' was unable to find an appropriate spellslot to cast ' + spell.name)
+        print_indent(combatant.name + ' wants to cast ' + spell.name + ', but has no appropriate spellslots remaining!')
 
 def spell_attack(combatant,target,spell,spellslot):
     advantage = False
