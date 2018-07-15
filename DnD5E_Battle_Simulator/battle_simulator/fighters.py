@@ -19,6 +19,7 @@ def initialise_combatants(init_combatants):
     
     init_hill_giant(init_combatants)
     init_venom_troll(init_combatants)
+    init_clockwork_warden(init_combatants)
     init_arkhan(init_combatants)
     init_umbrasyl(init_combatants)
     
@@ -1542,6 +1543,171 @@ def init_venom_troll(init_combatants):
     venomtroll.events().append(regeneration)
 
     init_combatants.append(venomtroll)    
+
+
+def init_clockwork_warden(init_combatants):
+
+    clockworkwarden = creature()
+
+    clockworkwarden.notes = "The whirling sphere of blades from C2E25"
+
+    clockworkwarden.creature_type = creature_type.Monster
+    clockworkwarden.fullname = "Klef Tinkertop's Clockwork Warden"
+    clockworkwarden.name = "Clockwork Warden"
+    clockworkwarden.race = race.Construct
+    clockworkwarden.monster_type = monster_type.Automaton
+    clockworkwarden.max_health = 150
+    clockworkwarden.armour_class = 20
+    clockworkwarden.base_speed = 40
+        
+    #Stats
+    clockworkwardenstats = statistic_block()
+    clockworkwardenstats.str = 21
+    clockworkwardenstats.dex = 8
+    clockworkwardenstats.con = 19
+    clockworkwardenstats.intel = 5
+    clockworkwardenstats.wis = 9
+    clockworkwardenstats.cha = 6
+
+    clockworkwarden.stats = clockworkwardenstats
+    
+    #Saves
+    clockworkwardensaves = saving_throw_block()    
+    
+    clockworkwarden.saves = clockworkwardensaves
+
+    #Ability Checks
+    clockworkwardenchecks = ability_check_block()    
+
+    clockworkwarden.checks = clockworkwardenchecks
+
+    #clockworkwarden's weapons
+    claw = weapon()
+    claw.name = "Claw"
+    claw.weapon_type = weapon_type.Natural;
+    claw.range = 0
+    
+    claw.damage_die = 8
+    claw.damage_die_count = 2
+    claw.weapon_damage_type = damage_type.Slashing
+    
+    claw.bonus_damage_die = 8
+    claw.bonus_damage_die_count = 2
+    claw.bonus_damage_type = damage_type.Poison
+    
+    claw.magic_to_hit_modifier = 3
+
+    clockworkwarden.weapon_inventory().append(claw)
+
+    bite = weapon()
+    bite.name = "Bite"
+    bite.weapon_type = weapon_type.Natural;
+    bite.range = 0
+    
+    bite.damage_die = 8
+    bite.damage_die_count = 2
+    bite.weapon_damage_type = damage_type.Slashing
+    
+    bite.bonus_damage_die = 8
+    bite.bonus_damage_die_count = 2
+    bite.bonus_damage_type = damage_type.Poison
+    
+    bite.magic_to_hit_modifier = 3
+
+    clockworkwarden.weapon_inventory().append(bite)
+
+    new_spell = spell()
+    new_spell.name = "Shrapnel Blast"
+    clockworkwarden.spell_list().append(new_spell)
+
+    shed_armour = spell()
+    shed_armour.name = "Shed Armour"
+    clockworkwarden.spell_list().append(shed_armour)
+
+    new_event = event()
+    new_event.trigger = event_trigger.OnSufferDamage    
+    new_event.invoke = event_invoke.Spell
+    new_event.spell = shed_armour
+    clockworkwarden.events().append(new_event)
+
+    regeneration = event()
+    regeneration.trigger = event_trigger.OnBeginTurn    
+    regeneration.invoke = event_invoke.Feature
+    regeneration.self_heal = 10
+    clockworkwarden.events().append(regeneration)
+
+    init_combatants.append(clockworkwarden)    
+
+# The Iron Shepherds
+def init_lorenzo(init_combatants):
+
+    lorenzo = creature()
+
+    lorenzo.notes = "Tealeaf's Bane"
+
+    lorenzo.creature_type = creature_type.Monster
+    lorenzo.fullname = "Lorenzo, Leader of the Iron Shepherds"
+    lorenzo.name = "Lorenzo"
+    lorenzo.race = race.Giant
+    lorenzo.monster_type = monster_type.Oni
+    lorenzo.max_health = 110
+    lorenzo.armour_class = 16
+    lorenzo.base_speed = 30
+        
+    #Stats
+    lorenzostats = statistic_block()
+    lorenzostats.str = 19
+    lorenzostats.dex =11
+    lorenzostats.con = 16
+    lorenzostats.intel = 14
+    lorenzostats.wis = 12
+    lorenzostats.cha = 15
+
+    lorenzo.stats = lorenzostats
+    
+    #Saves
+    lorenzosaves = saving_throw_block()    
+    lorenzosaves.dex = 3
+    lorenzosaves.con = 6
+    lorenzosaves.wis = 4
+    lorenzosaves.cha = 5
+    lorenzo.saves = lorenzosaves
+
+    #Ability Checks
+    lorenzochecks = ability_check_block()    
+
+    lorenzo.checks = lorenzochecks
+
+    #lorenzo's weapons
+    glaive = weapon()
+    glaive.name = "Glaive"
+    glaive.weapon_type = weapon_type.Greataxe;
+    glaive.range = 0
+    
+    glaive.damage_die = 10
+    glaive.damage_die_count = 2
+    glaive.weapon_damage_type = damage_type.Slashing
+    
+    glaive.bonus_damage_die = 10
+    glaive.bonus_damage_die_count = 1
+    glaive.bonus_damage_type = damage_type.Slashing
+    
+    glaive.reach = True
+    glaive.magic_to_hit_modifier = 3
+
+    lorenzo.weapon_inventory().append(glaive)
+
+    new_spell = spell()
+    new_spell.name = "Cone of Cold"
+    lorenzo.spell_list().append(new_spell)
+
+    regeneration = event()
+    regeneration.trigger = event_trigger.OnBeginTurn    
+    regeneration .invoke = event_invoke.Feature
+    regeneration.self_heal = 10
+    lorenzo.events().append(regeneration)
+
+    init_combatants.append(lorenzo)    
 
 def init_trinket(init_combatants):
 

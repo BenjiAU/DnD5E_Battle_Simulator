@@ -269,14 +269,18 @@ class monster_type(Enum):
         return str(self.value)        
     #Constructs
     Doty = auto()
+    Automaton = auto()
     #Giants
     Hill = auto()
+    Oni = auto()
     #Beasts
     Bear = auto()
     #Dragons
     Ancient_Black_Dragon = auto()
     #Trolls
     Venom = auto()
+    
+
 class feat(Enum):
     def __str__(self):
         return str(self.value)    
