@@ -710,7 +710,7 @@ def init_caleb(init_combatants):
 
     caleb.notes = "Transmutation Wizard"
 
-    caleb.fullname = "Caleb Widowgast"
+    caleb.fullname = "Caleb Widogast"
     caleb.name = "Caleb"
     caleb.race = race.Human
     caleb.creature_type = creature_type.Player
