@@ -46,8 +46,8 @@ def resolve_hemo_damage(combatant):
         resolve_damage(combatant)
         resolve_fatality(combatant)
 
-def calculate_spell_damage(combatant,target,spell,spellslot,crit,multiplier=1):
-    print_indent( 'Rolling spell damage:')                        
+def roll_spell_damage(combatant,spell,spellslot,crit):
+    print_indent( 'Rolling spell damage:')         
     spell_damage = 0
     if spell.damage_die > 0:
         # Start with base damage of spell
@@ -55,8 +55,7 @@ def calculate_spell_damage(combatant,target,spell,spellslot,crit,multiplier=1):
             die_damage = roll_die(spell.damage_die)
             print_double_indent( combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die) + ' (Spell Damage)')
             spell_damage += die_damage
-
-        #Add additional damage for levels of expended spell slot
+                    #Add additional damage for levels of expended spell slot
         if spellslot != None:
             if spellslot.level > spell.min_spellslot_level:
                 # If the spell gains no benefit for spells higher than the maximum, we still burn the higher slot, but only get benefit from the maximum against the spell                
@@ -71,19 +70,26 @@ def calculate_spell_damage(combatant,target,spell,spellslot,crit,multiplier=1):
                         print_double_indent( combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die_per_spell_slot) + ' (Additional Spell Damage from Spell Slot)')
                         spell_damage += die_damage
 
-        #Add bonus damage
-        if combatant.target.race == spell.bonus_damage_target:
-            for x in range(0,spell.bonus_damage_die_count):
-                die_damage = roll_die(spell.bonus_damage_die)
-                spell_damage += die_damage
+        # Add flat damage
+        spell_damage += spell.flat_damage
 
-    # Add flat damage
-    spell_damage += spell.flat_damage
+        #Double dice if crit
+        if crit:
+            spell_damage = spell_damage * 2
 
-    #Double dice if crit
-    if crit:
-        spell_damage = spell_damage * 2
+    return spell_damage
+
+def calculate_spell_damage(combatant,target,spell,spellslot,crit,multiplier=1,spell_damage = 0):    
+    if spell_damage == 0:                       
+        spell_damage = roll_spell_damage(combatant,spell,spellslot,crit)
         
+    #Add bonus damage
+    if combatant.target.race == spell.bonus_damage_target:
+        for x in range(0,spell.bonus_damage_die_count):
+            die_damage = roll_die(spell.bonus_damage_die)
+            print_double_indent( combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die) + ' (Spell Bonus Damage Against ' + spell.bonus_damage_target + ')')
+            spell_damage += die_damage
+
     # Apply multiplier 
     spell_damage = int(spell_damage * multiplier)
 

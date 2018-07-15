@@ -166,7 +166,7 @@ def cast_spell(combatant,spell,crit = None):
             if spell.saving_throw_attribute != 0:
                 print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + combatant.target.name)
                 if savingthrow(combatant.target,savetype,spell_save_DC(combatant,spell)):            
-                    print_output(combatant.target.name + ' resists the effect of the ' + spell.name + ' spell!')
+                    print_indent(combatant.target.name + ' resists the effect of the ' + spell.name + ' spell!')
                 else:
                     inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
                     #Debuff spells may also have a damage component
@@ -189,20 +189,22 @@ def cast_spell(combatant,spell,crit = None):
                 xorigin = comabtant.xpos
                 yorigin = combatant.ypos
             
-            affected_targets = calculate_area_effect(combatant,xorigin,yorigin,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length,True)   
-                
+            affected_targets = calculate_area_effect(combatant,xorigin,yorigin,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length,True)                   
+            #Pre-roll spell damage
+            aoe_spell_damage = roll_spell_damage(combatant,spell,spellslot,False)           
+
             for affected_target in affected_targets:    
                 print_output(affected_target.name + ' is in the affected area (located at (' + repr(affected_target.xpos) + ',' + repr(affected_target.ypos) + ')')   
                 # Check if a saving throw is defined
                 if spell.saving_throw_attribute != 0:
                     print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + combatant.target.name)
                     if savingthrow(combatant.target,savetype,spell_save_DC(combatant,spell)):            
-                        print_output(combatant.target.name + ' resists the effect of the ' + spell.name + ' spell!')
+                        print_indent(combatant.target.name + ' resists the effect of the ' + spell.name + ' spell!')
                     else:
                         inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
                         #Debuff spells may also have a damage component
                         if spell.damage_die != 0:
-                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False)                             
+                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False,1,aoe_spell_damage)                             
                 else:
                     # No saving throw defined, automatic success
                     inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
@@ -220,28 +222,30 @@ def cast_spell(combatant,spell,crit = None):
                 yorigin = combatant.ypos
 
             affected_targets = calculate_area_effect(combatant,xorigin,yorigin,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length,True)   
+            #Pre-roll spell damage
+            aoe_spell_damage = roll_spell_damage(combatant,spell,spellslot,False)     
 
             # Apply damage to targets
             for affected_target in affected_targets:    
-                print_output(affected_target.name + ' is in the affected area (located at (' + repr(affected_target.xpos) + ',' + repr(affected_target.ypos) + ')')   
+                print_output(affected_target.name + ' is in the affected area (located at (' + repr(affected_target.xpos) + ',' + repr(affected_target.ypos) + ')')                              
                 if spell.saving_throw_attribute != 0:
                     if savingthrow(affected_target,spell.saving_throw_attribute,spell_save_DC(combatant,spell)):
                         #If target has evasion and saves, nothing happens
                         if (spell.saving_throw_attribute == saving_throw.Dexterity and affected_target.evasion) or (spell.saving_throw_damage_multiplier == 0):
-                            print_output(affected_target.name + ' resists all damage from the spell!') 
+                            print_indent(affected_target.name + ' resists all damage from the spell!') 
                         else:                
-                            print_output(affected_target.name + ' resists some damage from the spell!') 
-                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False,spell.saving_throw_damage_multiplier)                
+                            print_indent(affected_target.name + ' resists some damage from the spell!') 
+                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False,spell.saving_throw_damage_multiplier,aoe_spell_damage)                
                     else:
                         if spell.saving_throw_attribute == saving_throw.Dexterity and affected_target.evasion:
-                            print_output(affected_target.name + ' avoids half the damage thanks to Evasion!')
-                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False,0.5)              
+                            print_indent(affected_target.name + ' avoids half the damage thanks to Evasion!')
+                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False,0.5,aoe_spell_damage)              
                         else:
                             # Full damage
-                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False) 
+                            calculate_spell_damage(combatant,affected_target,spell,spellslot,False,1,aoe_spell_damage) 
                 else:
                     # Damage automatically applies
-                    calculate_spell_damage(combatant,affected_target,spell,spellslot,False)         
+                    calculate_spell_damage(combatant,affected_target,spell,spellslot,False,1,aoe_spell_damage)                    
         # Direct damage spell
         elif spell.category == spell_category.Damage:
             if spell.spell_attack:
