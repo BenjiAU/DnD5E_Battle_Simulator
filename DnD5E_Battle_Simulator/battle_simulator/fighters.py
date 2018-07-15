@@ -25,7 +25,10 @@ def initialise_combatants(init_combatants):
         
     init_hill_giant(init_combatants)
     init_venom_troll(init_combatants)
+    
     init_lorenzo(init_combatants)
+    init_wan(init_combatants)
+    init_prodo(init_combatants)
 
 def initialise_teams(combatants,teams):
     vm = team()
@@ -63,7 +66,7 @@ def initialise_teams(combatants,teams):
     vmnames = ["Grog","Vax","Percy","Doty","Trinket"]
     m9names = ["Fjord","Beau","Caleb","Nott","Jester","Molly","Yasha","Kiri"]
     monsternames = ["Umbrasyl","Hill Giant","Arkhan","Venom Troll"]
-    ironnames = ["Lorenzo"]
+    ironnames = ["Lorenzo","Wan","Prodo"]
     #Iterate through all combatants and initially assign them to team
     for combatant in combatants:
         if combatant.name in vmnames:
@@ -1719,6 +1722,163 @@ def init_lorenzo(init_combatants):
     lorenzo.events().append(regeneration)
 
     init_combatants.append(lorenzo)    
+
+def init_wan(init_combatants):
+    wan = creature()
+
+    wan.notes = "Path of the Beserker Barbarian"
+
+    wan.fullname = "Wan"
+    wan.name = "Wan"
+    wan.race = race.Human
+    wan.creature_type = creature_type.Player
+
+    barbarian_class = player_class_block()
+    barbarian_class.player_class = player_class.Barbarian
+    barbarian_class.player_subclass = player_subclass.PathOfTheBeserker
+    barbarian_class.player_class_level = 5
+    wan.player_classes().append(barbarian_class)
+
+    #wan.fighting_style = fighting_style.Great_Weapon_Fighting
+    wan.max_health = 55
+    wan.armour_class = 14
+    wan.base_speed = 40
+    wan.proficiency = calc_proficiency(wan)
+    wan.weapon_proficiency().append(weapon_type.Greatsword)
+
+    #Stats
+    wanstats = statistic_block()
+    wanstats.str = 17
+    wanstats.dex = 15
+    wanstats.con = 14
+    wanstats.intel = 12
+    wanstats.wis = 9
+    wanstats.cha = 7
+
+    wan.stats = wanstats
+    
+    #Saves
+    wansaves = saving_throw_block()    
+    wansaves.str = 6
+    wansaves.dex = 2
+    wansaves.con = 5
+    wansaves.intel = 1
+    wansaves.wis = -1
+    wansaves.cha = -2
+    
+    wan.saves = wansaves
+
+    #Ability Checks
+    wanchecks = ability_check_block()
+    
+    wan.checks = wanchecks    
+
+    #wan's weapons
+    greatsword = weapon()
+    greatsword.name = "Greatsword"
+    greatsword.weapon_type = weapon_type.Greatsword;
+    greatsword.range = 0
+    
+    greatsword.damage_die = 6
+    greatsword.damage_die_count = 2
+    greatsword.weapon_damage_type = damage_type.Slashing        
+
+    greatsword.heavy = True
+    greatsword.two_handed = True
+
+    wan.weapon_inventory().append(greatsword)
+
+    #wan's gear
+    # combat stats # 
+
+    init_combatants.append(wan)    
+
+def init_prodo(init_combatants):   
+    prodo = creature()
+
+    prodo.notes = "Assassin Rogue"
+
+    prodo.fullname = "Prodo"
+    prodo.name = "Prodo"
+    prodo.race = race.Halfling
+    prodo.creature_type = creature_type.Player
+
+    rogue_class = player_class_block()
+    rogue_class.player_class = player_class.Rogue
+    rogue_class.player_subclass = player_subclass.Assassin    
+    rogue_class.player_class_level = 5
+    prodo.player_classes().append(rogue_class)
+
+    #prodo.fighting_style = fighting_style.Great_Weapon_Fighting
+    prodo.max_health = 40
+    prodo.armour_class = 16
+    prodo.base_speed = 30
+    prodo.proficiency = calc_proficiency(prodo)
+    prodo.weapon_proficiency().append(weapon_type.Shortbow)    
+    prodo.weapon_proficiency().append(weapon_type.Shortsword)    
+
+    #Stats
+    prodostats = statistic_block()
+    prodostats.str = 11
+    prodostats.dex = 19
+    prodostats.con = 14
+    prodostats.intel = 16
+    prodostats.wis = 11
+    prodostats.cha = 5
+
+    prodo.stats = prodostats
+    
+    #Saves
+    prodosaves = saving_throw_block()    
+    prodosaves.str = 0
+    prodosaves.dex = 7
+    prodosaves.con = 2
+    prodosaves.intel = 6
+    prodosaves.wis = 0
+    prodosaves.cha = -3
+    
+    prodo.saves = prodosaves
+
+    #Ability Checks
+    prodochecks = ability_check_block()
+    
+    prodo.checks = prodochecks    
+
+    #prodo's weapons
+    shortbow = weapon()
+    shortbow.name = "Shortbow"
+    shortbow.weapon_type = weapon_type.Shortbow;
+    shortbow.range = 30
+    shortbow.long_range = 120
+    
+    shortbow.damage_die = 6
+    shortbow.damage_die_count = 1
+    shortbow.weapon_damage_type = damage_type.Piercing
+    
+    shortbow.light = True
+    shortbow.loading = True 
+    
+    prodo.weapon_inventory().append(shortbow)
+
+    shortsword = weapon()
+    shortsword.name = "Shortsword"
+    shortsword.weapon_type = weapon_type.Shortsword
+    shortsword.range = 0    
+    
+    shortsword.damage_die = 6
+    shortsword.damage_die_count = 1
+    shortsword.weapon_damage_type = damage_type.Piercing
+    
+    shortsword.finesse = True
+    shortsword.light = True 
+
+    prodo.weapon_inventory().append(shortsword)
+
+    #prodo's gear
+    # combat stats # 
+
+    init_combatants.append(prodo)    
+
 
 def init_trinket(init_combatants):
 

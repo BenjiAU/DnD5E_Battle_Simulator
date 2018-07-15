@@ -239,9 +239,11 @@ class race(Enum):
     #PC Races
     Aasamir = auto()
     Dragonborn = auto()
+    Dwarf = auto()
     Human = auto()
     Half_Elf = auto()
     Half_Orc = auto()
+    Halfling = auto()
     Gnome = auto()
     Goblin = auto()
     Goliath = auto() 
@@ -294,16 +296,20 @@ class weapon_type(Enum):
     def __str__(self):
         return str(self.value)
     Firearm = auto()
-    Dagger = auto()
-    Longbow = auto()
+    Shortbow = auto()
+    Longbow = auto()    
     Crossbow = auto()
+
+    Dagger = auto()
     Handaxe = auto()
-    Greataxe = auto()
     Shortsword = auto()
-    Scimitar = auto()
     Longsword = auto()
+    Scimitar = auto()
+
+    Greataxe = auto()
     Greatsword = auto()
     Quarterstaff = auto()
+
     Natural = auto()
     Unarmed = auto()
 
