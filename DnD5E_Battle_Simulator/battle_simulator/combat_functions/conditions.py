@@ -69,6 +69,7 @@ def remove_condition(combatant,condition_to_remove):
         if condition_to_remove == condition.Hasted:
             print_indent( 'As Haste wears off, ' + combatant.name + ' is Stunned!')        
             inflict_condition(combatant,combatant,condition.Stunned,1)
+            inflict_condition(combatant,combatant,condition.Incapacitated,1)
 
 def get_concentration_condition(combatant):
     concentration_condition = None
@@ -116,6 +117,7 @@ def update_conditions(combatant):
                 if combatant_condition.condition == condition.Hasted:
                     print_indent( 'As Haste wears off, ' + combatant.name + ' is Stunned!')        
                     inflict_condition(combatant,combatant,condition.Stunned,1)
+                    inflict_condition(combatant,combatant,condition.Incapacitated,1)
 
     # Mutate the list to remove conditions that have expired
     combatant.creature_conditions()[:] = [combatant_condition for combatant_condition in combatant.creature_conditions() if combatant_condition.limited_duration and not combatant_condition.duration <= 0]
