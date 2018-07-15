@@ -98,7 +98,7 @@ def calculate_spell_damage(combatant,target,spell,spellslot,crit,multiplier=1):
     resolve_damage(target)
 
     # Resolve fatality immediately for spell effects
-    resolve_fatality(combatant.target)
+    resolve_fatality(target)
 
 def resolve_spell_healing(combatant,target,spell,spellslot):
     print_indent( 'Rolling spell healing:')                        
