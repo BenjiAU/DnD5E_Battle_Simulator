@@ -1231,6 +1231,7 @@ def init_umbrasyl(init_combatants):
     umbrasyl.notes = "Ancient Black Dragon"
 
     umbrasyl.creature_type = creature_type.Monster
+    umbrasyl.challenge_rating = 21
     umbrasyl.fullname = "Umbrasyl"
     umbrasyl.name = "Umbrasyl"
     umbrasyl.race = race.Dragon    
@@ -1330,6 +1331,7 @@ def init_doty(init_combatants):
     doty.notes = "Automaton of Taryon Darrington"
 
     doty.creature_type = creature_type.Monster
+    doty.challenge_rating = 2
     doty.fullname = "Doty 2.0"
     doty.name = "Doty"
     doty.race = race.Construct
@@ -1420,6 +1422,7 @@ def init_hill_giant(init_combatants):
     hillgiant.notes = "The formidable Hill Giant from C2E18"
 
     hillgiant.creature_type = creature_type.Monster
+    hillgiant.challenge_rating = 5
     hillgiant.fullname = "Hill Giant"
     hillgiant.name = "Hill Giant"
     hillgiant.race = race.Giant
@@ -1472,6 +1475,7 @@ def init_venom_troll(init_combatants):
     venomtroll.notes = "The grotesque venom troll from C2E21-E23"
 
     venomtroll.creature_type = creature_type.Monster
+    venomtroll.challenge_rating = 6
     venomtroll.fullname = "Venom Troll"
     venomtroll.name = "Venom Troll"
     venomtroll.race = race.Troll
@@ -1887,6 +1891,7 @@ def init_trinket(init_combatants):
     trinket.notes = "Useless"
 
     trinket.creature_type = creature_type.Monster
+    trinket.challenge_rating = 2
     trinket.fullname = "Trinket"
     trinket.name = "Trinket"
     trinket.race = race.Beast
