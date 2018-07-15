@@ -956,7 +956,7 @@ def init_jester(init_combatants):
 def init_molly(init_combatants):
     molly = creature()
 
-    molly.notes = "Ghostslayer Blood Hunter (RIP)"
+    molly.notes = "Ghostslayer Blood Hunter"
 
     molly.fullname = "Mollymauk Tealeaf"
     molly.name = "Molly"

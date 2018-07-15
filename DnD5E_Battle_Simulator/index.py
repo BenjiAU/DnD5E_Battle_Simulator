@@ -37,8 +37,8 @@ def index():
     # End the Output div
     html += Markup('</div>')
     data = {
-        "title": 'Critical Role Battle Simulator V1.0',
-        "msg":'Warning - content on this website may contain spoilers for one or both campaigns of Critical Role.',
+        "title": 'Critical Role Battle Simulator V2.0',
+        "msg":'Warning - content on this website may contain spoilers for both campaigns of Critical Role, in the form of revealing character names, statistics, and items that may not be revealed in earlier episodes. Please proceed with caution if you are not up to date!',
         "process_form": process_form(), 
         "filename": filename,
         "combatants": html_combatants,
