@@ -100,6 +100,11 @@ def reset_combatants(init_combatants):
             if combatant.monster_type == monster_type.Hill:                            
                 combatant.multiattack = ["Greatclub","Greatclub"]
             
+            ### Venom Troll
+            if combatant.monster_type == monster_type.Oni:
+                combatant.multiattack = ["Glaive","Glaive"]
+
+            ### Venom Troll
             if combatant.monster_type == monster_type.Venom:                            
                 combatant.multiattack = ["Claw","Bite"]
             

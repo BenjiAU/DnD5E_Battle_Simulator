@@ -12,11 +12,12 @@ def on_begin_turn_event(combatant):
         if event.trigger == event_trigger.OnBeginTurn:
             execute = True
 
-        if execute:
-            print_output('<b>-------------Event----------</b>')
+        if execute:            
             if event.invoke == event_invoke.Feature:                
-                print_output('At the start of their turn, ' + combatant.name + ' regenerates health!')      
-                damage.heal_damage(combatant,event.self_heal)
+                if combatant.current_health > 0 and combatant.current_health < combatant.max_health:
+                    print_output('<b>-------------Event----------</b>')
+                    print_output('At the start of their turn, ' + combatant.name + ' regenerates health!')      
+                    damage.heal_damage(combatant,event.self_heal)
     
 def on_damage_taken_event(combatant):    
     for event in combatant.events():
@@ -26,8 +27,8 @@ def on_damage_taken_event(combatant):
                 if x.pending_damage_type in event.requirements:
                     execute = True
         if execute:
-            print_output('<b>-------------Event----------</b>')
             if event.invoke == event_invoke.Spell:                
+                print_output('<b>-------------Event----------</b>')
                 print_output('Upon suffering damage, something happens to ' + combatant.name + ' and they cast the ' + event.spell.name + ' spell!')      
                 spells.cast_spell(combatant,event.spell)
     

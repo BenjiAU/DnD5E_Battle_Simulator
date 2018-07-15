@@ -6,25 +6,26 @@ import random
 def initialise_combatants(init_combatants):
     init_percy(init_combatants)
     init_grog(init_combatants)
-    init_vax(init_combatants)
+    init_vax(init_combatants)    
+    init_doty(init_combatants)
+    init_trinket(init_combatants)
 
-    init_kiri(init_combatants)
+        #init_clockwork_warden(init_combatants)
+    init_arkhan(init_combatants)
+    init_umbrasyl(init_combatants)
+    
+    #init_kiri(init_combatants)
     init_fjord(init_combatants)
     init_beau(init_combatants)
     init_caleb(init_combatants)
     init_nott(init_combatants)
     init_jester(init_combatants)
     init_molly(init_combatants)
-    init_yasha(init_combatants)
-    
+    init_yasha(init_combatants)    
+        
     init_hill_giant(init_combatants)
     init_venom_troll(init_combatants)
-    init_clockwork_warden(init_combatants)
-    init_arkhan(init_combatants)
-    init_umbrasyl(init_combatants)
-    
-    init_doty(init_combatants)
-    init_trinket(init_combatants)
+    init_lorenzo(init_combatants)
 
 def initialise_teams(combatants,teams):
     vm = team()
@@ -34,6 +35,10 @@ def initialise_teams(combatants,teams):
     m9 = team()
     m9.name = "The Mighty Nein"
     teams.append(m9)
+
+    iron = team()
+    iron.name = "The Iron Shepherds"
+    teams.append(iron)
 
     monster = team()
     monster.name = "Monsters"
@@ -58,6 +63,7 @@ def initialise_teams(combatants,teams):
     vmnames = ["Grog","Vax","Percy","Doty","Trinket"]
     m9names = ["Fjord","Beau","Caleb","Nott","Jester","Molly","Yasha","Kiri"]
     monsternames = ["Umbrasyl","Hill Giant","Arkhan","Venom Troll"]
+    ironnames = ["Lorenzo"]
     #Iterate through all combatants and initially assign them to team
     for combatant in combatants:
         if combatant.name in vmnames:
@@ -66,6 +72,8 @@ def initialise_teams(combatants,teams):
             combatant.team = m9
         elif combatant.name in monsternames:
             combatant.team = monster
+        elif combatant.name in ironnames:
+            combatant.team = iron
         else:
             combatant.team = blue
 
@@ -80,7 +88,7 @@ def init_percy(init_combatants):
 #Percival    
     percy = creature()
     
-    percy.notes = "Burns Grit to Leg Shot opponents, will swap out broken weapons, dumps all Cabal's Ruin charges on crit"
+    percy.notes = "The Lord of Whitestone, Gunslinger Fighter"
 
     percy.creature_type = creature_type.Player
     percy.fullname = "Percival Fredrickstein Von Musel Klossowski De Rolo III"
@@ -222,7 +230,7 @@ def init_grog(init_combatants):
     #GROG
     grog = creature()
     
-    grog.notes = "Always Rages on first turn. Will Reckless/Great Weapon Master every chance he gets!"
+    grog.notes = "The Grand Poobah de Doink of All This and That, Beserker Barbarian"
 
     grog.creature_type = creature_type.Player
     grog.fullname = "Grog Strongjaw"
@@ -322,7 +330,7 @@ def init_vax(init_combatants):
     #vax
     vax = creature()
 
-    vax.notes = "Missing Deathwalker's Ward. Prefers to throw his daggers from maximum range. Belt of Blade Returning triggers at start of turn"
+    vax.notes = "Champion of the Raven Queen, Assasin Rogue/Vengeance Paladin"
 
     vax.creature_type = creature_type.Player
     vax.fullname = "Vax'ildan"
@@ -543,7 +551,7 @@ def init_fjord(init_combatants):
 
     fjord.notes = "Pact of the Blade Warlock"
 
-    fjord.fullname = "Fjord Falcon"
+    fjord.fullname = "Fjord"
     fjord.name = "Fjord"
     fjord.race = race.Half_Orc
     fjord.creature_type = creature_type.Player
@@ -623,7 +631,7 @@ def init_fjord(init_combatants):
 def init_beau(init_combatants):
     beau = creature()
 
-    beau.notes = "Beauregard, Monk of the Cobalt Soul"
+    beau.notes = "Monk of the Cobalt Soul"
 
     beau.fullname = "Beauregard"
     beau.name = "Beau"
@@ -776,7 +784,7 @@ def init_caleb(init_combatants):
 def init_nott(init_combatants):   
     nott = creature()
 
-    nott.notes = "There's no comma"
+    nott.notes = "Arcane Trickster Rogue"
 
     nott.fullname = "Nott the Brave"
     nott.name = "Nott"
@@ -945,9 +953,9 @@ def init_jester(init_combatants):
 def init_molly(init_combatants):
     molly = creature()
 
-    molly.notes = "Mollymauk, Ghostslayer Blood Hunter (based on version 2.1)"
+    molly.notes = "Ghostslayer Blood Hunter (RIP)"
 
-    molly.fullname = "Mollymauk"
+    molly.fullname = "Mollymauk Tealeaf"
     molly.name = "Molly"
     molly.race = race.Tiefling
     molly.creature_type = creature_type.Player
@@ -1033,7 +1041,7 @@ def init_molly(init_combatants):
 def init_yasha(init_combatants):
     yasha = creature()
 
-    yasha.notes = "Yasha, Path of the Zealot Barbarian"
+    yasha.notes = "Path of the Zealot Barbarian"
 
     yasha.fullname = "Yasha"
     yasha.name = "Yasha"
@@ -1114,7 +1122,7 @@ def init_arkhan(init_combatants):
     #Arkhan
     arkhan = creature()
 
-    arkhan.notes = "Wields the Hand of Vecna; can't cast any spells out of it yet!"
+    arkhan.notes = "Oathbreaker Paladin/Beserker Barbarian, wielding the Hand of Vecna"
 
     arkhan.creature_type = creature_type.Player
     arkhan.fullname = "Highlord Arkhan the Cruel"
@@ -1217,7 +1225,7 @@ def init_umbrasyl(init_combatants):
 
     umbrasyl = creature()
 
-    umbrasyl.notes = "Can't fly, but can deal some serious damage. Multiattack = bite/claw/claw"
+    umbrasyl.notes = "Ancient Black Dragon"
 
     umbrasyl.creature_type = creature_type.Monster
     umbrasyl.fullname = "Umbrasyl"
@@ -1316,7 +1324,7 @@ def init_doty(init_combatants):
 
     doty = creature()
 
-    doty.notes = "The new and improved Doty featuring a single-use Arm Cannon"
+    doty.notes = "Automaton of Taryon Darrington"
 
     doty.creature_type = creature_type.Monster
     doty.fullname = "Doty 2.0"
@@ -1406,7 +1414,7 @@ def init_hill_giant(init_combatants):
 
     hillgiant = creature()
 
-    hillgiant.notes = "The formidable Hill Giant from C2E18, missing his Legendary Action, but still packs a wallop!"
+    hillgiant.notes = "The formidable Hill Giant from C2E18"
 
     hillgiant.creature_type = creature_type.Monster
     hillgiant.fullname = "Hill Giant"
@@ -1643,21 +1651,24 @@ def init_lorenzo(init_combatants):
 
     lorenzo = creature()
 
-    lorenzo.notes = "Tealeaf's Bane"
+    lorenzo.notes = "C2E26 - Tealeaf's Bane, has the stats of an Oni until we hear otherwise"
 
     lorenzo.creature_type = creature_type.Monster
+    lorenzo.challenge_rating = 7
+    lorenzo.proficiency = calc_proficiency(lorenzo)
     lorenzo.fullname = "Lorenzo, Leader of the Iron Shepherds"
-    lorenzo.name = "Lorenzo"
+    lorenzo.name = "Lorenzo"    
     lorenzo.race = race.Giant
     lorenzo.monster_type = monster_type.Oni
     lorenzo.max_health = 110
     lorenzo.armour_class = 16
     lorenzo.base_speed = 30
+    lorenzo.innate_spellcasting_attribute = attribute.Charisma
         
     #Stats
     lorenzostats = statistic_block()
     lorenzostats.str = 19
-    lorenzostats.dex =11
+    lorenzostats.dex = 11
     lorenzostats.con = 16
     lorenzostats.intel = 14
     lorenzostats.wis = 12
@@ -1713,7 +1724,7 @@ def init_trinket(init_combatants):
 
     trinket = creature()
 
-    trinket.notes = "Everyone's favourite bear. Lacks resistance to Bludgeoning damage granted by his special armour in the show"
+    trinket.notes = "Useless"
 
     trinket.creature_type = creature_type.Monster
     trinket.fullname = "Trinket"

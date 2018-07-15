@@ -145,7 +145,7 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
     # Shape-dependent steps:
     # Lines and Squares are effectively identical
     if shape == area_of_effect_shape.Line:
-            # Calculate the angle between the origin point and initial target point in radians            
+        # Calculate the angle between the origin point and initial target point in radians            
         radians = math.atan2(ytarget-yorigin, xtarget-xorigin)                             
 
         # Calculate the distance 1 step towards the destination from the origin point
@@ -210,8 +210,28 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
     # Cones require us to shift the target point each loop, instead of shifting the origin point with a fixed target
     elif shape == area_of_effect_shape.Cone:  
         max_grids = round_to_integer(.5 * (math.pow(math.pi*(grid_length+1),2)),5)
-        xorigin = central_xorigin                 
-        yorigin = central_yorigin
+        # Calculate the angle between the origin point and initial target point in radians            
+        radians = math.atan2(ytarget-yorigin, xtarget-xorigin)                             
+
+        # Calculate the distance 1 step towards the destination from the origin point
+        length_origin_deltax = 5 * math.cos(radians) 
+        length_origin_deltay = 5 * math.sin(radians)
+        # Initialise an origin point to this central location - this is where all lines will be drawn from
+        central_xorigin = round_to_integer(xorigin + length_origin_deltax,5)
+        central_yorigin = round_to_integer(yorigin + length_origin_deltay,5)
+
+        # Find the perpendicular angle from this central origin point
+        perpendicular = math.atan2(xtarget-xorigin, (ytarget-yorigin) * -1)    
+
+        # Normalise the target to 1/2 the length away    
+        # To make sure the lines draw correctly, convert the effective target to a point 1/2 the length along the line from xorigin to xtarget, then calculate angles from there
+        # Otherwise we get weird behaviour (i.e. if the target is adjacent on an axis to our current point)        
+        length_target_deltax = length/2 * math.cos(radians)
+        length_target_deltay = length/2 * math.sin(radians)   
+
+        xtarget = round_to_integer(xtarget + length_target_deltax,5)
+        ytarget = round_to_integer(ytarget + length_target_deltay,5)    
+
     elif shape == area_of_effect_shape.Circle:  
         max_grids = round_to_integer(math.pow(math.pi*(grid_length+1),2),5) 
         xorigin = central_xorigin                 
@@ -322,7 +342,7 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
 
     # Find all tar
     #Print out a grid (half debugging, may leave it in) - show all the targets so they can be rendered
-    print_output('AoE Debugging: Total potential grids: ' + repr(total_affected_grids) + ' Max grids: ' + repr(max_grids) + ' Affected grids: ' + repr(len(affected_grids)))
+    #print_output('AoE Debugging: Total potential grids: ' + repr(total_affected_grids) + ' Max grids: ' + repr(max_grids) + ' Affected grids: ' + repr(len(affected_grids)))
 
     # Pass the affected grids to the print_grid function, focused on the origin of the spell, and with all combatants listed so we can see the location of other member
     if printgrid:

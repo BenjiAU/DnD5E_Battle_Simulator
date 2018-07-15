@@ -8,6 +8,12 @@ from battle_simulator.combat_functions.conditions import *
 
 def initialise_class_spellslots(combatant):
     reset_spellslots(combatant)
+    
+    # Define spellslots for monster spelcasting (i.e. Oni needs a 5th level slot for Cone of Cold)
+    if combatant.creature_type == creature_type.Monster:
+        if combatant.race == race.Giant:
+            if combatant.monster_type == monster_type.Oni:
+                add_spellslot(combatant,5,1)
 
     ### Set maximum number of spellslots based on spells available to classes ###        
     for class_instance in combatant.player_classes():        
@@ -599,4 +605,40 @@ def initialise_spells(combatant):
             spell.maximum_duration = spell.condition_duration
 
             spell.concentration = True       
-    
+    #############
+    ## Level 4 ##
+    #############                 
+
+    #############
+    ## Level 5 ##
+    #############                 
+        if spell.name == "Cone of Cold":                                            
+            spell.school = spell_school.Evocation           
+            spell.category = spell_category.AoE_Damage
+            spell.min_spellslot_level = 5
+            spell.max_spellslot_level = 9
+            spell.instance = 1
+            
+            spell.casting_time = spell_casting_time.Action
+            spell.range = 0
+            spell.origin = origin_point.Self                    
+            spell.shape = area_of_effect_shape.Cone
+            spell.shape_width = 60
+            spell.shape_length = 60
+
+            spell.player_classes().append(player_class.Sorcerer)
+            spell.player_classes().append(player_class.Wizard)
+
+            spell.damage_die = 8
+            spell.damage_die_count = 8
+            
+            spell.damage_die_per_spell_slot = 8
+            spell.damage_die_count_per_spell_slot = 1
+
+            spell.damage_type = damage_type.Cold
+            
+            spell.saving_throw_attribute = saving_throw.Constitution
+            spell.saving_throw_damage_multiplier = 0.5
+
+            spell.description = "A freezing blast of cold air erupts from the caster's hands in the direction of"   
+

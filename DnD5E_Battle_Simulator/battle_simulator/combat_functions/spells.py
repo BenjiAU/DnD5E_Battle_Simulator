@@ -58,10 +58,10 @@ def select_spell(combatant,casttime):
                         # Damage spells (only if we have no healing/buff/debuffs)
                         # AoE Damage
                         if spell.category == spell_category.AoE_Damage:                                        
-                            # Check targets, if more than 2 in AoE this is best spell
+                            # Check targets, if we can find a target, choose this spell
                             affected_targets = []                                                
                             affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)   
-                            if len(affected_targets) >= 2:
+                            if len(affected_targets) >= 1:
                                 best_spell = spell
 
                         # Single target debuffs, i.e. Hold Person

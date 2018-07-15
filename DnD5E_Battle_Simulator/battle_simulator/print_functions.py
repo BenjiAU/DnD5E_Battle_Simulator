@@ -7,7 +7,7 @@ from datetime import timedelta
 import math
 from flask import Markup
 from battle_simulator import settings
-from battle_simulator import combatants
+from battle_simulator import combatants, classes
 
 def set_output_file():
     ts = time.time()
@@ -86,10 +86,13 @@ def print_combatant_table(combatant):
     string += Markup(combatant.fullname)
     string += Markup('</td>')
     string += Markup('<td>')    
-    if len(combatant.player_classes()) == 1:
-        string += Markup('<input type=text onkeypress="return isNumberKey(event)"  name="character_level_' + combatant.name + '" value="' + repr(characterlevel(combatant)) + '">')            
+    if combatant.creature_type == classes.creature_type.Monster:
+        string += Markup('CR: ' + repr(combatant.challenge_rating))    
     else:
-        string += Markup(characterlevel(combatant))    
+        if len(combatant.player_classes()) == 1:
+            string += Markup('<input type=text onkeypress="return isNumberKey(event)"  name="character_level_' + combatant.name + '" value="' + repr(characterlevel(combatant)) + '">')            
+        else:
+            string += Markup(characterlevel(combatant))    
     string += Markup('</td>')
     string += Markup('<td>')
     string += Markup('<input type=text onkeypress="return isNumberKey(event)"  name="max_health_' + combatant.name + '" value="' + repr(combatant.max_health) + '">')            
@@ -137,7 +140,10 @@ def print_combatant_details(combatant,position):
     print_output('Name: '  + combatant.fullname)
     print_output('Team: '  + combatant.team.name)
     print_output('Race: '  + combatant.race.name)
-    print_output('Character Level ' + repr(characterlevel(combatant)))
+    if combatant.creature_type == classes.creature_type.Monster:
+        print_output('Challenge Rating: ' + repr(combatant.challenge_rating))
+    else:
+        print_output('Character Level: ' + repr(characterlevel(combatant)))
     print_output('Class Breakdown: ')
     for class_instance in combatant.player_classes():
         print_indent( 'Class: '  + class_instance.player_class.name)

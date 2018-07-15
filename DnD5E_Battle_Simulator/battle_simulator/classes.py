@@ -540,6 +540,8 @@ class creature():
 
     #Monster type - narrows down monster list for specific abilities
     monster_type = int()
+    challenge_rating = int() # CR, used only for proficiency calcs and display
+    innate_spellcasting_attribute = int() # Defines innate spellcasting attribute for monster spells
 
     # Team used to track allies/enemies (and not target the wrong one)
     team = team()
@@ -859,9 +861,15 @@ def characterlevel(combatant):
         player_level += class_instance.player_class_level
     return player_level
 
-# Returns the proficiency bonus of the player
+# Returns the proficiency bonus of the creature
 def calc_proficiency(combatant):
-    prof_calc = 7+characterlevel(combatant)
+    if combatant.creature_type == creature_type.Monster:
+        if combatant.challenge_rating <= 4:
+            prof_calc = 8
+        else:
+            prof_calc = 7+combatant.challenge_rating
+    else:
+        prof_calc = 7+characterlevel(combatant)
     return math.floor(prof_calc/4)
 
 # Custom rounding function to ensure we can reliably round values to the nearest 5 feet (for grid calculations)
@@ -889,11 +897,14 @@ def chamod(combatant):
 
 def spellcasting_ability_modifier(combatant,spell):
     modifier = 0
-    player_spellcasting_attribute = None
-    for spell_player_class in spell.player_classes():
-        for player_class_block in combatant.player_classes():            
-            if spell_player_class == player_class_block.player_class:
-                player_spellcasting_attribute = player_class_block.spellcasting_attribute
+    if combatant.creature_type == creature_type.Monster:
+        player_spellcasting_attribute = combatant.innate_spellcasting_attribute        
+    else:
+        player_spellcasting_attribute = None
+        for spell_player_class in spell.player_classes():
+            for player_class_block in combatant.player_classes():            
+                if spell_player_class == player_class_block.player_class:
+                    player_spellcasting_attribute = player_class_block.spellcasting_attribute
     
     if player_spellcasting_attribute == attribute.Intelligence:
         modifier = intmod(combatant)
