@@ -292,8 +292,8 @@ def resolve_fatality(combatant):
                 combatant.current_health = 1
                 combatant.relentless_rage_DC += 5
             else:                
-                print_output('The fury within ' + combatant.name + '\'s eyes fades, and they slump to the ground, unable to sustain their Relentless Rage!')
-                remove_condition(combatant,condition.Unconscious)
+                print_output('The fury within ' + combatant.name + '\'s eyes fades, and they slump to the ground, unable to sustain their Relentless Rage!')                
+                inflict_condition(combatant,combatant,condition.Unconscious)                
                 combatant.relentless_rage = False  
 
         # rage beyond death (if we need to)
