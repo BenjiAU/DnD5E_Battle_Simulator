@@ -52,7 +52,7 @@ def attack_action(combatant):
         # Bonus attack functions for players
         # Bonus Action offhand attack
         # Rules: both weapons must be Light, weapons must be different, off hand weapon must be equipped
-        if not combatant.bonus_action_used and combatant.offhand_weapon != None and combatant.main_hand_weapon != combatant.offhand_weapon and combatant.main_hand_weapon.light and combatant.offhand_weapon.light:
+        if not combatant.bonus_action_used and enemy_in_melee_range(combatant,None) and combatant.offhand_weapon != None and combatant.main_hand_weapon != combatant.offhand_weapon and combatant.main_hand_weapon.light and combatant.offhand_weapon.light:
             print_output(combatant.name + ' uses their Bonus Action to make an offhand strike!')            
             #Repeat find_target call to see if we offhand strike someone else
             if not find_target(combatant):
@@ -62,7 +62,7 @@ def attack_action(combatant):
             combatant.bonus_action_used = True
                 
         # Flurry of Blows
-        if not combatant.bonus_action_used and combatant.flurry_of_blows:                      
+        if not combatant.bonus_action_used and combatant.flurry_of_blows and enemy_in_melee_range(combatant,None):                      
             if combatant.main_hand_weapon.weapon_type == weapon_type.Unarmed or combatant.main_hand_weapon.monk_weapon:
                 if combatant.ki_points > 0:
                     combatant.ki_points -= 1
@@ -85,7 +85,7 @@ def attack_action(combatant):
                     print_output(combatant.name + ' has no Ki Points remaining, and cannot use Flurry of Blows!')
 
         # Bonus Action unarmed strike
-        if not combatant.bonus_action_used:                      
+        if not combatant.bonus_action_used and enemy_in_melee_range(combatant,None):                      
             if combatant.main_hand_weapon.weapon_type == weapon_type.Unarmed or combatant.main_hand_weapon.monk_weapon:
                 print_output(combatant.name + ' uses their Bonus Action to make an unarmed strike!')                                        
                 orig_weapon = combatant.main_hand_weapon
