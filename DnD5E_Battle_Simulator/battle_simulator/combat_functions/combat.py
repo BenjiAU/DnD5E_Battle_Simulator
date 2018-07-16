@@ -517,7 +517,12 @@ def attack(combatant,weapon):
                                 track_hemo = False
 
                             ### Bonus damage effects
-                            #Bonus damage (from weapon)
+                            # Temporary effects (i.e. Enlarge)
+                            if check_condition(combatant,condition.Enlarged):
+                                print_indent( 'The sheer size of ' + combatant.name + ' allows them to deal an additional 1d4 damage thanks to Enlarge!')
+                                resolve_bonus_damage(combatant,weapon.bonus_damage_target,weapon_damage_type,4,1,0,crit,'Enlarge',weapon.magic)
+
+                            # Bonus damage (from weapon)
                             if weapon.bonus_damage_die > 0:
                                 print_indent( 'The strike from ' + weapon.name + ' deals an additional ' + repr(weapon.bonus_damage_die_count) + 'd' + repr(weapon.bonus_damage_die) + ' ' + weapon.bonus_damage_type.name + ' damage!')
                                 resolve_bonus_damage(combatant,weapon.bonus_damage_target,weapon.bonus_damage_type,weapon.bonus_damage_die,weapon.bonus_damage_die_count,0,crit,weapon.name,weapon.magic)
