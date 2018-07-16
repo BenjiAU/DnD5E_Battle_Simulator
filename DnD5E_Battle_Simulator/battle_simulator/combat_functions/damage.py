@@ -99,11 +99,11 @@ def calculate_spell_damage(combatant,target,spell,spellslot,crit,multiplier=1,sp
     spell_damage = int(spell_damage * multiplier)
 
     print_indent( spell.name + ' dealt ' + damage_text(repr(spell_damage)) + ' points of ' + spell.damage_type.name + ' damage!')                    
-    
-    if spell.spell_attack:
-        spell_damage = calculate_reduction_after_attack(combatant.target,spell_damage)
-
+        
     deal_damage(combatant,target,spell_damage,spell.damage_type,True,crit)   
+
+    if spell.spell_attack:
+        calculate_reduction_after_attack(combatant.target)
 
     # The spell effect is self-contained with all damage computed in this function; resolve it immediately and check fatality
     resolve_damage(target)

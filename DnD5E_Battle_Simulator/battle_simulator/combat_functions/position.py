@@ -453,6 +453,7 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
                         # Make the attack out of sequence
                         print_output('<b>Reaction:</b>')
                         print_output(combatant_before_move.name + '\'s movement (' + position_text(combatant_before_move.xpos,combatant_before_move.ypos) + ') has triggered an Attack of Opportunity from ' + opportunity_attacker.name + '! (' + position_text(opportunity_attacker.xpos,opportunity_attacker.ypos) + ')')                            
+                        sentinel_feat = False
                         for feat in opportunity_attacker.creature_feats():
                             if feat == feat.Sentinel:
                                 sentinel_feat = True
