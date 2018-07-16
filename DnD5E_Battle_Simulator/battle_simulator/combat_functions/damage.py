@@ -189,21 +189,24 @@ def heal_damage(combatant,healing):
 
         print_indent( combatant.name + ' recovers ' + healing_text(repr(healing)) + ' points of health. ' + hp_text(combatant.alive,combatant.current_health,combatant.max_health))
 
-def calculate_reduction_after_attack(target,dealt_damage):
-    modified_damage = dealt_damage
+def calculate_reduction_after_attack(combatant):
+    dealt_damage = 0
+    for x in combatant.pending_damage():        
+        if x.damage > 0:
+            dealt_damage += x.damage      
+            
     # Use damage thresholds to help decide if reactions/effects should apply
-    if can_use_reaction(target):
-        if modified_damage > characterlevel(target):
+    if can_use_reaction(combatant):
+        if dealt_damage > characterlevel(combatant):
             # Uncanny Dodge (can only occur after being victim of an Attack you can see - reduce all the attack damage by half)
-            if target.uncanny_dodge:
+            if combatant.uncanny_dodge:
                 # Don't waste dodge on small hits                
                 reduction = int(dealt_damage/2)           
                 print_output('<b>Reaction:</b>')
-                print_indent(target.name + ' uses their reaction, and uses Uncanny Dodge to reduce the damage of the attack by ' + dmgred_text(repr(reduction)) + '! ')                                    
-                modified_damage = int(modified_damage - reduction)            
-                target.reaction_used = True
-
-    return modified_damage
+                print_indent(combatant.name + ' uses their reaction, and uses Uncanny Dodge to reduce the damage of the attack by ' + dmgred_text(repr(reduction)) + '! ')                                    
+                for x in combatant.pending_damage():        
+                    x.damage = int(x.damage/2)
+                combatant.reaction_used = True
 
 def resolve_damage(combatant):
     #Fire the on_damage_taken_event before damage is resolved

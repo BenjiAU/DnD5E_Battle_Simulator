@@ -836,20 +836,23 @@ def init_nott(init_combatants):
     nott.checks = nottchecks    
 
     #nott's weapons
-    hand_crossbow = weapon()
-    hand_crossbow.name = "Hand Crossbow"
-    hand_crossbow.weapon_type = weapon_type.Crossbow;
-    hand_crossbow.range = 30
-    hand_crossbow.long_range = 120
+    tinkertop = weapon()
+    tinkertop.name = "Tinkertop Bolt-Blaster-1000"
+    tinkertop.weapon_type = weapon_type.Crossbow;
+    tinkertop.range = 30
+    tinkertop.long_range = 120
     
-    hand_crossbow.damage_die = 6
-    hand_crossbow.damage_die_count = 1
-    hand_crossbow.weapon_damage_type = damage_type.Piercing
+    tinkertop.damage_die = 6
+    tinkertop.damage_die_count = 1
+    tinkertop.weapon_damage_type = damage_type.Piercing
     
-    hand_crossbow.light = True
-    hand_crossbow.loading = True 
+    tinkertop.light = True
+    tinkertop.loading = True 
     
-    nott.weapon_inventory().append(hand_crossbow)
+    tinkertop.magic_to_hit_modifier = 1
+    tinkertop.magic_damage_modifier = 1
+
+    nott.weapon_inventory().append(tinkertop)
 
     #nott's gear
     # combat stats # 
@@ -1688,13 +1691,9 @@ def init_lorenzo(init_combatants):
     glaive.range = 0
     
     glaive.damage_die = 10
-    glaive.damage_die_count = 2
+    glaive.damage_die_count = 1
     glaive.weapon_damage_type = damage_type.Slashing
-    
-    glaive.bonus_damage_die = 10
-    glaive.bonus_damage_die_count = 1
-    glaive.bonus_damage_type = damage_type.Slashing
-    
+        
     glaive.reach = True
     glaive.magic_to_hit_modifier = 3
 

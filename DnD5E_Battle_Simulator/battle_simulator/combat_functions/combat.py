@@ -493,10 +493,7 @@ def attack(combatant,weapon):
                                 print_indent( combatant.name + '\'s strike dealt a total of ' + damage_text(repr(totaldamage)) + ' points of ' + weapon_damage_type.name + ' damage')
                             else:
                                 print_indent( combatant.name + '\'s strike dealt a total of ' + damage_text(repr(totaldamage)) + ' points of ' + weapon_damage_type.name + ' damage')
-
-                            # Check if any modifiers kick in to reduce the damage of the attack (i.e. Rogue Uncanny Dodge)
-                            totaldamage = calculate_reduction_after_attack(combatant.target,totaldamage)
-
+                            
                             deal_damage(combatant,combatant.target,totaldamage,weapon_damage_type,weapon.magic,crit)
                 
                             if track_hemo:
@@ -547,6 +544,10 @@ def attack(combatant,weapon):
                                 print_indent( combatant.name + '\'s eyes glow, as their attacks are infused with radiant energy from Improved Divine Smite!')                                                    
                                 resolve_bonus_damage(combatant,0,damage_type.Radiant,8,1,0,crit,"Improved Divine Smite",True)
 
+                            # All pre-attack resolutions must occur before this point - anything that can be reduced by Uncanny Dodge should be loaded against the 
+                            # Check if any modifiers kick in to reduce the damage of the attack (i.e. Rogue Uncanny Dodge)
+                            calculate_reduction_after_attack(combatant.target)                
+
                             #Conditionally cast spells/use items on crit after initial damage resolved
                             # Do some preliminary checking to make sure we do not inadvertantly burn a spell slot
                             if not check_condition(combatant.target,condition.Unconscious):    
@@ -564,8 +565,9 @@ def attack(combatant,weapon):
                                                     print_double_indent( combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(eq.damage_die) + ' (Cabal\'s Ruin damage)')
                                                 eq.current_charges = 0                
                                                 print_indent( combatant.name + ' dealt an additional ' + damage_text(repr(equipment_damage)) + ' points of ' + equipment_damage_type.name + ' damage with ' + eq.name)
-                                                deal_damage(combatant,combatant.target,equipment_damage,equipment_damage_type,True,crit)
-                                                                    #Divine Smite
+                                                deal_damage(combatant,combatant.target,equipment_damage,equipment_damage_type,True,crit)                                                               
+
+                                #Divine Smite
                                 for spell in combatant.spell_list():
                                     if spell.name == "Divine Smite":
                                         #Casting Divine Smite should be the last resolution of any attack action
