@@ -68,14 +68,19 @@ def roll_spell_damage(combatant,spell,spellslot,crit):
                     for y in range(0,spell.damage_die_count_per_spell_slot):
                         die_damage = roll_die(spell.damage_die_per_spell_slot)
                         print_double_indent( combatant.name + ' rolled a ' + repr(die_damage) + ' on a d' + repr(spell.damage_die_per_spell_slot) + ' (Additional Spell Damage from Spell Slot)')
-                        spell_damage += die_damage
-
-        # Add flat damage
-        spell_damage += spell.flat_damage
+                        spell_damage += die_damage        
 
         #Double dice if crit
         if crit:
             spell_damage = spell_damage * 2
+
+        # Add flat damage
+        spell_damage += spell.flat_damage
+
+        # Add Eldritch Invocation modifiers - just Agonising Blast for now so Fjord hits a bit harder
+        if spell.name == "Eldritch Blast" and eldritch_invocation.Agonising_Blast in combatant.eldritch_invocations():
+            print_double_indent( combatant.name + ' infuses the spell with the power of their Agonising Blast Eldritch Invocation, adding +' + repr(chamod(combatant)) + ' damage from their Charisma modifier!')
+            spell_damage += chamod(combatant)
 
     return spell_damage
 

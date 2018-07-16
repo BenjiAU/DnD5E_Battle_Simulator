@@ -191,6 +191,12 @@ class blood_curse():
     amplify_hit_die_cost = int()
     duration = int() #(0 = reaction/instant, 1=until beginning of next turn, other values determined by wis mod etc)
 
+class eldritch_invocation(Enum):
+    def __str__(self):
+        return str(self.value)    
+    Agonising_Blast = auto()
+    Thirsting_Blade = auto()
+
 class cardinal_direction(Enum):
     #integers matter for this one
     def __str__(self):
@@ -290,6 +296,7 @@ class feat(Enum):
     Great_Weapon_Master = auto()
     Lucky = auto()
     Sentinel = auto()
+    Crossbow_Expert = auto()
 
 #enumerable weapon attributes
 class weapon_type(Enum):
@@ -437,7 +444,7 @@ class spell():
    somatic = bool() #Has Somatic Components
    material = bool() #Has Material Components   
    material_cost = int() # Cost in GP for material (as if we'll ever get to that point)
-
+   
    #Player Class types that can cast this spell
    def player_classes(self):
         if not hasattr(self, "_player_classes"):
@@ -784,6 +791,15 @@ class creature():
 
     assassinate = bool()
     can_assassinate_target = bool()
+
+    #############
+    ## Warlock ##
+    #############
+    # Structures for managing Eldritch Invocations
+    def eldritch_invocations(self):
+        if not hasattr(self, "_eldritch_invocations"):
+            self._eldritch_invocations = []
+        return self._eldritch_invocations
 
     # Race
     ## Goliath #    

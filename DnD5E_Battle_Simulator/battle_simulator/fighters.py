@@ -626,9 +626,8 @@ def init_fjord(init_combatants):
     eldritch_blast = spell()
     eldritch_blast.name = "Eldritch Blast"
     fjord.spell_list().append(eldritch_blast)
-
-
-
+    
+    fjord.eldritch_invocations().append(eldritch_invocation.Agonising_Blast)
     init_combatants.append(fjord)    
 
 def init_beau(init_combatants):
@@ -800,7 +799,7 @@ def init_nott(init_combatants):
     rogue_class.spellcasting_attribute = attribute.Intelligence
     rogue_class.player_class_level = 5
     nott.player_classes().append(rogue_class)
-
+    nott.creature_feats().append(feat.Crossbow_Expert)
     #nott.fighting_style = fighting_style.Great_Weapon_Fighting
     nott.max_health = 40
     nott.armour_class = 16
@@ -851,20 +850,6 @@ def init_nott(init_combatants):
     hand_crossbow.loading = True 
     
     nott.weapon_inventory().append(hand_crossbow)
-
-    shortsword = weapon()
-    shortsword.name = "Shortsword"
-    shortsword.weapon_type = weapon_type.Shortsword
-    shortsword.range = 0    
-    
-    shortsword.damage_die = 6
-    shortsword.damage_die_count = 1
-    shortsword.weapon_damage_type = damage_type.Piercing
-    
-    shortsword.finesse = True
-    shortsword.light = True 
-
-    nott.weapon_inventory().append(shortsword)
 
     #nott's gear
     # combat stats # 

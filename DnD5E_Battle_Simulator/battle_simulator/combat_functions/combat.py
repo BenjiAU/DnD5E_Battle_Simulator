@@ -620,12 +620,20 @@ def calc_to_hit_modifier(combatant,weapon):
     if combatant.fighting_style == fighting_style.Archery and weapon.range > 0:
         to_hit += 2;
 
-    # Add Dex modifier for finesse weapons, otherwise Str
-    # Monk weapons also have this property (which is actually independent of Finesse)
-    if weapon.finesse or weapon.monk_weapon:
-        to_hit += dexmod(combatant)
-    else:
-        to_hit += strmod(combatant)
+    stat_modifier_applied = False
+    for class_instance in combatant.player_classes():
+        if class_instance.player_class == player_class.Warlock:
+            if class_instance.player_subclass == player_subclass.PactOfTheBlade:
+                to_hit += chamod(combatant)    
+                stat_modifier_applied = True
+
+    if not stat_modifier_applied:
+        # Add Dex modifier for finesse weapons, otherwise Str
+        # Monk weapons also have this property (which is actually independent of Finesse)    
+        if weapon.finesse or weapon.monk_weapon or weapon.range > 0:
+            to_hit += dexmod(combatant)
+        else:
+            to_hit += strmod(combatant)
 
     # Add proficiency bonus if proficiency in weapon
     for combatant_weapon_proficiency in combatant.weapon_proficiency():
@@ -640,18 +648,24 @@ def calc_to_hit_modifier(combatant,weapon):
 def calc_damage_modifier(combatant,weapon):
     additional_damage = 0
     
-    # Do not add ability modifier to additional_damage on bonus action attacks (unless we have a feat or class feature)
-    if ((weapon == weapon) or 
-    (weapon == combatant.offhand_weapon and combatant.fighting_style == fighting_style.Two_Weapon_Fighting)):
-        # Add Dex modifier for finesse weapons and range weapons if it is higher than Str;, otherwise Str
-        # Monk weapons also have this property (which is actually independent of Finesse)
-        if (dexmod(combatant) > strmod(combatant) and 
-        (weapon.finesse or 
-        weapon.monk_weapon or       
-        (weapon.range > 0 and not weapon.thrown))):        
-            additional_damage += dexmod(combatant)
-        else:
-            additional_damage += strmod(combatant)
+    stat_modifier_applied = False
+    for class_instance in combatant.player_classes():
+        if class_instance.player_class == player_class.Warlock:
+            if class_instance.player_subclass == player_subclass.PactOfTheBlade:
+                additional_damage += chamod(combatant)    
+                stat_modifier_applied = True
+
+    if not stat_modifier_applied:
+        # Do not add ability modifier to additional_damage on bonus action attacks (unless we have a feat or class feature)
+        if ((weapon == weapon) or (weapon == combatant.offhand_weapon and combatant.fighting_style == fighting_style.Two_Weapon_Fighting)):
+            # Add Dex modifier for finesse weapons and range weapons if it is higher than Str; otherwise Str
+            # Monk weapons also have this property (which is actually independent of Finesse)
+            if (dexmod(combatant) > strmod(combatant) and (weapon.finesse or weapon.monk_weapon or (weapon.range > 0 and not weapon.thrown))):        
+                additional_damage += dexmod(combatant)
+                stat_modifier_applied = True
+            else:
+                additional_damage += strmod(combatant)
+                stat_modifier_applied = True
 
     # Rage
     if check_condition(combatant,condition.Raging) and not combatant.armour_type == armour_type.Heavy:

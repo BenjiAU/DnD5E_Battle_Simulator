@@ -277,22 +277,24 @@ def initialise_spells(combatant):
             spell.range = 120
             spell.origin = origin_point.Self                    
                     
+            spell.player_classes().append(player_class.Warlock)
+
             spell.damage_die = 10
             spell.damage_die_count = 1
             spell.damage_type = damage_type.Force
 
             if characterlevel(combatant) >= 1:
                 spell.instance = 1
-                spell.description = "A crackling beam of energy leaps toward"
+                spell.description = "A crackling beam of eldritch energy leaps toward"
             if characterlevel(combatant) >= 5:
                 spell.instance = 2
-                spell.description = "Two crackling beams of energy leap toward"
+                spell.description = "Two crackling beams of eldritch energy leap toward"
             if characterlevel(combatant) >= 11:
                 spell.instance = 3
-                spell.description = "Three crackling beams of energy leap toward"
+                spell.description = "Three crackling beams of eldritch energy leap toward"
             if characterlevel(combatant) >= 17:
                 spell.instance = 4
-                spell.description = "Four crackling beams of energy leap toward"
+                spell.description = "Four crackling beams of eldritch energy leap toward"
 
         if spell.name == "Firebolt":                    
             spell.school = spell_school.Evocation
