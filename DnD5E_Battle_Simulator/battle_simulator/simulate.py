@@ -93,20 +93,20 @@ def simulate_battle():
 
         #Re-initialise position for new round
         initialise_combat.set_starting_positions(combatants.list)
-            
-        # roll initiative #                
-        set_initiative_order()
-        
-        #print_output out combat order at top of attempt        
-        combatorder = 0                   
-        
         #Remove the gag on output (to stop weapon/target/roll spam at the start of the sim)
         settings.suppress_output = False
+
         begin_div('attempt')
         print_output('<b>Attempt number: ' + repr(attempt)+ '</b>')
-        print_output('<b>Rolling Initiative...</b>')
+        print_output('<b>Rolling Initiative...</b>')    
+        # roll initiative #                
+        set_initiative_order()
+
         print_output('Combat order established: ')
 
+        #print_output out combat order at top of attempt        
+        combatorder = 0                                   
+        
         #Print initiative order and initialise targets        
         begin_combatant_details()
         for combatant in combatants.list:                   
@@ -362,7 +362,7 @@ def set_initiative_order():
                             
     initkey = operator.attrgetter("initiative_roll")
     combatants.list = sorted(unsorted_combatants, key=initkey,reverse=True)    
-
-    for combatant in combatants.list:
-        print_indent( 'Name:' + combatant.name + ': Initiative Roll: ' + repr(combatant.initiative_roll))
     
+    print_output('<b>Initiative Order:</b>')
+    for combatant in combatants.list:
+        print_output(combatant.name + ': ' + repr(combatant.initiative_roll))

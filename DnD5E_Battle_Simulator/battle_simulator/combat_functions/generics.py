@@ -135,9 +135,11 @@ def abilitycheck(combatant,checktype,DC,proficient=False):
 def roll_initiative(combatant):
     initiativeroll = abilitycheck(combatant,ability_check.Dexterity,0)      
     if combatant.feral_instinct:
+        print_indent(combatant.name + ' has advantage on the Initiative roll due to Feral Instinct!')
         initiativeroll_adv = abilitycheck(combatant,ability_check.Dexterity,0)
         initiativeroll = max(initiativeroll,initiativeroll_adv)
     if combatant.quickdraw:
+        print_indent(combatant.name + " adds their Proficiency bonus to the Initiative Roll due to Quickdraw! +" + repr(combatant.proficiency))
         initiativeroll += combatant.proficiency
     combatant.initiative_roll = initiativeroll
 
