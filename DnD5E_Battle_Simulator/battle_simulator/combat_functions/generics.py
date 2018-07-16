@@ -43,13 +43,12 @@ def savingthrow(combatant,savetype,DC):
         adv = combatant.saves.cha_adv
 
     
-
     roll = roll_die(20)
 
     savingthrow = roll + modifier    
     print_output(combatant.name + ' rolled a ' + repr(roll) + ' on a d20 for the saving throw with a +' + repr(modifier) + ' modifier')                                                                                                             
     # Check conditions
-    if check_condition(combatant,condition.Stunned):
+    if check_condition(combatant,condition.Stunned) or check_condition(combatant,condition.Incapacitated) or check_condition(combatant,condition.Unconscious) or not combatant.alive:
         if savetype == saving_throw.Strength or savetype == saving_throw.Dexterity:
             print_indent( combatant.name + ' automatically fails the ' + repr(DC) + ' ' + savetype.name + ' save as they are currently incapacitated!')
             return False
