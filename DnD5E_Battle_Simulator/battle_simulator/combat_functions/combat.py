@@ -84,6 +84,20 @@ def attack_action(combatant):
                 else:
                     print_output(combatant.name + ' has no Ki Points remaining, and cannot use Flurry of Blows!')
 
+        # Bonus Action unarmed strike
+        if not combatant.bonus_action_used:                      
+            if combatant.main_hand_weapon.weapon_type == weapon_type.Unarmed or combatant.main_hand_weapon.monk_weapon:
+                print_output(combatant.name + ' uses their Bonus Action to make an unarmed strike!')                                        
+                orig_weapon = combatant.main_hand_weapon
+                combatant.main_hand_weapon = unarmed_strike(combatant)
+                #Repeat find_target call to see if we should punch someone else
+                if not find_target(combatant):
+                    print_output('No targets remain!')
+                    return
+                attack(combatant,combatant.main_hand_weapon)
+                combatant.main_hand_weapon = orig_weapon
+                combatant.bonus_action_used = True
+
         if combatant.extra_attack > 0:
             if check_condition(combatant,condition.Slowed):
                 print_output(combatant.name + ' is Slowed, and cannot take an Extra Attack')
