@@ -16,9 +16,10 @@ def initialise_class_spellslots(combatant):
                 add_spellslot(combatant,5,1)
 
     ### Set maximum number of spellslots based on spells available to classes ###        
-    for class_instance in combatant.player_classes():        
-        ### Cleric spellslots ###
-        if class_instance.player_class == player_class.Cleric:
+    for class_instance in combatant.player_classes(): 
+        ### Bard, Cleric, Druid, Sorcerer, Wizard Spellslots ###
+        # Note there might be minor differences between classes
+        if class_instance.player_class in [player_class.Bard,player_class.Cleric,player_class.Druid,player_class.Sorcerer,player_class.Wizard]:
             if class_instance.player_class_level == 1:
                 add_spellslot(combatant,1,2)
             if class_instance.player_class_level >= 2:
@@ -54,7 +55,7 @@ def initialise_class_spellslots(combatant):
             if class_instance.player_class_level >= 19:
                 add_spellslot(combatant,6,1)         
             if class_instance.player_class_level >= 20:
-                add_spellslot(combatant,7,1)         
+                add_spellslot(combatant,7,1)        
 
         ### Paladin Spellslots ###
         if class_instance.player_class == player_class.Paladin:
@@ -81,13 +82,6 @@ def initialise_class_spellslots(combatant):
                 add_spellslot(combatant,5,1)
             if class_instance.player_class_level >= 19:
                 add_spellslot(combatant,5,1)
-
-        ### Druid Spellslots ###
-        if class_instance.player_class == player_class.Druid:
-            if class_instance.player_class_level == 1:
-                add_spellslot(combatant,1,2)
-            if class_instance.player_class_level >= 2:
-                add_spellslot(combatant,1,1)                
 
         ### Warlock Spellslots ###
         if class_instance.player_class == player_class.Warlock:
@@ -127,45 +121,25 @@ def initialise_class_spellslots(combatant):
                 add_spellslot(combatant,6,1)         
             if class_instance.player_class_level >= 20:
                 add_spellslot(combatant,7,1)         
-                
-        ### Wizard Spellslots ###
-        if class_instance.player_class == player_class.Wizard:
-            if class_instance.player_class_level == 1:
-                add_spellslot(combatant,1,2)
-            if class_instance.player_class_level >= 2:
-                add_spellslot(combatant,1,1)                
-            if class_instance.player_class_level >= 3:
-                add_spellslot(combatant,1,1)         
-                add_spellslot(combatant,2,2)         
-            if class_instance.player_class_level >= 4:
-                add_spellslot(combatant,2,1)         
-            if class_instance.player_class_level >= 5:
-                add_spellslot(combatant,3,2)         
-            if class_instance.player_class_level >= 6:
-                add_spellslot(combatant,3,1)         
-            if class_instance.player_class_level >= 7:
-                add_spellslot(combatant,4,1)         
-            if class_instance.player_class_level >= 8:
-                add_spellslot(combatant,4,1)         
-            if class_instance.player_class_level >= 9:
-                add_spellslot(combatant,4,1)         
-                add_spellslot(combatant,5,1)         
-            if class_instance.player_class_level >= 10:
-                add_spellslot(combatant,5,1)         
-            if class_instance.player_class_level >= 11:
-                add_spellslot(combatant,6,1)                     
-            if class_instance.player_class_level >= 13:
-                add_spellslot(combatant,7,1)         
-            if class_instance.player_class_level >= 15:
-                add_spellslot(combatant,8,1)                                     
-            if class_instance.player_class_level >= 17:
-                add_spellslot(combatant,9,1)         
-            if class_instance.player_class_level >= 18:
-                add_spellslot(combatant,5,1)         
-            if class_instance.player_class_level >= 19:
-                add_spellslot(combatant,6,1)         
-            if class_instance.player_class_level >= 20:
-                add_spellslot(combatant,7,1)         
+
+        ### Rogue/Arcane Trickster Spellslots ###
+        if class_instance.player_class == player_class.Rogue:
+            if class_instance.player_subclass == player_subclass.Arcane_trickster:              
+                if class_instance.player_class_level >= 3:
+                    add_spellslot(combatant,1,1)         
+                if class_instance.player_class_level >= 4:
+                    add_spellslot(combatant,1,1)         
+                if class_instance.player_class_level >= 7:
+                    add_spellslot(combatant,1,1)         
+                    add_spellslot(combatant,2,2)         
+                if class_instance.player_class_level >= 10:
+                    add_spellslot(combatant,2,1)         
+                if class_instance.player_class_level >= 13:
+                    add_spellslot(combatant,3,2)         
+                if class_instance.player_class_level >= 16:
+                    add_spellslot(combatant,3,1)         
+                if class_instance.player_class_level >= 19:
+                    add_spellslot(combatant,4,1)           
 
 def add_spellslot(combatant,spell_level,spellslot_count):
     for existing_spellslot in combatant.spellslots():
