@@ -643,7 +643,7 @@ def attack(combatant,weapon):
 def calc_to_hit_modifier(combatant,weapon):
     to_hit = 0
     # Add 2 for fighting style when using ranged weapon with Archery
-    if combatant.fighting_style == fighting_style.Archery and weapon.range > 0:
+    if combatant.fighting_style == fighting_style.Archery and weapon.ranged_weapon:
         to_hit += 2;
 
     stat_modifier_applied = False
@@ -656,7 +656,7 @@ def calc_to_hit_modifier(combatant,weapon):
     if not stat_modifier_applied:
         # Add Dex modifier for finesse weapons, otherwise Str
         # Monk weapons also have this property (which is actually independent of Finesse)    
-        if weapon.finesse or weapon.monk_weapon or weapon.range > 0:
+        if weapon.finesse or weapon.monk_weapon or weapon.ranged_weapon:
             to_hit += dexmod(combatant)
         else:
             to_hit += strmod(combatant)
@@ -686,7 +686,7 @@ def calc_damage_modifier(combatant,weapon):
         if ((weapon == weapon) or (weapon == combatant.offhand_weapon and combatant.fighting_style == fighting_style.Two_Weapon_Fighting)):
             # Add Dex modifier for finesse weapons and range weapons if it is higher than Str; otherwise Str
             # Monk weapons also have this property (which is actually independent of Finesse)
-            if (dexmod(combatant) > strmod(combatant) and (weapon.finesse or weapon.monk_weapon or (weapon.range > 0 and not weapon.thrown))):        
+            if (dexmod(combatant) > strmod(combatant) and (weapon.finesse or weapon.monk_weapon or weapon.ranged_weapon)):        
                 additional_damage += dexmod(combatant)
                 stat_modifier_applied = True
             else:

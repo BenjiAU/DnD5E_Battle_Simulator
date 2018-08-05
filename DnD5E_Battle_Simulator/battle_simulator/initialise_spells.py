@@ -124,7 +124,7 @@ def initialise_class_spellslots(combatant):
 
         ### Rogue/Arcane Trickster Spellslots ###
         if class_instance.player_class == player_class.Rogue:
-            if class_instance.player_subclass == player_subclass.Arcane_trickster:              
+            if class_instance.player_subclass == player_subclass.ArcaneTrickster:              
                 if class_instance.player_class_level >= 3:
                     add_spellslot(combatant,1,1)         
                 if class_instance.player_class_level >= 4:

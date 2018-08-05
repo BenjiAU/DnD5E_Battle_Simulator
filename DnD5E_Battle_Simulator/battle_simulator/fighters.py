@@ -8,14 +8,14 @@ def initialise_combatants(init_combatants):
     init_percy(init_combatants)
     init_grog(init_combatants)
     init_vax(init_combatants)    
-    #init_vex(init_combatants)
+    init_vex(init_combatants)
+    init_trinket(init_combatants)
     #init_scanlan(init_combatants)
     #init_keyleth(init_combatants)
     #init_pike(init_combatants)
     #init_tary(init_combatants)                     
     #init_doty(init_combatants)
-    #init_trinket(init_combatants)
-    
+        
     init_arkhan(init_combatants)
     init_umbrasyl(init_combatants)
     
@@ -69,8 +69,8 @@ def initialise_teams(combatants,teams):
     yellow.name = "The Yellow Team"
     teams.append(yellow)
 
-    vmnames = ["Grog","Vax","Percy","Doty","Trinket"]
-    m9names = ["Fjord","Beau","Caleb","Nott","Jester","Molly","Yasha","Kiri"]
+    vmnames = ["Grog","Vax","Vex","Percy","Scanlan","Keyleth","Pike","Doty","Trinket"]
+    m9names = ["Fjord","Beau","Caleb","Nott","Jester","Molly","Yasha","Kiri","Cadeucus"]
     monsternames = ["Umbrasyl","Hill Giant","Arkhan","Venom Troll"]
     ironnames = ["Lorenzo","Wan","Prodo"]
     #Iterate through all combatants and initially assign them to team
@@ -97,10 +97,10 @@ def init_percy(init_combatants):
 #Percival    
     percy = creature()
     
-    percy.notes = "The Lord of Whitestone, Gunslinger Fighter"
+    percy.notes = "Sophist of Native Ingenuity"
 
     percy.creature_type = creature_type.Player
-    percy.fullname = "Percival Fredrickstein Von Musel Klossowski De Rolo III"
+    percy.fullname = "Lord Percival Fredrickstein Von Musel Klossowski De Rolo III"
     percy.name = "Percy"
     percy.race = race.Human
     
@@ -154,6 +154,7 @@ def init_percy(init_combatants):
     badnews.name = "Bad News"
     badnews.weapon_type = weapon_type.Firearm;
     badnews.range = 1200
+    badnews.ranged_weapon = True
 
     badnews.damage_die = 12
     badnews.damage_die_count = 2
@@ -174,6 +175,7 @@ def init_percy(init_combatants):
     animus.name = "Animus"
     animus.weapon_type = weapon_type.Firearm
     animus.range = 600
+    animus.ranged_weapon = True
 
     animus.damage_die = 10
     animus.damage_die_count = 1
@@ -486,15 +488,15 @@ def init_vex(init_combatants):
     #vex
     vex = creature()
 
-    vex.notes = "Vex'ahlia, the Lady of Whitestone"
+    vex.notes = "Baroness of the Third House of Whitestone and Grand Mistress of the Grey Hunt"
 
     vex.creature_type = creature_type.Player
-    vex.fullname = "vex'ildan"
-    vex.name = "vex"
+    vex.fullname = "Lady Vex'ahlia"
+    vex.name = "Vex"
     vex.race = race.Half_Elf    
 
     ranger_class = player_class_block()
-    ranger_class.player_class = player_class.ranger
+    ranger_class.player_class = player_class.Ranger
     ranger_class.player_subclass = player_subclass.Beastmaster
     ranger_class.player_class_level = 13
     vex.player_classes().append(ranger_class)
@@ -504,6 +506,8 @@ def init_vex(init_combatants):
     rogue_class.player_subclass = player_subclass.Assassin
     rogue_class.player_class_level = 7
     vex.player_classes().append(rogue_class)
+
+    vex.fighting_style = fighting_style.Archery
 
     vex.max_health = 142
     vex.armour_class = 21
@@ -546,6 +550,7 @@ def init_vex(init_combatants):
     fenthras = weapon()
     fenthras.name = "Fenthras"
     fenthras.weapon_type = weapon_type.Longbow;
+    fenthras.ranged_weapon = True
     fenthras.range = 60
    
     fenthras.damage_die = 8
@@ -560,7 +565,7 @@ def init_vex(init_combatants):
     fenthras.magic_damage_modifier = 5 # includes Bracers of Archery bonus as well as +3
 
     fenthras.finesse = True    
-    fenthras.magic = True
+    fenthras.magic = True    
 
     vex.weapon_inventory().append(fenthras)
 
@@ -942,6 +947,7 @@ def init_nott(init_combatants):
     tinkertop.weapon_type = weapon_type.Crossbow;
     tinkertop.range = 30
     tinkertop.long_range = 120
+    tinkertop.ranged_weapon = True
     
     tinkertop.damage_die = 6
     tinkertop.damage_die_count = 1
@@ -1973,7 +1979,7 @@ def init_trinket(init_combatants):
 
     trinket = creature()
 
-    trinket.notes = "Useless"
+    trinket.notes = "Vex'ahlia's animal companion; keep them together mainly so Vex can Sneak Attack more reliably (although AI will alpha him down pretty quick)"
 
     trinket.creature_type = creature_type.Monster
     trinket.challenge_rating = 2

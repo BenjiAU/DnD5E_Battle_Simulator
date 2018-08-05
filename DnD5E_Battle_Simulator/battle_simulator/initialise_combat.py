@@ -376,6 +376,14 @@ def initialise_class_features(combatant):
                     combatant.vow_of_enmity_target = None
 
         #############
+        ### Ranger ##
+        #############
+        if class_instance.player_class == player_class.Ranger:
+            if class_instance.player_class_level >= 5:
+                if combatant.extra_attack <= 1:
+                    combatant.extra_attack = 1
+
+        #############
         ### Rogue ###
         #############
         if class_instance.player_class == player_class.Rogue:

@@ -494,6 +494,8 @@ class weapon():
     heavy = bool()
     light = bool()
     loading = bool()
+
+    ranged_weapon = bool() # Distinct from other properties, we need to know if the weapon is a ranged weapon for certain abilities and fighting styles
     range = int()
     long_range = int()
     reach = int()
