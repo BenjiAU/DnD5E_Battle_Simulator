@@ -4,13 +4,18 @@ from battle_simulator.classes import *
 import random
 
 def initialise_combatants(init_combatants):
+    # Vox machina
     init_percy(init_combatants)
     init_grog(init_combatants)
     init_vax(init_combatants)    
-    init_doty(init_combatants)
-    init_trinket(init_combatants)
-
-        #init_clockwork_warden(init_combatants)
+    #init_vex(init_combatants)
+    #init_scanlan(init_combatants)
+    #init_keyleth(init_combatants)
+    #init_pike(init_combatants)
+    #init_tary(init_combatants)                     
+    #init_doty(init_combatants)
+    #init_trinket(init_combatants)
+    
     init_arkhan(init_combatants)
     init_umbrasyl(init_combatants)
     
@@ -25,7 +30,8 @@ def initialise_combatants(init_combatants):
         
     init_hill_giant(init_combatants)
     init_venom_troll(init_combatants)
-    
+    #init_clockwork_warden(init_combatants)    
+
     init_lorenzo(init_combatants)
     init_wan(init_combatants)
     init_prodo(init_combatants)
@@ -474,6 +480,101 @@ def init_vax(init_combatants):
     vax.spell_list().append(divine_smite)
 
     init_combatants.append(vax)    
+
+def init_vex(init_combatants):
+
+    #vex
+    vex = creature()
+
+    vex.notes = "Vex'ahlia, the Lady of Whitestone"
+
+    vex.creature_type = creature_type.Player
+    vex.fullname = "vex'ildan"
+    vex.name = "vex"
+    vex.race = race.Half_Elf    
+
+    ranger_class = player_class_block()
+    ranger_class.player_class = player_class.ranger
+    ranger_class.player_subclass = player_subclass.Beastmaster
+    ranger_class.player_class_level = 13
+    vex.player_classes().append(ranger_class)
+
+    rogue_class = player_class_block()
+    rogue_class.player_class = player_class.Rogue
+    rogue_class.player_subclass = player_subclass.Assassin
+    rogue_class.player_class_level = 7
+    vex.player_classes().append(rogue_class)
+
+    vex.max_health = 142
+    vex.armour_class = 21
+    vex.base_speed = 30
+    vex.proficiency = calc_proficiency(vex)
+    vex.weapon_proficiency().append(weapon_type.Longbow)
+    vex.weapon_proficiency().append(weapon_type.Dagger)
+
+    vex.creature_feats().append(feat.Sharpshooter)
+
+    #Stats
+    vexstats = statistic_block()
+    vexstats.str = 7
+    vexstats.dex = 20
+    vexstats.con = 10
+    vexstats.intel = 14
+    vexstats.wis = 16
+    vexstats.cha = 17
+
+    vex.stats = vexstats
+    
+    #Saves
+    vexsaves = saving_throw_block()    
+    vexsaves.str = 6
+    vexsaves.dex = 13
+    vexsaves.con = 2
+    vexsaves.intel = 4
+    vexsaves.wis = 5
+    vexsaves.cha = 5
+    
+    vex.saves = vexsaves
+
+    #Ability Checks
+    vexchecks = ability_check_block()
+    
+    vex.checks = vexchecks        
+
+
+    #vex's weapons
+    fenthras = weapon()
+    fenthras.name = "Fenthras"
+    fenthras.weapon_type = weapon_type.Longbow;
+    fenthras.range = 60
+   
+    fenthras.damage_die = 8
+    fenthras.damage_die_count = 1
+    fenthras.weapon_damage_type = damage_type.Piercing
+    
+    fenthras.bonus_damage_die = 4
+    fenthras.bonus_damage_die_count = 1
+    fenthras.bonus_damage_type = damage_type.Lightning
+    
+    fenthras.magic_to_hit_modifier = 3
+    fenthras.magic_damage_modifier = 5 # includes Bracers of Archery bonus as well as +3
+
+    fenthras.finesse = True    
+    fenthras.magic = True
+
+    vex.weapon_inventory().append(fenthras)
+
+    #vex's gear
+        
+    hunters_mark = spell()
+    hunters_mark.name = "Hunter's Mark"
+    vex.spell_list().append(hunters_mark)
+
+    lightning_arrow = spell()
+    lightning_arrow .name = "Lightning Arrow"
+    vex.spell_list().append(lightning_arrow )
+
+    init_combatants.append(vex)    
 
 def init_kiri(init_combatants):
     kiri = creature()

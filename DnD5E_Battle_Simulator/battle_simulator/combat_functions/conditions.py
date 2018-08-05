@@ -123,10 +123,18 @@ def update_conditions(combatant):
     combatant.creature_conditions()[:] = [combatant_condition for combatant_condition in combatant.creature_conditions() if combatant_condition.limited_duration and not combatant_condition.duration <= 0]
 
 #Return true/false if the condition affects the combatant
-def check_condition(combatant,condition):
+def check_condition(combatant,condition,from_source=None):
     for combatant_condition in combatant.creature_conditions():
         if combatant_condition.condition == condition:
             return True
+    return False
+
+def check_inflicted_condition(combatant,target,condition):    
+    for combatant_condition in target.creature_conditions():
+        if combatant_condition.condition == condition:    
+            concentration_condition = get_concentration_condition(combatant)
+            if concentration_condition.source == combatant_condition.source:
+                return True
     return False
 
 def action_saveable_condition(combatant):

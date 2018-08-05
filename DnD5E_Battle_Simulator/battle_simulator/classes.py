@@ -105,11 +105,12 @@ class condition(Enum):
     Shielded = auto() # Wizard Shield spell
 
     # Debuffs
-    Hexed = auto()
+    Hexed = auto() # Hex spell
     Cursed = auto() # Warlock hexblades curse
     Slowed = auto()   # Slow spell
     Reduced = auto() # Enlarge/Reduce spell
     Headshot = auto() # Gunslinger head shot
+    Marked = auto() # Affected by Ranger Hunter's Mark
 
     #Special Concentrating condition
     Concentrating = auto()

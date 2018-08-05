@@ -522,6 +522,11 @@ def attack(combatant,weapon):
                                 print_indent( 'The sheer size of ' + combatant.name + ' allows them to deal an additional 1d4 damage thanks to Enlarge!')
                                 resolve_bonus_damage(combatant,weapon.bonus_damage_target,weapon_damage_type,4,1,0,crit,'Enlarge',weapon.magic)
 
+                            # Hunter's Mark
+                            if check_inflicted_condition(combatant,combatant.target,condition.Marked):
+                                print_indent(combatant.name + ' has ' + combatant.target.name + ' marked, and deals additional damage!')
+                                resolve_bonus_damage(combatant,weapon.bonus_damage_target,weapon_damage_type,6,1,0,crit,'Hunter\'s Mark',weapon.magic)
+
                             # Bonus damage (from weapon)
                             if weapon.bonus_damage_die > 0:
                                 print_indent( 'The strike from ' + weapon.name + ' deals an additional ' + repr(weapon.bonus_damage_die_count) + 'd' + repr(weapon.bonus_damage_die) + ' ' + weapon.bonus_damage_type.name + ' damage!')

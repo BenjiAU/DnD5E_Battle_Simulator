@@ -57,8 +57,8 @@ def initialise_class_spellslots(combatant):
             if class_instance.player_class_level >= 20:
                 add_spellslot(combatant,7,1)        
 
-        ### Paladin Spellslots ###
-        if class_instance.player_class == player_class.Paladin:
+        ### Paladin/Ranger Spellslots ###
+        if class_instance.player_class in [player_class.Paladin,player_class.Ranger]:
             if class_instance.player_class_level >= 2:
                 add_spellslot(combatant,1,2)                
             if class_instance.player_class_level >= 3:
@@ -304,78 +304,6 @@ def initialise_spells(combatant):
     ## Level 1 ##
     #############        
 
-        if spell.name == "Healing Word":                    
-            spell.school = spell_school.Evocation
-            spell.category = spell_category.Healing
-            spell.min_spellslot_level = 1
-            spell.max_spellslot_level = 9
-            
-            spell.instance = 1
-            spell.casting_time = spell_casting_time.Bonus_Action
-            spell.range = 60
-            spell.origin = origin_point.Self                    
-                                        
-            spell.player_classes().append(player_class.Bard)
-            spell.player_classes().append(player_class.Cleric)
-            spell.player_classes().append(player_class.Druid)
-                                
-            spell.healing_die = 4
-            spell.healing_die_count = 1                    
-            
-            spell.healing_die_per_spell_slot = 4
-            spell.healing_die_count_per_spell_slot = 1                    
-
-        if spell.name == "Cure Wounds":                    
-            spell.school = spell_school.Evocation
-            spell.category = spell_category.Healing
-            spell.min_spellslot_level = 1
-            spell.max_spellslot_level = 9
-            
-            spell.instance = 1
-            spell.casting_time = spell_casting_time.Action
-            spell.range = melee_range()
-            spell.origin = origin_point.Self                    
-                                        
-            spell.player_classes().append(player_class.Bard)
-            spell.player_classes().append(player_class.Cleric)
-            spell.player_classes().append(player_class.Druid)
-            spell.player_classes().append(player_class.Paladin)
-            spell.player_classes().append(player_class.Ranger)
-                                
-            spell.healing_die = 8
-            spell.healing_die_count = 1                    
-            
-            spell.healing_die_per_spell_slot = 8
-            spell.healing_die_count_per_spell_slot = 1   
-
-        if spell.name == "Chromatic Orb":                                            
-            spell.school = spell_school.Evocation   
-            spell.category = spell_category.Damage
-            spell.min_spellslot_level = 1
-            spell.max_spellslot_level = 9
-            spell.spell_attack = True
-            spell.instance = 1
-            spell.casting_time = spell_casting_time.Action
-            spell.range = 90
-            spell.origin = origin_point.Self                    
-                    
-            spell.verbal = True
-            spell.somatic = True
-            spell.material = True
-            spell.material_cost = 50
-
-            spell.damage_die = 8
-            spell.damage_die_count = 3
-
-            spell.damage_die_per_spell_slot = 8
-            spell.damage_die_count_per_spell_slot = 1
-
-            spell.damage_type = damage_type.Fire # Default damage type, chosen based on targeT?
-            spell.player_classes().append(player_class.Wizard)
-            spell.player_classes().append(player_class.Sorcerer)
-
-            spell.description = "A diamond spins in <casters> hand, and an orb of energy fires out towards"   
-
         if spell.name == "Burning Hands":                                            
             spell.school = spell_school.Evocation           
             spell.category = spell_category.AoE_Damage
@@ -405,6 +333,96 @@ def initialise_spells(combatant):
             spell.player_classes().append(player_class.Sorcerer)
 
             spell.description = "As they hold their hands with thumbs touching and fingers spread, a thin sheet of flames shoots forth from outstretched fingertips towards"   
+
+        if spell.name == "Chromatic Orb":                                            
+            spell.school = spell_school.Evocation   
+            spell.category = spell_category.Damage
+            spell.min_spellslot_level = 1
+            spell.max_spellslot_level = 9
+            spell.spell_attack = True
+            spell.instance = 1
+            spell.casting_time = spell_casting_time.Action
+            spell.range = 90
+            spell.origin = origin_point.Self                    
+                    
+            spell.verbal = True
+            spell.somatic = True
+            spell.material = True
+            spell.material_cost = 50
+
+            spell.damage_die = 8
+            spell.damage_die_count = 3
+
+            spell.damage_die_per_spell_slot = 8
+            spell.damage_die_count_per_spell_slot = 1
+
+            spell.damage_type = damage_type.Fire # Default damage type, chosen based on targeT?
+            spell.player_classes().append(player_class.Wizard)
+            spell.player_classes().append(player_class.Sorcerer)
+
+            spell.description = "A diamond spins in <casters> hand, and an orb of energy fires out towards"   
+
+        if spell.name == "Cure Wounds":                    
+            spell.school = spell_school.Evocation
+            spell.category = spell_category.Healing
+            spell.min_spellslot_level = 1
+            spell.max_spellslot_level = 9
+            
+            spell.instance = 1
+            spell.casting_time = spell_casting_time.Action
+            spell.range = melee_range()
+            spell.origin = origin_point.Self                    
+                                        
+            spell.player_classes().append(player_class.Bard)
+            spell.player_classes().append(player_class.Cleric)
+            spell.player_classes().append(player_class.Druid)
+            spell.player_classes().append(player_class.Paladin)
+            spell.player_classes().append(player_class.Ranger)
+                                
+            spell.healing_die = 8
+            spell.healing_die_count = 1                    
+            
+            spell.healing_die_per_spell_slot = 8
+            spell.healing_die_count_per_spell_slot = 1   
+            
+        if spell.name == "Healing Word":                    
+            spell.school = spell_school.Evocation
+            spell.category = spell_category.Healing
+            spell.min_spellslot_level = 1
+            spell.max_spellslot_level = 9
+            
+            spell.instance = 1
+            spell.casting_time = spell_casting_time.Bonus_Action
+            spell.range = 60
+            spell.origin = origin_point.Self                    
+                                        
+            spell.player_classes().append(player_class.Bard)
+            spell.player_classes().append(player_class.Cleric)
+            spell.player_classes().append(player_class.Druid)
+                                
+            spell.healing_die = 4
+            spell.healing_die_count = 1                    
+            
+            spell.healing_die_per_spell_slot = 4
+            spell.healing_die_count_per_spell_slot = 1                    
+            
+        if spell.name == "Hunter's Mark":                    
+            spell.school = spell_school.Divination
+            spell.category = spell_category.Debuff
+            spell.min_spellslot_level = 1
+            spell.max_spellslot_level = 5
+            
+            spell.instance = 1
+            spell.casting_time = spell_casting_time.Bonus_Action
+            spell.range = 90
+            spell.origin = origin_point.Self                    
+                                        
+            spell.player_classes().append(player_class.Ranger)
+            
+            spell.condition = condition.Marked
+            spell.condition_duration = 600
+            spell.maximum_duration = 600
+            spell.concentration = True
 
         if spell.name == "Magic Missile":                                            
             spell.school = spell_school.Evocation           
