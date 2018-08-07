@@ -33,8 +33,10 @@ def initialise_combatants(init_combatants):
     #init_clockwork_warden(init_combatants)    
 
     init_lorenzo(init_combatants)
-    init_wan(init_combatants)
-    init_prodo(init_combatants)
+    init_wohn(init_combatants)
+    init_protto(init_combatants)
+    init_ruzza(init_combatants)
+    init_dwelma(init_combatants)
 
 def initialise_teams(combatants,teams):
     vm = team()
@@ -72,7 +74,7 @@ def initialise_teams(combatants,teams):
     vmnames = ["Grog","Vax","Vex","Percy","Scanlan","Keyleth","Pike","Doty","Trinket"]
     m9names = ["Fjord","Beau","Caleb","Nott","Jester","Molly","Yasha","Kiri","Cadeucus"]
     monsternames = ["Umbrasyl","Hill Giant","Arkhan","Venom Troll"]
-    ironnames = ["Lorenzo","Wan","Prodo"]
+    ironnames = ["Lorenzo","Wohn","Protto"]
     #Iterate through all combatants and initially assign them to team
     for combatant in combatants:
         if combatant.name in vmnames:
@@ -1818,57 +1820,57 @@ def init_lorenzo(init_combatants):
 
     init_combatants.append(lorenzo)    
 
-def init_wan(init_combatants):
-    wan = creature()
+def init_wohn(init_combatants):
+    wohn = creature()
 
-    wan.notes = "Path of the Beserker Barbarian"
+    wohn.notes = "Path of the Beserker Barbarian"
 
-    wan.fullname = "Wan"
-    wan.name = "Wan"
-    wan.race = race.Human
-    wan.creature_type = creature_type.Player
+    wohn.fullname = "Wohn"
+    wohn.name = "Wohn"
+    wohn.race = race.Human
+    wohn.creature_type = creature_type.Player
 
     barbarian_class = player_class_block()
     barbarian_class.player_class = player_class.Barbarian
     barbarian_class.player_subclass = player_subclass.PathOfTheBeserker
     barbarian_class.player_class_level = 5
-    wan.player_classes().append(barbarian_class)
+    wohn.player_classes().append(barbarian_class)
 
-    #wan.fighting_style = fighting_style.Great_Weapon_Fighting
-    wan.max_health = 55
-    wan.armour_class = 14
-    wan.base_speed = 40
-    wan.proficiency = calc_proficiency(wan)
-    wan.weapon_proficiency().append(weapon_type.Greatsword)
+    #wohn.fighting_style = fighting_style.Great_Weapon_Fighting
+    wohn.max_health = 55
+    wohn.armour_class = 14
+    wohn.base_speed = 40
+    wohn.proficiency = calc_proficiency(wohn)
+    wohn.weapon_proficiency().append(weapon_type.Greatsword)
 
     #Stats
-    wanstats = statistic_block()
-    wanstats.str = 17
-    wanstats.dex = 15
-    wanstats.con = 14
-    wanstats.intel = 12
-    wanstats.wis = 9
-    wanstats.cha = 7
+    wohnstats = statistic_block()
+    wohnstats.str = 17
+    wohnstats.dex = 15
+    wohnstats.con = 14
+    wohnstats.intel = 12
+    wohnstats.wis = 9
+    wohnstats.cha = 7
 
-    wan.stats = wanstats
+    wohn.stats = wohnstats
     
     #Saves
-    wansaves = saving_throw_block()    
-    wansaves.str = 6
-    wansaves.dex = 2
-    wansaves.con = 5
-    wansaves.intel = 1
-    wansaves.wis = -1
-    wansaves.cha = -2
+    wohnsaves = saving_throw_block()    
+    wohnsaves.str = 6
+    wohnsaves.dex = 2
+    wohnsaves.con = 5
+    wohnsaves.intel = 1
+    wohnsaves.wis = -1
+    wohnsaves.cha = -2
     
-    wan.saves = wansaves
+    wohn.saves = wohnsaves
 
     #Ability Checks
-    wanchecks = ability_check_block()
+    wohnchecks = ability_check_block()
     
-    wan.checks = wanchecks    
+    wohn.checks = wohnchecks    
 
-    #wan's weapons
+    #wohn's weapons
     greatsword = weapon()
     greatsword.name = "Greatsword"
     greatsword.weapon_type = weapon_type.Greatsword;
@@ -1881,65 +1883,65 @@ def init_wan(init_combatants):
     greatsword.heavy = True
     greatsword.two_handed = True
 
-    wan.weapon_inventory().append(greatsword)
+    wohn.weapon_inventory().append(greatsword)
 
-    #wan's gear
+    #wohn's gear
     # combat stats # 
 
-    init_combatants.append(wan)    
+    init_combatants.append(wohn)    
 
-def init_prodo(init_combatants):   
-    prodo = creature()
+def init_protto(init_combatants):   
+    protto = creature()
 
-    prodo.notes = "Assassin Rogue"
+    protto.notes = "Assassin Rogue"
 
-    prodo.fullname = "Prodo"
-    prodo.name = "Prodo"
-    prodo.race = race.Halfling
-    prodo.creature_type = creature_type.Player
+    protto.fullname = "Protto"
+    protto.name = "Protto"
+    protto.race = race.Halfling
+    protto.creature_type = creature_type.Player
 
     rogue_class = player_class_block()
     rogue_class.player_class = player_class.Rogue
     rogue_class.player_subclass = player_subclass.Assassin    
     rogue_class.player_class_level = 5
-    prodo.player_classes().append(rogue_class)
+    protto.player_classes().append(rogue_class)
 
-    #prodo.fighting_style = fighting_style.Great_Weapon_Fighting
-    prodo.max_health = 40
-    prodo.armour_class = 16
-    prodo.base_speed = 30
-    prodo.proficiency = calc_proficiency(prodo)
-    prodo.weapon_proficiency().append(weapon_type.Shortbow)    
-    prodo.weapon_proficiency().append(weapon_type.Shortsword)    
+    #protto.fighting_style = fighting_style.Great_Weapon_Fighting
+    protto.max_health = 40
+    protto.armour_class = 16
+    protto.base_speed = 30
+    protto.proficiency = calc_proficiency(protto)
+    protto.weapon_proficiency().append(weapon_type.Shortbow)    
+    protto.weapon_proficiency().append(weapon_type.Shortsword)    
 
     #Stats
-    prodostats = statistic_block()
-    prodostats.str = 11
-    prodostats.dex = 19
-    prodostats.con = 14
-    prodostats.intel = 16
-    prodostats.wis = 11
-    prodostats.cha = 5
+    prottostats = statistic_block()
+    prottostats.str = 11
+    prottostats.dex = 19
+    prottostats.con = 14
+    prottostats.intel = 16
+    prottostats.wis = 11
+    prottostats.cha = 5
 
-    prodo.stats = prodostats
+    protto.stats = prottostats
     
     #Saves
-    prodosaves = saving_throw_block()    
-    prodosaves.str = 0
-    prodosaves.dex = 7
-    prodosaves.con = 2
-    prodosaves.intel = 6
-    prodosaves.wis = 0
-    prodosaves.cha = -3
+    prottosaves = saving_throw_block()    
+    prottosaves.str = 0
+    prottosaves.dex = 7
+    prottosaves.con = 2
+    prottosaves.intel = 6
+    prottosaves.wis = 0
+    prottosaves.cha = -3
     
-    prodo.saves = prodosaves
+    protto.saves = prottosaves
 
     #Ability Checks
-    prodochecks = ability_check_block()
+    prottochecks = ability_check_block()
     
-    prodo.checks = prodochecks    
+    protto.checks = prottochecks    
 
-    #prodo's weapons
+    #protto's weapons
     shortbow = weapon()
     shortbow.name = "Shortbow"
     shortbow.weapon_type = weapon_type.Shortbow;
@@ -1953,7 +1955,7 @@ def init_prodo(init_combatants):
     shortbow.light = True
     shortbow.loading = True 
     
-    prodo.weapon_inventory().append(shortbow)
+    protto.weapon_inventory().append(shortbow)
 
     shortsword = weapon()
     shortsword.name = "Shortsword"
@@ -1967,12 +1969,12 @@ def init_prodo(init_combatants):
     shortsword.finesse = True
     shortsword.light = True 
 
-    prodo.weapon_inventory().append(shortsword)
+    protto.weapon_inventory().append(shortsword)
 
-    #prodo's gear
+    #protto's gear
     # combat stats # 
 
-    init_combatants.append(prodo)    
+    init_combatants.append(protto)    
 
 
 def init_trinket(init_combatants):
