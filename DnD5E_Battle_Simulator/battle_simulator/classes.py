@@ -529,6 +529,11 @@ class weapon():
     magic_to_hit_modifier = int() #also use this on monster attacks (i.e. dragon gets +15 on claw, +8 of which comes from str mod - the rest has no source)
     magic_damage_modifier = int()
 
+    # Spell properties
+    # Some items (i.e. Fenthras) can cast spells after a successful hit (Bramble Shot). Spell must be declared (charge consumed) before hit.
+    spell_on_hit = spell()
+    spell_charges = int()
+
     # Firearm-specific properties
     reload = int()
     currentammo = int()
@@ -541,6 +546,7 @@ class weapon():
 
     # Warlock Pact of the Blade weapon toggle (flavour mainly)
     pact_weapon = bool()
+
 class team():
     name = ""
     no_of_wins = int()

@@ -35,8 +35,8 @@ def initialise_combatants(init_combatants):
     init_lorenzo(init_combatants)
     init_wohn(init_combatants)
     init_protto(init_combatants)
-    init_ruzza(init_combatants)
-    init_dwelma(init_combatants)
+    #init_ruzza(init_combatants)
+    #init_dwelma(init_combatants)
 
 def initialise_teams(combatants,teams):
     vm = team()
@@ -568,6 +568,12 @@ def init_vex(init_combatants):
 
     fenthras.finesse = True    
     fenthras.magic = True    
+    
+    bramble_shot = spell()
+    bramble_shot.name = "Bramble Shot"
+    fenthras.spell_on_hit = bramble_shot
+    vex.spell_list().append(bramble_shot)
+    fenthras.spell_charges = 2
 
     vex.weapon_inventory().append(fenthras)
 

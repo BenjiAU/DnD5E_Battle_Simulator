@@ -188,6 +188,7 @@ def breath_recharge(combatant):
 
 #Make an attack
 def attack(combatant,weapon):    
+    weapon_spell = None
     attack_hit = False
     in_range = False
     in_long_range = False        
@@ -281,6 +282,14 @@ def attack(combatant,weapon):
                                 print_output(combatant.name + ' uses Great Weapon Master, taking a -5 penalty to the attack')
                                 combatant.use_great_weapon_master = True           
 
+                        # Weapon spells
+                        # Declare whether an available spell on the weapon should be cast, and consume the charge (prior to resolving hit)
+                        if weapon.spell_on_hit != None:
+                            if weapon.spell_charges > 0:
+                                print_output(weapon.name + ' glows with power, as the ' + weapon.spell_on_hit.name + ' spell is cast and ready to be unleashed on a successful weapon attack!')
+                                weapon_spell = weapon.spell_on_hit
+                                weapon.spell_charges -= 1;
+
                         # Other weapon pre-attack features                    
                         if weapon.weapon_type == weapon_type.Firearm and not attackcomplete:                            
                             # Check to spend grit for trick shot if available #
@@ -322,7 +331,7 @@ def attack(combatant,weapon):
 
                                 if curr_grit == combatant.current_grit:
                                     print_output(combatant.name + ' decides to forego spending a Grit point on this attack.')
-
+                        
                     # Make attack roll #                     
                     if not attackcomplete:                        
                         atkroll = attack_roll(combatant,advantage,disadvantage,to_hit_modifier)
@@ -590,6 +599,11 @@ def attack(combatant,weapon):
                                                 eq.current_charges = 0                
                                                 print_indent( combatant.name + ' dealt an additional ' + damage_text(repr(equipment_damage)) + ' points of ' + equipment_damage_type.name + ' damage with ' + eq.name)
                                                 deal_damage(combatant,combatant.target,equipment_damage,equipment_damage_type,True,crit)                                                               
+
+                                #Weapon spells (i.e. Fenthras Bramble Shot)
+                                if weapon_spell != None:
+                                    print_indent('The ' + weapon_spell.name + ' spell unleashed by ' + weapon.name + ' takes effect!')     
+                                    cast_spell(combatant,weapon_spell,crit)
 
                                 #Divine Smite
                                 for spell in combatant.spell_list():

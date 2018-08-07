@@ -207,6 +207,29 @@ def initialise_spells(combatant):
             spell.damage_die_count_per_spell_slot = 1       
 
     #############
+    #Weapon Spells
+    ############# 
+
+        if spell.name == "Bramble Shot":                                                                                        
+            spell.school = spell_school.Evocation
+            spell.category = spell_category.Debuff
+            spell.min_spellslot_level = 0
+            spell.max_spellslot_level = 0
+            spell.casting_time = spell_casting_time.Instant
+            spell.range = 600
+            spell.origin = origin_point.Self
+            spell.instance = 1
+
+            spell.damage_die = 8
+            spell.damage_die_count = 4
+            spell.damage_type = damage_type.Piercing
+            spell.condition = condition.Restrained
+            spell.saving_throw_attribute = saving_throw.Strength
+            spell.saving_throw_damage_multiplier = 1 #No damage reduction from successful save
+            spell.player_classes().append(player_class.Ranger)                                            
+            spell.description = "The arrow launched from Fenthras splinters and fractures into a thousand thick, barbed vines, that wrap around"
+
+    #############
     ## Cantrips #
     #############        
 

@@ -166,10 +166,11 @@ def cast_spell(combatant,spell,crit = None):
             if spell.saving_throw_attribute != 0:
                 print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + combatant.target.name)
                 if savingthrow(combatant.target,savetype,spell_save_DC(combatant,spell)):            
-                    print_indent(combatant.target.name + ' resists the effect of the ' + spell.name + ' spell!')
+                    print_indent(combatant.target.name + ' resists the effect of the ' + spell.name + ' spell!')                    
+                    if spell.damage_die != 0:
+                        calculate_spell_damage(combatant,combatant.target,spell,spellslot,False,spell.saving_throw_damage_multiplier)    
                 else:
-                    inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))
-                    #Debuff spells may also have a damage component
+                    inflict_condition(combatant.target,spell_ID,spell.condition,spell.condition_duration,spell.repeat_save_action,spell.repeat_save_end_of_turn,spell.saving_throw_attribute,spell_save_DC(combatant,spell))                    
                     if spell.damage_die != 0:
                         calculate_spell_damage(combatant,combatant.target,spell,spellslot,False)    
             else:
@@ -339,13 +340,14 @@ def get_highest_spellslot(combatant,spell):
 
 def get_best_spellslot(combatant,spell):    
     # Sort spells by level then selects the one that fits within min/max bounds (so you dont burn higher level spellslots for no reason)
-    if spell.cantrip:
+    if spell.cantrip or spell.min_spellslot_level == 0:
         return None
+    
     initkey = operator.attrgetter("level")
     sorted_spells = sorted(combatant.spellslots(), key=initkey,reverse=True)    
 
     best_spellslot = None
-    for spellslot in sorted_spells:
+    for spellslot in sorted_spells:        
         if spellslot.level >= spell.min_spellslot_level:
             if spellslot.current > 0:
                 # Prefer to use the spell underneath the maximum spellslot level (i.e. casting Slow at level 5 offers no benefit over casting it at level 3)
