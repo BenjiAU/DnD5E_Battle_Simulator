@@ -111,6 +111,8 @@ def attack_action(combatant):
                     if not find_target(combatant):
                         print_output('No targets remain!')
                         return
+                    if combatant.movement > 0:
+                        use_movement(combatant)
                     attack(combatant,combatant.main_hand_weapon)  
     else:
         print_error(combatant.name + ' does not have a Creature Type defined. Unable to determine attack action.')
