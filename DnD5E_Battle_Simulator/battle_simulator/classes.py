@@ -685,6 +685,14 @@ class creature():
     rage_beyond_death = bool()
 
     #############
+    #### Bard ###
+    #############    
+    
+    bardic_inspirations = int()
+    max_bardic_inspirations = int() #Max uses = cha mod
+    bardic_inspiration_die = int()     
+
+    #############
     #Blood Hunter
     #############    
 
@@ -712,6 +720,17 @@ class creature():
     hallowed_veins = bool()
     supernal_flurry = bool()
     vengeful_spirit = bool()
+
+    #############
+    ### Druid ###
+    #############    
+    
+    wild_shapes = int()
+    max_wild_shapes = int() #Max uses = cha mod
+    wild_shape_combatant = creature()
+    bardic_inspiration_die = int()     
+    beast_spells = bool()
+
 
     #############
     ## Fighter ##

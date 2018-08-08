@@ -136,6 +136,12 @@ def bonus_action(combatant):
                     attack(combatant,combatant.main_hand_weapon)            
                     combatant.bonus_action_used = True
                         
+    # Bard bonus actions
+    if not combatant.bonus_action_used:
+        if combatant.bardic_inspirations > 0:
+            
+    
+
     # Blood Hunter bonus actions
     if not combatant.bonus_action_used:
         if combatant.crimson_rite:
@@ -152,6 +158,8 @@ def bonus_action(combatant):
                     if combatant.offhand_weapon.active_crimson_rite == None:
                         rite = select_crimson_rite(combatant)
                         activate_crimson_rite(combatant,combatant.offhand_weapon,rite)                        
+
+    # Druid bonus actions
 
     # Fighter bonus actions
     #Second Wind
