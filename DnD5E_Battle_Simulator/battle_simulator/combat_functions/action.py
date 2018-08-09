@@ -139,7 +139,11 @@ def bonus_action(combatant):
     # Bard bonus actions
     if not combatant.bonus_action_used:
         if combatant.bardic_inspirations > 0:
-            
+            inspiration_target = find_buff_target(combatant,condition.Inspired,60)
+            if inspiration_target != None:
+                print_output('<b>Bonus Action:</b>')
+                print_output(combatant.name + ' uses their Bonus Action to make a frenzied weapon attack against ' + combatant.target.name)
+                    
     
 
     # Blood Hunter bonus actions

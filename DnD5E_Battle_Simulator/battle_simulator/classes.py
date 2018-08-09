@@ -103,6 +103,7 @@ class condition(Enum):
     Raging = auto() #Barbarian Rage
     Reckless = auto() #Barbarian Reckless Attack
     Shielded = auto() # Wizard Shield spell
+    Inspired = auto() # Bardic Inspiration
 
     # Debuffs
     Hexed = auto() # Hex spell
@@ -145,6 +146,8 @@ class player_subclass(Enum):
     #Barbarian subclasses (Paths)
     PathOfTheBeserker = auto()
     PathOfTheZealot = auto()
+    #Bard subclasses (colleges)
+    CollegeOfLore = auto()
     #BloodHunter subclasses
     OrderOfTheGhostslayer = auto()
     OrderOfTheProfaneSoul = auto()
@@ -692,6 +695,9 @@ class creature():
     max_bardic_inspirations = int() #Max uses = cha mod
     bardic_inspiration_die = int()     
 
+    # Lore
+    cutting_words = bool()
+
     #############
     #Blood Hunter
     #############    
@@ -727,10 +733,9 @@ class creature():
     
     wild_shapes = int()
     max_wild_shapes = int() #Max uses = cha mod
-    wild_shape_combatant = creature()
-    bardic_inspiration_die = int()     
-    beast_spells = bool()
+    wild_shape_combatant = creature()    
 
+    beast_spells = bool()
 
     #############
     ## Fighter ##
@@ -864,8 +869,15 @@ class creature():
     has_advantage = bool()
     has_disadvantage = bool() 
 
+    # Tracks temporary statii that need a value, and can't be handled by the naive Condition
+    inspiration_die = int()
+
     # Generic target object, linked to another creature in the find_target function
+    # The primary target is used to determine movement and AI behaviour
     target = None
+
+    # A special target object used to override the primary target for buffs/healing focus
+    ally_target = None
 
     #Summary fields - for output at end of simulation    
     attacks_hit = int()

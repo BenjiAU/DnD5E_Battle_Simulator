@@ -179,6 +179,24 @@ def initialise_class_features(combatant):
                 # Rage Beyond death (14th level, while raging, fall below 0 you don't go unconscious - still make Death Saving Throws)
                 if class_instance.player_class_level >= 14:
                     combatant.rage_beyond_death = True
+        #############
+        #### Bard ###
+        #############
+        if class_instance.player_class == player_class.Bard:            
+            if class_instance.player_class_level >= 1:
+                combatant.max_bardic_inspirations = chamod(combatant)
+                combatant.bardic_inspirations = combatant.max_bardic_inspirations
+                combatant.bardic_inspiration_die = 6
+            if class_instance.player_class_level >= 5:
+                combatant.bardic_inspiration_die = 8
+            if class_instance.player_class_level >= 10:
+                combatant.bardic_inspiration_die = 10
+            if class_instance.player_class_level >= 15:
+                combatant.bardic_inspiration_die = 12
+
+            if class_instance.player_subclass = player_subclass.CollegeOfLore:
+                if class_instance.player_class_level >= 3:
+                    combatant.cutting_words = True
 
         #############
         #Blood Hunter
