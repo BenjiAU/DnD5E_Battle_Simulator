@@ -107,6 +107,10 @@ def reset_combatants(init_combatants):
             ### Venom Troll
             if combatant.monster_type == monster_type.Venom:                            
                 combatant.multiattack = ["Claw","Bite"]
+
+            ### Beast forms
+            if combatant.monster_type == monster_type.Eagle:
+                combatant.multiattack = ["Beak","Talon"]
             
 def initialise_class_features(combatant):
     ### Initialise Class Abilities ###        
@@ -274,12 +278,13 @@ def initialise_class_features(combatant):
         #############
         if class_instance.player_class == player_class.Druid:            
             if class_instance.player_class_level >= 2:
+                combatant.wild_shape = True
                 combatant.wild_shape_max = 2
                 wild_shape_max_cr = class_instance.player_class_level / 8
             if class_instance.player_class_level >= 18:
-                combatant.beast_spells = 2
-            if class_instance.player_class_level >= 20:
-                combatant.wild_shape_max = 999
+                combatant.beast_spells = True
+            #if class_instance.player_class_level >= 20:
+            #    combatant.wild_shape_max = 999
 
         #############
         ## Fighter ##

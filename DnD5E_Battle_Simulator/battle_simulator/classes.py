@@ -199,10 +199,6 @@ class blood_curse():
     amplify_hit_die_cost = int()
     duration = int() #(0 = reaction/instant, 1=until beginning of next turn, other values determined by wis mod etc)
 
-#Druid
-class wild_shape():    
-    form = creature()
-
 #Warlock 
 class eldritch_invocation(Enum):
     def __str__(self):
@@ -740,15 +736,20 @@ class creature():
     #############
     ### Druid ###
     #############    
-    
-    druid_form = str() #Is set on the wild shape of a combatant to the parent/druid's name, to allow us to retrieve the master combatant object during combat
+    wild_shape = bool()
+    druid_form = None #Is set on the wild shape of a combatant an instance of the combatant, to allow us to retrieve the master combatant object during combat
+    def potential_wild_shapes(self):
+        if not hasattr(self, "_potential_wild_shapes"):
+            self._potential_wild_shapes = []
+        return self._potential_wild_shapes
+
     def wild_shapes(self):
         if not hasattr(self, "_wild_shapes"):
             self._wild_shapes = []
         return self._wild_shapes
 
     wild_shape_max_cr = float() #Maximum challenge rating of wild shape (based on Druid level)    
-    wild_shape_max = int() #Max uses of Wild Shape, unlimited at level 20
+    max_wild_shapes = int() #Max uses of Wild Shape, unlimited at level 20
 
     beast_spells = bool()
 

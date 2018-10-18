@@ -164,6 +164,23 @@ def bonus_action(combatant):
                         activate_crimson_rite(combatant,combatant.offhand_weapon,rite)                        
 
     # Druid bonus actions
+    if not combatant.bonus_action_used:
+        if combatant.wild_shape:
+            # Insert some crazy complicated logic for selecting wild shape form here
+            # For now, turn Keyleth into an eagle
+            wild_shape = select_wild_shape(combatant)
+            if wild_shape != None:
+                combatant = transform_into_wild_shape(combatant,wild_shape)     
+                print_output(combatant.name + ' has transformed!')
+                combatant.bonus_action_used = True
+    
+    if not combatant.bonus_action_used:           
+        if combatant.druid_form != None:
+            # Insert some crazy complicated logic for deciding when to shift out here
+            # For now, use arbitrary hp value
+            if combatant.current_hp <= 10:
+                wild_shape_combatant = copy(combatant)
+                combatant = transform_into_druid_form(combatant,wild_shape_combatant)
 
     # Fighter bonus actions
     #Second Wind
@@ -309,6 +326,7 @@ def repair_weapon(combatant):
 def select_crimson_rite(combatant):
     selected_rite = None
     for rite in combatant.crimson_rites():
+        #Fix me
         if rite.name == "Rite of the Dawn":
             selected_rite = rite
     return(selected_rite)
@@ -321,3 +339,39 @@ def activate_crimson_rite(combatant,weapon,rite):
         resolve_damage(combatant)                            
         weapon.active_crimson_rite = rite
         combatant.bonus_action_used = True
+
+def select_wild_shape(combatant):
+    selected_wild_shape = None
+    for potential_wild_shape in combatant.potential_wild_shapes():
+        # Fix me        
+        if potential_wild_shape.name == "Giant Eagle":
+            for current_wild_shape in combatant.wild_shapes():
+                if current_wild_shape.name == potential_wild_shape.name:
+                    selected_wild_shape = current_wild_shape                
+            if selected_wild_shape == None:
+                #Check that we have an additional slot available to shift into this selected creature
+                if len(combatant.wild_shapes()) <= combatant.max_wild_shapes:
+                    combatant.wild_shapes().append(potential_wild_shape)                    
+                    selected_wild_shape = potential_wild_shape
+
+    return(selected_wild_shape)
+
+def transform_into_wild_shape(combatant,wild_shape):
+    #Freeze the current state of the combatant into the wild_shape object
+    print_output('<b>Bonus Action:</b>')
+    print_output(combatant.name + ' uses their Wild Shape to transform into a ' + wild_shape.name + '!!!')
+    #Store the original combatant in the 'Druid Form' parameter on the selected wild shape   
+    wild_shape.druid_form = combatant
+    #Return the wild shape to force overwrite the combatant
+    return wild_shape    
+
+#Accepts two isntances of the same combatant object
+def transform_into_druid_form(combatant,wild_shape_combatant):    
+    #Store the wild_shape_combatant back into the array against the druid to update any hp values etc.
+    for wild_shape in combatant.druid_form.wild_shapes():        
+        if wild_shape.name == wild_shape_combatant.name:
+            #Overwrite the wild_shape object in the combatant array with the updated combatant
+            wild_shape = wild_shape_combatant
+
+    return combatant.druid_form
+    

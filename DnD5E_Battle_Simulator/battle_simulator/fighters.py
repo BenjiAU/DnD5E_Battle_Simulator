@@ -11,7 +11,7 @@ def initialise_combatants(init_combatants):
     init_vex(init_combatants)
     init_trinket(init_combatants)
     #init_scanlan(init_combatants)
-    #init_keyleth(init_combatants)
+    init_keyleth(init_combatants)
     #init_pike(init_combatants)
     #init_tary(init_combatants)                     
     #init_doty(init_combatants)
@@ -646,8 +646,57 @@ def init_keyleth(init_combatants):
         
     #keyleth's spells
     
-    #keyleth's wild shapes
-    setup_wild_shapes(keyleth)    
+    #keyleth's wild shapes  
+    giant_eagle = creature()
+
+    giant_eagle.creature_type = creature_type.Monster
+    giant_eagle.challenge_rating = 1
+    giant_eagle.fullname = "Giant Eagle"
+    giant_eagle.name = "Giant Eagle"
+    giant_eagle.race = race.Beast
+    giant_eagle.monster_type = monster_type.Eagle  
+    giant_eagle.max_health = 26
+    giant_eagle.armour_class = 13
+    giant_eagle.base_speed = 80
+        
+    #Stats
+    giant_eaglestats = statistic_block()
+    giant_eaglestats.str = 16
+    giant_eaglestats.dex = 17
+    giant_eaglestats.con = 13
+    giant_eaglestats.intel = 8
+    giant_eaglestats.wis = 14
+    giant_eaglestats.cha = 10
+
+    giant_eagle.stats = giant_eaglestats
+
+    #giant_eagle's weapons
+    beak = weapon()
+    beak.name = "Beak"
+    beak.weapon_type = weapon_type.Natural;
+    beak.range = 0
+    
+    beak.damage_die = 6
+    beak.damage_die_count = 1
+    beak.weapon_damage_type = damage_type.Piercing
+    
+    giant_eagle.weapon_inventory().append(beak)
+        
+    talon = weapon()
+    talon.name = "Talon"
+    talon.weapon_type = weapon_type.Natural;
+    talon.range = 0
+    
+    talon.damage_die = 6
+    talon.damage_die_count = 2
+    talon.weapon_damage_type = damage_type.Slashing
+    
+    giant_eagle.weapon_inventory().append(talon)
+
+    giant_eagle.druid_form = keyleth.name
+
+    #Appends an instance of this creature to the combatant's list of potential wild shapes, to allow selection of different creatures 
+    keyleth.potential_wild_shapes().append(giant_eagle)                            
 
     init_combatants.append(keyleth)    
 
@@ -2113,55 +2162,3 @@ def init_trinket(init_combatants):
     init_combatants.append(trinket)    
 
 # wild shapes for druids
-
-class setup_wild_shapes(combatant):
-    giant_eagle = creature()
-
-    giant_eagle.creature_type = creature_type.Monster
-    giant_eagle.challenge_rating = 1
-    giant_eagle.fullname = "Giant Eagle"
-    giant_eagle.name = "Giant Eagle"
-    giant_eagle.race = race.Beast
-    giant_eagle.monster_type = monster_type.Eagle  
-    giant_eagle.max_health = 26
-    giant_eagle.armour_class = 13
-    giant_eagle.base_speed = 80
-        
-    #Stats
-    giant_eaglestats = statistic_block()
-    giant_eaglestats.str = 16
-    giant_eaglestats.dex = 17
-    giant_eaglestats.con = 13
-    giant_eaglestats.intel = 8
-    giant_eaglestats.wis = 14
-    giant_eaglestats.cha = 10
-
-    giant_eagle.stats = giant_eaglestats
-
-    #giant_eagle's weapons
-    beak = weapon()
-    beak.name = "Beak"
-    beak.weapon_type = weapon_type.Natural;
-    beak.range = 0
-    
-    bite.damage_die = 6
-    bite.damage_die_count = 1
-    bite.weapon_damage_type = damage_type.Piercing
-    
-    giant_eagle.weapon_inventory().append(bite)
-        
-    talon = weapon()
-    talon.name = "Talon"
-    talon.weapon_type = weapon_type.Natural;
-    talon.range = 0
-    
-    talon.damage_die = 6
-    talon.damage_die_count = 2
-    talon.weapon_damage_type = damage_type.Slashing
-    
-    giant_eagle.weapon_inventory().append(talon)
-
-    giant_eagle.druid_form = combatant.name
-
-    #Appends an instance of this creature to the combatant's list of wild shapes; changes to HP and other stats are tracked in the combatant's wild shape list
-    combatant.wild_shapes.append(giant_eagle)                    
