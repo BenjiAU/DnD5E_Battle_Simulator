@@ -155,6 +155,8 @@ class player_subclass(Enum):
     #Cleric subclasses (Domains)
     LifeDomain = auto()
     TrickeryDomain = auto()    
+    #Druid subclasses (Circles)
+    CircleOfTheMoon = auto()
     #Fighter subclasses
     Battlemaster = auto()
     Gunslinger = auto()
@@ -179,6 +181,8 @@ class player_subclass(Enum):
     Necromancy = auto()
     Transmutation = auto()
 
+#Ancillary classes based on player class
+#Blood hunter 
 class crimson_rite():
     name = str()    
     damage_type = int()
@@ -195,6 +199,11 @@ class blood_curse():
     amplify_hit_die_cost = int()
     duration = int() #(0 = reaction/instant, 1=until beginning of next turn, other values determined by wis mod etc)
 
+#Druid
+class wild_shape():    
+    form = creature()
+
+#Warlock 
 class eldritch_invocation(Enum):
     def __str__(self):
         return str(self.value)    
@@ -286,6 +295,7 @@ class monster_type(Enum):
     Hill = auto()
     Oni = auto()
     #Beasts
+    Eagle = auto()
     Bear = auto()
     #Dragons
     Ancient_Black_Dragon = auto()
@@ -731,9 +741,14 @@ class creature():
     ### Druid ###
     #############    
     
-    wild_shapes = int()
-    max_wild_shapes = int() #Max uses = cha mod
-    wild_shape_combatant = creature()    
+    druid_form = str() #Is set on the wild shape of a combatant to the parent/druid's name, to allow us to retrieve the master combatant object during combat
+    def wild_shapes(self):
+        if not hasattr(self, "_wild_shapes"):
+            self._wild_shapes = []
+        return self._wild_shapes
+
+    wild_shape_max_cr = float() #Maximum challenge rating of wild shape (based on Druid level)    
+    wild_shape_max = int() #Max uses of Wild Shape, unlimited at level 20
 
     beast_spells = bool()
 
@@ -897,7 +912,7 @@ class pending_damage():
     crit = bool() #Marks whether this damage is from a critical strike
 
 # Helper Functions
-# Keep functions that need to be accessed from around the program here, as long as they don't require any outside knowledge (i.e. are constructed just from the nature of classes)
+# Key functions that need to be accessed from around the program here, as long as they don't require any outside knowledge (i.e. are constructed just from the nature of classes)
 
 def melee_range():
     #Treating default melee weapon range as 5 feet, upped to 8 to avoid clipping issues on corners of grid

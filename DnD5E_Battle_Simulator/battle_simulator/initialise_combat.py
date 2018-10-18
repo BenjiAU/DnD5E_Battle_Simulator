@@ -194,7 +194,7 @@ def initialise_class_features(combatant):
             if class_instance.player_class_level >= 15:
                 combatant.bardic_inspiration_die = 12
 
-            if class_instance.player_subclass = player_subclass.CollegeOfLore:
+            if class_instance.player_subclass == player_subclass.CollegeOfLore:
                 if class_instance.player_class_level >= 3:
                     combatant.cutting_words = True
 
@@ -268,6 +268,18 @@ def initialise_class_features(combatant):
                             rite.bonus_damage_target = None
                 if class_instance.player_class_level >= 18:
                     combatant.vengeful_spirit = True
+        
+        #############
+        ### Druid ###
+        #############
+        if class_instance.player_class == player_class.Druid:            
+            if class_instance.player_class_level >= 2:
+                combatant.wild_shape_max = 2
+                wild_shape_max_cr = class_instance.player_class_level / 8
+            if class_instance.player_class_level >= 18:
+                combatant.beast_spells = 2
+            if class_instance.player_class_level >= 20:
+                combatant.wild_shape_max = 999
 
         #############
         ## Fighter ##

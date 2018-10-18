@@ -589,6 +589,68 @@ def init_vex(init_combatants):
 
     init_combatants.append(vex)    
 
+def init_keyleth(init_combatants):
+
+    #keyleth
+    keyleth = creature()
+
+    keyleth.notes = "Archdruid Keyleth"
+
+    keyleth.creature_type = creature_type.Player
+    keyleth.fullname = "Lady Keyleth"
+    keyleth.name = "Keyleth"
+    keyleth.race = race.Half_Elf    
+
+    druid_class = player_class_block()
+    druid_class.player_class = player_class.Druid
+    druid_class.player_subclass = player_subclass.CircleOfTheMoon
+    druid_class.player_class_level = 20
+    keyleth.player_classes().append(druid_class)
+
+    keyleth.max_health = 147
+    keyleth.armour_class = 17
+    keyleth.base_speed = 30
+    keyleth.proficiency = calc_proficiency(keyleth)    
+
+    #Stats
+    keylethstats = statistic_block()
+    keylethstats.str = 14
+    keylethstats.dex = 15
+    keylethstats.con = 14
+    keylethstats.intel = 15
+    keylethstats.wis = 22
+    keylethstats.cha = 10
+
+    keyleth.stats = keylethstats
+    
+    #Saves
+    keylethsaves = saving_throw_block()    
+    keylethsaves.str = 5
+    keylethsaves.dex = 5
+    keylethsaves.con = 5
+    keylethsaves.intel = 8
+    keylethsaves.wis = 15
+    keylethsaves.cha = 3
+    
+    keyleth.saves = keylethsaves
+
+    #Ability Checks
+    keylethchecks = ability_check_block()
+    
+    keyleth.checks = keylethchecks        
+
+
+    #keyleth's weapons
+
+    #keyleth's gear
+        
+    #keyleth's spells
+    
+    #keyleth's wild shapes
+    setup_wild_shapes(keyleth)    
+
+    init_combatants.append(keyleth)    
+
 def init_kiri(init_combatants):
     kiri = creature()
 
@@ -2049,3 +2111,57 @@ def init_trinket(init_combatants):
     trinket.weapon_inventory().append(claw)
 
     init_combatants.append(trinket)    
+
+# wild shapes for druids
+
+class setup_wild_shapes(combatant):
+    giant_eagle = creature()
+
+    giant_eagle.creature_type = creature_type.Monster
+    giant_eagle.challenge_rating = 1
+    giant_eagle.fullname = "Giant Eagle"
+    giant_eagle.name = "Giant Eagle"
+    giant_eagle.race = race.Beast
+    giant_eagle.monster_type = monster_type.Eagle  
+    giant_eagle.max_health = 26
+    giant_eagle.armour_class = 13
+    giant_eagle.base_speed = 80
+        
+    #Stats
+    giant_eaglestats = statistic_block()
+    giant_eaglestats.str = 16
+    giant_eaglestats.dex = 17
+    giant_eaglestats.con = 13
+    giant_eaglestats.intel = 8
+    giant_eaglestats.wis = 14
+    giant_eaglestats.cha = 10
+
+    giant_eagle.stats = giant_eaglestats
+
+    #giant_eagle's weapons
+    beak = weapon()
+    beak.name = "Beak"
+    beak.weapon_type = weapon_type.Natural;
+    beak.range = 0
+    
+    bite.damage_die = 6
+    bite.damage_die_count = 1
+    bite.weapon_damage_type = damage_type.Piercing
+    
+    giant_eagle.weapon_inventory().append(bite)
+        
+    talon = weapon()
+    talon.name = "Talon"
+    talon.weapon_type = weapon_type.Natural;
+    talon.range = 0
+    
+    talon.damage_die = 6
+    talon.damage_die_count = 2
+    talon.weapon_damage_type = damage_type.Slashing
+    
+    giant_eagle.weapon_inventory().append(talon)
+
+    giant_eagle.druid_form = combatant.name
+
+    #Appends an instance of this creature to the combatant's list of wild shapes; changes to HP and other stats are tracked in the combatant's wild shape list
+    combatant.wild_shapes.append(giant_eagle)                    
