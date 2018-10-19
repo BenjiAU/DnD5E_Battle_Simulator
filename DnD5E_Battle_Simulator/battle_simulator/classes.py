@@ -3,6 +3,8 @@ from enum import Enum, auto
 import math
 import random
 
+from copy import copy
+
 class area_of_effect_shape(Enum):
     def __str__(self):
         return str(self.value)    
@@ -1029,3 +1031,39 @@ class event_invoke(Enum):
     Reaction = auto()
     Attack = auto()
     Feature = auto()
+
+#Druid wild shape transformation functions    
+def transform_into_wild_shape(combatant,wild_shape):
+    #Freeze the current state of the combatant into the wild_shape object
+    #Store a copy of the combatant in its current form into the druid form of itself
+    combatant.druid_form = copy(combatant)
+    #Update the details on the combatant object with the wild shape
+    combatant.name = combatant.name + ' (' + wild_shape.name + ' form)'    
+    combatant.creature_type = wild_shape.creature_type
+    combatant.monster_type = wild_shape.monster_type
+    combatant.movement = wild_shape.movement
+    combatant.max_health = wild_shape.max_health
+    combatant.current_health = wild_shape.current_health
+    combatant.stats = wild_shape.stats
+    combatant.multiattack = wild_shape.multiattack
+    combatant.weapon_inventory = wild_shape.weapon_inventory
+    
+def transform_into_druid_form(combatant):        
+    #Store the current hp of the combatant back into the wild shape object
+    for wild_shape in combatant.wild_shapes():        
+        if wild_shape.name in combatant.name:
+            wild_shape.current_health = combatant.current_health
+
+    #Restore the combatant back to the correct info
+    combatant.name = combatant.druid_form.name
+    combatant.creature_type = combatant.druid_form.creature_type
+    combatant.monster_type = combatant.druid_form.monster_type
+    combatant.movement = combatant.druid_form.movement
+    combatant.max_health = combatant.druid_form.max_health
+    combatant.current_health = combatant.druid_form.current_health
+    combatant.stats = combatant.druid_form.stats
+    combatant.multiattack = combatant.druid_form.multiattack
+    combatant.weapon_inventory = combatant.druid_form.weapon_inventory
+
+    #Clear out the druid form entry
+    combatant.druid_form = None

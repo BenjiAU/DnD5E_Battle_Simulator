@@ -244,7 +244,16 @@ def resolve_damage(combatant):
                             damage_string += 'reduced by ' + repr(int(reduction)) + ' (Stones Endurance)'
                             combatant.stones_endurance_used = True
                             combatant.reaction_used = True                
-                        
+            
+            #Wild shape - Check total damage - if it exceeds current health, store a new pending damage object against the combatant to be resolved after forced transformation
+            if combatant.druid_form != None:
+                if total_damage > combatant.current_health:
+                    remaining_damage = total_damage - combatant.current_health
+                    pd = pending_damage()
+                    pd.pending_damage_type = damage_type.Generic
+                    pd.damage = remaining_damage                    
+                    combatant.druid_form.pending_damage().append(pd)
+
             combatant.current_health = max(combatant.current_health - total_damage,0)
 
             #Check Concentration
@@ -279,6 +288,16 @@ def resolve_damage(combatant):
 
 def resolve_fatality(combatant):
     if combatant.alive and not check_condition(combatant,condition.Unconscious) and combatant.current_health <= 0:
+        # If in wild shape form, shift out
+        if combatant.druid_form != None:
+            #Store any accumulated damage on the druid form back against the combatant principal
+            for pd in combatant.druid_form.pending_damage():
+                combatant.pending_damage().append(pd)
+            #Force back into druid form
+            transform_into_druid_form(combatant)
+            #Resolve any pending damage
+            resolve_damage(combatant)
+
         # Default proposition - combatant goes unconscious
         # If any features or abilities remove the unconsciousness condition, we remain standing
         inflict_condition(combatant,combatant,condition.Unconscious)                

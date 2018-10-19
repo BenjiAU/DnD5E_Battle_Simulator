@@ -202,8 +202,11 @@ def simulate_battle():
 
                                 # bonus action (pre-movement)#       
                                 if not combatant.bonus_action_used:                                    
-                                    bonus_action(combatant)      
-
+                                    modified_combatant = bonus_action(combatant)
+                                    #Transform the combatant if they Wild Shaped during the bonus action
+                                    if modified_combatant != None:
+                                        combatant = modified_combatant
+                                        
                                 # use movement first #
                                 movement(combatant)
 
