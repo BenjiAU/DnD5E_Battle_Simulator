@@ -3,6 +3,8 @@ from enum import Enum, auto
 import math
 import random
 
+from copy import copy
+
 class area_of_effect_shape(Enum):
     def __str__(self):
         return str(self.value)    
@@ -155,6 +157,8 @@ class player_subclass(Enum):
     #Cleric subclasses (Domains)
     LifeDomain = auto()
     TrickeryDomain = auto()    
+    #Druid subclasses (Circles)
+    CircleOfTheMoon = auto()
     #Fighter subclasses
     Battlemaster = auto()
     Gunslinger = auto()
@@ -179,6 +183,8 @@ class player_subclass(Enum):
     Necromancy = auto()
     Transmutation = auto()
 
+#Ancillary classes based on player class
+#Blood hunter 
 class crimson_rite():
     name = str()    
     damage_type = int()
@@ -195,6 +201,7 @@ class blood_curse():
     amplify_hit_die_cost = int()
     duration = int() #(0 = reaction/instant, 1=until beginning of next turn, other values determined by wis mod etc)
 
+#Warlock 
 class eldritch_invocation(Enum):
     def __str__(self):
         return str(self.value)    
@@ -286,6 +293,7 @@ class monster_type(Enum):
     Hill = auto()
     Oni = auto()
     #Beasts
+    Eagle = auto()
     Bear = auto()
     #Dragons
     Ancient_Black_Dragon = auto()
@@ -730,10 +738,20 @@ class creature():
     #############
     ### Druid ###
     #############    
-    
-    wild_shapes = int()
-    max_wild_shapes = int() #Max uses = cha mod
-    wild_shape_combatant = creature()    
+    wild_shape = bool()
+    druid_form = None #Is set on the wild shape of a combatant an instance of the combatant, to allow us to retrieve the master combatant object during combat
+    def potential_wild_shapes(self):
+        if not hasattr(self, "_potential_wild_shapes"):
+            self._potential_wild_shapes = []
+        return self._potential_wild_shapes
+
+    def wild_shapes(self):
+        if not hasattr(self, "_wild_shapes"):
+            self._wild_shapes = []
+        return self._wild_shapes
+
+    wild_shape_max_cr = float() #Maximum challenge rating of wild shape (based on Druid level)    
+    max_wild_shapes = int() #Max uses of Wild Shape, unlimited at level 20
 
     beast_spells = bool()
 
@@ -897,7 +915,7 @@ class pending_damage():
     crit = bool() #Marks whether this damage is from a critical strike
 
 # Helper Functions
-# Keep functions that need to be accessed from around the program here, as long as they don't require any outside knowledge (i.e. are constructed just from the nature of classes)
+# Key functions that need to be accessed from around the program here, as long as they don't require any outside knowledge (i.e. are constructed just from the nature of classes)
 
 def melee_range():
     #Treating default melee weapon range as 5 feet, upped to 8 to avoid clipping issues on corners of grid
@@ -1013,3 +1031,39 @@ class event_invoke(Enum):
     Reaction = auto()
     Attack = auto()
     Feature = auto()
+
+#Druid wild shape transformation functions    
+def transform_into_wild_shape(combatant,wild_shape):
+    #Freeze the current state of the combatant into the wild_shape object
+    #Store a copy of the combatant in its current form into the druid form of itself
+    combatant.druid_form = copy(combatant)
+    #Update the details on the combatant object with the wild shape
+    combatant.name = combatant.name + ' (' + wild_shape.name + ' form)'    
+    combatant.creature_type = wild_shape.creature_type
+    combatant.monster_type = wild_shape.monster_type
+    combatant.movement = wild_shape.movement
+    combatant.max_health = wild_shape.max_health
+    combatant.current_health = wild_shape.current_health
+    combatant.stats = wild_shape.stats
+    combatant.multiattack = wild_shape.multiattack
+    combatant.weapon_inventory = wild_shape.weapon_inventory
+    
+def transform_into_druid_form(combatant):        
+    #Store the current hp of the combatant back into the wild shape object
+    for wild_shape in combatant.wild_shapes():        
+        if wild_shape.name in combatant.name:
+            wild_shape.current_health = combatant.current_health
+
+    #Restore the combatant back to the correct info
+    combatant.name = combatant.druid_form.name
+    combatant.creature_type = combatant.druid_form.creature_type
+    combatant.monster_type = combatant.druid_form.monster_type
+    combatant.movement = combatant.druid_form.movement
+    combatant.max_health = combatant.druid_form.max_health
+    combatant.current_health = combatant.druid_form.current_health
+    combatant.stats = combatant.druid_form.stats
+    combatant.multiattack = combatant.druid_form.multiattack
+    combatant.weapon_inventory = combatant.druid_form.weapon_inventory
+
+    #Clear out the druid form entry
+    combatant.druid_form = None
