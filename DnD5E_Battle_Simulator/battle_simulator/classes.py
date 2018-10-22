@@ -1053,7 +1053,7 @@ def transform_into_wild_shape(combatant,wild_shape):
     
 def transform_into_druid_form(combatant):        
     #Store the current hp of the combatant back into the wild shape object
-    combatant.wild_shapes()[combatant.wild_shape_index].current_health = combatant.current_health
+    combatant.wild_shapes()[combatant.wild_shape_index-1].current_health = combatant.current_health
     
     #Restore the combatant back to the correct info
     combatant.name = combatant.druid_form.name
@@ -1068,4 +1068,5 @@ def transform_into_druid_form(combatant):
     combatant.weapon_inventory = combatant.druid_form.weapon_inventory
 
     #Clear out the druid form entry
+    combatant.wild_shape_index = 0
     combatant.druid_form = None

@@ -12,7 +12,7 @@ def reset_combatants(init_combatants):
     #Initialise Battle
     for combatant in init_combatants:                   
 
-        # remove any conditions affecting combatants
+        # remove any conditions affecting combatats
         combatant.creature_conditions().clear()
         
         # Reset creature values #
@@ -279,12 +279,12 @@ def initialise_class_features(combatant):
         if class_instance.player_class == player_class.Druid:            
             if class_instance.player_class_level >= 2:
                 combatant.wild_shape = True
-                combatant.wild_shape_max = 2
+                combatant.max_wild_shapes = 2
                 wild_shape_max_cr = class_instance.player_class_level / 8
             if class_instance.player_class_level >= 18:
                 combatant.beast_spells = True
             if class_instance.player_class_level >= 20:
-                combatant.wild_shape_max = 999
+                combatant.max_wild_shapes = 999
 
         #############
         ## Fighter ##

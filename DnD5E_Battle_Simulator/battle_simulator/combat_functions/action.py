@@ -174,9 +174,9 @@ def bonus_action(combatant):
                 # Insert some crazy complicated logic for selecting wild shape form here
                 # For now, turn Keyleth into an eagle
                 wild_shape = select_wild_shape(combatant)
-                if wild_shape != None:                
+                if combatant.wild_shape_index != 0:
                     print_output('<b>Bonus Action:</b>')
-                    print_output(combatant.name + ' uses their Wild Shape to transform into a ' + wild_shape.name + '!!!')    
+                    print_output(combatant.name + ' uses their Bonus Action to Wild Shape into a ' + wild_shape.name)    
                     transform_into_wild_shape(combatant,wild_shape)     
                     print_output(combatant.name + ' has transformed!')                
                     combatant.bonus_action_used = True
@@ -186,7 +186,10 @@ def bonus_action(combatant):
             # Insert some crazy complicated logic for deciding when to shift out here
             # For now, use arbitrary hp value
             if combatant.current_health <= 10:                
+                print_output(combatant.name + ' uses their Bonus Action to drop Wild shape and return to druid form')    
                 transform_into_druid_form(combatant)
+                print_output(combatant.name + ' has transformed!')    
+                combatant.bonus_action_used = True
 
     # Fighter bonus actions
     #Second Wind
@@ -357,15 +360,16 @@ def select_wild_shape(combatant):
         # Fix me        
         if potential_wild_shape.name == "Giant Eagle":
             #Check all the shape 'slots' we have currently used and reuse an existing one if available
-            i = 0
-            for current_wild_shape in combatant.wild_shapes():                
-                if current_wild_shape.name == potential_wild_shape.name:
-                    #Only reuse an existing form if it has hp remaining
-                    if current_wild_shape.current_health > 0:
-                        #Use the existing wild shape from the list of wild shapes we have already performed
-                        selected_wild_shape = current_wild_shape            
-                        combatant.wild_shape_index = i
-                i += 1
+            i = 1
+            while (i < len(combatant.wild_shapes())) and (selected_wild_shape == None):
+                for current_wild_shape in combatant.wild_shapes():                
+                    if current_wild_shape.name == potential_wild_shape.name:
+                        #Only reuse an existing form if it has hp remaining
+                        if current_wild_shape.current_health > 0:
+                            #Use the existing wild shape from the list of wild shapes we have already performed
+                            selected_wild_shape = current_wild_shape                                   
+                            combatant.wild_shape_index = i
+                    i += 1    
 
             if selected_wild_shape == None:
                 #Check that we have an additional slot available to shift into this selected creature
@@ -374,11 +378,12 @@ def select_wild_shape(combatant):
                     wild_shape_list.append(potential_wild_shape)
                     initialise_combat.reset_combatants(wild_shape_list)
                     combatant.wild_shapes().append(wild_shape_list[0])       
-                    combatant.wild_shape_index = combatant.wild_shapes()[-1]
+                    combatant.wild_shape_index = len(combatant.wild_shapes())
                     selected_wild_shape = wild_shape_list[0]
 
         #Return out if we've chosen the shape
         if selected_wild_shape != None:
+            print_output(combatant.name + ' wants to use their ' + numbered_list(combatant.wild_shape_index) + ' Wild Shape')
             return selected_wild_shape
 
     return None

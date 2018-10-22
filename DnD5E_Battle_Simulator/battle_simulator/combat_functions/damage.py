@@ -291,7 +291,7 @@ def resolve_fatality(combatant):
         # If in wild shape form, shift out
         if combatant.druid_form != None:
             #Echo out that the wild shape is broken
-            print_output('***' + 'The Wild Shape form has been damaged beyond repair, and the ' + combatant.druid_form.name + ' is forced to return to their ' + repr(combatant.druid_form.race) + ' form!***')
+            print_output('***' + 'The Wild Shape form has been damaged beyond repair, and ' + combatant.druid_form.name + ' is forced to return to their ' + repr(combatant.druid_form.race) + ' form!***')
             #Store any accumulated damage on the druid form back against the combatant principal
             for pd in combatant.druid_form.pending_damage():
                 combatant.pending_damage().append(pd)
