@@ -31,6 +31,7 @@ def initialise_combatants(init_combatants):
     init_hill_giant(init_combatants)
     init_venom_troll(init_combatants)
     #init_clockwork_warden(init_combatants)    
+    init_hydra(init_combatants)
 
     init_lorenzo(init_combatants)
     init_wohn(init_combatants)
@@ -1866,6 +1867,69 @@ def init_clockwork_warden(init_combatants):
     clockworkwarden.events().append(regeneration)
 
     init_combatants.append(clockworkwarden)    
+
+def init_hydra(init_combatants):
+
+    hydra = creature()
+
+    hydra.notes = "The Warden of U'kutoa's Temple (C2E39)"
+
+    hydra.creature_type = creature_type.Monster
+    hydra.fullname = "The Warden of U'kutoa"
+    hydra.name = "Hydra"
+    hydra.race = race.Monstrosity
+    hydra.monster_type = monster_type.Hydra
+    hydra.max_health = 172
+    hydra.armour_class = 15
+    hydra.base_speed = 30
+        
+    #Stats
+    hydrastats = statistic_block()
+    hydrastats.str = 20
+    hydrastats.dex = 12
+    hydrastats.con = 20
+    hydrastats.intel = 2
+    hydrastats.wis = 10
+    hydrastats.cha = 7
+
+    hydra.stats = hydrastats
+    
+    #Saves
+    hydrasaves = saving_throw_block()    
+    
+    hydra.saves = hydrasaves
+
+    #Ability Checks
+    hydrachecks = ability_check_block()    
+
+    hydra.checks = hydrachecks
+
+    #hydra's weapons are a bit different - append one weapon for each 'head', remove weapons as heads are destroyed, modify multiattack to be number of heads 
+    bite = weapon()
+    bite.name = "Bite"
+    bite.weapon_type = weapon_type.Natural;
+    bite.range = 0
+    
+    bite.damage_die = 10
+    bite.damage_die_count = 1
+    bite.weapon_damage_type = damage_type.Piercing
+        
+    bite.magic_to_hit_modifier = 3
+
+    #Initialise with five heads
+    hydra.weapon_inventory().append(bite)
+    hydra.weapon_inventory().append(bite)
+    hydra.weapon_inventory().append(bite)
+    hydra.weapon_inventory().append(bite)
+    hydra.weapon_inventory().append(bite)
+    
+    #new_event = event()
+    #new_event.trigger = event_trigger.OnSufferDamage    
+    #new_event.invoke = event_invoke.Spell
+    #new_event.spell = shed_armour
+    #hydra.events().append(new_event)
+    
+    init_combatants.append(hydra)    
 
 # The Iron Shepherds
 def init_lorenzo(init_combatants):

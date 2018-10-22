@@ -299,6 +299,14 @@ class monster_type(Enum):
     Ancient_Black_Dragon = auto()
     #Trolls
     Venom = auto()
+    #Undead
+    Fiend = auto()
+    Zombie = auto()
+    Skeleton = auto()
+    Wraith = auto()
+    Banshee = auto()
+    #Monstrosity
+    Hydra = auto()    
     
 
 class feat(Enum):
