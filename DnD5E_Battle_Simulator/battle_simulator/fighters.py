@@ -989,7 +989,7 @@ def init_caleb(init_combatants):
         caleb.spell_list().append(new_spell)
 
     # Level 1 spells
-    for spellname in ["Shield","Detect Magic","Find Familiar","Chromatic Orb","Disguise Self","Alarm","Comprehend Languages","Burning Hands","Identify","Unseen Servant","Sleep","Mage Armor","Magic Missiles"]:
+    for spellname in ["Shield","Detect Magic","Find Familiar","Chromatic Orb","Disguise Self","Alarm","Comprehend Languages","Burning Hands","Identify","Unseen Servant","Sleep","Mage armour","Magic Missiles"]:
         new_spell = spell()
         new_spell.name = spellname
         caleb.spell_list().append(new_spell)

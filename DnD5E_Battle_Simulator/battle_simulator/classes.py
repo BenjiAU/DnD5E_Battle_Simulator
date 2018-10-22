@@ -671,7 +671,7 @@ class creature():
     #############
     # Barbarian #
     #############
-    barbarian_unarmored_defense = bool()
+    barbarian_unarmoured_defense = bool()
     canrage = bool()
     ragedamage = int()
     max_rage_duration = int()
@@ -740,6 +740,7 @@ class creature():
     #############    
     wild_shape = bool()
     druid_form = None #Is set on the wild shape of a combatant an instance of the combatant, to allow us to retrieve the master combatant object during combat
+    wild_shape_index = int() #Is set on the wild shape of a combatant to track which item it is in the list
     def potential_wild_shapes(self):
         if not hasattr(self, "_potential_wild_shapes"):
             self._potential_wild_shapes = []
@@ -777,7 +778,7 @@ class creature():
     #############
     #### Monk ###
     #############
-    monk_unarmored_defense = bool()
+    monk_unarmoured_defense = bool()
     martial_arts = bool()
     martial_arts_die = int()
 
@@ -787,8 +788,8 @@ class creature():
     flurry_of_blows = bool()
     patient_defense = bool()
     step_of_the_wind = bool()
-    unarmored_movement = bool()
-    unarmored_movement_bonus = int()
+    unarmoured_movement = bool()
+    unarmoured_movement_bonus = int()
 
     deflect_missiles = bool()
 
@@ -1032,6 +1033,7 @@ class event_invoke(Enum):
     Attack = auto()
     Feature = auto()
 
+    
 #Druid wild shape transformation functions    
 def transform_into_wild_shape(combatant,wild_shape):
     #Freeze the current state of the combatant into the wild_shape object
@@ -1042,7 +1044,7 @@ def transform_into_wild_shape(combatant,wild_shape):
     combatant.creature_type = wild_shape.creature_type
     combatant.monster_type = wild_shape.monster_type
     combatant.movement = wild_shape.movement
-    combatant.armor_class = wild_shape.armor_class
+    combatant.armour_class = wild_shape.armour_class
     combatant.max_health = wild_shape.max_health
     combatant.current_health = wild_shape.current_health
     combatant.stats = wild_shape.stats
@@ -1051,16 +1053,14 @@ def transform_into_wild_shape(combatant,wild_shape):
     
 def transform_into_druid_form(combatant):        
     #Store the current hp of the combatant back into the wild shape object
-    for wild_shape in combatant.wild_shapes():        
-        if wild_shape.name in combatant.name:
-            wild_shape.current_health = combatant.current_health
-
+    combatant.wild_shapes()[combatant.wild_shape_index].current_health = combatant.current_health
+    
     #Restore the combatant back to the correct info
     combatant.name = combatant.druid_form.name
     combatant.creature_type = combatant.druid_form.creature_type
     combatant.monster_type = combatant.druid_form.monster_type    
     combatant.movement = combatant.druid_form.movement
-    combatant.armor_class = combatant.druid_form.armor_class
+    combatant.armour_class = combatant.druid_form.armour_class
     combatant.max_health = combatant.druid_form.max_health
     combatant.current_health = combatant.druid_form.current_health
     combatant.stats = combatant.druid_form.stats

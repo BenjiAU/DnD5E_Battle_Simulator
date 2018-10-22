@@ -186,7 +186,7 @@ def bonus_action(combatant):
             # Insert some crazy complicated logic for deciding when to shift out here
             # For now, use arbitrary hp value
             if combatant.current_health <= 10:                
-                combatant = transform_into_druid_form(combatant)
+                transform_into_druid_form(combatant)
 
     # Fighter bonus actions
     #Second Wind
@@ -356,10 +356,16 @@ def select_wild_shape(combatant):
     for potential_wild_shape in combatant.potential_wild_shapes():
         # Fix me        
         if potential_wild_shape.name == "Giant Eagle":
-            for current_wild_shape in combatant.wild_shapes():
+            #Check all the shape 'slots' we have currently used and reuse an existing one if available
+            i = 0
+            for current_wild_shape in combatant.wild_shapes():                
                 if current_wild_shape.name == potential_wild_shape.name:
-                    #Use the existing wild shape from the list of wild shapes we have already performed
-                    selected_wild_shape = current_wild_shape                
+                    #Only reuse an existing form if it has hp remaining
+                    if current_wild_shape.current_health > 0:
+                        #Use the existing wild shape from the list of wild shapes we have already performed
+                        selected_wild_shape = current_wild_shape            
+                        combatant.wild_shape_index = i
+                i += 1
 
             if selected_wild_shape == None:
                 #Check that we have an additional slot available to shift into this selected creature
@@ -367,7 +373,8 @@ def select_wild_shape(combatant):
                     wild_shape_list = []
                     wild_shape_list.append(potential_wild_shape)
                     initialise_combat.reset_combatants(wild_shape_list)
-                    combatant.wild_shapes().append(wild_shape_list[0])                                        
+                    combatant.wild_shapes().append(wild_shape_list[0])       
+                    combatant.wild_shape_index = combatant.wild_shapes()[-1]
                     selected_wild_shape = wild_shape_list[0]
 
         #Return out if we've chosen the shape

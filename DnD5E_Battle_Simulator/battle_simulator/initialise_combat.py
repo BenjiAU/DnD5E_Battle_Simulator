@@ -121,7 +121,7 @@ def initialise_class_features(combatant):
         if class_instance.player_class == player_class.Barbarian:
             # Rage (1st level)
             if class_instance.player_class_level >= 1:
-                combatant.barbarian_unarmored_defense = True
+                combatant.barbarian_unarmoured_defense = True
                 combatant.canrage = True                
                 #+2 Rage Damage (1st through 8th)
                 combatant.rage_damage = 2
@@ -283,8 +283,8 @@ def initialise_class_features(combatant):
                 wild_shape_max_cr = class_instance.player_class_level / 8
             if class_instance.player_class_level >= 18:
                 combatant.beast_spells = True
-            #if class_instance.player_class_level >= 20:
-            #    combatant.wild_shape_max = 999
+            if class_instance.player_class_level >= 20:
+                combatant.wild_shape_max = 999
 
         #############
         ## Fighter ##
@@ -339,7 +339,7 @@ def initialise_class_features(combatant):
         #############
         if class_instance.player_class == player_class.Monk:
             if class_instance.player_class_level >= 1:
-                combatant.monk_unarmored_defense = True
+                combatant.monk_unarmoured_defense = True
                 combatant.martial_arts = True
                 combatant.martial_arts_die = 4                
             if class_instance.player_class_level >= 2:
@@ -350,8 +350,8 @@ def initialise_class_features(combatant):
                 combatant.flurry_of_blows = True
                 combatant.patient_defense = True
                 combatant.step_of_the_wind = True
-                combatant.unarmored_movement = True
-                combatant.unarmored_movement_bonus = 10
+                combatant.unarmoured_movement = True
+                combatant.unarmoured_movement_bonus = 10
             if class_instance.player_class_level >= 3:
                 combatant.deflect_missiles = True
             if class_instance.player_class_level >= 4:
@@ -362,21 +362,21 @@ def initialise_class_features(combatant):
                     combatant.extra_attack = 1
                 combatant.stunning_strike = True
             if class_instance.player_class_level >= 6:
-                combatant.unarmored_movement_bonus = 15
+                combatant.unarmoured_movement_bonus = 15
                 combatant.ki_empowered_strikes = True
             if class_instance.player_class_level >= 7:
                 combatant.stillness_of_mind = True
                 combatant.evasion = True
             if class_instance.player_class_level >= 10:
-                combatant.unarmored_movement_bonus = 20
+                combatant.unarmoured_movement_bonus = 20
                 combatant.purity_of_body = True
             if class_instance.player_class_level >= 11:
                 combatant.martial_arts_die = 8                       
             if class_instance.player_class_level >= 14:
-                combatant.unarmored_movement_bonus = 25
+                combatant.unarmoured_movement_bonus = 25
                 combatant.diamond_soul = True                
             if class_instance.player_class_level >= 18:
-                combatant.unarmored_movement_bonus = 30
+                combatant.unarmoured_movement_bonus = 30
             if class_instance.player_class_level >= 17:
                 combatant.martial_arts_die = 10       
 
