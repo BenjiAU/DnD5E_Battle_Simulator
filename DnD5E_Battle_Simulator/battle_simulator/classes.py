@@ -3,7 +3,7 @@ from enum import Enum, auto
 import math
 import random
 
-from copy import copy
+from copy import deepcopy
 
 class area_of_effect_shape(Enum):
     def __str__(self):
@@ -1036,12 +1036,13 @@ class event_invoke(Enum):
 def transform_into_wild_shape(combatant,wild_shape):
     #Freeze the current state of the combatant into the wild_shape object
     #Store a copy of the combatant in its current form into the druid form of itself
-    combatant.druid_form = copy(combatant)
+    combatant.druid_form = deepcopy(combatant)
     #Update the details on the combatant object with the wild shape
     combatant.name = combatant.name + ' (' + wild_shape.name + ' form)'    
     combatant.creature_type = wild_shape.creature_type
     combatant.monster_type = wild_shape.monster_type
     combatant.movement = wild_shape.movement
+    combatant.armor_class = wild_shape.armor_class
     combatant.max_health = wild_shape.max_health
     combatant.current_health = wild_shape.current_health
     combatant.stats = wild_shape.stats
@@ -1057,8 +1058,9 @@ def transform_into_druid_form(combatant):
     #Restore the combatant back to the correct info
     combatant.name = combatant.druid_form.name
     combatant.creature_type = combatant.druid_form.creature_type
-    combatant.monster_type = combatant.druid_form.monster_type
+    combatant.monster_type = combatant.druid_form.monster_type    
     combatant.movement = combatant.druid_form.movement
+    combatant.armor_class = combatant.druid_form.armor_class
     combatant.max_health = combatant.druid_form.max_health
     combatant.current_health = combatant.druid_form.current_health
     combatant.stats = combatant.druid_form.stats

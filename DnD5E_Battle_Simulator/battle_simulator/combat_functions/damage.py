@@ -290,6 +290,8 @@ def resolve_fatality(combatant):
     if combatant.alive and not check_condition(combatant,condition.Unconscious) and combatant.current_health <= 0:
         # If in wild shape form, shift out
         if combatant.druid_form != None:
+            #Echo out that the wild shape is broken
+            print_output('***' + 'The Wild Shape form has been damaged beyond repair, and the ' + combatant.druid_form.name + ' is forced to return to their ' + combatant.druid_form.race + ' form!***')
             #Store any accumulated damage on the druid form back against the combatant principal
             for pd in combatant.druid_form.pending_damage():
                 combatant.pending_damage().append(pd)
@@ -297,6 +299,10 @@ def resolve_fatality(combatant):
             transform_into_druid_form(combatant)
             #Resolve any pending damage
             resolve_damage(combatant)
+            #Re-issue the resolve fatality call with the druid
+            resolve_fatality(combatant)
+            #Exit out of this thread
+            return
 
         # Default proposition - combatant goes unconscious
         # If any features or abilities remove the unconsciousness condition, we remain standing
