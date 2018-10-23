@@ -184,6 +184,21 @@ def initialise_spells(combatant):
             
             spell.description = "A burst of venomous liquid sprays out from pustules and sores all over its body, as the Venom Troll stares at"   
 
+        if spell.name == "Cauterised":                                                        
+            spell.category = spell_category.Buff
+            spell.min_spellslot_level = 0
+            spell.max_spellslot_level = 0
+            spell.instance = 1
+            
+            spell.casting_time = spell_casting_time.Instant
+            spell.range = 0
+            spell.origin = origin_point.Self                    
+
+            spell.condition = condition.Cauterised
+            spell.condition_duration = 10
+
+            spell.description = "The fire damage cauterises the flesh of the Hydra, sealing any open wounds!"   
+
     #############
     # Class Feats
     #############    

@@ -105,7 +105,7 @@ class condition(Enum):
     Raging = auto() #Barbarian Rage
     Reckless = auto() #Barbarian Reckless Attack
     Shielded = auto() # Wizard Shield spell
-    Inspired = auto() # Bardic Inspiration
+    Inspired = auto() # Bardic Inspiration    
 
     # Debuffs
     Hexed = auto() # Hex spell
@@ -114,6 +114,9 @@ class condition(Enum):
     Reduced = auto() # Enlarge/Reduce spell
     Headshot = auto() # Gunslinger head shot
     Marked = auto() # Affected by Ranger Hunter's Mark
+
+    #Monster features
+    Cauterised = auto() # Self inflicted condition when a Hydra suffers fire damage to prevent head regrow
 
     #Special Concentrating condition
     Concentrating = auto()
@@ -906,6 +909,11 @@ class creature():
     # A special target object used to override the primary target for buffs/healing focus
     ally_target = None
 
+    #Separate int for tracking damage suffered by a combatant each turn (necessary for some features)
+    damage_taken_this_turn = int()
+    turn_start_head_count = int()
+    current_head_count = int()
+
     #Summary fields - for output at end of simulation    
     attacks_hit = int()
     attacks_missed = int()
@@ -1018,7 +1026,7 @@ class event():
     requirements = [] # List of abstract conditions, at least one of which must match the calling trigger code
     spell = spell() # Spell object to be called if invoke = Spell
     self_heal = int() # Self heal from Regeneration?
-    disabled = bool() # Disabled for one turn due to reasons
+    disabled = bool() # Disabled for one turn due to <reasons>
 
 class event_trigger(Enum):
     def __str__(self):

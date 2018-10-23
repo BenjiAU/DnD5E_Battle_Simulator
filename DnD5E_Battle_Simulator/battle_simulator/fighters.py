@@ -1922,12 +1922,26 @@ def init_hydra(init_combatants):
     hydra.weapon_inventory().append(bite)
     hydra.weapon_inventory().append(bite)
     hydra.weapon_inventory().append(bite)
+    hydra.current_head_count = 5
+    hydra.turn_start_head_count = 5
+
+    new_event = event()
+    new_event.trigger = event_trigger.OnEndTurn
+    new_event.requirements = 25 #More than 25 damage suffered in a round (cumulative)
+    new_event.invoke = event_invoke.Feature    
+    new_event.self_heal = 10
+    hydra.events().append(new_event)
     
-    #new_event = event()
-    #new_event.trigger = event_trigger.OnSufferDamage    
-    #new_event.invoke = event_invoke.Spell
-    #new_event.spell = shed_armour
-    #hydra.events().append(new_event)
+    cauterise = spell()
+    cauterise.name = 'Cauterise'
+    hydra.spell_list().append(cauterise)
+
+    new_event = event()
+    new_event.trigger = event_trigger.OnSufferDamage    
+    new_event.invoke = event_invoke.Spell
+    new_event.requirements = [dt for dt in damage_type if dt == damage_type.Fire]
+    new_event.spell = cauterise
+    hydra.events().append(new_event)
     
     init_combatants.append(hydra)    
 

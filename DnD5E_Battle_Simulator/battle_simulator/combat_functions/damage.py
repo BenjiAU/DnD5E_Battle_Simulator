@@ -255,6 +255,7 @@ def resolve_damage(combatant):
                     combatant.druid_form.pending_damage().append(pd)
 
             combatant.current_health = max(combatant.current_health - total_damage,0)
+            combatant.damage_taken_this_turn += total_damage
 
             #Check Concentration
             if check_condition(combatant,condition.Concentrating):

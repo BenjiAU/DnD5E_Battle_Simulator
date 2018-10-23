@@ -147,7 +147,10 @@ def simulate_battle():
                         while can_continue_turn(combatant):                            
                             combatant_alive_this_turn = True
                             # update statistics
-                            combatant.rounds_fought += 1
+                            combatant.rounds_fought += 1                            
+                            #track damage taken by each combatant each turn (for events like hydra head regrow)
+                            for combatant in combatants.list:
+                                combatant.damage_taken_this_turn = 0
 
                             # Re-evaluate targets                            
                             if find_target(combatant):                
@@ -306,10 +309,13 @@ def simulate_battle():
                         print_output('That finishes ' + combatant.name + '\'s turn.')                            
                         turn_complete = True
 
-                    #Turn Over
+                    #Turn Over                    
                     turn_complete = True
                     end_div()
                     #Turn Over
+
+                on_end_turn_event(combatant)
+
             #End of Round
             round_complete = True
             end_div()

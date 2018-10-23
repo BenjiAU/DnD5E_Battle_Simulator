@@ -76,6 +76,9 @@ def find_buff_target(combatant,buff_condition,range):
     if buff_condition == condition.Shielded:
         if not check_condition(combatant,condition.Shielded):
             buff_target = combatant
+    if buff_condition == condition.Cauterised:
+        if not check_condition(combatant,condition.Cauterised):
+            buff_target = combatant
 
     # Allied buffs
     if buff_target == None:
