@@ -110,8 +110,12 @@ def reset_combatants(init_combatants):
 
             ### Hydra (one bite per head)
             if combatant.monster_type == monster_type.Hydra:                            
-                for head in combatant.weapon_inventory():
-                    combatant.multiattack.append(head.name)
+                #Initialise at head count
+                combatant.multiattack = []
+                i = 1
+                while i <= combatant.current_head_count:
+                    combatant.multiattack.append("Bite")
+                    i += 1
             
             ### Beast forms
             if combatant.monster_type == monster_type.Eagle:

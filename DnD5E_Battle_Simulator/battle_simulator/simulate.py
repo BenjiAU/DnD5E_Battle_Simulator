@@ -146,11 +146,16 @@ def simulate_battle():
                         combatant_alive_this_turn = False
                         while can_continue_turn(combatant):                            
                             combatant_alive_this_turn = True
-                            # update statistics
-                            combatant.rounds_fought += 1                            
-                            #track damage taken by each combatant each turn (for events like hydra head regrow)
-                            for combatant in combatants.list:
+                            
+                            #Hydra stuff                            
+                            if combatant.monster_type == monster_type.Hydra:
+                                print_output('The Hydra currently has: ' + repr(combatant.current_head_count) + ' heads.')
+                                print_output('The Hydra\'s multiattack: ' + repr(combatant.multiattack))
+                                combatant.round_start_head_count = combatant.current_head_count
                                 combatant.damage_taken_this_turn = 0
+
+                            # update statistics
+                            combatant.rounds_fought += 1                                                        
 
                             # Re-evaluate targets                            
                             if find_target(combatant):                

@@ -1896,7 +1896,11 @@ def init_hydra(init_combatants):
     
     #Saves
     hydrasaves = saving_throw_block()    
-    
+    hydrasaves.str = 5
+    hydrasaves.dex = 1
+    hydrasaves.con = 5
+    hydrasaves.int = -4
+    hydrasaves.cha = -2
     hydra.saves = hydrasaves
 
     #Ability Checks
@@ -1918,12 +1922,8 @@ def init_hydra(init_combatants):
 
     #Initialise with five heads
     hydra.weapon_inventory().append(bite)
-    hydra.weapon_inventory().append(bite)
-    hydra.weapon_inventory().append(bite)
-    hydra.weapon_inventory().append(bite)
-    hydra.weapon_inventory().append(bite)
     hydra.current_head_count = 5
-    hydra.turn_start_head_count = 5
+    hydra.round_start_head_count = 5
 
     #Lose head if > 25 damage taken in a turn    
     new_event = event()
