@@ -1925,11 +1925,18 @@ def init_hydra(init_combatants):
     hydra.current_head_count = 5
     hydra.turn_start_head_count = 5
 
+    #Lose head if > 25 damage taken in a turn    
     new_event = event()
-    new_event.trigger = event_trigger.OnEndTurn
+    new_event.trigger = event_trigger.OnSufferDamageThreshold
     new_event.requirements = 25 #More than 25 damage suffered in a round (cumulative)
+    new_event.invoke = event_invoke.Feature
+    hydra.events().append(new_event)
+
+    #Regrow a head and regain HP
+    new_event = event()
+    new_event.trigger = event_trigger.OnEndTurn    
     new_event.invoke = event_invoke.Feature    
-    new_event.self_heal = 10
+    new_event.self_heal = 10    
     hydra.events().append(new_event)
     
     cauterise = spell()
@@ -1937,7 +1944,7 @@ def init_hydra(init_combatants):
     hydra.spell_list().append(cauterise)
 
     new_event = event()
-    new_event.trigger = event_trigger.OnSufferDamage    
+    new_event.trigger = event_trigger.OnSufferDamageType  
     new_event.invoke = event_invoke.Spell
     new_event.requirements = [dt for dt in damage_type if dt == damage_type.Fire]
     new_event.spell = cauterise

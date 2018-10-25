@@ -1032,6 +1032,8 @@ class event_trigger(Enum):
     def __str__(self):
         return str(self.value)    
     OnSufferDamage = auto()
+    OnSufferDamageType = auto()
+    OnSufferDamageThreshold = auto()
     OnDealDamage = auto()
     OnBeginTurn = auto()
     OnEndTurn = auto()
@@ -1048,7 +1050,6 @@ class event_invoke(Enum):
     Reaction = auto()
     Attack = auto()
     Feature = auto()
-
     
 #Druid wild shape transformation functions    
 def transform_into_wild_shape(combatant,wild_shape):
