@@ -160,6 +160,7 @@ class player_subclass(Enum):
     #Cleric subclasses (Domains)
     LifeDomain = auto()
     TrickeryDomain = auto()    
+    GraveDomain = auto()
     #Druid subclasses (Circles)
     CircleOfTheMoon = auto()
     #Fighter subclasses
@@ -269,6 +270,7 @@ class race(Enum):
     Goliath = auto() 
     Tiefling = auto()
     Kenku = auto()
+    Firbolg = auto()
     #Monster races
     Dragon = auto()
     Undead = auto()

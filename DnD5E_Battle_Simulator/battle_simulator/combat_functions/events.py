@@ -55,7 +55,7 @@ def on_end_turn_event(combatant):
                             print_output('The hydra now has ' + repr(combatant.current_head_count) + ' heads!')
                             combatant.last_turn_head_count = combatant.current_head_count                      
         
-def on_damage_taken_event(combatant):    
+def on_before_damage_taken_event(combatant):    
     for event in combatant.events():        
         execute = False
         if event.trigger == event_trigger.OnSufferDamageType:
@@ -67,7 +67,11 @@ def on_damage_taken_event(combatant):
                     print_output('<b>-------------Event----------</b>')
                     print_output('Upon suffering damage, ' + combatant.name + ' casts the ' + event.spell.name + ' spell!')      
                     spells.cast_spell(combatant,event.spell)
-        elif event.trigger == event_trigger.OnSufferDamageThreshold:            
+
+def on_after_damage_taken_event(combatant):
+    for event in combatant.events():        
+        execute = False
+        if event.trigger == event_trigger.OnSufferDamageThreshold:            
             if combatant.damage_taken_this_turn >= event.requirements:                
                 execute = True
             if execute:
@@ -81,7 +85,7 @@ def on_damage_taken_event(combatant):
                             combatant.current_head_count -= 1
                             combatant.head_lost_this_turn = True
                             print_output('The Hydra currently has: ' + repr(combatant.current_head_count) + ' heads.')
-                            print_output('The Hydra\'s multiattack: ' + repr(combatant.multiattack))
+                            #print_output('The Hydra\'s multiattack: ' + repr(combatant.multiattack))
                             #If this is the last head, the hydra dies
                             if combatant.current_head_count <= 0:
                                 combatant.death_saving_throw_failure = 3

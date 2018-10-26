@@ -25,6 +25,7 @@ def initialise_combatants(init_combatants):
     init_caleb(init_combatants)
     init_nott(init_combatants)
     init_jester(init_combatants)
+    init_clay(init_combatants)
     init_molly(init_combatants)
     init_yasha(init_combatants)    
         
@@ -73,8 +74,8 @@ def initialise_teams(combatants,teams):
     teams.append(yellow)
 
     vmnames = ["Grog","Vax","Vex","Percy","Scanlan","Keyleth","Pike","Doty","Trinket"]
-    m9names = ["Fjord","Beau","Caleb","Nott","Jester","Molly","Yasha","Kiri","Cadeucus"]
-    monsternames = ["Umbrasyl","Hill Giant","Arkhan","Venom Troll"]
+    m9names = ["Fjord","Beau","Caleb","Nott","Jester","Molly","Yasha","Kiri","Caduceus"]
+    monsternames = ["Umbrasyl","Hill Giant","Arkhan","Venom Troll","Hydra"]
     ironnames = ["Lorenzo","Wohn","Protto"]
     #Iterate through all combatants and initially assign them to team
     for combatant in combatants:
@@ -788,12 +789,12 @@ def init_fjord(init_combatants):
     warlock_class = player_class_block()
     warlock_class.player_class = player_class.Warlock
     warlock_class.player_subclass = player_subclass.PactOfTheBlade
-    warlock_class.player_class_level = 5
+    warlock_class.player_class_level = 6
     warlock_class.spellcasting_attribute = attribute.Charisma
     fjord.player_classes().append(warlock_class)
 
     #fjord.fighting_style = fighting_style.Great_Weapon_Fighting
-    fjord.max_health = 41
+    fjord.max_health = 63
     fjord.armour_class = 17 #Shield?
     fjord.base_speed = 30
     fjord.proficiency = calc_proficiency(fjord)
@@ -869,11 +870,11 @@ def init_beau(init_combatants):
     monk_class = player_class_block()
     monk_class.player_class = player_class.Monk
     monk_class.player_subclass = player_subclass.WayOfTheCobaltSoul
-    monk_class.player_class_level = 5
+    monk_class.player_class_level = 6
     beau.player_classes().append(monk_class)
 
     #beau.fighting_style = fighting_style.Great_Weapon_Fighting
-    beau.max_health = 44
+    beau.max_health = 54
     beau.armour_class = 17
     beau.base_speed = 40
     beau.proficiency = calc_proficiency(beau)
@@ -943,12 +944,12 @@ def init_caleb(init_combatants):
     wizard_class = player_class_block()
     wizard_class.player_class = player_class.Wizard
     wizard_class.player_subclass = player_subclass.Transmutation
-    wizard_class.player_class_level = 5
+    wizard_class.player_class_level = 6
     wizard_class.spellcasting_attribute = attribute.Intelligence
     caleb.player_classes().append(wizard_class)
 
     #caleb.fighting_style = fighting_style.Great_Weapon_Fighting
-    caleb.max_health = 31
+    caleb.max_health = 37
     caleb.armour_class = 11
     caleb.base_speed = 30
     caleb.proficiency = calc_proficiency(caleb)
@@ -1023,11 +1024,11 @@ def init_nott(init_combatants):
     rogue_class.player_class = player_class.Rogue
     rogue_class.player_subclass = player_subclass.ArcaneTrickster
     rogue_class.spellcasting_attribute = attribute.Intelligence
-    rogue_class.player_class_level = 5
+    rogue_class.player_class_level = 6
     nott.player_classes().append(rogue_class)
     nott.creature_feats().append(feat.Crossbow_Expert)
     #nott.fighting_style = fighting_style.Great_Weapon_Fighting
-    nott.max_health = 40
+    nott.max_health = 47
     nott.armour_class = 16
     nott.base_speed = 30
     nott.proficiency = calc_proficiency(nott)
@@ -1100,11 +1101,11 @@ def init_jester(init_combatants):
     cleric_class.player_class = player_class.Cleric
     cleric_class.player_subclass = player_subclass.TrickeryDomain
     cleric_class.spellcasting_attribute = attribute.Wisdom
-    cleric_class.player_class_level = 5
+    cleric_class.player_class_level = 6
     jester.player_classes().append(cleric_class)
 
     #jester.fighting_style = fighting_style.Great_Weapon_Fighting
-    jester.max_health = 38
+    jester.max_health = 48
     jester.armour_class = 18
     jester.base_speed = 30
     jester.proficiency = calc_proficiency(jester)
@@ -1167,6 +1168,76 @@ def init_jester(init_combatants):
     jester.spell_list().append(sacredflame)        
 
     init_combatants.append(jester)    
+
+def init_clay(init_combatants):
+    caduceus = creature()
+
+    caduceus.notes = "Grave Domain Cleric"
+
+    caduceus.fullname = "Caduceus Clay"
+    caduceus.name = "Caduceus"
+    caduceus.race = race.Firbolg
+    caduceus.creature_type = creature_type.Player
+
+    cleric_class = player_class_block()
+    cleric_class.player_class = player_class.Cleric
+    cleric_class.player_subclass = player_subclass.GraveDomain
+    cleric_class.spellcasting_attribute = attribute.Wisdom
+    cleric_class.player_class_level = 6
+    caduceus.player_classes().append(cleric_class)
+
+    #caduceus.fighting_style = fighting_style.Great_Weapon_Fighting
+    caduceus.max_health = 53
+    caduceus.armour_class = 17
+    caduceus.base_speed = 30
+    caduceus.proficiency = calc_proficiency(caduceus)
+     
+    caduceus.spellcaster = True
+    #Stats
+    claystats = statistic_block()
+    claystats.str = 10
+    claystats.dex = 12
+    claystats.con = 16
+    claystats.intel = 9
+    claystats.wis = 20
+    claystats.cha = 16
+
+    caduceus.stats = claystats
+    
+    #Saves
+    claysaves = saving_throw_block()    
+    claysaves.str = 0
+    claysaves.dex = 1
+    claysaves.con = 2
+    claysaves.intel = 3
+    claysaves.wis = 8
+    claysaves.cha = 6
+    
+    caduceus.saves = claysaves
+
+    #Ability Checks
+    claychecks = ability_check_block()
+    
+    caduceus.checks = claychecks    
+
+    #clay's weapons    
+
+    #clay's gear
+    # combat stats # 
+
+    healingword = spell()
+    healingword.name = "Healing Word"
+    caduceus.spell_list().append(healingword)
+
+    curewounds = spell()
+    curewounds.name = "Cure Wounds"
+    caduceus.spell_list().append(curewounds)
+
+    sacredflame = spell()
+    sacredflame.name = "Sacred Flame"
+    caduceus.spell_list().append(sacredflame)        
+
+    init_combatants.append(caduceus)    
 
 def init_molly(init_combatants):
     molly = creature()
@@ -1269,11 +1340,11 @@ def init_yasha(init_combatants):
     barbarian_class = player_class_block()
     barbarian_class.player_class = player_class.Barbarian
     barbarian_class.player_subclass = player_subclass.PathOfTheZealot
-    barbarian_class.player_class_level = 5
+    barbarian_class.player_class_level = 6
     yasha.player_classes().append(barbarian_class)
 
     #yasha.fighting_style = fighting_style.Great_Weapon_Fighting
-    yasha.max_health = 55
+    yasha.max_health = 68
     yasha.armour_class = 14
     yasha.base_speed = 40
     yasha.proficiency = calc_proficiency(yasha)
@@ -1875,10 +1946,11 @@ def init_hydra(init_combatants):
     hydra.notes = "The Warden of U'kutoa's Temple (C2E39)"
 
     hydra.creature_type = creature_type.Monster
-    hydra.fullname = "The Warden of U'kutoa"
+    hydra.fullname = "A monstrous Hydra, the Warden of the False Serpent"
     hydra.name = "Hydra"
     hydra.race = race.Monstrosity
     hydra.monster_type = monster_type.Hydra
+    hydra.challenge_rating = 8
     hydra.max_health = 172
     hydra.armour_class = 15
     hydra.base_speed = 30
