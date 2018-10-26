@@ -90,8 +90,8 @@ def select_spell(combatant,casttime):
                         #Healing spells are the most important to consider; if we find a target who needs healing we                         
                         if spell.category == spell_category.Healing:            
                             if best_spell == None or ((spell.instance*(spell.healing_die_count*spell.healing_die)) >= (best_spell.instance*(best_spell.healing_die_count*best_spell.healing_die))):
-                                heal_target = find_heal_target(combatant,spell.range)
-                                if heal_target != None:                                                      
+                                find_ally_target(combatant,spell.range)
+                                if combatant.ally_target != None:                                                      
                                     best_spell = spell
     return best_spell
 
@@ -138,14 +138,14 @@ def cast_spell(combatant,spell,crit = None):
         
         # Healing spells
         if spell.category == spell_category.Healing:            
-            heal_target = find_heal_target(combatant,spell.range)
-            print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + heal_target.name)
+            find_ally_target(combatant,spell.range)
+            print_output(combatant.name + ' casts the ' + spell.name + ' spell on ' + combatant.ally_target.name)
 
-            if heal_target != None:
+            if combatant.ally_target != None:
                 i = 0
                 while i < total_instances:
                     for x in range(0,spell.healing_die_count):
-                        resolve_spell_healing(combatant,heal_target,spell,spellslot)                                                        
+                        resolve_spell_healing(combatant,combatant.ally_target,spell,spellslot)                                                        
                     i += 1
             else:
                 print_output('The spell fizzles as there is no target any more!')

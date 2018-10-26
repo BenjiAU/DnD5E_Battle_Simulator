@@ -48,27 +48,26 @@ def find_target(combatant):
     else:
         return False
 
-def find_heal_target(combatant,range):
-    heal_target = None    
+def find_ally_target(combatant,range):
+    combatant.ally_target = None    
     for ally in get_living_allies(combatant):        
         if check_condition(ally,condition.Unconscious):
-            print_output(combatant.name + ' thinks that ' + ally.name + ' needs healing desperately!')   
+            #print_output(combatant.name + ' thinks that ' + ally.name + ' needs healing desperately!')   
             if calc_distance(combatant,ally) <= range:
-                heal_target = ally
-            else:
-                print_output(ally.name + ' is out of range and cannot be healed!')   
-        elif heal_target == None and ally.current_health <= ally.max_health/4:
-            print_output(combatant.name + ' thinks that ' + ally.name + ' needs healing')   
+                combatant.ally_target = ally
+            #else:
+            #    print_output(ally.name + ' is out of range and cannot be healed!')   
+        elif combatant.ally_target == None and ally.current_health <= ally.max_health/4:
+            #print_output(combatant.name + ' thinks that ' + ally.name + ' needs healing')   
             if calc_distance(combatant,ally) <= range:
-                heal_target  = ally
-            else:
-                print_output(ally.name + ' is out of range and cannot be healed!')   
+                combatant.ally_target  = ally
+            #else:
+            #    print_output(ally.name + ' is out of range and cannot be healed!')   
 
-    if heal_target == None:
+    if combatant.ally_target == None:
         if combatant.current_health <= combatant.max_health/2:
-            print_output(combatant.name + ' thinks that they need to heal themselves')
-            heal_target = combatant    
-    return heal_target
+            #print_output(combatant.name + ' thinks that they need to heal themselves')
+            combatant.ally_target = combatant
 
 def find_buff_target(combatant,buff_condition,range):
     buff_target = None    

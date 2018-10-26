@@ -16,7 +16,7 @@ def movement(combatant):
         print_output("<b>Movement:</b>")
 
     # Only move if a target exists
-    if combatant.target:
+    if combatant.target or combatant.ally_target:
         # Set the available movement of the combatant based on their current speed
         combatant.movement = combatant.current_speed
         
@@ -40,31 +40,36 @@ def use_movement(combatant):
     
     determine_desired_range(combatant)    
 
+    if combatant.ally_target != None:
+        movement_target = combatant.ally_target
+    else:
+        movement_target = combatant.target    
+    
     # Use the maximum range of the selected spell/weapon to determine where we should go
-    if combatant.desired_range == 0:
-        if target_in_range(combatant,combatant.target,combatant.desired_range):            
+    if combatant.desired_range == 0:        
+        if target_in_range(combatant,movement_target,combatant.desired_range):            
             print_output(combatant.name + ' stays where they are, in melee range of ' + combatant.target.name + '. ' + position_text(combatant.xpos,combatant.ypos))
         else:
-            move_to_target(combatant,combatant.target)    
+            move_to_target(combatant,movement_target)    
     else:
         #Otherwise use our desired range to determine whether we should increase or decrease distance
-        if target_in_range(combatant,combatant.target,combatant.desired_range):               
+        if target_in_range(combatant,movement_target,combatant.desired_range):               
             # Don't move out of weapon range - figure out current gap, subtract it from weapon range, thats how far we can move           
-            if combatant.movement > combatant.desired_range - calc_distance(combatant,combatant.target):
+            if combatant.movement > combatant.desired_range - calc_distance(combatant,movement_target):
                 # Set our movement to the maximum range            
-                combatant.movement = combatant.desired_range - calc_distance(combatant,combatant.target)                             
+                combatant.movement = combatant.desired_range - calc_distance(combatant,movement_target)                             
             # Movement must be at least higher than one grid or its not worth using
             if combatant.movement >= 5:
-                print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to increase distance, but stay within range of ' + combatant.target.name)
-                move_from_target(combatant,combatant.target)
+                print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to increase distance, but stay within range of ' + movement_target.name)
+                move_from_target(combatant,movement_target)
         else:
             #Close the distance to be able to use weapon 
-            gap_to_close = calc_distance(combatant,combatant.target) - combatant.desired_range;
+            gap_to_close = calc_distance(combatant,movement_target) - combatant.desired_range;
             if gap_to_close <= combatant.movement:
                 combatant.movement = gap_to_close
             if combatant.movement >= 5:
-                print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to get closer to ' + combatant.target.name)
-                move_to_target(combatant,combatant.target)
+                print_output(combatant.name + ' will attempt to use ' + repr(combatant.movement) + ' feet of movement to get closer to ' + movement_target.name)
+                move_to_target(combatant,movement_target)
 
 def determine_desired_range(combatant):
 # One set of rules for spellcasters
@@ -236,7 +241,7 @@ def calc_grid_step(direction,x,y):
 
 def move_to_target(combatant,target):
     # Goal - decrease the distance between us and target
-    print_output(movement_text(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move towards ' + combatant.target.name + ' at (' + repr(combatant.target.xpos) + ',' + repr(combatant.target.ypos) + ')'))    
+    print_output(movement_text(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move towards ' + target.name + ' at (' + repr(target.xpos) + ',' + repr(target.ypos) + ')'))    
     print_output(movement_text(combatant.name + ' begins to use their ' + repr(combatant.movement) + ' feet of movement.'))
     initial_distance = calc_distance(combatant,target)
     initial_grids = calc_no_of_grids(initial_distance)
@@ -287,8 +292,8 @@ def move_to_target(combatant,target):
 
         grids_moved += 1
         #Evaluate after each step if the target is in range of our weapon
-        if target_in_range(combatant,combatant.target,combatant.desired_range):                        
-            print_output(movement_text(combatant.name + ' decides to stop, now in range of ' + combatant.target.name + '. ') + position_text(combatant.xpos,combatant.ypos))
+        if target_in_range(combatant,target,combatant.desired_range):                        
+            print_output(movement_text(combatant.name + ' decides to stop, now in range of ' + target.name + '. ') + position_text(combatant.xpos,combatant.ypos))
             movement_complete = True
 
             grids_to_move = 0
@@ -304,7 +309,7 @@ def move_to_target(combatant,target):
 def move_from_target(combatant,target):
     # Goal - extend the distance between us and target
     #Essentially figure out where we are in relation to the target, and keep travelling in that direction
-    print_output(movement_text(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move away from ' + combatant.target.name + ' at (' + repr(combatant.target.xpos) + ',' + repr(combatant.target.ypos) + ')'))
+    print_output(movement_text(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move away from ' + target.name + ' at (' + repr(target.xpos) + ',' + repr(target.ypos) + ')'))
     print_output(movement_text(combatant.name + ' has ' + repr(combatant.movement) + ' feet of movement to spend.'))
     initial_distance = combatant.movement
     initial_grids = calc_no_of_grids(initial_distance)    
@@ -370,8 +375,8 @@ def move_from_target(combatant,target):
         #If we haven't attacked yet, we don't want to run out of our weapon range
         #If combatant.movement would take us outside the maximum range of our weapon, stop here instead
         if not combatant.action_used: 
-            if not target_in_range(combatant,combatant.target,combatant.desired_range):                        
-                print_indent( combatant.name + ' decides to stop at (' + repr(initial_xpos) + ',' + repr(initial_ypos) + ') to stay in range of ' + combatant.target.name)
+            if not target_in_range(combatant,target,combatant.desired_range):                        
+                print_indent( combatant.name + ' decides to stop at (' + repr(initial_xpos) + ',' + repr(initial_ypos) + ') to stay in range of ' + target.name)
                 combatant.xpos = initial_xpos;
                 combatant.ypos = initial_ypos;
                 grids_to_move = 0
@@ -457,9 +462,19 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
                         for feat in opportunity_attacker.creature_feats():
                             if feat == feat.Sentinel:
                                 sentinel_feat = True
-                        if check_condition(combatant_before_move,condition.Disengaged) and not sentinel_feat:
-                            print_indent(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged! Their Reaction was not consumed.')
+
+                        make_attack = False
+                        if check_condition(combatant_before_move,condition.Disengaged):
+                            if sentinel_feat:
+                                make_attack = True
+                                print_indent(combatant_before_move.name + ' has Disengaged, but ' + opportunity_attacker.name + ' can still make their Opportunity Attack due to Sentinel!')
+                            else:
+                                make_attack = False
+                                print_indent(opportunity_attacker.name + ' can not make an Attack of Opportunity against ' + combatant_before_move.name + ', as they have Disengaged! Their Reaction was not consumed.')
                         else:
+                            make_attack = True
+
+                        if make_attack:
                             if combat.attack(opportunity_attacker,opportunity_attacker.main_hand_weapon):
                                 if sentinel_feat:
                                     #Successful opportunity attacks reduce creatures speed to 0

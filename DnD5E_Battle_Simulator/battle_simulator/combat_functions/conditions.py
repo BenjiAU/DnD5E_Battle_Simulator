@@ -133,8 +133,9 @@ def check_inflicted_condition(combatant,target,condition):
     for combatant_condition in target.creature_conditions():
         if combatant_condition.condition == condition:    
             concentration_condition = get_concentration_condition(combatant)
-            if concentration_condition.source == combatant_condition.source:
-                return True
+            if concentration_condition:
+                if concentration_condition.source == combatant_condition.source:
+                    return True
     return False
 
 def action_saveable_condition(combatant):

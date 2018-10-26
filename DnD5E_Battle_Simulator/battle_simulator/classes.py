@@ -907,7 +907,7 @@ class creature():
     # Generic target object, linked to another creature in the find_target function
     # The primary target is used to determine movement and AI behaviour
     target = None
-
+       
     # A special target object used to override the primary target for buffs/healing focus
     ally_target = None
 
