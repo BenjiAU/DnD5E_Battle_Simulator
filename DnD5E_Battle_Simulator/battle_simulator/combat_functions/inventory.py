@@ -14,7 +14,8 @@ def use_equipment(combatant):
     for eq in combatant.equipment_inventory():
         # Enlarge (i.e. from Titanstone Knuckles)
         if eq.grants_equipment_spell == equipment_spells.Enlarge:
-            if not check_condition(combatant,condition.Enlarged):
+            if not check_condition(combatant,condition.Enlarged):  
+                print_output("<b>Action:</b>")
                 print_output(combatant.name + ' smashes the ' + eq.name + ' together and grows in size! This uses up their Action')            
                 inflict_condition(combatant,eq,condition.Enlarged,10)
                 combatant.action_used = True
@@ -22,6 +23,7 @@ def use_equipment(combatant):
         # Haste (i.e. from Boots of Haste)
         if eq.grants_equipment_spell == equipment_spells.Haste:
             if not check_condition(combatant,condition.Hasted):
+                print_output("<b>Bonus Action:</b>")
                 print_output(combatant.name + ' clicks the ' + eq.name + ' together and begins to move rapidly! (+ Hasted Action, +2AC) This uses up their Bonus Action')            
                 #Inflict the Haste condition from the Equipment object
                 # Haste lasts 1 minute (10 rounds)

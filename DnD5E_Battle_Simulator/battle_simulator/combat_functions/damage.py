@@ -208,10 +208,7 @@ def calculate_reduction_after_attack(combatant):
                     x.damage = int(x.damage/2)
                 combatant.reaction_used = True
 
-def resolve_damage(combatant):
-    #Fire the on_damage_taken_event before damage is resolved
-    on_damage_taken_event(combatant)
-
+def resolve_damage(combatant):    
     total_damage = 0
     damage_string = ""    
     #Calculate total damage
@@ -256,6 +253,9 @@ def resolve_damage(combatant):
 
             combatant.current_health = max(combatant.current_health - total_damage,0)
             combatant.damage_taken_this_turn += total_damage
+            
+            #Fire the on_damage_taken_event after damage is resolved
+            on_damage_taken_event(combatant)
 
             #Check Concentration
             if check_condition(combatant,condition.Concentrating):

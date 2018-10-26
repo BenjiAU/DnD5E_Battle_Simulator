@@ -911,8 +911,11 @@ class creature():
 
     #Separate int for tracking damage suffered by a combatant each turn (necessary for some features)
     damage_taken_this_turn = int()
-    round_start_head_count = int()
+
+    # Hydra stuff
+    last_turn_head_count = int()
     current_head_count = int()
+    head_lost_this_turn = bool() #Only lose one head per turn
 
     #Summary fields - for output at end of simulation    
     attacks_hit = int()

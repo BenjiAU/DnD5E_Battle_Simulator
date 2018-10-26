@@ -116,7 +116,9 @@ def reset_combatants(init_combatants):
                 while i <= combatant.current_head_count:
                     combatant.multiattack.append("Bite")
                     i += 1
-            
+                combatant.head_lost_this_turn = False
+                combatant.last_turn_head_count = combatant.current_head_count
+
             ### Beast forms
             if combatant.monster_type == monster_type.Eagle:
                 combatant.multiattack = ["Beak","Talon"]

@@ -131,7 +131,7 @@ def simulate_battle():
             print_output('<b>Round: ' + repr(round) + '</b>')
             
             #Print a grid 50 units around the combatants to show the relative positions    
-            print_grid(0,0,[],combatants.list)            
+            print_grid(0,0,[],combatants.list)                       
 
             for combatant in combatants.list:        
                 if not round_complete:
@@ -147,12 +147,13 @@ def simulate_battle():
                         while can_continue_turn(combatant):                            
                             combatant_alive_this_turn = True
                             
-                            #Hydra stuff                            
-                            if combatant.monster_type == monster_type.Hydra:
-                                print_output('The Hydra currently has: ' + repr(combatant.current_head_count) + ' heads.')
-                                print_output('The Hydra\'s multiattack: ' + repr(combatant.multiattack))
-                                combatant.round_start_head_count = combatant.current_head_count
-                                combatant.damage_taken_this_turn = 0
+                            #Hydra stuff                 
+                            for find_hydra in combatants.list:                                                                           
+                                if find_hydra.monster_type == monster_type.Hydra:
+                                    print_output('The Hydra currently has: ' + repr(find_hydra.current_head_count) + ' heads.')
+                                    #print_output('The Hydra\'s multiattack: ' + repr(combatant.multiattack))                                
+                                    find_hydra.damage_taken_this_turn = 0
+                                    find_hydra.head_lost_this_turn = False
 
                             # update statistics
                             combatant.rounds_fought += 1                                                        
@@ -311,15 +312,16 @@ def simulate_battle():
                                 sneak_attack_combatant.sneak_attack_used = False                                                                                        
 
                         # Mark the turn as complete
-                        print_output('That finishes ' + combatant.name + '\'s turn.')                            
-                        turn_complete = True
+                        print_output('That finishes ' + combatant.name + '\'s turn.')                                                                             
+
+                        on_end_turn_event(combatant)
+                            
+                        turn_complete = True                        
 
                     #Turn Over                    
-                    turn_complete = True
-                    end_div()
-                    #Turn Over
-
-                on_end_turn_event(combatant)
+                    turn_complete = True                    
+                    end_div()                    
+                    #Turn Over                
 
             #End of Round
             round_complete = True
