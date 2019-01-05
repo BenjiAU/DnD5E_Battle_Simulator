@@ -45,6 +45,7 @@ def action(combatant):
     # Cast a Spell
     if not combatant.action_used:                
         # Select an appropriate action-cost spell
+        
         selected_spell = select_spell(combatant,spell_casting_time.Action)                
         if selected_spell != None:                    
             print_output(combatant.name + ' uses the Cast a Spell Action to cast ' + selected_spell.name + '!')

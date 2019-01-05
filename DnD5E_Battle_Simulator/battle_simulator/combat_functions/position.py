@@ -45,7 +45,8 @@ def use_movement(combatant):
     else:
         movement_target = combatant.target    
     
-    # Use the maximum range of the selected spell/weapon to determine where we should go
+    # Use the maximum range of the selected
+    #  spell/weapon to determine where we should go
     if combatant.desired_range == 0:        
         if target_in_range(combatant,movement_target,combatant.desired_range):            
             print_output(combatant.name + ' stays where they are, in melee range of ' + combatant.target.name + '. ' + position_text(combatant.xpos,combatant.ypos))

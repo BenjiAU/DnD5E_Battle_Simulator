@@ -5,7 +5,7 @@ import datetime
 from datetime import timedelta 
 
 import math
-from flask import Markup
+from flask import Markup, session
 from battle_simulator import settings
 from battle_simulator import combatants, classes
 
@@ -72,7 +72,7 @@ def print_time_stamp(start,string):
         settings.output.append(string)
     
 def print_combatant_table(combatant):
-    all_ticked = False
+    all_ticked = session.get('retry')
     string = ""
     string += Markup('<div class=combatant>')    
     string += Markup('<tr>')
