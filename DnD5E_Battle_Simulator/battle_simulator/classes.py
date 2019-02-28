@@ -723,8 +723,7 @@ class creature():
     #Blood Hunter
     #############    
 
-    # Structures for maintaining the selected
-    #  crimson rites/blood curses for the creature
+    # Structures for maintaining the selected crimson rites/blood curses for the creature
     def crimson_rites(self):
         if not hasattr(self, "_crimson_rites"):
             self._crimson_rites = []
