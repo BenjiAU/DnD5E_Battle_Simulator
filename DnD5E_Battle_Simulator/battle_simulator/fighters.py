@@ -362,7 +362,7 @@ def init_vax(init_combatants):
     paladin_class = player_class_block()
     paladin_class.player_class = player_class.Paladin
     paladin_class.player_subclass = player_subclass.Vengeance
-    paladin_class.player_class_level = 6
+    paladin_class.player_class_level = 8
     vax.player_classes().append(paladin_class)
 
     druid_class = player_class_block()
@@ -789,7 +789,7 @@ def init_fjord(init_combatants):
     warlock_class = player_class_block()
     warlock_class.player_class = player_class.Warlock
     warlock_class.player_subclass = player_subclass.PactOfTheBlade
-    warlock_class.player_class_level = 6
+    warlock_class.player_class_level = 8
     warlock_class.spellcasting_attribute = attribute.Charisma
     fjord.player_classes().append(warlock_class)
 
@@ -870,7 +870,7 @@ def init_beau(init_combatants):
     monk_class = player_class_block()
     monk_class.player_class = player_class.Monk
     monk_class.player_subclass = player_subclass.WayOfTheCobaltSoul
-    monk_class.player_class_level = 6
+    monk_class.player_class_level = 8
     beau.player_classes().append(monk_class)
 
     #beau.fighting_style = fighting_style.Great_Weapon_Fighting
@@ -944,7 +944,7 @@ def init_caleb(init_combatants):
     wizard_class = player_class_block()
     wizard_class.player_class = player_class.Wizard
     wizard_class.player_subclass = player_subclass.Transmutation
-    wizard_class.player_class_level = 6
+    wizard_class.player_class_level = 8
     wizard_class.spellcasting_attribute = attribute.Intelligence
     caleb.player_classes().append(wizard_class)
 
@@ -1024,7 +1024,7 @@ def init_nott(init_combatants):
     rogue_class.player_class = player_class.Rogue
     rogue_class.player_subclass = player_subclass.ArcaneTrickster
     rogue_class.spellcasting_attribute = attribute.Intelligence
-    rogue_class.player_class_level = 6
+    rogue_class.player_class_level = 8
     nott.player_classes().append(rogue_class)
     nott.creature_feats().append(feat.Crossbow_Expert)
     #nott.fighting_style = fighting_style.Great_Weapon_Fighting
@@ -1101,7 +1101,7 @@ def init_jester(init_combatants):
     cleric_class.player_class = player_class.Cleric
     cleric_class.player_subclass = player_subclass.TrickeryDomain
     cleric_class.spellcasting_attribute = attribute.Wisdom
-    cleric_class.player_class_level = 6
+    cleric_class.player_class_level = 8
     jester.player_classes().append(cleric_class)
 
     #jester.fighting_style = fighting_style.Great_Weapon_Fighting
@@ -1183,7 +1183,7 @@ def init_clay(init_combatants):
     cleric_class.player_class = player_class.Cleric
     cleric_class.player_subclass = player_subclass.GraveDomain
     cleric_class.spellcasting_attribute = attribute.Wisdom
-    cleric_class.player_class_level = 6
+    cleric_class.player_class_level = 8
     caduceus.player_classes().append(cleric_class)
 
     #caduceus.fighting_style = fighting_style.Great_Weapon_Fighting
@@ -1340,7 +1340,7 @@ def init_yasha(init_combatants):
     barbarian_class = player_class_block()
     barbarian_class.player_class = player_class.Barbarian
     barbarian_class.player_subclass = player_subclass.PathOfTheZealot
-    barbarian_class.player_class_level = 6
+    barbarian_class.player_class_level = 8
     yasha.player_classes().append(barbarian_class)
 
     #yasha.fighting_style = fighting_style.Great_Weapon_Fighting
