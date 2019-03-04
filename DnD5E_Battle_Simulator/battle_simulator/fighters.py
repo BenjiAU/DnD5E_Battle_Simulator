@@ -792,9 +792,8 @@ def init_fjord(init_combatants):
     warlock_class.player_class_level = 8
     warlock_class.spellcasting_attribute = attribute.Charisma
     fjord.player_classes().append(warlock_class)
-
-    #fjord.fighting_style = fighting_style.Great_Weapon_Fighting
-    fjord.max_health = 63
+    
+    fjord.max_health = 82
     fjord.armour_class = 17 #Shield?
     fjord.base_speed = 30
     fjord.proficiency = calc_proficiency(fjord)
@@ -819,7 +818,7 @@ def init_fjord(init_combatants):
     fjordsaves.con = 5
     fjordsaves.intel = 3
     fjordsaves.wis = 2
-    fjordsaves.cha = 8
+    fjordsaves.cha = 9
     
     fjord.saves = fjordsaves
 
@@ -874,8 +873,8 @@ def init_beau(init_combatants):
     beau.player_classes().append(monk_class)
 
     #beau.fighting_style = fighting_style.Great_Weapon_Fighting
-    beau.max_health = 54
-    beau.armour_class = 17
+    beau.max_health = 68
+    beau.armour_class = 20
     beau.base_speed = 40
     beau.proficiency = calc_proficiency(beau)
     beau.weapon_proficiency().append(weapon_type.Unarmed)
@@ -886,7 +885,7 @@ def init_beau(init_combatants):
     #Stats
     beaustats = statistic_block()
     beaustats.str = 10
-    beaustats.dex = 18
+    beaustats.dex = 20
     beaustats.con = 16
     beaustats.intel = 14
     beaustats.wis = 16
@@ -897,7 +896,7 @@ def init_beau(init_combatants):
     #Saves
     beausaves = saving_throw_block()    
     beausaves.str = 3
-    beausaves.dex = 7
+    beausaves.dex = 8
     beausaves.con = 3
     beausaves.intel = 2
     beausaves.wis = 3
@@ -949,7 +948,7 @@ def init_caleb(init_combatants):
     caleb.player_classes().append(wizard_class)
 
     #caleb.fighting_style = fighting_style.Great_Weapon_Fighting
-    caleb.max_health = 37
+    caleb.max_health = 49
     caleb.armour_class = 11
     caleb.base_speed = 30
     caleb.proficiency = calc_proficiency(caleb)
@@ -1028,8 +1027,8 @@ def init_nott(init_combatants):
     nott.player_classes().append(rogue_class)
     nott.creature_feats().append(feat.Crossbow_Expert)
     #nott.fighting_style = fighting_style.Great_Weapon_Fighting
-    nott.max_health = 47
-    nott.armour_class = 16
+    nott.max_health = 65
+    nott.armour_class = 18
     nott.base_speed = 30
     nott.proficiency = calc_proficiency(nott)
     nott.weapon_proficiency().append(weapon_type.Crossbow)    
@@ -1038,7 +1037,7 @@ def init_nott(init_combatants):
     #Stats
     nottstats = statistic_block()
     nottstats.str = 11
-    nottstats.dex = 19
+    nottstats.dex = 20
     nottstats.con = 14
     nottstats.intel = 16
     nottstats.wis = 11
@@ -1049,7 +1048,7 @@ def init_nott(init_combatants):
     #Saves
     nottsaves = saving_throw_block()    
     nottsaves.str = 0
-    nottsaves.dex = 7
+    nottsaves.dex = 8
     nottsaves.con = 2
     nottsaves.intel = 6
     nottsaves.wis = 0
@@ -1105,7 +1104,7 @@ def init_jester(init_combatants):
     jester.player_classes().append(cleric_class)
 
     #jester.fighting_style = fighting_style.Great_Weapon_Fighting
-    jester.max_health = 48
+    jester.max_health = 67
     jester.armour_class = 18
     jester.base_speed = 30
     jester.proficiency = calc_proficiency(jester)
@@ -1117,7 +1116,7 @@ def init_jester(init_combatants):
     jesterstats.dex = 18
     jesterstats.con = 15
     jesterstats.intel = 12
-    jesterstats.wis = 18
+    jesterstats.wis = 20
     jesterstats.cha = 12
 
     jester.stats = jesterstats
@@ -1128,7 +1127,7 @@ def init_jester(init_combatants):
     jestersaves.dex = 4
     jestersaves.con = 2
     jestersaves.intel = 1
-    jestersaves.wis = 7
+    jestersaves.wis = 8
     jestersaves.cha = 4
     
     jester.saves = jestersaves
@@ -1187,7 +1186,7 @@ def init_clay(init_combatants):
     caduceus.player_classes().append(cleric_class)
 
     #caduceus.fighting_style = fighting_style.Great_Weapon_Fighting
-    caduceus.max_health = 53
+    caduceus.max_health = 69
     caduceus.armour_class = 17
     caduceus.base_speed = 30
     caduceus.proficiency = calc_proficiency(caduceus)
@@ -1239,6 +1238,86 @@ def init_clay(init_combatants):
 
     init_combatants.append(caduceus)    
 
+def init_yasha(init_combatants):
+    yasha = creature()
+
+    yasha.notes = "Path of the Zealot Barbarian"
+
+    yasha.fullname = "Yasha"
+    yasha.name = "Yasha"
+    yasha.race = race.Aasamir
+    yasha.creature_type = creature_type.Player
+
+    barbarian_class = player_class_block()
+    barbarian_class.player_class = player_class.Barbarian
+    barbarian_class.player_subclass = player_subclass.PathOfTheZealot
+    barbarian_class.player_class_level = 8
+    yasha.player_classes().append(barbarian_class)
+
+    #yasha.fighting_style = fighting_style.Great_Weapon_Fighting
+    yasha.max_health = 91
+    yasha.armour_class = 14
+    yasha.base_speed = 40
+    yasha.proficiency = calc_proficiency(yasha)
+    yasha.weapon_proficiency().append(weapon_type.Greatsword)
+    yasha.creature_feats().append(feat.Sentinel)
+
+    #Stats
+    yashastats = statistic_block()
+    yashastats.str = 17
+    yashastats.dex = 15
+    yashastats.con = 14
+    yashastats.intel = 12
+    yashastats.wis = 9
+    yashastats.cha = 7
+
+    yasha.stats = yashastats
+    
+    #Saves
+    yashasaves = saving_throw_block()    
+    yashasaves.str = 6
+    yashasaves.dex = 2
+    yashasaves.con = 5
+    yashasaves.intel = 1
+    yashasaves.wis = -1
+    yashasaves.cha = -2
+    
+    yasha.saves = yashasaves
+
+    #Ability Checks
+    yashachecks = ability_check_block()
+    
+    yasha.checks = yashachecks    
+
+    #yasha's weapons
+    magiciansjudge = weapon()
+    magiciansjudge.name = "Magician\'s Judge"
+    magiciansjudge.weapon_type = weapon_type.Greatsword;
+    magiciansjudge.range = 0
+    
+    magiciansjudge.damage_die = 6
+    magiciansjudge.damage_die_count = 2
+    magiciansjudge.weapon_damage_type = damage_type.Slashing
+    
+    magiciansjudge.bonus_damage_die = 0
+    magiciansjudge.bonus_damage_die_count = 0
+    magiciansjudge.bonus_damage_type = damage_type.Necrotic
+    
+    #magiciansjudge.magic_to_hit_modifier = 1
+    #magiciansjudge.magic_damage_modifier = 1
+
+    magiciansjudge.heavy = True
+    magiciansjudge.two_handed = True
+    magiciansjudge.magic = True
+
+    yasha.weapon_inventory().append(magiciansjudge)
+
+    #yasha's gear
+    # combat stats # 
+
+    init_combatants.append(yasha)    
+
+# RIP
 def init_molly(init_combatants):
     molly = creature()
 
@@ -1327,85 +1406,7 @@ def init_molly(init_combatants):
 
     init_combatants.append(molly)   
 
-def init_yasha(init_combatants):
-    yasha = creature()
-
-    yasha.notes = "Path of the Zealot Barbarian"
-
-    yasha.fullname = "Yasha"
-    yasha.name = "Yasha"
-    yasha.race = race.Aasamir
-    yasha.creature_type = creature_type.Player
-
-    barbarian_class = player_class_block()
-    barbarian_class.player_class = player_class.Barbarian
-    barbarian_class.player_subclass = player_subclass.PathOfTheZealot
-    barbarian_class.player_class_level = 8
-    yasha.player_classes().append(barbarian_class)
-
-    #yasha.fighting_style = fighting_style.Great_Weapon_Fighting
-    yasha.max_health = 68
-    yasha.armour_class = 14
-    yasha.base_speed = 40
-    yasha.proficiency = calc_proficiency(yasha)
-    yasha.weapon_proficiency().append(weapon_type.Greatsword)
-    yasha.creature_feats().append(feat.Sentinel)
-
-    #Stats
-    yashastats = statistic_block()
-    yashastats.str = 17
-    yashastats.dex = 15
-    yashastats.con = 14
-    yashastats.intel = 12
-    yashastats.wis = 9
-    yashastats.cha = 7
-
-    yasha.stats = yashastats
-    
-    #Saves
-    yashasaves = saving_throw_block()    
-    yashasaves.str = 6
-    yashasaves.dex = 2
-    yashasaves.con = 5
-    yashasaves.intel = 1
-    yashasaves.wis = -1
-    yashasaves.cha = -2
-    
-    yasha.saves = yashasaves
-
-    #Ability Checks
-    yashachecks = ability_check_block()
-    
-    yasha.checks = yashachecks    
-
-    #yasha's weapons
-    magiciansjudge = weapon()
-    magiciansjudge.name = "Magician\'s Judge"
-    magiciansjudge.weapon_type = weapon_type.Greatsword;
-    magiciansjudge.range = 0
-    
-    magiciansjudge.damage_die = 6
-    magiciansjudge.damage_die_count = 2
-    magiciansjudge.weapon_damage_type = damage_type.Slashing
-    
-    magiciansjudge.bonus_damage_die = 0
-    magiciansjudge.bonus_damage_die_count = 0
-    magiciansjudge.bonus_damage_type = damage_type.Necrotic
-    
-    #magiciansjudge.magic_to_hit_modifier = 1
-    #magiciansjudge.magic_damage_modifier = 1
-
-    magiciansjudge.heavy = True
-    magiciansjudge.two_handed = True
-    magiciansjudge.magic = True
-
-    yasha.weapon_inventory().append(magiciansjudge)
-
-    #yasha's gear
-    # combat stats # 
-
-    init_combatants.append(yasha)    
-    
+#Monsters    
 def init_arkhan(init_combatants):
 
     #Arkhan
