@@ -2085,11 +2085,11 @@ def init_fire_giant(init_combatants):
     rock.range = 60
     rock.long_range = 240
     
-    greatsword.damage_die = 10
-    greatsword.damage_die_count = 4
-    greatsword.weapon_damage_type = damage_type.Bludgeoning
+    rock.damage_die = 10
+    rock.damage_die_count = 4
+    rock.weapon_damage_type = damage_type.Bludgeoning
     
-    greatsword.magic_to_hit_modifier = 3
+    rock.magic_to_hit_modifier = 3
 
     firegiant.weapon_inventory().append(rock)
     init_combatants.append(firegiant)    
@@ -2105,7 +2105,7 @@ def init_fire_giant_dreadnought(init_combatants):
     firegiantdreadnought.fullname = "Fire Giant"
     firegiantdreadnought.name = "Fire Giant"
     firegiantdreadnought.race = race.Giant
-    firegiantdreadnought.monster_type = monster_type.firegiantdreadnought    
+    firegiantdreadnought.monster_type = monster_type.FireGiant    
     firegiantdreadnought.max_health = 234
     firegiantdreadnought.armour_class = 18
     firegiantdreadnought.base_speed = 30
@@ -2157,11 +2157,11 @@ def init_fire_giant_dreadnought(init_combatants):
     rock.range = 60
     rock.long_range = 240
     
-    greatsword.damage_die = 10
-    greatsword.damage_die_count = 4
-    greatsword.weapon_damage_type = damage_type.Bludgeoning
+    rock.damage_die = 10
+    rock.damage_die_count = 4
+    rock.weapon_damage_type = damage_type.Bludgeoning
     
-    greatsword.magic_to_hit_modifier = 3
+    rock.magic_to_hit_modifier = 3
 
     firegiantdreadnought.weapon_inventory().append(rock)
     init_combatants.append(firegiantdreadnought)    
