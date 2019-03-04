@@ -119,6 +119,14 @@ def reset_combatants(init_combatants):
                 combatant.head_lost_this_turn = False
                 combatant.last_turn_head_count = combatant.current_head_count
 
+            ### Fire Giant 
+            if combatant.monster_type == monster_type.FireGiant:
+                combatant.multiattack = ["Greatsword","Greatsword"]
+                
+            ### Fire Giant 
+            if combatant.monster_type == monster_type.FireGiant:
+                combatant.multiattack = ["Fireshield","Fireshield"]
+
             ### Beast forms
             if combatant.monster_type == monster_type.Eagle:
                 combatant.multiattack = ["Beak","Talon"]

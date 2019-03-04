@@ -298,6 +298,7 @@ class monster_type(Enum):
     Hill = auto()
     Oni = auto()
     FireGiant = auto()
+    FireGiantDreadnought = auto()
     #Beasts
     Eagle = auto()
     Bear = auto()
