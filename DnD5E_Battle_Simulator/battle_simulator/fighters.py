@@ -2102,8 +2102,8 @@ def init_fire_giant_dreadnought(init_combatants):
 
     firegiantdreadnought.creature_type = creature_type.Monster
     firegiantdreadnought.challenge_rating = 14
-    firegiantdreadnought.fullname = "Fire Giant"
-    firegiantdreadnought.name = "Fire Giant"
+    firegiantdreadnought.fullname = "Fire Giant Dreadnought"
+    firegiantdreadnought.name = "Fire Giant Dreadnought"
     firegiantdreadnought.race = race.Giant
     firegiantdreadnought.monster_type = monster_type.FireGiant    
     firegiantdreadnought.max_health = 234
