@@ -33,6 +33,8 @@ def initialise_combatants(init_combatants):
     init_venom_troll(init_combatants)
     #init_clockwork_warden(init_combatants)    
     init_hydra(init_combatants)
+    init_fire_giant(init_combatants)
+    init_fire_giant_dreadnought(init_combatants)
 
     init_lorenzo(init_combatants)
     init_wohn(init_combatants)
@@ -1846,7 +1848,6 @@ def init_venom_troll(init_combatants):
 
     init_combatants.append(venomtroll)    
 
-
 def init_clockwork_warden(init_combatants):
 
     clockworkwarden = creature()
@@ -2024,6 +2025,146 @@ def init_hydra(init_combatants):
     hydra.events().append(new_event)
     
     init_combatants.append(hydra)    
+
+def init_fire_giant(init_combatants):
+
+    firegiant = creature()
+
+    firegiant.notes = "The massive fire Giant from C2E50, slayer of Spurt"
+
+    firegiant.creature_type = creature_type.Monster
+    firegiant.challenge_rating = 9
+    firegiant.fullname = "Fire Giant"
+    firegiant.name = "Fire Giant"
+    firegiant.race = race.Giant
+    firegiant.monster_type = monster_type.FireGiant    
+    firegiant.max_health = 234
+    firegiant.armour_class = 18
+    firegiant.base_speed = 30
+        
+    #Stats
+    firegiantstats = statistic_block()
+    firegiantstats.str = 25
+    firegiantstats.dex = 8
+    firegiantstats.con = 23
+    firegiantstats.intel = 10
+    firegiantstats.wis = 14
+    firegiantstats.cha = 13
+
+    firegiant.stats = firegiantstats
+    
+    #Saves
+    firegiantsaves = saving_throw_block()    
+    firegiantsaves.dex = 3
+    firegiantsaves.con = 10
+    firegiantsaves.cha = 5
+    firegiant.saves = firegiantsaves
+
+    #Ability Checks
+    firegiantchecks = ability_check_block()    
+
+    firegiant.checks = firegiantchecks
+
+    #firegiant's weapons
+    greatsword = weapon()
+    greatsword.name = "Greatsword"
+    greatsword.weapon_type = weapon_type.Natural;
+    greatsword.range = 0
+    
+    greatsword.damage_die = 6
+    greatsword.damage_die_count = 6
+    greatsword.weapon_damage_type = damage_type.Slashing
+    
+    greatsword.magic_to_hit_modifier = 3
+
+    firegiant.weapon_inventory().append(greatsword)
+    
+    rock = weapon()
+    rock.name = "Rock"
+    rock.weapon_type = weapon_type.Natural;
+    rock.range = 60
+    rock.long_range = 240
+    
+    greatsword.damage_die = 10
+    greatsword.damage_die_count = 4
+    greatsword.weapon_damage_type = damage_type.Bludgeoning
+    
+    greatsword.magic_to_hit_modifier = 3
+
+    firegiant.weapon_inventory().append(rock)
+    init_combatants.append(firegiant)    
+
+def init_fire_giant_dreadnought(init_combatants):
+
+    firegiantdreadnought = creature()
+
+    firegiantdreadnought.notes = "The shield-wielding fire Giant from C2E50 (can't handle more than two damage types, so shield does 6d6 bldg + 2d6 fire)"
+
+    firegiantdreadnought.creature_type = creature_type.Monster
+    firegiantdreadnought.challenge_rating = 14
+    firegiantdreadnought.fullname = "Fire Giant"
+    firegiantdreadnought.name = "Fire Giant"
+    firegiantdreadnought.race = race.Giant
+    firegiantdreadnought.monster_type = monster_type.firegiantdreadnought    
+    firegiantdreadnought.max_health = 234
+    firegiantdreadnought.armour_class = 18
+    firegiantdreadnought.base_speed = 30
+        
+    #Stats
+    firegiantdreadnoughtstats = statistic_block()
+    firegiantdreadnoughtstats.str = 27
+    firegiantdreadnoughtstats.dex = 9
+    firegiantdreadnoughtstats.con = 23
+    firegiantdreadnoughtstats.intel = 8
+    firegiantdreadnoughtstats.wis = 10
+    firegiantdreadnoughtstats.cha = 11
+
+    firegiantdreadnought.stats = firegiantdreadnoughtstats
+    
+    #Saves
+    firegiantdreadnoughtsaves = saving_throw_block()    
+    firegiantdreadnoughtsaves.dex = 3
+    firegiantdreadnoughtsaves.con = 10
+    firegiantdreadnoughtsaves.cha = 5
+    firegiantdreadnought.saves = firegiantdreadnoughtsaves
+
+    #Ability Checks
+    firegiantdreadnoughtchecks = ability_check_block()    
+
+    firegiantdreadnought.checks = firegiantdreadnoughtchecks
+
+    #firegiantdreadnought's weapons
+    fireshield = weapon()
+    fireshield.name = "Fireshield"
+    fireshield.weapon_type = weapon_type.Natural;
+    fireshield.range = 0
+    
+    fireshield.damage_die = 6
+    fireshield.damage_die_count = 6
+    fireshield.weapon_damage_type = damage_type.Bludgeoning
+    
+    fireshield.bonus_damage_die = 6
+    fireshield.bonus_damage_die_count = 2
+    fireshield.bonus_damage_type = damage_type.Fire
+
+    fireshield.magic_to_hit_modifier = 3
+
+    firegiantdreadnought.weapon_inventory().append(fireshield)
+    
+    rock = weapon()
+    rock.name = "Rock"
+    rock.weapon_type = weapon_type.Natural;
+    rock.range = 60
+    rock.long_range = 240
+    
+    greatsword.damage_die = 10
+    greatsword.damage_die_count = 4
+    greatsword.weapon_damage_type = damage_type.Bludgeoning
+    
+    greatsword.magic_to_hit_modifier = 3
+
+    firegiantdreadnought.weapon_inventory().append(rock)
+    init_combatants.append(firegiantdreadnought)    
 
 # The Iron Shepherds
 def init_lorenzo(init_combatants):
