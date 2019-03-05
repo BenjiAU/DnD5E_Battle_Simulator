@@ -110,8 +110,8 @@ def find_targets_in_area(combatant,affected_grids):
             affected_targets.append(potential_target)
     return affected_targets
 
-def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,length,printgrid=False):
-    if shape not in [area_of_effect_shape.Line,area_of_effect_shape.Square,area_of_effect_shape.Circle,area_of_effect_shape.Cone]:
+def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,length,printgrid=True):
+    if shape not in [area_of_effect_shape.Line,area_of_effect_shape.Square,area_of_effect_shape.Circle,area_of_effect_shape.Sphere,area_of_effect_shape.Cone]:
         return []
 
     #Determines area of effect of passed in parameters and returns a dict of affected x,y co-ords    
@@ -240,6 +240,13 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
         yorigin = central_yorigin
         step_length = length        
 
+    #Sphere just a dumb circle until we get a z axis
+    elif shape == area_of_effect_shape.Sphere:  
+        max_grids = round_to_integer(math.pow(math.pi*(grid_length+1),2),5) 
+        xorigin = central_xorigin                 
+        yorigin = central_yorigin
+        step_length = length    
+
     # Force line to shift on the target side of the initial origin point (the aoe effect cannot begin behind - or in line with - the caster)
     # The line must also begin on the same plane as the origin point
     step_offset = 0
@@ -281,7 +288,7 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
                 length_deltax = length * math.cos(step_radians)
                 length_deltay = length * math.sin(step_radians)        
             # Do both; move the target and origin points closer together as we go outwards from the first line
-            elif shape == area_of_effect_shape.Circle:  
+            elif (shape == area_of_effect_shape.Circle) or (shape == area_of_effect_shape.Sphere):  
                 if step_length > 0:
                     # Calculate the width delta
                     width_deltax = step_offset * math.cos(perpendicular) * step_direction                                    
@@ -320,7 +327,7 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
             ydestination = round_to_integer(yorigin + length_deltay,5)
                         
             # Debug output
-            #print_output('Line origin: (' + repr(xorigin) + ',' + repr(yorigin) + ')' + ' Normalised Target point: (' + repr(xtarget) + ',' + repr(ytarget) + ')' + ' Line destination: (' + repr(xdestination) + ',' + repr(ydestination) + ')')
+            print_output('Line origin: (' + repr(xorigin) + ',' + repr(yorigin) + ')' + ' Normalised Target point: (' + repr(xtarget) + ',' + repr(ytarget) + ')' + ' Line destination: (' + repr(xdestination) + ',' + repr(ydestination) + ')')
         
             # Uses a variation of Brehenams algorithm to return the grids that are supercovered by a line drawn from origin -> destination
             line_grids = evaluate_line(yorigin,xorigin,ydestination,xdestination)                
@@ -344,7 +351,8 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
 
     # Find all tar
     #Print out a grid (half debugging, may leave it in) - show all the targets so they can be rendered
-    #print_output('AoE Debugging: Total potential grids: ' + repr(total_affected_grids) + ' Max grids: ' + repr(max_grids) + ' Affected grids: ' + repr(len(affected_grids)))
+    if printgrid:    
+        print_output('AoE Debugging: Total potential grids: ' + repr(total_affected_grids) + ' Max grids: ' + repr(max_grids) + ' Affected grids: ' + repr(len(affected_grids)))
 
     # Pass the affected grids to the print_grid function, focused on the origin of the spell, and with all combatants listed so we can see the location of other member
     if printgrid:

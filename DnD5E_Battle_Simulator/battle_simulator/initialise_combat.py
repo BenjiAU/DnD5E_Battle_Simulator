@@ -124,7 +124,7 @@ def reset_combatants(init_combatants):
                 combatant.multiattack = ["Greatsword","Greatsword"]
                 
             ### Fire Giant 
-            if combatant.monster_type == monster_type.FireGiantDreadnought:
+            if combatant.monster_type == monster_type.FireGiantDreadnought  :
                 combatant.multiattack = ["Fireshield","Fireshield"]
 
             ### Beast forms

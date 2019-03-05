@@ -13,6 +13,7 @@ class area_of_effect_shape(Enum):
     Circle = auto()
     Square = auto()
     Cone = auto()
+    Sphere = auto()
 
 class origin_point(Enum):
     def __str__(self):

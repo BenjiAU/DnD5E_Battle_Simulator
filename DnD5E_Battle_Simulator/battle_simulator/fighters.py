@@ -1004,7 +1004,7 @@ def init_caleb(init_combatants):
         caleb.spell_list().append(new_spell)
 
     # Level 3 spells
-    for spellname in ["Haste","Slow"]:
+    for spellname in ["Haste","Slow", "Fireball"]:
         new_spell = spell()
         new_spell.name = spellname
         caleb.spell_list().append(new_spell)

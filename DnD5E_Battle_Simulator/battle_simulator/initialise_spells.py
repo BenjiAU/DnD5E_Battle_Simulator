@@ -637,6 +637,37 @@ def initialise_spells(combatant):
             spell.maximum_duration = spell.condition_duration
 
             spell.concentration = True       
+
+        if spell.name == "Fireball":                    
+            spell.school = spell_school.Evocation
+            spell.category = spell_category.AoE_Damage
+            spell.min_spellslot_level = 3
+            spell.max_spellslot_level = 9
+                    
+            spell.instance = 1
+            spell.casting_time = spell_casting_time.Action
+            spell.range = 150
+            spell.origin = origin_point.Self      
+            spell.shape == area_of_effect_shape.Sphere
+            spell.shape_width = 20
+            spell.shape_length = 20
+            
+            spell.damage_die = 6
+            spell.damage_die_count = 8                       
+
+            spell.damage_type = damage_type.Fire
+                                   
+            spell.damage_die_per_spell_slot = 6
+            spell.damage_die_count_per_spell_slot = 1                   
+            
+            spell.player_classes().append(player_class.Sorcerer)
+            spell.player_classes().append(player_class.Wizard)
+                   
+            spell.saving_throw_attribute = saving_throw.Dexterity
+            spell.saving_throw_damage_multiplier = 0.5
+
+            spell.description = "A bead of orange energy leaps forth and detonates into a massive inferno, engulfing "
+            
     #############
     ## Level 4 ##
     #############                 
