@@ -234,18 +234,14 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
         xtarget = round_to_integer(xtarget + length_target_deltax,5)
         ytarget = round_to_integer(ytarget + length_target_deltay,5)    
 
-    elif shape == area_of_effect_shape.Circle:  
+    elif (shape == area_of_effect_shape.Circle) or (shape == area_of_effect_shape.Sphere):  
         max_grids = round_to_integer(math.pow(math.pi*(grid_length+1),2),5) 
-        xorigin = central_xorigin                 
-        yorigin = central_yorigin
-        step_length = length        
+        central_xorigin = xorigin
+        central_yorigin = yorigin
+        # Find the perpendicular angle from this central origin point
+        perpendicular = math.atan2(xtarget-xorigin, (ytarget-yorigin) * -1)    
 
-    #Sphere just a dumb circle until we get a z axis
-    elif shape == area_of_effect_shape.Sphere:  
-        max_grids = round_to_integer(math.pow(math.pi*(grid_length+1),2),5) 
-        xorigin = central_xorigin                 
-        yorigin = central_yorigin
-        step_length = length    
+        step_length = length            
 
     # Force line to shift on the target side of the initial origin point (the aoe effect cannot begin behind - or in line with - the caster)
     # The line must also begin on the same plane as the origin point
@@ -327,7 +323,7 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
             ydestination = round_to_integer(yorigin + length_deltay,5)
                         
             # Debug output
-            print_output('Line origin: (' + repr(xorigin) + ',' + repr(yorigin) + ')' + ' Normalised Target point: (' + repr(xtarget) + ',' + repr(ytarget) + ')' + ' Line destination: (' + repr(xdestination) + ',' + repr(ydestination) + ')')
+            #print_output('Line origin: (' + repr(xorigin) + ',' + repr(yorigin) + ')' + ' Normalised Target point: (' + repr(xtarget) + ',' + repr(ytarget) + ')' + ' Line destination: (' + repr(xdestination) + ',' + repr(ydestination) + ')')
         
             # Uses a variation of Brehenams algorithm to return the grids that are supercovered by a line drawn from origin -> destination
             line_grids = evaluate_line(yorigin,xorigin,ydestination,xdestination)                

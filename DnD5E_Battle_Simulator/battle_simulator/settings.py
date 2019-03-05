@@ -15,7 +15,7 @@ def init():
     #Simulation controls
     #Maximum number of battle simulations to occur
     global max_attempts
-    max_attempts = 1
+    max_attempts = 10
 
     #Maximum number of rounds of combat before aborting
     global max_rounds
