@@ -217,10 +217,11 @@ def print_grid(xorigin,yorigin,highlight_grids,targets,width=40,length=40,title=
     begin_div('grid')    
     print_output(title + ' (origin point: ' + repr(xorigin) + ',' + repr(yorigin) + ')')
     while y > yorigin - ymax - 1:
-        x = xorigin - xmax    
+        x = xorigin - xmax            
         grid_line = ""
         while x < xorigin + xmax + 1: 
-            if x == xorigin and y == yorigin:
+            #begin_div('grid div')
+            if x == xorigin and y == yorigin:            
                 grid_line += ' O '
             elif (x,y) in highlight_grids and (x,y) in target_grids:
                 list_index = target_grids.index((x,y))
@@ -232,9 +233,10 @@ def print_grid(xorigin,yorigin,highlight_grids,targets,width=40,length=40,title=
                 grid_line += ' * '                               
             else:
                 grid_line += ' . '        
+            #end_div()
             #grid_line += '(' + repr(x) + ',' + repr(y) + ')'        
-            x += 5                
-        print_output(grid_line)                    
+            x += 5                    
+        print_output(grid_line)                            
         y -= 5        
     # End the Grid div
     end_div()

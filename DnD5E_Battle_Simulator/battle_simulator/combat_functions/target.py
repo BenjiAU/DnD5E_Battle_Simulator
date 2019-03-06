@@ -110,6 +110,23 @@ def find_targets_in_area(combatant,affected_grids):
             affected_targets.append(potential_target)
     return affected_targets
 
+def calculate_spell_area_effect(combatant,spell):
+    if spell.origin == origin_point.Self:
+        xorigin = combatant.xpos
+        yorigin = combatant.ypos
+    elif spell.origin == origin_point.Target:
+        xorigin = combatant.target.xpos
+        yorigin = combatant.target.ypos
+    #elif spell.origin == origin_point.PointInRange:
+    #    xorigin = 
+    #    yorigin = 
+
+    #More sophisticated logic for target (i.e. wall of flame should be origin = point in range, target = a different point in range - oh god
+    xtarget = combatant.target.xpos
+    ytarget = combatant.target.ypos
+
+    return calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,spell.shape,spell.shape_width,spell.shape_length)
+
 def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,length,printgrid=True):
     if shape not in [area_of_effect_shape.Line,area_of_effect_shape.Square,area_of_effect_shape.Circle,area_of_effect_shape.Sphere,area_of_effect_shape.Cone]:
         return []
@@ -234,14 +251,32 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
         xtarget = round_to_integer(xtarget + length_target_deltax,5)
         ytarget = round_to_integer(ytarget + length_target_deltay,5)    
 
-    elif (shape == area_of_effect_shape.Circle) or (shape == area_of_effect_shape.Sphere):  
+    elif (shape == area_of_effect_shape.Circle) or (shape == area_of_effect_shape.Sphere):          
         max_grids = round_to_integer(math.pow(math.pi*(grid_length+1),2),5) 
-        central_xorigin = xorigin
-        central_yorigin = yorigin
+
+        # Calculate the angle between the origin point and initial target point in radians            
+        radians = math.atan2(ytarget-yorigin, xtarget-xorigin) 
+
+        # Calculate the distance 1 step towards the destination from the origin point
+        length_origin_deltax = 5 * math.cos(radians) 
+        length_origin_deltay = 5 * math.sin(radians)
+
+        # Initialise an origin point to this central location - this is where all lines will be drawn from
+        central_xorigin = round_to_integer(xorigin + length_origin_deltax,5)
+        central_yorigin = round_to_integer(yorigin + length_origin_deltay,5)
+
         # Find the perpendicular angle from this central origin point
         perpendicular = math.atan2(xtarget-xorigin, (ytarget-yorigin) * -1)    
+        
+        # Normalise the target to 1/2 the length away    
+        # To make sure the lines draw correctly, convert the effective target to a point 1/2 the length along the line from xorigin to xtarget, then calculate angles from there
+        # Otherwise we get weird behaviour (i.e. if the target is adjacent on an axis to our current point)        
+        length_target_deltax = length/2 * math.cos(radians)
+        length_target_deltay = length/2 * math.sin(radians)   
 
-        step_length = length            
+        xtarget = round_to_integer(xtarget + length_target_deltax,5)
+        ytarget = round_to_integer(ytarget + length_target_deltay,5)    
+        
 
     # Force line to shift on the target side of the initial origin point (the aoe effect cannot begin behind - or in line with - the caster)
     # The line must also begin on the same plane as the origin point
@@ -283,47 +318,39 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
                 # This is what we will add to an origin point at each step to draw our shape
                 length_deltax = length * math.cos(step_radians)
                 length_deltay = length * math.sin(step_radians)        
-            # Do both; move the target and origin points closer together as we go outwards from the first line
-            elif (shape == area_of_effect_shape.Circle) or (shape == area_of_effect_shape.Sphere):  
-                if step_length > 0:
-                    # Calculate the width delta
-                    width_deltax = step_offset * math.cos(perpendicular) * step_direction                                    
-                    width_deltay = step_offset * math.sin(perpendicular) * step_direction                 
+            #For circles/spheres, by definition, there is no 'origin' or 'target point
+            #To simulate this, take half the 'length' of the circle and subtract that to find your origin
+            #Then, rotate around each step casting a line forward to the opposite step by length
+            #This should ensure every grid is covered
+            elif (shape == area_of_effect_shape.Circle) or (shape == area_of_effect_shape.Sphere):                      
+                # Calculate the width delta
+                width_deltax = step_offset * math.cos(perpendicular) * step_direction                                    
+                width_deltay = step_offset * math.sin(perpendicular) * step_direction    
 
-                    # Manipulate the target using the width delta
-                    step_xtarget = round_to_integer(xtarget + width_deltax,5)                   
-                    step_ytarget = round_to_integer(ytarget + width_deltay,5)  
+                # Manipulate the target using the width delta
+                step_xtarget = round_to_integer(xtarget + width_deltax,5)                   
+                step_ytarget = round_to_integer(ytarget + width_deltay,5)  
 
-                    # Recalculate the angle between the new origin point and target points in radians            
-                    step_radians = math.atan2(step_ytarget-central_yorigin, step_xtarget-central_xorigin)    
+                # Recalculate the angle between the new origin point and target points in radians            
+                step_radians = math.atan2(step_ytarget-central_yorigin, step_xtarget-central_xorigin)    
 
-                    # Use the new angle to calculate length - this reduces each step as we move from the center      
-                    # Each step, reduce the length by 2?          
+                #Calculate the length delta
+                length_deltax = length * math.cos(step_radians)
+                length_deltay = length * math.sin(step_radians)     
                 
-                    length_deltax = step_length * math.cos(step_radians)
-                    length_deltay = step_length * math.sin(step_radians)       
-                    step_length -= 10
-                    step_length -= 10
-                    # If the length delta is smaller than one grid, do not apply an offset and keep the same line on that axes
-                    if abs(length_deltay) >= 5:
-                        width_deltax = step_offset * math.cos(perpendicular) * step_direction
-                    else:
-                        width_deltax = 0
-                    if abs(length_deltax) >= 5:
-                        width_deltay = step_offset * math.sin(perpendicular) * step_direction 
-                    else:
-                        width_deltay = 0
-
-                    # Set the origin point as a function of the initial line
-                    xorigin = round_to_integer(central_xorigin + width_deltax,5)                   
-                    yorigin = round_to_integer(central_yorigin + width_deltay,5)  
+                # Set the origin point as a function of the initial line
+                xorigin = round_to_integer(central_xorigin + width_deltax,5)                   
+                yorigin = round_to_integer(central_yorigin + width_deltay,5)  
+                
+                # Recalculate perpendicular as we're permanently rotating
+                perpendicular = math.atan2(xdestination-xorigin, (ydestination-yorigin) * -1)  
 
             # Determine destination
             xdestination = round_to_integer(xorigin + length_deltax,5)
             ydestination = round_to_integer(yorigin + length_deltay,5)
                         
             # Debug output
-            #print_output('Line origin: (' + repr(xorigin) + ',' + repr(yorigin) + ')' + ' Normalised Target point: (' + repr(xtarget) + ',' + repr(ytarget) + ')' + ' Line destination: (' + repr(xdestination) + ',' + repr(ydestination) + ')')
+            print_output('Line origin: (' + repr(xorigin) + ',' + repr(yorigin) + ')' + ' Normalised Target point: (' + repr(xtarget) + ',' + repr(ytarget) + ')' + ' Line destination: (' + repr(xdestination) + ',' + repr(ydestination) + ')')
         
             # Uses a variation of Brehenams algorithm to return the grids that are supercovered by a line drawn from origin -> destination
             line_grids = evaluate_line(yorigin,xorigin,ydestination,xdestination)                

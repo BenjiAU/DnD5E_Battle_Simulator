@@ -647,7 +647,7 @@ def initialise_spells(combatant):
             spell.instance = 1
             spell.casting_time = spell_casting_time.Action
             spell.range = 150
-            spell.origin = origin_point.Self      
+            spell.origin = origin_point.Target
             spell.shape = area_of_effect_shape.Sphere
             spell.shape_width = 20
             spell.shape_length = 20

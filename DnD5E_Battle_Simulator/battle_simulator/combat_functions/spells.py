@@ -60,7 +60,7 @@ def select_spell(combatant,casttime):
                         if spell.category == spell_category.AoE_Damage:                                        
                             # Check targets, if we can find a target, choose this spell
                             affected_targets = []                                                
-                            affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)   
+                            affected_targets = calculate_spell_area_effect(combatant,spell)   
                             if len(affected_targets) >= 1:
                                 best_spell = spell
 
@@ -78,7 +78,7 @@ def select_spell(combatant,casttime):
                         if spell.category == spell_category.AoE_Debuff:                                        
                             # Check targets, if more than 2 in AoE this is best spell
                             affected_targets = []                                                
-                            affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length)                               
+                            affected_targets = calculate_spell_area_effect(combatant,spell)                               
                             if len(affected_targets) >= 2:
                                 best_spell = spell
                         
@@ -93,6 +93,11 @@ def select_spell(combatant,casttime):
                                 find_ally_target(combatant,spell.range)
                                 if combatant.ally_target != None:                                                      
                                     best_spell = spell
+
+                        #Debug area
+                        if spell.name == "Fireball":
+                            best_spell = spell
+                        #End debug
     return best_spell
 
 #Cast a spell  - if Crit is forced use it
@@ -190,7 +195,7 @@ def cast_spell(combatant,spell,crit = None):
                 xorigin = comabtant.xpos
                 yorigin = combatant.ypos
             
-            affected_targets = calculate_area_effect(combatant,xorigin,yorigin,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length,True)                   
+            affected_targets = calculate_spell_area_effect(combatant,spell)                                                  
             #Pre-roll spell damage
             aoe_spell_damage = roll_spell_damage(combatant,spell,spellslot,False)           
 
@@ -222,7 +227,7 @@ def cast_spell(combatant,spell,crit = None):
                 xorigin = combatant.xpos
                 yorigin = combatant.ypos
 
-            affected_targets = calculate_area_effect(combatant,xorigin,yorigin,combatant.target.xpos,combatant.target.ypos,spell.shape,spell.shape_width,spell.shape_length,True)   
+            affected_targets = calculate_spell_area_effect(combatant,spell)   
             #Pre-roll spell damage
             aoe_spell_damage = roll_spell_damage(combatant,spell,spellslot,False)     
 

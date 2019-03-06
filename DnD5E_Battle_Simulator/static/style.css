@@ -49,7 +49,17 @@ input[type="text"] {
 }
 
 .grid {
-    font-family: 'Courier New';    
+    font-family: 'Courier New';
+    border: 1px solid #ccc;
+    border-width: 1px 0 0 1px;
+}
+
+.grid_div {
+    border: 1px solid #ccc;
+    border-width: 0 1px 1px 0;
+    float: left;
+    width: 5px;
+    height: 5px;
 }
 
 .output:after {

@@ -134,7 +134,8 @@ def unarmed_strike(combatant):
 def breath_attack(combatant):
     print_output(combatant.name + ' rears back and unleashes a devastating breath attack! (10 feet width, 90 feet length)')       
 
-    # Black dragon breath attack is a 10 ft wide 90 ft line (all dragons are different)
+    # Black dragon breath attack is a 10 ft wide 90 ft line (all dragons are different!)
+    #this should be replaced by a spell at some point
     affected_targets = []
         
     affected_targets = calculate_area_effect(combatant,combatant.xpos,combatant.ypos,combatant.target.xpos,combatant.target.ypos,area_of_effect_shape.Line,10,90,True)   
