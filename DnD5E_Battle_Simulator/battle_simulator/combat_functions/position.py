@@ -44,7 +44,7 @@ def use_movement(combatant):
         movement_target = combatant.ally_target
     else:
         movement_target = combatant.target    
-    
+
     # Use the maximum range of the selected spell/weapon to determine where we should go
     if combatant.desired_range == 0:        
         if target_in_range(combatant,movement_target,combatant.desired_range):            
@@ -241,6 +241,7 @@ def calc_grid_step(direction,x,y):
 
 def move_to_target(combatant,target):
     # Goal - decrease the distance between us and target
+    evaluate_action_disengage(combatant)
     print_output(movement_text(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move towards ' + target.name + ' at (' + repr(target.xpos) + ',' + repr(target.ypos) + ')'))    
     print_output(movement_text(combatant.name + ' begins to use their ' + repr(combatant.movement) + ' feet of movement.'))
     initial_distance = calc_distance(combatant,target)
@@ -307,6 +308,7 @@ def move_to_target(combatant,target):
         movement_complete = True
 
 def move_from_target(combatant,target):
+    evaluate_action_disengage(combatant)
     # Goal - extend the distance between us and target
     #Essentially figure out where we are in relation to the target, and keep travelling in that direction
     print_output(movement_text(combatant.name + ' is currently located at position: (' + repr(combatant.xpos) + ',' + repr(combatant.ypos) + '), and wants to move away from ' + target.name + ' at (' + repr(target.xpos) + ',' + repr(target.ypos) + ')'))
@@ -487,6 +489,16 @@ def evaluate_opportunity_attacks(combatant_before_move,new_xpos,new_ypos):
                             
                         # Reset target
                         opportunity_attacker.target = original_target
+
+def evaluate_action_disengage(combatant):
+    #Check if we need to disengage
+    if not combatant.action_used:
+        if enemy_in_melee_range(combatant,None) and combatant.desired_range > 0:                                             
+            #Check not disengaged from another source
+            if not check_condition(combatant,condition.Disengaged):
+                print_output(combatant.name + ' is using their Action to Disengage!')
+                inflict_condition(combatant,combatant,condition.Disengaged)                    
+                combatant.action_used = True
 
 def calculate_speed(combatant):
     combatant.current_speed = combatant.base_speed

@@ -235,6 +235,7 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
         # Calculate the distance 1 step towards the destination from the origin point
         length_origin_deltax = 5 * math.cos(radians) 
         length_origin_deltay = 5 * math.sin(radians)
+
         # Initialise an origin point to this central location - this is where all lines will be drawn from
         central_xorigin = round_to_integer(xorigin + length_origin_deltax,5)
         central_yorigin = round_to_integer(yorigin + length_origin_deltay,5)
@@ -251,32 +252,31 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
         xtarget = round_to_integer(xtarget + length_target_deltax,5)
         ytarget = round_to_integer(ytarget + length_target_deltay,5)    
 
-    elif (shape == area_of_effect_shape.Circle) or (shape == area_of_effect_shape.Sphere):          
+    elif (shape == area_of_effect_shape.Circle) or (shape == area_of_effect_shape.Sphere):         
+        #step_limit = length
         max_grids = round_to_integer(math.pow(math.pi*(grid_length+1),2),5) 
 
         # Calculate the angle between the origin point and initial target point in radians            
         radians = math.atan2(ytarget-yorigin, xtarget-xorigin) 
-
-        # Calculate the distance 1 step towards the destination from the origin point
-        length_origin_deltax = 5 * math.cos(radians) 
-        length_origin_deltay = 5 * math.sin(radians)
-
-        # Initialise an origin point to this central location - this is where all lines will be drawn from
-        central_xorigin = round_to_integer(xorigin + length_origin_deltax,5)
-        central_yorigin = round_to_integer(yorigin + length_origin_deltay,5)
-
-        # Find the perpendicular angle from this central origin point
-        perpendicular = math.atan2(xtarget-xorigin, (ytarget-yorigin) * -1)    
-        
+       
         # Normalise the target to 1/2 the length away    
         # To make sure the lines draw correctly, convert the effective target to a point 1/2 the length along the line from xorigin to xtarget, then calculate angles from there
         # Otherwise we get weird behaviour (i.e. if the target is adjacent on an axis to our current point)        
         length_target_deltax = length/2 * math.cos(radians)
         length_target_deltay = length/2 * math.sin(radians)   
+        
+        # Shift the origin point back 1/2 the length
+        central_xorigin = round_to_integer(xorigin - length_target_deltax,5)
+        central_yorigin = round_to_integer(yorigin - length_target_deltay,5)
 
+        # Find the perpendicular angle from this central origin point
+        perpendicular = math.atan2(xtarget-xorigin, (ytarget-yorigin) * -1)  
+
+        # Shift the target forward 1/2 the length
         xtarget = round_to_integer(xtarget + length_target_deltax,5)
         ytarget = round_to_integer(ytarget + length_target_deltay,5)    
         
+        #The circle will be drawn by rotating the origin and target points
 
     # Force line to shift on the target side of the initial origin point (the aoe effect cannot begin behind - or in line with - the caster)
     # The line must also begin on the same plane as the origin point
@@ -323,6 +323,9 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
             #Then, rotate around each step casting a line forward to the opposite step by length
             #This should ensure every grid is covered
             elif (shape == area_of_effect_shape.Circle) or (shape == area_of_effect_shape.Sphere):                      
+                # Recalculate perpendicular as we're permanently rotating
+                perpendicular = math.atan2(xtarget-xorigin, ytarget-yorigin)
+
                 # Calculate the width delta
                 width_deltax = step_offset * math.cos(perpendicular) * step_direction                                    
                 width_deltay = step_offset * math.sin(perpendicular) * step_direction    
@@ -336,14 +339,11 @@ def calculate_area_effect(combatant,xorigin,yorigin,xtarget,ytarget,shape,width,
 
                 #Calculate the length delta
                 length_deltax = length * math.cos(step_radians)
-                length_deltay = length * math.sin(step_radians)     
+                length_deltay = length * math.sin(step_radians)                                     
                 
                 # Set the origin point as a function of the initial line
                 xorigin = round_to_integer(central_xorigin + width_deltax,5)                   
                 yorigin = round_to_integer(central_yorigin + width_deltay,5)  
-                
-                # Recalculate perpendicular as we're permanently rotating
-                perpendicular = math.atan2(xdestination-xorigin, (ydestination-yorigin) * -1)  
 
             # Determine destination
             xdestination = round_to_integer(xorigin + length_deltax,5)
